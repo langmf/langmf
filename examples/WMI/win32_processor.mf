@@ -1,0 +1,30 @@
+'http://msdn.microsoft.com/en-us/magazine/aa394074(VS.85).aspx
+
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.move 0,0,6000,2000
+  form.add "textbox", 1, ".Parent.Move2 $0, ,,,,1,1", ".Text = CpuID", ".fontname = ""Lucida Console"" : .fontsize = 14"
+  form.center
+  form.show
+End Sub
+
+Private Function CpuID()
+    Dim cpu, id
+
+    For Each cpu In GetObject("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2").ExecQuery("Select * from Win32_Processor")
+        id = id & ", " & cpu.ProcessorId
+    Next
+    
+    If Len(id) > 0 Then id = Mid(id, 3)
+
+    CpuID = id
+End Function
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

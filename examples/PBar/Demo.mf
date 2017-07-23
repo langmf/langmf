@@ -1,0 +1,46 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  With Form
+	.Width = 5040
+	.Height = 2400
+	.Center
+
+	.Add "PBar", 1, ".move 360,720,4200,360"
+	.Add "timer", 1, ".Interval = 100", ".Enabled = True"
+	
+	.Show
+
+	'.Style.TB_Icon sys.gdi.LoadPicture("app.ico")
+	'.Style.TB_Clip 150, 50, 300, 100
+	'.Style.TB_Tooltip "Demo tooltip text!"
+	'.Style.TB_State 0   'Noprogress
+	'.Style.TB_State 1   'Indetermediate
+	'.Style.TB_State 2   'Normal
+	'.Style.TB_State 4   'Error
+	'.Style.TB_State 8   'Paused
+
+	.Style.TB_Buttons Array(array(.icon,0,"my1"), array(.icoinet.picture,0,"my2"))  
+  End With
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Timer1_Timer
+  With This.PBar(1)
+    If .Pos = 100 Then .Pos = 0 else .Pos = .Pos + 1 
+  	This.Style.TB_Value .Pos, 100 
+  End With 
+End Sub
+
+'-----------------------------------------
+Sub TB_Click(id)
+  MsgBox id
+End Sub
+
+'---------------------------------
+Sub Form_Unload()
+  EndMF
+End Sub
+<#Form>

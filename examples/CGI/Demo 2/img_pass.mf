@@ -1,0 +1,56 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+dim count, img, txt, typeImg
+
+    randomize timer
+
+    count = clng(rnd*1000000)
+
+    sys.file.open2 sys.path + "host_" + replace(sys.env("Remote_Addr"),":","") + ".irp", 1, "binary"
+     if sys.file.lof(1) = 0 then sys.file.put2 1, 1, clng(0)
+     sys.file.put2 1, 1, count
+    sys.file.close2 1
+
+    set img = sys.ext.createimage
+    
+    img.width = img.textwidth(cstr(count)) / (vbPX/2) + 6
+    img.height = img.textheight(cstr(count)) / (vbPY/2) + 1
+    img.autoredraw = true
+    img.borderstyle = 0
+    img.backcolor = qbcolor(15)
+    img.fontname = "arial"
+    img.fontsize = 16
+
+    txt = cstr(count)
+
+	for a = 1 to len(txt)
+	  img.fontsize = int(rnd*3)+15
+	  img.forecolor = RGB(int(rnd*200),int(rnd*200),int(rnd*200))
+	  GPrint img, mid(txt,a,1),(a-1)*180,int(rnd*90)
+	next
+	   
+	for a = 1 to 400
+	   x = int(rnd*img.width)
+	   y = int(rnd*img.height)
+	   sys.api.setpixel img.hdc, x, y, qbcolor(15)
+	next       
+	
+	for a = 1 to 600
+	  x = int(rnd*img.width)
+	  y = int(rnd*img.height)
+	  sys.api.setpixel img.hdc, x, y, qbcolor(int(rnd*14))
+	next
+    
+    'Set f = sys.NewFAP(img)
+	'f.GetDI
+    'f.Gray
+    'f.Curves 0, array(0,255,255,1)
+    'f.SetDI
+    
+    sys.cgi.stdout "Content-Type: image/bmp"+vbcrlf+vbcrlf
+    sys.cgi.stdout sys.conv.image2str(img.image)
+
+endmf
+End Sub
+<#Module>

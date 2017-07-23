@@ -1,0 +1,49 @@
+<#Module=mdlDemo>
+Dim Pic
+
+'---------------------------------------
+Sub Load(cmdLine)
+  form.caption = "Работа с системным треем!"
+
+  Set Pic = sys.ext.createimage
+
+  NewValue
+
+  form.tray.intray = true
+
+  form.center
+  form.show
+
+  sys.ontimer 1000, "NewValue"
+End Sub
+
+'---------------------------------------
+Sub NewValue
+  Pic.Cls
+  Pic.Forecolor = vbWhite
+
+  randomize timer
+
+  GPrint Pic, int(rnd*90)+10
+
+  set form.tray.trayicon = sys.gdi.icotopic(sys.gdi.pictoico(Pic.hdc, Pic.width, Pic.height))
+End Sub
+
+<#Module>
+
+<#Form=form>
+'---------------------------------------
+Sub Tray_BalloonClick
+  msgbox "Your Click Balloon"
+End Sub
+
+'---------------------------------------
+Sub Tray_MouseMove
+  form.tray.balloon "test","good",1
+End Sub
+
+'---------------------------------------
+Sub Form_Unload
+  endmf
+End Sub
+<#Form>

@@ -1,0 +1,43 @@
+<#Module=mdlDemo>
+Sub Load(cmdLine) 
+	Dim FH, FW, c1, c2, pr
+
+	Form.Caption = "Alpha Blend Example"
+	Form.Width = 4800
+	Form.height = 4800
+	Form.AutoRedraw = True
+    Form.NoMoveMouse = False
+	Form.Center
+    
+	Form.add "hScroll",1, ".move 600,2160,3600,204", ".max=255", ".min=0", ".value=200"
+	
+	FH = Form.ScaleHeight
+	FW = Form.ScaleWidth
+	
+	c1 = RGB(0,200,0)
+	c2 = RGB(0,0,220)
+	
+	For a = 0 To FH
+	  pr = int((a / FH) * 255)
+	  GLine Form, 0, a, FW, a, sys.gdi.getgrad(pr, c1, c2)
+	Next
+	
+	doevents
+	
+	Form.show
+End Sub
+<#Module>
+
+<#form=form>
+Sub HScroll1_Scroll()
+  call HScroll1_Change
+End Sub
+
+Sub HScroll1_Change()
+  sys.gdi.setalpha form.hwnd, form.hscroll(1).value
+End Sub
+
+Sub Form_Unload()
+  endmf
+End Sub
+<#form>

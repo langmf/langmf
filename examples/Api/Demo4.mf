@@ -1,0 +1,57 @@
+Declare Function GetUserName Lib "@advapi32" Alias "GetUserNameW" (ByVal lpBuffer As String, nSize As Long) As Long
+
+
+<#Module=mdlDemo>
+'-------------------------------
+Sub Load(cmdLine)
+	w = clng(256)
+	p = varptr(w) + 8
+
+
+	txt = string(256,0)
+	t1 = timegettime
+	For a = 1 to 10000
+		rc = GetUserName(txt, w)
+	next
+	t1 = timegettime - t1
+	out = out & "API_Declare - " & t1 & " ms" & vbTab & " Value=" & sys.str.trimnull(txt) & vbcrlf
+	
+	
+	txt = string(256,0)	
+	t1 = timegettime
+	For a = 1 to 10000
+		rc = DllCall("@advapi32", "GetUserNameW", txt, p)
+	next
+	t1 = timegettime - t1
+	out = out & "API_Normal - " & t1 & " ms" & vbTab & " Value=" & sys.str.trimnull(txt) & vbcrlf
+
+	
+	txt = string(256,0)
+	t1 = timegettime
+	hlib = sys.api.loadlibrary("advapi32")
+	fn = sys.api.getprocaddress(hlib, "GetUserNameW")
+	For a = 1 to 10000
+		rc = DllCall("@", fn, txt, p)
+	next
+	sys.api.freelibrary hlib
+	t1 = timegettime - t1
+	out = out & "API_Pointer - " & t1 & " ms" & vbTab & " Value=" & sys.str.trimnull(txt) & vbcrlf
+
+	
+	txt = string(256,0)
+	t1 = timegettime
+	set func = sys.newfcp(, ".config ""@advapi32"", ""GetUserNameW""")
+	For a = 1 to 10000
+		rc = func(txt, p)
+	next
+	set func = nothing
+	t1 = timegettime - t1
+	out = out & "API_Direct - " & t1 & " ms" & vbTab & " Value=" & sys.str.trimnull(txt) & vbcrlf	
+
+	
+	msgbox out
+	
+	endmf
+End Sub
+<#Module>
+

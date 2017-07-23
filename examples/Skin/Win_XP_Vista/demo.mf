@@ -1,0 +1,23 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.nomovemouse = false
+  form.scalemode = 3
+  form.scalewidth = 150
+  form.scaleheight = 150 
+  
+  sys.gdi.plus.LoadPngSkin form, "..\..\src\lens.png"
+
+  form.style.titlebar = false
+  
+  form.center
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+Sub Form_Unload()
+  sys.gdi.plus.UnloadPngSkin form
+  endmf
+End Sub
+<#Form>

@@ -1,0 +1,41 @@
+<#Module=mdlFile>
+'---------------------------------------
+Sub Load(cmdLine)
+   sys.file.Open2 "test.txt", 1, "output"
+   sys.file.Print2 1, "Is Demo file print!"
+   sys.file.Print2 1, "Is 2 line!"
+   sys.file.Close2 1
+
+   sys.file.Open2 "test.txt", 1, "binary"
+   fs = sys.file.LOF(1) + 1
+   sys.file.Put2 1, fs, cbyte(32)
+
+   for a=0 to 255
+      sys.file.Put2 1, , cbyte(a)
+   next
+
+   sys.file.Close2 1
+
+   sys.file.Open2 "test.txt", 1, "append"
+   sys.file.Print2 1, ""
+   sys.file.Print2 1, "Complete"
+   sys.file.Close2 1
+
+   sys.file.Open2 "test.txt", 1, "binary"
+   sys.file.Open2 "test_out.txt", 2, "binary"
+
+   b=cbyte(0)
+
+   Do
+      sys.file.Get2 1, , b
+      if Not sys.file.EOF(1) then sys.file.Put2 2, ,b
+   Loop Until sys.file.EOF(1)   
+
+   sys.file.Close2 2
+   sys.file.Close2 1
+
+   msgbox "File create finish!",vbInformation, "Message"
+   
+   endmf
+End Sub
+<#Module>

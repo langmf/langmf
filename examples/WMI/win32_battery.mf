@@ -1,0 +1,46 @@
+' See Details:
+'http://msdn.microsoft.com/en-us/magazine/aa394074(VS.85).aspx
+
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.width=6000
+  form.height=4800
+
+  form.caption="Battery - WMI"
+
+  form.add "textbox",1, ".Parent.Move2 $0, ,,,,1,1"
+  
+  form.center
+  form.show
+
+  sys.ontimer 1000, "List"
+End Sub
+
+'---------------------------------------
+Sub List()
+    Dim objWMI, colItems
+
+	For Each objWMI In GetObject("winmgmts://").InstancesOf("win32_battery")
+		txt = txt & "Caption: " & objWMI.caption & vbCrLf
+		txt = txt & "Name: " & objWMI.name & vbCrLf
+		txt = txt & "BatteryStatus: " & objWMI.BatteryStatus & vbCrLf
+		txt = txt & "Status: " & objWMI.Status & vbCrLf
+		txt = txt & "EstimatedRunTime: " & objWMI.EstimatedRunTime & " Min." & vbCrLf
+		txt = txt & "Availability: " & objWMI.Availability & vbCrLf
+		txt = txt & "Chemistry: " & objWMI.Chemistry & vbCrLf
+    txt = txt & "DesignVoltage: " & objWMI.DesignVoltage / 1000 & " Volts" & vbCrLf
+	Next
+	
+	Set objWMI = Nothing
+
+    form.textbox(1).Text = txt
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

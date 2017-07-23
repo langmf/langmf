@@ -1,0 +1,45 @@
+Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+Declare Function CallWindowProc Lib "user32" Alias "CallWindowProcA" (ByVal lpPrevWndFunc As Long, ByVal hWnd As Long, ByVal Msg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+
+<#Module=mod>
+Const GWL_WNDPROC = (-4)
+Const WM_LBUTTONDBLCLK = &H203
+Const WM_MOUSEMOVE = &H200
+
+Dim lPrewProc, cbk
+
+Sub Load(cmdLine)
+  form1.width = 9600 
+  form1.height = 7200
+  form1.NoMoveMouse = true
+  form1.Style.SizeBorder = true 
+  form1.Style.MaxButton = true
+  form1.center
+  form1.Show
+End Sub
+
+Public Function WndProc(hWnd, wMsg, wParam, lparam)
+Select Case wMsg
+  Case WM_LBUTTONDBLCLK
+	    Sys.ext.MsgBox "OK"
+
+  Case WM_MOUSEMOVE
+	    form1.caption = (lparam  mod 65536) & " - " & (lparam \ 65536)
+	    
+	Case Else
+	    WndProc = CallWindowProc(lPrewProc, hWnd, wMsg, wParam, lparam)
+End Select
+End Function
+<#Module>
+
+<#Form=form1>
+Sub Form_load()
+  Set cbk = Sys.CallBack(, GetRef("WndProc"), 4)
+  lPrewProc = SetWindowLong(form1.hWnd, GWL_WNDPROC, cbk)
+End Sub
+
+Sub Form_Unload()
+  SetWindowLong form1.hWnd, GWL_WNDPROC, lPrewProc
+  endmf
+End Sub
+<#Form>

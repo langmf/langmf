@@ -1,0 +1,16 @@
+<#Module>
+Sub Load(d)
+
+    sys.cgi.stdout "Content-Type: text/html"+vbcrlf+vbcrlf
+    sys.cgi.stdout "<HTML><BODY><PRE>"
+
+    for each m in sys.env.items(2)
+        sys.cgi.stdout m(1) + "=" + m(0) + vbcrlf
+    next
+
+    sys.cgi.stdout "</PRE></BODY></HTML>"
+
+    endmf
+
+End Sub
+<#Module>

@@ -1,0 +1,32 @@
+<#Module=mdlDemo>
+Dim IE, h
+
+'---------------------------------------
+Sub Load(cmdLine)
+  test.move 0,0, 10000, 10000
+  test.center
+  test.show
+
+  Set IE = Sys.Ext.CreateIE("", test.hwnd, ".left = 0 : .top = 0 : .width = 825 : .height = 820 : .Visible = True")
+  
+  set h = sys.com.addhandler(IE, "ie_")
+  
+  IE.Navigate "http://madebyevan.com/webgl-water/"
+  
+  'with IE.getproperty("Style") : .child = false : .child(0) = test.hwnd : end with
+End Sub
+
+Sub IE_DocumentComplete(pDisp, URL)
+  with IE.Document.getElementById("help").style : .width = "0px" : .padding = "0px" : end with
+End Sub
+<#Module>
+
+<#Form=test>
+'---------------------------------
+Sub Form_Unload()
+  IE.PutProperty "Style", Nothing
+  Sys.Ext.WaitIE IE, 2
+  Set IE = Nothing
+  endmf
+End Sub
+<#Form>

@@ -1,0 +1,39 @@
+#Include "sqlite.inc"
+
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+    sys.file.filekill "test.db"
+
+    Set DB = New SQLite
+
+    DB.Open "test.db"
+
+    DB.Exec "BEGIN"
+    DB.Exec "CREATE TABLE my (id INTEGER PRIMARY KEY ASC, name TEXT, time DATE)"
+    For a = 0 To 20
+        DB.Exec "INSERT INTO my (name, time) VALUES (""demo" & a & """, datetime('now', 'localtime'))"
+    Next
+    DB.Exec "COMMIT"
+
+    Set q = DB.Query("SELECT * FROM my WHERE name REGEXP 'demo\d$' OR id > 19")
+
+    If DB.ErrCode Then msgbox DB.ErrMsg
+    DB.Close
+
+    txt = Join(DB.Fields, vbTab + vbTab) + vbCrLf  + sys.str.rpt("-", 80) + vbCrLf
+
+    For Each row In q
+        For Each dat In row
+            txt = txt + dat + vbTab + vbTab
+        Next
+        txt = sys.str.left(txt, -2) + vbCrLf
+    Next
+
+    msgbox txt,,"Version - " & sqlite3_libversion
+
+    'msgbox q(1)("name")
+
+    endmf
+End Sub
+<#Module>

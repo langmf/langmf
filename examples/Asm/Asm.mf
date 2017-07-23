@@ -1,0 +1,101 @@
+'------------------------------------------------
+'|                                              |
+'|      ! Frequency CPU not big 2100 MHz !      |
+'|                                              |
+'------------------------------------------------
+
+<#Module=mdlDemo>
+'-------------------------------
+Sub Load(cmdLine)
+ form.caption="Asm Example"
+ form.add "label",1
+ form.label(1).move 840,600
+ form.label(1).fontsize = 18
+ form.label(1).forecolor = rgb(0,0,190)
+ form.label(1).caption = "Please wait..."
+
+ form.Center
+ form.show
+ doevents
+
+ 'sys.ext.setpriority &H80
+
+ RunAsm
+End Sub
+
+'-------------------------------
+Sub RunAsm
+  Dim Buf(24)
+  Dim t1, t2, b
+
+  ' This is Asm Code
+  '
+  ' 55                     push    ebp
+  ' 8BEC                   mov     ebp,esp
+  ' 8B4D08                 mov     ecx,[ebp+8]
+  ' E30D                   jecxz   @getout
+  ' 33C0                   xor     eax,eax
+  ' @start:
+  ' 49                     dec     ecx
+  ' 83F900                 cmp     ecx,0
+  ' 75FA                   jnz     @start
+  ' B801000000             mov     eax,1
+  ' @getout:
+
+  Buf(0) = &H55
+  Buf(1) = &H8B
+  Buf(2) = &HEC
+  Buf(3) = &H8B
+  Buf(4) = &H4D
+  Buf(5) = &H8
+  Buf(6) = &HE3
+  Buf(7) = &HD
+  Buf(8) = &H33
+  Buf(9) = &HC0
+  Buf(10) = &H49
+  Buf(11) = &H83
+  Buf(12) = &HF9
+  Buf(13) = &H0
+  Buf(14) = &H75
+  Buf(15) = &HFA
+  Buf(16) = &HB8
+  Buf(17) = &H1
+  Buf(18) = &H0
+  Buf(19) = &H0
+  Buf(20) = &H0
+  Buf(21) = &H5D
+  Buf(22) = &HC2
+  Buf(23) = &H4
+  Buf(24) = &H0
+  
+  Set func = sys.newfcp(Buf)
+
+  b=100000000
+
+  t1 = TimeGetTime
+  rc = func(b)
+  t2 = TimeGetTime
+
+  b = (2/(t2 - t1)) * 100000000000
+
+  if b>2147483647 then b = 2147483647         'предел для чисел в формате Long, дальше попробуйте сами
+
+  doevents
+  sleep 200
+  doevents
+
+  t1 = TimeGetTime
+  rc = func(b)
+  t2 = TimeGetTime
+
+  b = CLng((b / (t2 - t1)) / 500)
+
+  form.label(1).caption = "CPU - " & b & " MHz"       'может немного отличаться
+End Sub
+<#Module>
+
+<#form=form>
+Sub Form_Unload()
+  endmf
+End Sub
+<#form>

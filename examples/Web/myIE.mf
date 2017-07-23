@@ -1,0 +1,33 @@
+Declare Function SetForegroundWindow Lib "user32" (ByVal hWnd As Long) As Long
+
+<#Module=mdlDemo>
+DIM MyIE
+
+'---------------------------------------
+Sub Load(cmdLine)
+  Set MyIE = GetObject("", "InternetExplorer.Application")
+  
+  MyIE.Navigate "about:blank"
+  MyIE.ToolBar=FALSE
+  MyIE.StatusBar=TRUE
+  MyIE.Resizable=FALSE
+  
+  While MyIE.Busy <> 0
+    Sleep 10
+  Wend
+  
+  MyIE.Width = 600
+  MyIE.Height = 600
+  MyIE.Left = 500
+  MyIE.Top = 250
+
+  MyIE.Visible=TRUE
+  MyIE.Document.Body.insertAdjacentHTML "beforeEnd","Your HTML/Text Here"
+  
+  SetForegroundWindow MyIE.hwnd
+  
+  set MyIE = Nothing
+  
+  endmf
+End Sub
+<#Module>

@@ -1,0 +1,33 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+dim count, img
+
+    count = clng(0)
+
+    sys.file.open2 sys.path + "count.cnt", 1, "binary"
+     if sys.file.lof(1) = 0 then sys.file.put2 1, 1, 0
+     sys.file.get2 1, 1, count
+     count = count + 1
+     sys.file.put2 1, 1, count
+    sys.file.close2 1
+
+    set img = sys.ext.createimage
+
+    img.fontname = "arial"
+    img.fontsize = 36    
+    img.width = img.textwidth(cstr(count)) / (vbPX/2) + 2
+    img.height = img.textheight(cstr(count)) / (vbPY/2) + 1
+    img.autoredraw = true
+    img.borderstyle = 0
+    img.forecolor = QBColor(9)
+    img.backcolor = QBColor(15)
+    
+    GPrint img, cstr(count)
+    
+    sys.cgi.stdout "Content-Type: image/bmp"+vbcrlf+vbcrlf
+    sys.cgi.stdout sys.conv.image2str(img.image)
+
+endmf
+End Sub
+<#Module>

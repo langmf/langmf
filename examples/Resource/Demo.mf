@@ -1,0 +1,47 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  for each v in sys.resource.items
+	txt = txt & "id=""" & v.ID & """   mode=""" & v.Mode & """   size=" & IIF(VarType(v.Data) = vbString, Len(v.Data), ArraySize(v.Data)) & "   extra=" & (ArraySize(v.Extra)) & vbcrlf & vbcrlf
+  next
+  
+  msgbox txt
+
+  msgbox sys.resource.exists("my")
+
+  msgbox ResToStr("1")
+  
+  sys.conv.buf2file sys.resource("user").Data, "test.txt"
+  
+  msgbox sys.conv.buf(sys.resource("user").Data, -vbstring)
+  msgbox sys.conv.buf(sys.resource("user").Extra, -vbstring)
+    
+  'msgbox ResToStr("pack")
+  'msgbox sys.conv.buf(sys.resource("pack").Data, vbstring) 
+  sys.conv.buf2file sys.resource("pack").Data, "test2.txt"
+
+  endmf  
+End Sub
+<#Module>
+
+<#res id="my" #>
+<#res#>
+
+<#res id="1" #>
+Data 1,2,3,4,5...
+<#res#>
+
+<#res id="101" #>
+<#res#>
+
+<#res id="user" mode=base64 #>
+~extra data 1
+~
+//4hBDsEQwQ2BDEEMAQgAD8EOwQwBD0E		~extra data 2~		OARABD4EMgRJBDgEOgQwBCAANwQwBDQEMAQ9BDgEOQQ=
+~
+extra data 3~ è ò.ä.
+<#res#>
+
+<#res id="pack" mode=base64_zlib #>
+eJwzMDQyNjE1M7ewNCCZxctFup5R3aO6R3WP6h7VPap7VPdQ1g0ABVilYzoIAAA=
+<#res#>

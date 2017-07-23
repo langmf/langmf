@@ -1,0 +1,99 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+form.height=4000
+form.width=3000
+form.Center
+
+form.add "check",1
+form.check(1).move 600, 120, 1440
+form.check(1).caption="Title Bar"
+form.check(1).value=abs(form.style.titlebar)
+
+form.add "check",2
+form.check(2).move 600,480,1440
+form.check(2).caption="Tool Window"
+form.check(2).value=abs(form.style.toolwindow)
+
+form.add "check",3
+form.check(3).move 600,840,1440
+form.check(3).caption="Size Border"
+form.check(3).value=abs(form.style.sizeborder)
+
+form.add "check",4
+form.check(4).move 600,1200,1440
+form.check(4).caption="Close Button"
+form.check(4).value=abs(form.style.closebutton)
+
+form.add "check",5
+form.check(5).move 600,1560,1440
+form.check(5).caption="Task Bar"
+form.check(5).value=abs(form.style.taskbar)
+
+form.add "check",6
+form.check(6).move 600,1920,1440
+form.check(6).caption="Control Box"
+form.check(6).value=abs(form.style.controlbox)
+
+form.add "check",7
+form.check(7).move 600,2280,1440
+form.check(7).caption="Min Button"
+form.check(7).value=abs(form.style.minbutton)
+
+form.add "check",8
+form.check(8).move 600,2640,1440
+form.check(8).caption="Max Button"
+form.check(8).value=abs(form.style.maxbutton)
+
+form.show
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Check1_Click()
+form.style.titlebar=form.check(1).value
+End Sub
+
+'-----------------------------------------
+Sub Check2_Click()
+ form.style.toolwindow=form.check(2).value
+End Sub
+
+'-----------------------------------------
+Sub Check3_Click()
+ form.style.sizeborder=form.check(3).value
+End Sub
+
+'-----------------------------------------
+Sub Check4_Click()
+ if form.visible then form.style.closebutton=form.check(4).value
+End Sub
+
+'-----------------------------------------
+Sub Check5_Click()
+ form.hide
+ form.style.taskbar=form.check(5).value
+ form.show
+End Sub
+
+'-----------------------------------------
+Sub Check6_Click()
+ form.style.controlbox=form.check(6).value
+End Sub
+
+'-----------------------------------------
+Sub Check7_Click()
+ form.style.minbutton=form.check(7).value
+End Sub
+
+'-----------------------------------------
+Sub Check8_Click()
+ form.style.maxbutton=form.check(8).value
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+ endmf
+End Sub
+<#Form>

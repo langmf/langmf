@@ -1,0 +1,21 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+
+	sys.bytes.arrayredim a, Array(127),,65
+	l = clng(67305985)
+	i = cint(1541)
+	b = cbyte(7)
+	d = cdbl(1.0)
+	s = csng(1.0)
+	t = "hello"
+	
+	with sys.file.api : .fopen "test1.txt" : .fput a : .fput d : .fput s : .fput l : .fput i : .fput b : .fput t : .fclose : end with
+
+	sys.file.api(Array(".fopen ""test2.txt""", ".fput """ & sys.conv.buf(a,8) & """"))
+		
+	sys.file.api(Array(".fopen ""test3.txt""")).fput a
+	
+    endmf
+End Sub
+<#Module>

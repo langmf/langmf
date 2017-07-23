@@ -1,0 +1,91 @@
+Declare Function CoCreateInstance Lib "ole32" (rclsid As Guid, ByVal pUnkOuter As Long, ByVal dwClsContext As Long, riid As Guid, ppv As Long) As Long
+Declare Function CLSIDFromString Lib "ole32" (ByVal lpsz As Long, pclsid As Guid) As Long
+
+<#Module=mdlMain>
+Type Guid
+    Data1 As Long
+    Data2 As Integer
+    Data3 As Integer
+    Data4(7) As Byte
+End Type
+
+Const CLSCTX_INPROC_SERVER = 1
+Const CLSCTX_LOCAL_SERVER = 4
+
+'------------- IActiveDesktop Interface ----------------
+' IUnknown
+Const QueryInterface			= 0
+Const AddRef				= 1
+Const Release				= 2
+' IActiveDesktop
+Const ApplyChanges			= 3
+Const GetWallpaper			= 4
+Const SetWallpaper			= 5
+Const GetWallpaperOptions		= 6     
+Const SetWallpaperOptions		= 7    
+Const GetPattern			= 8          
+Const SetPattern			= 9             
+Const GetDesktopItemOptions		= 10 
+Const SetDesktopItemOptions		= 11  
+Const AddDesktopItem			= 12         
+Const AddDesktopItemWithUI		= 13   
+Const ModifyDesktopItem			= 14      
+Const RemoveDesktopItem			= 15   
+Const GetDesktopItemCount		= 16    
+Const GetDesktopItem			= 17       
+Const GetDesktopItemByID		= 18    
+Const GenerateDesktopItemHtml		= 19
+Const AddUrl				= 20               
+Const GetDesktopItemBySource		= 21
+'-------------------------------------------------------
+
+Dim obj
+
+'---------------------------------------
+Function Create(paramCLSID, paramIID)
+    Dim ppv, hr, txtIID, txtCLSID
+    Dim CLSID As Guid
+    Dim IID As Guid
+   
+    txtCLSID = paramCLSID
+	  txtIID = paramIID		
+    
+    Call CLSIDFromString(StrPtr(txtCLSID), CLSID)
+    Call CLSIDFromString(StrPtr(txtIID), IID)
+    
+    hr = CoCreateInstance(CLSID, 0, CLSCTX_INPROC_SERVER, IID, ppv)
+    if hr <> 0 then msgbox "Error  (" & hr & ")"
+
+    Create = ppv
+End Function
+
+'---------------------------------------
+Sub Load(cmdLine)
+  strWallpaper = sys.file.LPath(sys.Path, -1) + "src\test.jpg"
+  
+  obj = Create("{75048700-EF1F-11D0-9888-006097DEACF9}", "{F490EB00-1240-11D1-9888-006097DEACF9}")
+
+
+  '---------- Вариант № 1 ------------
+  rc = sys.com.CallInterface(obj, SetWallpaper, 2, StrPtr(strWallpaper), 0)
+  rc = sys.com.CallInterface(obj, ApplyChanges, 1, 7)
+  rc = sys.com.CallInterface(obj, Release)
+  
+  '---------- Вариант № 2 ------------  
+  'Set f = sys.NewFCP
+  'rc = f(f.VTable(SetWallpaper, obj), obj, strWallpaper, 0)
+  'rc = f(f.VTable(ApplyChanges, obj), obj, 7)
+  'rc = f(f.VTable(Release, obj), obj)
+    
+  '---------- Вариант № 3 ------------  
+  'Set f = sys.NewFCP(obj)
+  'rc = f(SetWallpaper, strWallpaper, 0)
+  'rc = f(ApplyChanges, 7)
+  'rc = f(Release)
+  
+      
+  msgbox "Change WallPaper"
+
+  endmf
+End Sub
+<#Module>

@@ -1,0 +1,90 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+
+	with sys.file.api
+
+		set e = sys.com.enums(sys.host)
+		'set e = sys.com.enums(sys.host.script.codeobject)
+		
+		if e.count > 0 then
+			.fopen "info.log", 2
+			
+			.fprint "Interface"
+			.fprint sys.str.rpt("=", 60)
+			
+			for each v in e("Interface").items(2)
+				.fprint v(1) & " = " & v(0)
+			next
+			
+			.fprint sys.str.rpt("=", 60)		
+			.fprint
+			
+			.fprint "Vars"
+			.fprint sys.str.rpt("=", 60)
+				
+			if e.Exists("Vars") then
+                for each f in e("Vars").items(2)	
+        
+                    .fprint sys.str.rpt("-", 40)
+                                            
+                    for each v in f(0).items(2)
+                        .fprint v(1) & " = " & v(0)
+                    next
+        
+                    .fprint sys.str.rpt("-", 40)		
+                    .fprint
+                next
+            end if
+
+			.fprint sys.str.rpt("=", 60)		
+			.fprint
+									
+			.fprint "Functions"
+			.fprint sys.str.rpt("=", 60)
+			
+            if e.Exists("Funcs") then            
+                for each f in e("Funcs").items(2)	
+
+                    .fprint sys.str.rpt("-", 40)
+                                            
+                    for each v in f(0).items(2)
+                        if mid(v(0), 1, 1) = "" then
+                            .fprint sys.str.rpt("-", 40)
+                            .fprint v(1) & " =>"										
+                            
+                            for each p in v(0).Items(2)
+                                .fprint vbtab & p(1) & " =>"
+
+                                for each i in p(0).Items(2)
+                                    if VType(i(0)) = 13 or VType(i(0)) = 9 then
+                                        .fprint vbtab & vbtab & i(1) & " = <OBJECT>"
+                                    else
+                                        .fprint vbtab & vbtab & i(1) & " = " & i(0)
+                                    end if
+                                next
+                            next
+                        else
+                            .fprint v(1) & " = " & v(0)
+                        end if
+                    next
+        
+                    .fprint sys.str.rpt("-", 40)		
+                    .fprint
+                next
+            end if
+	
+			.fprint sys.str.rpt("=", 60)		
+			.fprint
+				
+			.fclose
+			
+			msgbox "Object enums complete!"
+		else
+			msgbox "Object does not support - ITYPEINFO"
+		end if
+	end with
+	
+	endmf
+End Sub
+<#Module>

@@ -1,0 +1,20 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+	f = sys.conv.file2buf(sys.path(true))
+
+	var = CLng(ArrayPtr(f))		'set ptr (Array Byte) to var
+	VType(var, True) = 17		'set ByRef and type vbByte to var
+
+	p = CLng(VarPtr(var) + 8)	'set ptr (var value) to p
+	VType(p, True) = 3			'set ByRef and type vbLong to p
+	
+	msgbox "60 = " & cstr(var)
+
+	ByRefVar(p) = ByRefVar(p) + 1
+
+	msgbox "35 = " & cstr(var)
+
+	endmf
+End Sub
+<#Module>

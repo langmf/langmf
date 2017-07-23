@@ -1,0 +1,57 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.height = 3600
+  form.width = 4800
+  form.nooveroutpic = true
+
+  form.add "pic",1
+  form.pic(1).align=1
+  form.pic(1).appearance=0
+  form.pic(1).height=420
+
+  form.add "command",1
+  form.command(1).move 1200, 1200, 840, 360
+  form.command(1).caption="Move ME"
+  form.command(1).dragmode=1
+
+  form.Center
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+Dim cx,cy,acc
+
+'-----------------------------------------
+Sub Form_DragDrop(source, x, y)
+  form.command(1).Move X - cx, Y - cy
+  acc = False
+End Sub
+
+'-----------------------------------------
+Sub Command1_DragOver(source, x, y, state)
+  If Not acc Then
+     cx = X
+     cy = Y
+  End If
+  acc = True
+End Sub
+
+'-----------------------------------------
+Sub Pic1_DragDrop(source, x, y)
+ Set form.command(1).container = form.pic(1)
+ form.command(1).move 0,0
+ form.command(1).dragmode=0
+End Sub
+
+'-----------------------------------------
+Sub Command1_Click()
+  Msgbox "This is your code!"
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

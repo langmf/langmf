@@ -1,0 +1,24 @@
+<#Module=mdlDemo>
+Dim LMF1, LMF2
+
+Sub Load(cmdLine) 
+	Form.Center
+    Form.show
+
+    Set LMF1 = CreateObject("Atomix.LangMF").Instance
+    LMF1.Command "demo.mf"
+    
+    Set LMF2 = CreateObject("Atomix.LangMF").Instance
+    LMF2.Command "demo.mf"
+End Sub
+<#Module>
+
+<#form=form>
+Sub Form_Unload()
+  LMF1.Reset
+  LMF2.Reset
+  set LMF1 = Nothing
+  set LMF2 = Nothing
+  endmf
+End Sub
+<#form>

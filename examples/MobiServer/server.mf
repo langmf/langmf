@@ -1,0 +1,118 @@
+<#Module=Main>
+Dim reg
+
+'---------------------------------------
+Sub Load(cmdLine)
+form.caption = "MobiServer v1.0"
+form.width = 5400
+form.height = 3600
+
+Set reg = new regexp
+reg.global = true
+reg.ignorecase = true
+
+form.add "mtext",1
+form.mtext(1).move 0, 0, form.scalewidth, form.scaleheight
+form.mtext(1).backcolor = 0
+form.mtext(1).forecolor = QBColor(10)
+form.mtext(1).fontsize = 10
+
+form.add "wsk",1
+form.wsk(1).localport = 81
+form.wsk(1).listen
+
+form.add "wsk",2
+form.wsk(2).protocol = 0
+form.wsk(2).localport = 81
+
+form.Center
+form.show
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+sub wsk1_ConnectionRequest(requestID)
+Dim txt
+
+If form.Wsk(2).State = 0 Then
+   form.Wsk(2).Accept requestID
+   txt = "Connected... OK!" + vbcrlf + "IP - " + form.wsk(2).remotehostip
+else
+   txt = "Connected... Failed!"
+End If
+
+form.mtext(1).text = form.mtext(1).text + txt + vbcrlf
+form.mtext(1).selstart = len(form.mtext(1).text)
+end sub
+
+'-----------------------------------------
+sub wsk2_dataarrival(total)
+dim txt, oTxt, w, mts
+
+txt = cstr(txt)
+
+form.wsk(2).getdata txt
+
+txt = left(txt,len(txt)-2)
+txt = replace(txt,"%20"," ")
+
+reg.pattern = "GET\ +\/(.*)\ HTTP"
+Set mts = reg.execute(txt)
+
+w = mts(0).submatches(0)
+
+form.mtext(1).text = form.mtext(1).text + _
+                    "----------------------------------------------------" + vbcrlf + _
+                    txt + _
+                    "----------------------------------------------------" + vbcrlf + _
+                    "Command: " + w + vbcrlf + vbcrlf
+
+form.mtext(1).selstart = len(form.mtext(1).text)
+
+sys.file.open2 "mobiserver.log",1,"append"
+sys.file.print2 1, form.wsk(2).remotehostip & " - " & format(date, "dd.mm.yy") & " - " & format(time, "hh:mm:ss") & " - cmd: " & w
+sys.file.close2 1
+
+Hdr = ""
+Hdr = Hdr & "HTTP/1.1 200 OK" & vbcrlf
+Hdr = Hdr & "Content-Type: text/html" & vbCrLf
+Hdr = Hdr & vbCrLf & vbCrLf
+
+form.wsk(2).senddata Hdr
+
+oTxt = ParseUrl(w)
+      
+form.wsk(2).senddata "<html><body><center>" + oTxt + "</center></body></html>"+vbcrlf+vbcrlf
+doevents
+
+form.wsk(2).close
+End Sub
+
+'-----------------------------------------
+Function ParseUrl(txt)
+
+on error resume next
+
+Select Case txt
+	case "power"
+		parseUrl = "Complete!"
+		sys.power.poweroff
+
+	case else
+		parseurl = cstr(eval(txt))
+End Select
+
+if len(parseurl) = 0 then parseurl = "None"
+End Function
+
+'-----------------------------------------
+sub wsk2_error(number,descr,flag)
+form.mtext(1).text = form.mtext(1).text + descr + vbcrlf
+end sub
+
+'-----------------------------------------
+Sub Form_unload()
+  endmf
+End Sub
+<#form>

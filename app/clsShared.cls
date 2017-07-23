@@ -1,0 +1,320 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+  Persistable = 0  'NotPersistable
+  DataBindingBehavior = 0  'vbNone
+  DataSourceBehavior  = 0  'vbNone
+  MTSTransactionMode  = 0  'NotAnMTSObject
+END
+Attribute VB_Name = "clsShared"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = False
+Attribute VB_Exposed = True
+Option Explicit
+
+Private HashDLL As clsHash
+
+
+Public Function timeGetTime() As Long
+    timeGetTime = modConst.timeGetTime()
+End Function
+
+Public Property Get PortIO(ByVal numPort As Integer) As Integer
+    On Error Resume Next
+    PortIO = Inp32(numPort)
+End Property
+
+Public Property Let PortIO(ByVal numPort As Integer, ByVal value As Integer)
+    On Error Resume Next
+    Out32 numPort, value
+End Property
+
+Public Function WindowLong(ByVal hWnd As Long, Optional ByVal mStyle As Long, Optional ByVal value As Variant, Optional ByVal nIndex As Long = GWL_STYLE) As Long
+    WindowLong = modCommon.WindowLong(hWnd, value, mStyle, nIndex)
+End Function
+
+Public Sub GMove(ByVal Obj As Object, Optional x As Variant = "Left", Optional y As Variant = "Top", Optional Width As Variant = "Width", Optional Height As Variant = "Height", Optional ByVal PrtWidth As Single, Optional ByVal PrtHeight As Single, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal offsetX As Single, Optional ByVal offsetY As Single, Optional ByVal typeW As Single, Optional ByVal typeH As Single)
+    FlexMove Obj, x, y, Width, Height, PrtWidth, PrtHeight, typeX, typeY, offsetX, offsetY, typeW, typeH
+End Sub
+
+Public Sub GPrint(ByVal Obj As Object, ByVal txt As String, Optional ByVal cx As Single = -0.2, Optional ByVal cy As Single = -0.2)
+    If cx <> -0.2 And cx <> -1 Then If cx = -0.1 Then Obj.CurrentX = Obj.ScaleWidth / 2 - Obj.TextWidth(txt) / 2 Else Obj.CurrentX = cx
+    If cy <> -0.2 And cy <> -1 Then If cy = -0.1 Then Obj.CurrentY = Obj.ScaleHeight / 2 - Obj.TextHeight(txt) / 2 Else Obj.CurrentY = cy
+    If cy = -1 Or cx = -1 Then Obj.Print txt; Else Obj.Print txt
+End Sub
+
+Public Sub GLine(ByVal Obj As Object, ByVal x1 As Single, ByVal y1 As Single, ByVal x2 As Single, ByVal y2 As Single, Optional ByVal cColor As Long = 0, Optional ByVal cType As Integer = 0)
+    Select Case cType
+       Case 0:    Obj.Line (x1, y1)-(x2, y2), cColor
+       Case 1:    Obj.Line (x1, y1)-(x2, y2), cColor, B
+       Case 2:    Obj.Line (x1, y1)-(x2, y2), cColor, BF
+    End Select
+End Sub
+
+Public Sub GCircle(ByVal Obj As Object, ByVal x1 As Single, ByVal y1 As Single, ByVal radius As Single, Optional ByVal Color As Long = 0, Optional ByVal cStart As Single = -10, Optional ByVal cEnd As Single = -10, Optional ByVal cAspect As Single = -10)
+    If cStart = -10 And cEnd = -10 And cAspect = -10 Then Obj.Circle (x1, y1), radius, Color Else Obj.Circle (x1, y1), radius, Color, cStart, cEnd, cAspect
+End Sub
+
+Public Property Get vbPX() As Single
+    vbPX = Screen.TwipsPerPixelX
+End Property
+
+Public Property Get vbPY() As Single
+    vbPY = Screen.TwipsPerPixelY
+End Property
+
+Public Property Get vbSM(ByVal nIndex As Long) As Long
+    vbSM = GetSystemMetrics(nIndex)
+End Property
+
+Public Property Get vbDC(ByVal nIndex As Long, Optional ByVal hDC As Long) As Long
+    If hDC = 0 Then hDC = frmScript.hDC
+    vbDC = GetDeviceCaps(hDC, nIndex)
+End Property
+
+Public Function QBColor(ByVal value As Integer) As Long
+    If value >= 0 Then QBColor = VBA.QBColor(value) Else QBColor = GetSysColor(Abs(value) And 255)
+End Function
+
+Public Function IIF(varIF As Variant, var1 As Variant, var2 As Variant) As Variant
+    If varIF Then
+        If IsObject(var1) Then Set IIF = var1 Else IIF = var1
+    Else
+        If IsObject(var2) Then Set IIF = var2 Else IIF = var2
+    End If
+End Function
+
+Public Function StrConv(ByVal txt As String, ByVal typeStr As Integer, Optional ByVal LocaleID As Long = -1) As String
+    If LocaleID = -1 Then StrConv = VBA.StrConv(txt, typeStr) Else StrConv = VBA.StrConv(txt, typeStr, LocaleID)
+End Function
+
+Public Function Format(ByVal txt As String, ByVal fmt As String) As String
+    Format = VBA.Format$(txt, fmt)
+End Function
+
+Public Function StrPtr(Var As Variant, Optional ByVal bEmptyToAlloc As Boolean = False) As Long
+    If bEmptyToAlloc Then If Len(Var) = 0 Then Var = String$(MAX_PATH_UNI, 0)
+    StrPtr = VBA.StrPtr(Var)
+End Function
+
+Public Function ObjPtr(Var As Variant) As Long
+    ObjPtr = VBA.ObjPtr(Var)
+End Function
+
+Public Function VarPtr(Var As Variant, Optional ByVal bEmptyToLong As Boolean = False) As Long
+    If bEmptyToLong Then If IsEmpty(Var) Then Var = CLng(0)
+    VarPtr = VBA.VarPtr(Var)
+End Function
+
+Public Property Get VType(vrtSrc As Variant, Optional ByVal isBYREF As Boolean) As Integer
+    VType = VariantType(vrtSrc, isBYREF)
+End Property
+
+Public Property Let VType(vrtSrc As Variant, Optional ByVal isBYREF As Boolean, ByVal value As Integer)
+    VariantType(vrtSrc, isBYREF) = value
+End Property
+
+Public Function ObjFromPtr(ByVal vPtr As Long, Optional ByVal isIUnknown As Boolean = False) As Variant
+    Dim VD As Object, IUnk As ATL.IUnknown
+    If isIUnknown Then
+        CopyMem4 vPtr, IUnk: Set ObjFromPtr = IUnk: CopyMem4 0&, IUnk
+    Else
+        CopyMem4 vPtr, VD: Set ObjFromPtr = VD: CopyMem4 0&, VD
+    End If
+End Function
+
+Public Property Get ByRefVar(Var As Variant) As Variant
+    ByRefVar = Var
+End Property
+
+Public Property Let ByRefVar(Var As Variant, value As Variant)
+    Var = value
+End Property
+
+Public Property Set ByRefVar(Var As Variant, value As Variant)
+    Set Var = value
+End Property
+
+Public Property Get Is64() As Boolean
+    Is64 = modCommon.Is64
+End Property
+
+Public Property Get IsAdmin() As Boolean
+    IsAdmin = modCommon.IsAdmin
+End Property
+
+Public Property Get IsWine() As Boolean
+    IsWine = modCommon.IsWine
+End Property
+
+Public Property Get IsEnd() As Boolean
+    IsEnd = mf_IsEnd
+End Property
+
+Public Property Get IsExe() As Boolean
+    IsExe = Info.IsExe
+End Property
+
+Public Sub WaitMs(Optional ByVal msec As Long)
+    m_Wait msec
+End Sub
+
+Public Sub Sleep(Optional ByVal msec As Long)
+    modConst.Sleep msec
+End Sub
+
+Public Sub DoEvents2()
+    DoEvents
+End Sub
+
+Public Sub DoEvents3()
+    API_DoEvents
+End Sub
+
+Public Sub EndMF(Optional ByVal Interval As Long = 1)
+    m_EndMF Interval
+End Sub
+
+Public Function ExistsMember(Obj As Variant, ByVal ProcName As String) As Boolean
+    ExistsMember = modCommon.ExistsMember(Obj, ProcName)
+End Function
+
+Public Function CallByName(Obj As Variant, ProcName As Variant, ByVal typeCall As Long, ParamArray Args() As Variant)
+    CBN Obj, ProcName, typeCall, Args, , VBA.VarPtr(CallByName)
+End Function
+
+Public Function CallByName2(Obj As Variant, ProcName As Variant, ByVal typeCall As Long, Args() As Variant, Optional ByVal CountArgs As Long = -1)
+    CBN Obj, ProcName, typeCall, Args, CountArgs, VBA.VarPtr(CallByName2)
+End Function
+
+Public Property Get Struct(ByVal This As Long, Optional vsp As Variant) As Long
+    Dim Ptr As Long
+    Ptr = StructFunc(This, vsp)
+    If vsp(3) <> 0 Then CopyMemory ByVal CLng(vsp(3)), ByVal Ptr, vsp(2) Else CopyMemory Struct, ByVal Ptr, vsp(2)
+End Property
+
+Public Property Let Struct(ByVal This As Long, Optional vsp As Variant, ByVal value As Long)
+    Dim Ptr As Long
+    Ptr = StructFunc(This, vsp)
+    If vsp(3) <> 0 Then CopyMemory ByVal Ptr, ByVal CLng(vsp(3)), vsp(2) Else CopyMemory ByVal Ptr, value, vsp(2)
+End Property
+
+Public Property Get Object() As Object
+    Set Object = Create_Interface(New IObject)
+End Property
+
+Public Function ArraySize(Var As Variant) As Long
+    ArraySize = m_ArraySize(Var)
+End Function
+
+Public Function ArrayPtr(Var As Variant) As Long
+    ArrayPtr = m_GetSafeArray(Var).pvData
+End Function
+
+Public Function ArrayByte(Var As Variant) As Byte()
+    If VarType(Var) = vbArray + vbByte Then ArrayByte = Var Else ConvToBufferByte Var, ArrayByte
+End Function
+
+Public Function ArrayParam(ByVal dummy As Long, ParamArray Args() As Variant) As Variant()
+    Dim p As Long
+    GetMem4 VBA.VarPtr(dummy) + 4, p:   GetMem4 p, dummy:   PutMem4 VarPtrArray(ArrayParam), dummy:   PutMem4 p, 0&
+End Function
+
+Public Property Get ResToPic(ByVal Key As String) As IPictureDisp
+    If Not SYS.Resource.Exists(Key) Then Exit Property
+    Set ResToPic = LoadPictureFromByte(SYS.Resource(Key).Data)
+End Property
+
+Public Property Get ResToStr(ByVal Key As String) As String
+    Dim vt As Integer, cd As clsDim, tmpBuf() As Byte
+    If Not SYS.Resource.Exists(Key) Then Exit Property
+    Set cd = SYS.Resource(Key):     vt = VarType(cd.Data)
+    If vt = vbString Then ResToStr = cd.Data
+    If vt = vbArray + vbByte Then tmpBuf = cd.Data: If ArraySize(tmpBuf) Then ResToStr = Int_A2W_Buf(tmpBuf)
+End Property
+
+Public Property Get ResToBuf(ByVal Key As String) As Byte()
+    Dim vt As Integer, cd As clsDim
+    If Not SYS.Resource.Exists(Key) Then Exit Property
+    Set cd = SYS.Resource(Key):     vt = VarType(cd.Data)
+    If vt = vbString Then ResToBuf = Int_W2A_Buf(cd.Data)
+    If vt = vbArray + vbByte Then ResToBuf = cd.Data
+End Property
+
+Public Function LenType(Obj As Variant) As Long
+    On Error Resume Next
+    LenType = Obj.Class___Size
+End Function
+
+Public Function InitType(Obj As Variant, Optional ByVal offset As Long, Optional ByVal wrap As Object) As Object
+    Dim tmp As Variant
+    
+    On Error GoTo err1
+    
+    Obj.Class___Offset = offset
+    
+    With Obj
+        If wrap Is Nothing Then Set .Class___Wrapper = New clsBuffer: .Class___Wrapper.Size = .Class___Size Else Set .Class___Wrapper = wrap
+        For Each tmp In .Class___Enum:      InitType tmp(0), tmp(1), .Class___Wrapper:      Next
+    End With
+    
+err1:
+    Err.Clear
+    Set InitType = Obj
+End Function
+
+Public Function DllCall(ByVal lData As String, ByVal sData As Variant, ParamArray Params() As Variant) As Long
+    Dim i As Long, a As Long, vt As Integer, l As LONG64, uds As Long, v() As Variant, t(40) As Long
+    Dim isUnicode As Boolean, ID As String, clsFCP As clsFuncPointer
+
+    ID = lData & " " & sData
+
+    Set clsFCP = HashDLL(ID)
+
+    If clsFCP Is Nothing Then Set clsFCP = New clsFuncPointer:  Call clsFCP.Config(lData, sData):  HashDLL.Add clsFCP, ID
+    
+    isUnicode = clsFCP.Unicode
+    
+    uds = UBound(Params)
+    If uds > -1 Then ReDim v(uds)
+
+    'Пред-обработка параметров
+    For i = 0 To uds
+        t(i) = VariantType(Params(i))
+        
+        Select Case t(i)
+            Case vbArray + vbVariant
+                vt = VarType(Params(i)(0))
+                Select Case vt
+                    Case vbSingle, vbDouble:    CopyMemory l, ByVal VBA.VarPtr(Params(i)(0)) + 8, 8:    v(a) = l.LowPart:    If vt = vbDouble Then ReDim Preserve v(UBound(v) + 1):    a = a + 1:   v(a) = l.HighPart
+                    Case vbArray + vbByte:      t(i) = m_GetSafeArray(Params(i)(0)).pvData:     v(a) = VBA.VarPtr(t(i))
+                    Case vbString:              t(i) = VBA.StrPtr(Params(i)(0)):                v(a) = VBA.VarPtr(t(i))
+                    Case Else:                  v(a) = VBA.VarPtr(Params(i)(0)) + 8
+                End Select
+                            
+            Case vbString
+                If Not isUnicode Then Params(i) = VBA.StrConv(Params(i), vbFromUnicode)
+                v(a) = VBA.StrPtr(Params(i))
+                
+            Case Else
+                v(a) = CLng(Params(i))
+        End Select
+        
+        a = a + 1
+    Next
+
+    DllCall = clsFCP.PCall(v)
+
+    'После-обработка параметров
+    If Not isUnicode Then
+        For i = 0 To uds
+            If t(i) = vbString Then Params(i) = VBA.StrConv(Params(i), vbUnicode)
+        Next
+    End If
+End Function
+
+Private Sub Class_Initialize()
+    Set HashDLL = New clsHash
+    Set HashDLL.Default = Nothing
+End Sub

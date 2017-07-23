@@ -1,0 +1,29 @@
+<#Module=mdlMain>
+'---------------------------------------
+Function Load(cmdLine)
+
+  msgbox JS.test1().key1
+  msgbox JS.test2()
+  msgbox JS.T
+  JS.test3()
+  msgbox JS.T
+  
+  msgbox JS2.test3()
+  
+  endmf
+
+End Function
+<#Module>
+
+
+<#Script=JS#>
+  var T = 'value old';
+  
+  function Test1() { return {'key1':'hello'} }
+  function Test2() { return JS.sys.path(true) }
+  function Test3() { T = ScriptEngineMajorVersion() + "." + ScriptEngineMinorVersion() + "." + ScriptEngineBuildVersion(); }
+<#Script#>
+
+<#Script=JS2,chakra#>
+  function Test3() { return ScriptEngineMajorVersion() + "." + ScriptEngineMinorVersion() + "." + ScriptEngineBuildVersion(); }
+<#Script#>

@@ -1,0 +1,33 @@
+<#Module=mdlMain>
+Dim obj
+
+'---------------------------------------
+Sub Load(cmdLine)
+  Set obj = sys.com.create(new IDispatch)
+  
+  call obj.test
+
+  set obj = nothing
+  
+  endmf
+End Sub
+
+
+
+Class IDispatch
+  Function COM_Invoke(This, idMember, IDName, wFlags, Params, Result)    
+	msgbox "Member - " & IDName
+
+	sys.bytes.arrayredim buf, Array(127)
+	pvData = Struct(VarPtr(buf) + 8, 12)
+	rc = Struct(This, Array(,,128,pvData,0))
+	
+	with sys.file.api
+	  .fopen "test.txt"
+	  .fput buf
+	  .fclose
+	end with
+	
+  End Function
+End Class
+<#Module>

@@ -1,0 +1,20 @@
+<#Module=mdlDemo>
+
+'---------------------------------------
+Sub Load(cmdLine)
+
+   with sys.com.DllGetClassObject("Lib\Atomix.ZIP.dll", "ZIP") 
+     .load sys.path + "test.zip"
+  
+     for a = 0 to .count - 1
+        
+        'sys.ext.msgbox sys.conv.ptr2str(Struct(.files_ptr(a), Array(88,,,,0)), true)
+        
+        sys.ext.msgbox .Files_LocalFileName(a)
+        
+     next
+   end with
+   
+   endmf
+End Sub
+<#Module>

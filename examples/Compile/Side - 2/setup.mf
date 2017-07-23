@@ -1,0 +1,206 @@
+<#Module=mdlMain>
+Dim pr
+Dim fName
+
+'---------------------------------------
+Sub Load(cmdLine)
+form.caption = "Установка"
+form.height = 4000
+form.width = 5700
+form.center
+form.icon=ResToPic("100")
+
+form.add "check",1
+form.add "command",1
+form.add "command",2
+form.add "cline",1
+form.add "cline",2
+form.add "label",5
+form.add "label",4
+form.add "label",3
+form.add "label",2
+form.add "label",1
+form.add "pic",1
+
+form.command(1).top = form.scaleheight - 480
+form.command(1).width = 840
+form.command(1).left = form.scalewidth - form.command(1).width - 120
+form.command(1).height = 300
+form.command(1).caption = "&Отмена"
+
+form.command(2).top = form.scaleheight - 480
+form.command(2).width = 840
+form.command(2).left = form.scalewidth - form.command(2).width - 1080
+form.command(2).height = 300
+form.command(2).enabled=false
+form.command(2).caption = "&Далее"
+
+form.pic(1) = ResToPic("101")
+form.pic(1).autoredraw=true
+form.pic(1).autosize=true
+form.pic(1).top=0
+form.pic(1).left=0
+form.pic(1).appearance=0
+form.pic(1).borderstyle=0
+form.pic(1).backcolor=QBColor(15)
+
+form.label(1).caption=""
+form.label(1).top=0
+form.label(1).left=0
+form.label(1).height=2840
+form.label(1).width = form.scalewidth
+form.label(1).backstyle=1
+form.label(1).backcolor=QBColor(15)
+
+form.label(2).caption="Welcome to InstallShield!"
+form.label(2).top=120
+form.label(2).left=form.pic(1).width+120
+form.label(2).font.size=18
+form.label(2).forecolor=QBColor(0)
+
+form.label(3).caption = "Эта программа инсталяции установит программу " + vbcrlf _ 
+                      + "'HignCrypt' на ваш компьютер" + vbcrlf + vbcrlf _
+                      + "Нажмите <Отмена> если вы не хотите устанавливать" + vbcrlf _
+                      + "эту программу на ваш  компьютер" + vbcrlf + vbcrlf _
+                      + "Нажмите <Далее> если вы хотите продолжить процесс" + vbcrlf _
+                      + "установки этой программы на ваш  компьютер"
+form.label(3).top=form.label(2).height+240
+form.label(3).left=form.pic(1).width+120
+form.label(3).font.name="MS Sans Serif"
+form.label(3).font.size=9
+form.label(3).forecolor=QBColor(0)
+
+form.label(4).caption="http://www.test.com"
+form.label(4).top=form.label(3).top + form.label(3).height + 120
+form.label(4).left=form.pic(1).width+120
+form.label(4).font.name="ms sans serif"
+form.label(4).forecolor=QBColor(9)
+form.label(4).mousepointer=99
+form.label(4).mouseicon=ResToPic("102")
+
+form.label(5).caption="test@mail.ru"
+form.label(5).top=form.label(4).top + form.label(4).height
+form.label(5).left=form.pic(1).width+120
+form.label(5).font.name="ms sans serif"
+form.label(5).forecolor=QBColor(9)
+form.label(5).mousepointer=99
+form.label(5).mouseicon=ResToPic("102")
+
+form.cline(1).x1 = 0
+form.cline(1).y1 = 2840
+form.cline(1).x2 = form.scalewidth
+form.cline(1).y2 = 2840
+form.cline(1).bordercolor=QBColor(0)
+
+form.cline(2).x1 = 0
+form.cline(2).y1 = 2852
+form.cline(2).x2 = form.scalewidth
+form.cline(2).y2 = 2852
+form.cline(2).bordercolor=QBColor(15)
+
+form.check(1).caption="I Agree licenced."
+form.check(1).top=form.scaleheight - 480
+form.check(1).left=240
+form.check(1).width=1680
+form.check(1).font.name="ms sans serif"
+form.check(1).font.size=9
+
+form.show
+End Sub
+<#Module>
+
+<#Module=mdlExt>
+'----------------------------------------
+Sub ShowPic
+   form1.add "timer",1
+   form1.add "pic",2
+   form1.add "pic",1
+
+   form1.height=1200
+   form1.width=4320
+
+   form1.timer(1).interval=50
+   pr=0
+
+   form1.pic(1).appearance=0
+   form1.pic(1).autoredraw=true
+   form1.pic(1).move 300, form1.scaleheight - 520, 3600, 300
+   form1.pic(1).backcolor=QBColor(15)
+   form1.pic(1).visible=false
+   form1.pic(1).font.size=10
+   
+   form1.pic(2).appearance=0
+   form1.pic(2).move 300, form1.scaleheight - 520, 3600, 300
+   form1.pic(2).backcolor=QBColor(15)
+
+   form1.caption="Копирование"
+   form1.center
+   form1.show
+
+   form1.timer(1).enabled=true
+End Sub
+
+'----------------------------------------
+Sub SetProcent(valPr)
+   if valPr >= 100 then 
+      form1.timer(1).enabled=false
+      Unload form1
+      endmf
+      exit sub
+   end if
+
+   form1.pic(1).cls
+
+   form1.pic(1).drawmode=13
+   form1.pic(1).forecolor=QBColor(9)
+   GPrint form1.pic(1), valPr & " %", -0.1, -0.1
+   form1.pic(1).drawmode=10
+   GLine form1.pic(1), 24, 24, (form1.pic(1).width - 48) * (valPr/100), 240, QBColor(9), 2
+   
+   form1.pic(2).picture = form1.pic(1).image
+End Sub
+<#Module>
+
+<#Form=form1>
+'-----------------------------------------
+Sub Timer1_Timer()
+   pr=pr+1
+   SetProcent(pr)
+End Sub
+<#Form>
+
+<#Form=form>
+'-----------------------------------------
+Sub Check1_Click()
+if form.check(1).value=1 then 
+   form.command(2).enabled=true
+else
+   form.command(2).enabled=false
+end if
+End Sub
+
+'-----------------------------------------
+Sub Command1_Click()
+   endmf
+End Sub
+
+'-----------------------------------------
+Sub Command2_Click()
+   ShowPic  
+End Sub
+
+'-----------------------------------------
+Sub Label4_Click()
+  sys.ext.link("http://www.test.com")
+End Sub
+
+'-----------------------------------------
+Sub Label5_Click()
+  sys.ext.link("mailto:test@mail.ru?subject=Тема%20письма&body=Тест%20почты")
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+   endmf
+End Sub
+<#Form>

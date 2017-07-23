@@ -1,0 +1,36 @@
+Declare Function DwmEnableBlurBehindWindow Lib "Dwmapi" (hWnd, BlurBehind) as Long
+
+<#Module=mdlDemo>
+Const DWM_BB_ENABLE = &H1&
+Const DWM_BB_BLURREGION = &H2&
+Const DWM_BB_TRANSITIONONMAXIMIZED = &H4&
+    
+Type DWM_BLURBEHIND
+  dwFlags as long
+  fEnable as long
+  hRgnBlur as long
+  fTransitionOnMaximized as long
+End Type
+
+Sub Load(cmdLine) 
+    form.caption="Aero glass example"
+    form.backcolor = 0
+
+    form.Center
+    form.show
+    
+    Dim bb As DWM_BLURBEHIND
+    bb.dwFlags = 1
+    bb.fEnable = 1
+    bb.hRgnBlur = 0
+
+    DwmEnableBlurBehindWindow form.hwnd, bb
+End Sub
+<#Module>
+
+<#Form=form>
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>
+

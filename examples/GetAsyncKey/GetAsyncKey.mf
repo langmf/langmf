@@ -1,0 +1,125 @@
+Declare Function GetAsyncKeyState Lib "user32" (ByVal vKey As Long) As Integer
+
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.add "text",1
+  form.text(1).move 360, 900, 4200, 400
+  form.text(1).text = ""
+  form.text(1).fontsize = 12
+  form.text(1).fontbold = true
+  form.text(1).locked = true
+
+  form.center
+  form.show
+
+  sys.ontimer 100, "ScanKey"
+End Sub
+
+'----------------------------------------
+Sub ScanKey
+    dim txt
+    
+    key_Alt = 0
+    key_Ctrl = 0
+    key_Shift = 0
+    
+    If GetAsyncKeyState(16) Then
+       If GetAsyncKeyState(160) Then
+          If GetAsyncKeyState(161) Then
+             key_Shift = 3
+             txt = txt + "Shift {A} + "
+          Else
+             key_Shift = 1
+             txt = txt + "Shift {L} + "
+          End If
+       Else
+          key_Shift = 2
+          txt = txt + "Shift {R} + "
+       End If
+    End If
+    
+    If GetAsyncKeyState(17) Then
+       If GetAsyncKeyState(162) Then
+          If GetAsyncKeyState(163) Then
+             key_Ctrl = 3
+             txt = txt + "Ctrl {A} + "
+          Else
+             key_Ctrl = 1
+             txt = txt + "Ctrl {L} + "
+          End If
+       Else
+          key_Ctrl = 2
+          txt = txt + "Ctrl {R} + "
+       End If
+    End If
+    
+    If GetAsyncKeyState(18) Then
+       If GetAsyncKeyState(164) Then
+          If GetAsyncKeyState(165) Then
+             key_Alt = 3
+             txt = txt + "Alt {A} + "
+          Else
+             key_Alt = 1
+             txt = txt + "Alt {L} + "
+          End If
+       Else
+          key_Alt = 2
+          txt = txt + "Alt {R} + "
+       End If
+    End If
+    
+    For a = 2 To 255
+        If GetAsyncKeyState(a) And a <> 4 Then
+            If (a < 160 Or a > 165) And numKey = 0 And (a < 16 Or a > 18) Then
+                txt = txt + CodeToName(a) + " "
+                Exit For
+            End If
+        End If
+    Next
+    
+    form.Text(1).Text = txt
+End sub
+
+'----------------------------------------
+Public Function CodeToName(numCode)
+	arrName = Array("","","","","","","","","Backspace","Tab", _
+			"","","Num 5+","Enter","","","","","","Pause", _
+			"Caps Lock","","","","","","","Esc","","", _
+			"","","Space","Page Up","Page Down","End","Home","Left","Up","Right", _
+			"Down","","","","Prt Scr","Insert","Delete","","0","1", _
+			"2","3","4","5","6","7","8","9","","", _
+			"","","","","","A","B","C","D","E", _
+			"F","G","H","I","J","K","L","M","N","O", _
+			"P","Q","R","S","T","U","V","W","X","Y", _
+			"Z","Winkey {L}","Winkey {R}","WinkeyMenu","Sleep","","Num 0","Num 1","Num 2","Num 3", _
+			"Num 4","Num 5","Num 6","Num 7","Num 8","Num 9","Num *","Num +","","Num -", _
+			"Num .","Num /","F1","F2","F3","F4","F5","F6","F7","F8", _
+			"F9","F10","F11","F12","","","","","","", _
+			"","","","","","","","","","", _
+			"","","","","Num Lock","Scroll Lock","","","","", _
+			"","","","","","","","","","", _
+			"","","","","","","Back","Forward","WWW Refresh","WWW Stop", _
+			"Find","Folder","WWW","No Music","Music -","Music +","Next","Previous","Stop","Play", _
+			"Email","Music","","","","",";","+",",","-", _
+			".","/","~","","","","","","","", _
+			"","","","","","","","","","", _
+			"","","","","","","","","","[", _
+			"\","]","'","","","","|","","","", _
+			"","","","","","","","","","", _
+			"","","","","","","","","","", _
+			"","","","","","Power")
+	
+	CodeToName = arrName(numCode)
+      
+	if len(CodeToName) = 0 then CodeToName = CStr(numCode)
+End Function
+<#Module>
+
+<#Form=form>
+'----------------------------------------
+Sub Form_Unload()
+  sys.offtimer "ScanKey"
+  endmf
+End Sub
+<#Form>

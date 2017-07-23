@@ -1,0 +1,27 @@
+<#Module>
+Sub Load(d)
+  dim fName, fPath, obj, a
+
+	sys.cgi.stdout "Content-Type: text/html"+vbcrlf+vbcrlf
+	sys.cgi.stdout "<HTML><BODY>"
+
+	for each obj in sys.cgi.files.items
+		fName = sys.file.getfilename(obj("name"))
+		fPath = sys.file.getdirectory(sys.env("PATH_INFO"),"/")
+		  
+		sys.conv.str2file obj("data"), sys.path + fName
+		
+		fPath = fPath + fName
+		fPath = replace(fPath, " ", "%20")
+
+		sys.cgi.stdout "<img src=" & fPath & " height=128>&nbsp;&nbsp;&nbsp;" + vbcrlf
+    
+    	a = a + 1
+		if a mod 3 = 0 then sys.cgi.stdout "<br><br><br>" + vbcrlf
+	next
+
+	sys.cgi.stdout "</BODY></HTML>"
+
+	endmf
+End Sub
+<#Module>

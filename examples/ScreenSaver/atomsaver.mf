@@ -1,0 +1,337 @@
+Declare Function SetParent Lib "user32" (ByVal hWndChild As Long, ByVal hWndNewParent As Long) As Long
+Declare Function ShowCursor Lib "user32" (ByVal bShow As Long) As Long
+Declare Function GetDC Lib "user32" (ByVal hwnd As Long) As Long
+Declare Function IsWindowVisible Lib "user32" (ByVal hwnd As Long) As Long
+
+<#Module=mdlDemo>
+Class def_Stars
+   Dim x, y, AddX, AddY
+End Class
+
+Dim Star(50) As def_Stars
+
+Dim W, H, fps, cfps
+Dim Handle,Handle2
+Dim cntMove, mode, CY, hdc
+
+'---------------------------------------
+Sub Load(cmdLine)
+  Form.Move 0, 0, sys.screen.Width, sys.screen.Height
+  Form.style.titlebar = False
+  Form.BackColor = 0
+  form.forecolor = QBColor(9)
+  form.fontsize = 14
+  Form.nomovemouse = True
+  Form.AutoRedraw = True
+
+  ShowCursor 0
+
+  W = Form.ScaleWidth / vbPX
+  H = Form.ScaleHeight / vbPY
+
+  cntMove = 0
+  mode = 0
+
+  form.add "pic",1
+  form.pic(1).move 0,0,1824,1344
+  form.pic(1).autoredraw=true
+  form.pic(1).borderstyle=0
+  form.pic(1).scalemode = 3
+  form.pic(1).visible=false
+
+
+    iPos = InStr(LCase(cmdLine), "p")
+    If (iPos <> 0) Then
+      Handle = CLng(sys.str.Trim(Mid(cmdLine, iPos + 2)))
+      Handle2 = CLng(GetDC(Handle))
+      SetupWindow
+      cntMove = -1
+      mode = 1
+    Else
+      If InStr(LCase(cmdLine), "c") <> 0 Then
+        cntMove = -1
+        ShowCursor 1
+        frmOptions.Show
+      Else
+	        mode = 2
+          Form.Show
+      End If
+    End If
+
+
+  cfps=0
+
+  For i = 1 To 50
+     Star(i).x = W / 2
+     Star(i).y = H / 2
+
+     Do
+        Randomize
+        Star(i).AddX = Int(Rnd * 100) / 10 - Int(Rnd * 100) / 10
+     Loop Until Star(i).AddX <> 0
+
+     Do
+        Star(i).AddY = Int(Rnd * 100) / 10 - Int(Rnd * 100) / 10
+     Loop Until Star(i).AddY <> 0
+  Next
+
+  if mode > 0 then
+     Form.Add "timer", 1
+     Form.timer(1).Interval = 30
+     Form.timer(1).Enabled = True
+
+     Form.Add "timer", 2
+     Form.timer(2).Interval = 1000
+     Form.timer(2).Enabled = True
+  end if
+End Sub
+
+'---------------------------------------
+Sub SetupWindow
+	SetParent Form.hwnd, Handle
+End Sub
+
+'---------------------------------------
+Sub SetPixel(x, y, color)
+  sys.api.setpixel hdc, x, y, color
+End Sub
+
+'---------------------------------------
+Sub DrawStar()
+Dim tmpx, tmpy
+
+Do
+    Form.Cls
+    hdc = form.hdc
+
+    For i = 1 To 50
+
+         tmpx = Abs(W / 2 - (Star(i).x))
+
+         If tmpx < 20 Then
+            col = &H202020
+            Size = 1
+         Else
+            If tmpx < 80 Then
+               col = &H404040
+               Size = 1
+            Else
+               If tmpx < 150 Then
+                  col = &H808080
+                  Size = 2
+               Else
+                  If tmpx < 200 Then
+                     col = &HC0C0C0
+                     Size = 3
+                  Else
+                     If tmpx < 250 Then
+                        col = &HFFFFFF
+                        Size = 4
+                     Else
+                        col = &HFFFFFF
+                        Size = 5
+                     End If
+                  End If
+               End If
+            End If
+         End If
+
+
+         tmpy = Abs(H / 2 - (Star(i).y))
+
+         If tmpy < 20 Then
+            If Size = 0 Then
+              Size = 1
+              col = &H202020
+            End If
+         Else
+            If tmpy < 80 Then
+               If Size = 0 Then
+                 col = &H404040
+                 Size = 1
+               End If
+            Else
+               If tmpy < 150 Then
+                  If Size < 2 Then
+                     Size = 2
+                     col = &H808080
+                  End If
+               Else
+                  If tmpy < 200 Then
+                     If Size < 3 Then
+                       Size = 3
+                       col = &HC0C0C0
+                     End If
+                  Else
+                     If tmpy < 250 Then
+                        If Size < 4 Then
+                          Size = 4
+                          col = &HFFFFFF
+                        End If
+                     Else
+                        If Size < 5 Then
+                          Size = 5
+                          col = &HFFFFFF
+                        End If
+                     End If
+                  End If
+               End If
+            End If
+         End If
+
+
+        Select Case Size
+             Case 1
+               SetPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
+
+             Case 2
+               SetPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y + Star(i).AddY, col
+
+             Case 3
+               SetPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
+
+             Case 4
+               SetPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
+               SetPixel Star(i).x + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
+
+             Case 5
+               SetPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
+               SetPixel Star(i).x + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
+               SetPixel Star(i).x + Star(i).AddX, Star(i).y - 2 + Star(i).AddY, col
+               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y - 2 + Star(i).AddY, col
+        End Select
+
+
+        Star(i).x = Star(i).x + Star(i).AddX
+        Star(i).y = Star(i).y + Star(i).AddY
+
+        Star(i).AddX = Star(i).AddX + Sgn(Star(i).AddX) / 5000
+        Star(i).AddY = Star(i).AddY + Sgn(Star(i).AddY) / 5000
+
+        If Star(i).x < -1 Or Star(i).x > Form.ScaleWidth + 1 Or Star(i).y < -1 Or Star(i).y > Form.ScaleHeight + 3 Then
+          Star(i).x = W / 2
+          Star(i).y = H / 2
+
+          Randomize Timer
+
+          Do
+             Star(i).AddX = Int(Rnd * 100+10) / 10 - Int(Rnd * 100+10) / 10
+          Loop Until Star(i).AddX <> 0
+
+          Do
+             Star(i).AddY = Int(Rnd * 100+10) / 10 - Int(Rnd * 100+10) / 10
+          Loop Until Star(i).AddY <> 0
+        End If
+    Next
+
+    SetPixel W / 2, H / 2, 0
+
+    GPrint form, "FPS - " & cfps, 0, 0
+
+    if mode = 1 then DrawPreview
+
+    fps=fps+1
+
+    doevents
+Loop Until IsEnd
+End Sub
+
+'-----------------------------------------
+Sub DrawPreview
+Dim txt(5)
+
+   if IsWindowVisible(handle) = 0 then
+      form.timer(1).enabled = false
+      form.timer(2).enabled = false
+      endmf
+   else
+      txt(0) = "ScreenSaver v1.0"
+      txt(1) = "LangMF Inc."
+      txt(2) = "Copyright © 1998-2006"
+      txt(3) = "---------------------"
+      txt(4) = date
+      txt(5) = time
+
+      sys.api.StretchBlt form.pic(1).hdc, 0, 0, 152, 112, form.hdc, w/2-76, h/2+50, 152, 112, vbsrccopy
+
+      CY = CY + 1
+      if CY >= 250 then CY = 0
+
+      for a=0 to 5
+        GPrint form.pic(1), txt(a), 74-form.pic(1).textwidth(txt(a))/2, 152 - CY + form.pic(1).textheight(txt(a))*a
+      next
+
+      form.pic(1).forecolor = qbcolor(12)
+      form.pic(1).fontsize = 8
+      GPrint form.pic(1), "www.langmf.ru", 25, 50
+      form.pic(1).fontsize = 7
+      form.pic(1).forecolor = qbcolor(15)
+
+      sys.api.BitBlt handle2, 0, 0, 152, 112, form.pic(1).hdc, 0, 0, vbsrccopy
+   end if
+End sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Timer1_Timer()
+  Form.timer(1).Enabled = False
+  DrawStar
+End Sub
+
+'-----------------------------------------
+Sub Timer2_Timer()
+  cfps = fps
+  fps = 0
+  cntmove = 0
+End Sub
+
+'-----------------------------------------
+Sub Form_MouseMove(button, shift, x, y)
+  if cntmove <> -1 then
+     if cntmove > 10 then endmf
+     cntmove=cntmove+1
+  end if
+End Sub
+
+'-----------------------------------------
+Sub Form_MouseDown(button, shift, x, y)
+  endmf
+End Sub
+
+'-----------------------------------------
+Sub Form_Keydown(keycode, shift)
+  endmf
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>
+
+<#Form=frmOptions>
+'-----------------------------------------
+Sub Form_Load()
+  frmOptions.caption = "Настройка параметров"
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>
+
+
+
+
+
+
+

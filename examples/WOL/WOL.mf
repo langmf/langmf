@@ -1,0 +1,10 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+    sys.net.wol "192.168.0.255", "C0:60:10:70:70:35" 
+    
+    msgbox "Send Wake Up On Lan"
+    
+    endmf
+End Sub
+<#Module>

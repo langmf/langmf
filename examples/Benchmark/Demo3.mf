@@ -1,0 +1,193 @@
+Public Declare Function GetTickCount Lib "kernel32" () As Long
+
+<#Module=mdlDemo>
+DIM hdc, MaxIter, XRes, YRes, colors()
+
+Sub Load(cmdLine)
+    XRes = 400
+    YRes = 400
+    MaxIter = 50
+    Redim colors(MaxIter)
+ 
+    Form.Caption = "Benchmark Mandel"
+    Form.Width = XRes * vbPX + 100
+    Form.Height = YRes * vbPY + 440
+	Form.Autoredraw = True
+	Form.Center
+    Form.Show
+	
+    hdc = Form.hdc
+	FillColorTable
+	sys.host.script.addobject "tmp", sys.api, True
+	JS.Param hdc, MaxIter, XRes, YRes, colors
+	
+	
+	'----------------- VBScript ------------------
+	t = GetTickCount
+    GenMandelbrot -2.1, -1.25, 0.6, 1.25
+	msgbox GetTickCount - t & " ticks",,"VBScript" 
+	
+	
+	'---------------------------------------------
+	GLine form, 0,0,form.scalewidth,form.scaleheight, &H8000000F, 2
+	msgbox "Go"
+	
+
+	'------------------ Chakra -------------------
+    t = GetTickCount
+    JS.GenMandelbrot -2.1, -1.25, 0.6, 1.25
+	msgbox GetTickCount - t & " ticks",,"Chakra"
+
+	
+	'---------------------------------------------
+	GLine form, 0,0,form.scalewidth,form.scaleheight, &H8000000F, 2
+	msgbox "Go"
+	
+	
+	'---------------- Chakra + FAP ---------------
+    set fap = sys.newfap(form.image)
+	fap.getdi
+    t = GetTickCount
+    JS.GenMandelbrot2 -2.1, -1.25, 0.6, 1.25, fap
+	fap.setdi
+	form.refresh
+	
+	msgbox GetTickCount - t & " ticks",,"Chakra + FAP"     
+End Sub
+
+
+SUB GenMandelbrot(xMn, yMn, xMx, yMx)
+	DIM iX, iY, iters, cx, cy, dx, dy
+	
+	dx = (xMx - xMn) / (XRes - 1)
+	dy = (yMx - yMn) / (YRes - 1)
+	
+	FOR iY = 0 TO YRes
+		cy = yMn + iY * dy
+		FOR iX = 0 TO XRes
+			cx = xMn + iX * dx
+			iters = Iterate(cx, cy)
+			IF iters = MaxIter THEN
+				SetPixel hdc, iX, iY, 0
+			ELSE
+				SetPixel hdc, iX, iY, colors(iters)
+			END IF
+		NEXT
+		form.refresh
+        doevents
+	NEXT
+END SUB
+
+FUNCTION Iterate(cx, cy)
+	DIM iters, temp, X, Y, X2, Y2
+	
+    X = cx : Y = cy : X2 = X * X : Y2 = Y * Y
+    
+	WHILE (iters < MaxIter) AND (X2 + Y2) < 4
+		temp = cx + X2 - Y2
+		Y = cy + 2 * X * Y
+		Y2 = Y * Y
+		X = temp
+		X2 = X * X
+		iters = iters + 1
+	WEND
+	
+	Iterate = iters
+END FUNCTION
+
+SUB FillColorTable()
+	DIM r, g, b, rd, gd, bd, rr, gg, bb, i, j, wid, clr(3)
+	
+	clr(1) = RGB(0, 255, 0)
+	clr(2) = RGB(255, 255, 0)
+	clr(3) = RGB(255, 0, 0)
+	
+	wid = MaxIter / 3
+	
+	FOR j = 0 TO 2
+		toRGB clr(j), r, g, b
+		toRGB clr(j + 1), rr, gg, bb
+		rd = (rr - r) / (wid + 1)
+		gd = (gg - g) / (wid + 1)
+		bd = (bb - b) / (wid + 1)
+		FOR i = 0 TO wid
+			colors(j * wid + i) = RGB(r, g, b)
+			r = r + rd
+			g = g + gd
+			b = b + bd
+		NEXT
+	NEXT
+END SUB
+
+SUB toRGB(c, r, g, b)
+	r = c AND &HFF
+	g = (c AND &HFF00&) / &H100
+	b = (c AND &HFF0000) / &H10000
+END SUB
+<#Module>
+
+
+<#Script=JS,chakra#>
+var hdc, MaxIter, XRes, YRes, colors, colors2;
+
+function Param(m_hdc, m_MaxIter, m_XRes, m_YRes, m_colors) {
+	hdc = m_hdc; XRes = m_XRes; YRes = m_YRes; MaxIter = m_MaxIter;
+	colors = new VBArray(m_colors).toArray();
+    colors2 = new Array(); colors2.length = MaxIter;
+    for (i = 0; i <= MaxIter; i++) {var c = colors[i]; colors2[i] = ((c & 255) * 0x10000) + (c & 0xff00) + ((c / 0x10000) & 255); }
+}
+
+function GenMandelbrot(xMn, yMn, xMx, yMx) {
+	var iX, iY, iters, cx, cy, dx, dy, s = JS.sys.api, f = JS.form;
+	
+	dx = (xMx - xMn) / (XRes - 1)
+	dy = (yMx - yMn) / (YRes - 1)
+	
+	for (iY = 0; iY < YRes; iY++) {
+		cy = yMn + iY * dy
+		for (iX = 0; iX < XRes; iX++) {
+			cx = xMn + iX * dx
+			iters = Iterate(cx, cy)
+			if (iters == MaxIter) { s.SetPixel(hdc, iX, iY, 0) } else { s.SetPixel(hdc, iX, iY, colors[iters]) }
+		}
+		f.refresh()
+	}
+}
+
+function GenMandelbrot2(xMn, yMn, xMx, yMx, fap) {
+	var iX, iY, iters, cx, cy, dx, dy;
+	
+	dx = (xMx - xMn) / (XRes - 1)
+	dy = (yMx - yMn) / (YRes - 1)
+	
+	for (iY = 0; iY < YRes; iY++) {
+		cy = yMn + iY * dy
+		for (iX = 0; iX < XRes; iX++) {
+			cx = xMn + iX * dx
+			iters = Iterate(cx, cy)
+			if (iters == MaxIter) {	fap(iX + 1, iY +1) = 0 } else { fap(iX + 1, iY +1) = colors2[iters] }
+		}
+	}
+}
+
+function Iterate(cx, cy) {
+	var iters = 0, X = cx, Y = cy, X2 = X * X, Y2 = Y * Y
+	
+	while (iters < MaxIter && (X2 + Y2) < 4) {
+		Y = cy + 2 * X * Y
+		X = cx + X2 - Y2
+		Y2 = Y * Y
+		X2 = X * X
+		iters = iters + 1
+	}
+	
+	return iters
+}
+<#Script#>
+
+
+<#form=form>
+Sub Form_Unload()
+  endmf
+End Sub
+<#form>

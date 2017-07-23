@@ -1,0 +1,12 @@
+# These are binary so should never be modified by git.
+*.png binary
+*.jpg binary
+*.exe binary
+*.bin binary
+*.tlb binary
+*.res binary
+*.frx binary
+
+# Syntax highlight.
+*.mf  linguist-language=vbnet
+*.inc linguist-language=vbnet

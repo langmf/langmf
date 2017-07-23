@@ -1,0 +1,54 @@
+<#Module=mdlSound>
+'---------------------------------------
+Sub Load(cmdLine)
+form1.add "command",1
+form1.add "hscroll",1
+form1.add "timer",1
+
+form1.timer(1).interval = 100
+
+form1.command(1).caption="Play"
+form1.command(1).move 1440,600,1200,300
+
+form1.hscroll(1).move 240,1080,4200,240
+form1.hscroll(1).max=255
+form1.hscroll(1).min=0
+
+form1.center
+form1.show
+End Sub
+<#Module>
+
+<#Form=form1>
+'---------------------------------
+Sub Command1_Click()
+   dim sPath
+
+   form1.timer(1).enabled = true
+
+   sPath = sys.cdlg.showopen("MP3 Files (*.mp3)|*.mp3|All Files (*.*)|*.*")
+
+   sys.ext.mci "close all"
+   sys.ext.mci "open """ & sPath & """ alias MY type mpegvideo"
+
+   call spath =~ ig/([^\\]+)\.[^\.]+$//
+
+   form1.caption = $$1
+
+   form1.hscroll(1).max = sys.ext.mci("status MY length", true) / 1000
+
+   sys.ext.mci "play MY"
+End Sub
+
+'---------------------------------
+Sub Timer1_Timer()
+  on error resume next
+  form1.hscroll(1).value = sys.ext.mci("status MY position", true) / 1000
+End Sub
+
+'---------------------------------
+Sub Form_Unload()
+  sys.ext.mci "close all"
+  endmf
+End Sub
+<#Form>

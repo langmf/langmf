@@ -1,0 +1,17 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+	Dim WshShell, oExec
+	
+	Set WshShell = CreateObject("WScript.Shell")
+	Set oExec    = WshShell.Exec("cmd.exe /c ver.exe")
+	
+	Do While oExec.Status <> 1
+	     doevents
+	Loop
+	
+	msgbox sys.conv.xlt(oExec.StdOut.ReadALL, "cp866")
+		
+	endmf
+End Sub
+<#Module>

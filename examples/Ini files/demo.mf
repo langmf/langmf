@@ -1,0 +1,86 @@
+Private Declare Function GetPrivateProfileSection Lib "kernel32" Alias _
+    "GetPrivateProfileSectionA" (ByVal lpAppName As String, ByVal lpReturnedString As String, _
+    ByVal nSize As Long, ByVal lpFileName As String) As Long
+Private Declare Function GetPrivateProfileString Lib "kernel32" Alias _
+    "GetPrivateProfileStringA" (ByVal lpApplicationName As String, ByVal lpKeyName As Any, _
+    ByVal lpDefault As String, ByVal lpReturnedString As String, ByVal nSize As Long, _
+    ByVal lpFileName As String) As Long
+Private Declare Function WritePrivateProfileSection Lib "kernel32" Alias _
+    "WritePrivateProfileSectionA" (ByVal lpAppName As String, ByVal lpString As String, _
+    ByVal lpFileName As String) As Long
+Private Declare Function WritePrivateProfileString Lib "kernel32" Alias _
+    "WritePrivateProfileStringA" (ByVal lpApplicationName As String, ByVal lpKeyName As Any, _
+    ByVal lpString As Any, ByVal lpFileName As String) As Long
+
+
+<#Module=ini>
+Dim Filename, Section, RetVal
+
+Sub Load(cmdLine)
+
+    File1 = sys.path + "test.ini"
+    File = Sys.File.Open2(sys.path + "test.ini")
+
+    OFLen = Sys.File.LOF(File)
+
+    'записываем несколько образцов секций:
+    WriteIniSection File1, "Test1", ""
+    WriteIniSection File1, "Test2", "This a string 2"
+
+    'читаем несколько строк ini
+    WriteIni File1, "Test3", "Ini1", "This a string 3"
+    WriteIni File1, "Test1", "Ini2", "This a string 4"
+
+    'текстовое сообщение - информация о записанных данных
+    MsgBox Format((Sys.File.LOF(File) - OFLen) / 1024, "0.00") & " KB data written to """ & File1 & """"
+
+    'читаем ini файл
+    Str = Str & "Test2 section: " & vbTab & ReadIniSection(File1, "Test2") & vbCrLf
+   Str = Str & "Test1 section: " & vbTab & ReadIniSection(File1, "Test1") & vbCrLf
+    Str = Str & "Ini1 string: " & vbTab & ReadIni(File1, "Test3", "Ini1") & vbCrLf
+    Str = Str & "Ini2 string: " & vbTab & ReadIni(File1, "Test1", "Ini2") & vbCrLf
+
+    'отображаем информацию из файла
+    MsgBox Str
+    
+   endmf
+End Sub
+
+'записываем секцию Ini
+Public Sub WriteIniSection(File1, Section, Value)
+    WritePrivateProfileSection cstr(Section), cstr(Value), cstr(File1)
+End Sub
+
+'записывем строку Ini
+Public Sub WriteIni(File1, Section, Key, Value)
+    WritePrivateProfileString cstr(Section), cstr(Key), cstr(Value), cstr(File1)
+End Sub
+
+'читаем секцию Ini 
+Public Function ReadIniSection(File1, Section)
+    Dim txt
+
+    txt = Space(255)
+
+   rc = GetPrivateProfileSection(cstr(Section), txt, 255, cstr(File1))
+
+   txt = left(txt, rc)
+   txt = Replace(txt, chr(0), vbcrlf)
+      
+   ReadIniSection = txt
+End Function
+
+'читаем строку Ini
+Public Function ReadIni(File1, Section, Key)
+    Dim txt
+    
+    txt = Space(255)
+   
+   rc = GetPrivateProfileString(cstr(Section), cstr(Key), "", txt, 255, cstr(File1))
+   
+   txt = left(txt, rc)
+   txt = Replace(txt, chr(0), vbcrlf)
+      
+   ReadIni = txt   
+End Function
+<#Module>

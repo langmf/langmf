@@ -1,0 +1,62 @@
+﻿<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+    Dim a, b, x, y, w, r, c, m, s, g, v, h, l
+    
+    form.scalemode = 3
+    form.style.maxbutton = true
+    form.autoredraw = true
+    form.show
+    form.windowstate = 2
+
+    Set Dat = sys.NewHash()
+    'Dat.IgnoreCase = false
+    Dat.Init 19334
+    
+    sys.genstr 0
+    
+    t1 = timegettime
+    For a = 0 To 9000
+        dat(chr(7) & a) = a
+        'dat(sys.genstr(-16)) = a
+    Next
+    For a = 0 To 9000
+        b = dat(chr(7) & a)
+    Next
+    t1 = timegettime - t1
+
+    w = 8   :   y = 8 - w   :   l = 1600 / w   :   v = dat.items(-1)
+    
+    For a = 0 To UBound(v)
+        If a Mod l = 0 Then x = 8 : y = y + w : Else : x = x + w : End If
+        
+        r = v(a)
+        
+        If r = 0 Then g = g + 1
+        If r > 1 Then s = s + r - 1 : h = (h + r) / 2
+        If r > m Then m = r
+        
+        If r > 30 Then
+            c = RGB(0, 0, r + 100)
+        ElseIf r > 9 Then
+            c = RGB(r * 5 + 100, 0, 0)
+        ElseIf r > 0 Then
+            c = RGB(0, r * 20 + 50, 0)
+        Else
+            c = 0
+        End If
+        
+        GLine form, x, y, x + w, y + w, c, 2
+    Next
+    
+  form.unicaption = "Max = " & m & "   Lev = " & round(h,1) & "   Col = " & Round(s, 1) & "   Free = " & CInt((g / (UBound(v) + 1)) * 100) & "%   " & "ms = " & t1 & "   Value = " & b
+End Sub
+<#Module>
+
+
+<#Form=form>
+'---------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

@@ -1,0 +1,32 @@
+﻿<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  With Form
+	.Width = 5040
+	.Height = 2400
+    .UniCaption = "© Demo Ω"
+	.Center
+	.Show
+	
+	.createwc  "my", "button"
+	
+	with .wc("my")
+		.SubClass.List(&H201, &H204, &H207) = 3
+		.move 1200, 700, 2500, 500
+		.msg &HC, 0, strptr("© Demo Ω")
+		.font.size = 16
+	end with
+  End With
+End Sub
+<#Module>
+
+<#Form=form>
+sub my_MouseDown(mButton, mShift, mx, my)
+  msgbox "OK"
+end sub
+
+'---------------------------------
+Sub Form_Unload()
+  EndMF
+End Sub
+<#Form>

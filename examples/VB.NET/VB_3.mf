@@ -1,0 +1,179 @@
+<#Module=VBNETBuilder>
+Public obj, Class1
+
+Sub Load(cmdstr)
+	set obj = createobject("Atomix.VBNET")
+	
+  'Call obj.Load(sys.path+"classlibrary1.dll")
+  'Set Class1 = obj.CreateInstance("ClassLibrary1.Class1")
+  
+  res = obj.Build(ResToStr("VBNET")) : if len(res) > 0 then msgbox res
+  Set Class1 = obj.CreateInstance("Class1")
+
+  '------------------------------------------------
+  'msgbox Class1.Main("mytext")
+  
+  '------------------------------------------------
+  'obj.FSet obj.Find("test.*"), 100
+  'for each tmp in obj.FGet(obj.Find("test.*"))
+  '   msgbox tmp
+  'next
+
+  '------------------------------------------------
+  'msgbox obj.Find("main#mdlmain").count
+  'msgbox obj.Find("main.*#mdlmain").count
+  'msgbox obj.Find("main.*").count
+
+  '------------------------------------------------  
+  'msgbox obj.FCall(obj.Find("main#mdlmain").item(0), "mytext")
+
+  '------------------------------------------------      
+  'for each tmp in obj.Find("main.*")
+  '	 msgbox obj.InvokeEx(tmp.Type, tmp.Member("name"), 0, "mytext")
+  '  msgbox obj.CallMethod(tmp.Member, "mytext")
+  'next
+
+  '------------------------------------------------     
+  'objType = obj.GetTypes("mdlmain").item(0)
+  'msgbox "Text=" & obj.InvokeEx(objType, "Line", 0) & "   Len=" & obj.InvokeEx(objType, "Length", 0)       
+  'obj.InvokeEx objType, "Line", -1, array("ok")
+  'msgbox "Text=" & obj.InvokeEx(objType, "Line", 0) & "   Len=" & obj.InvokeEx(objType, "Length", 0)
+
+  '------------------------------------------------    
+  'for each tmp in obj.GetTypes("mdlmain|class1")
+  '  txt = ""
+  '  
+  '  for each tmp2 in obj.GetMembers(tmp)
+  '      txt = txt + obj.CBN(tmp2, "Name")  + "  -  " +  cstr(obj.CBN(tmp2, "MemberType")) + vbcrlf
+  '  next
+  '    
+  '  msgbox obj.CBN(tmp, "Name") + vbcrlf + vbcrlf + txt
+  'next
+  
+	With Form
+		.Caption = "Динамическая компилляция сборки VB.NET..."
+		.Width = 8400
+		.Height	= 6000
+		.BackColor = vbBlack
+		.Style.MinButton = True
+		.Style.MaxButton = True
+		.Style.SizeBorder = True
+		.center
+		.show
+	End With
+
+	DoEvents
+End Sub
+<#Module>
+
+<#Form=Form>
+	'----------------------------------------------------------------------
+	Sub Form_Paint()
+		Class1.DrawStringEx
+	End Sub	
+
+	'----------------------------------------------------------------------
+	Sub Form_Resize()
+		res = Class1.GetGFromHDC(Form.hDC, 10, 10, Form.ScaleWidth / vbPX - 20, Form.ScaleHeight / vbPY - 20)
+		Form.Refresh
+	End Sub
+	
+	'-----------------------------------------------------------------------
+	Sub Form_Unload()
+		EndMF
+		DoEvents
+	End Sub	
+	'-----------------------------------------------------------------------
+<#Form>
+
+
+
+'[Сборка VB.NET - вывод текста в графическом режиме в контекст формы]
+'==============================================================================
+<#res id="VBNET" #>
+Imports System
+Imports System.Windows.Forms
+Imports System.Drawing
+Imports Microsoft.VisualBasic
+
+public Module mdlMain
+    public test as integer = 101
+    public test2 as integer = 102
+        
+    Private mstrLine As String = "demo"
+
+    Property Line() As String
+        Get
+           Return mstrLine
+        End Get
+        Set(ByVal Value As String)
+            mstrLine = Value
+        End Set
+    End Property
+     
+    ReadOnly Property Length() As Integer
+       Get
+           Return mstrLine.Length
+       End Get
+    End Property
+    
+    Public Function Main(txt) as object
+        MsgBox("Main (in module) Arg = " + txt)
+        Main=1
+    End Function
+
+    Public Function Main2(txt) as object
+        MsgBox("Main2 (in module) Arg = " + txt)
+        Main2 = 2
+    End Function
+End Module
+
+Public Class Class1
+
+ '*Общие объекты и переменные*
+ '-----------------------------------------------------------------------------
+	Public Shared drawString As String = "LangMF & VB.NET"
+	Public Shared drawFont As Object = New System.Drawing.Font("Courier", 36,	System.Drawing.FontStyle.Bold Or System.Drawing.FontStyle.Underline Or System.Drawing.FontStyle.Italic)
+	Public Shared drawBrush As Object = New System.Drawing.SolidBrush(System.Drawing.Color.Black)
+	Public Shared drawBack As Object = New System.Drawing.SolidBrush(System.Drawing.ColorTranslator.FromHtml("#f5c889"))
+	Public Shared drawFormat As Object = New System.Drawing.StringFormat
+	Public Shared g As Graphics
+	Public Shared sw As Integer
+	Public Shared sh As Integer
+	Public Shared x1 As Integer
+	Public Shared y1 As Integer
+	Public Shared x2 As Integer
+	Public Shared y2 As Integer
+	
+  Public Function Main(txt) as object
+      MsgBox("Main (in class) Arg = " + txt)
+      Main = 55
+  End Function
+
+ '*Обновление параметров графического вывода*
+ '-----------------------------------------------------------------------------
+ Public Sub GetGFromHDC(ByVal sHDC As Integer, ByVal sx1 As Integer, ByVal sy1 As Integer, ByVal sx2 As Integer, ByVal sy2 As Integer)
+    if not g is nothing then g.dispose()
+    
+    g = Graphics.FromHdc(sHDC)
+    
+    x1 = sx1 : y1 = sy1 : x2 = sx2 : y2 = sy2
+	
+    Dim m As SizeF = g.MeasureString(drawString, drawFont)
+    sw = (x2 + x1 - m.Width)/2 	'x координата угла строки
+    sh = (y2 + y1 - m.Height)/2	'y координата угла строки
+ End Sub
+
+ '*Прорисовка строки*
+ '-----------------------------------------------------------------------------
+ Public Sub DrawStringEx()
+  	'/Прорисовка заливки/
+  	g.FillRectangle(drawBack, x1, y1, x2, y2)
+  
+  	'/Прорисовка строки и тени/
+  	g.DrawString(drawString, drawFont, SystemBrushes.ControlLight, sw+2, sh+2, drawFormat)
+  	g.DrawString(drawString, drawFont, drawBrush, sw, sh, drawFormat)
+ End Sub
+ 
+End Class
+<#res#>

@@ -1,0 +1,21 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+
+  t = 1001
+  s = "old - 0123456789"
+  
+  v = ArrayParam(0, t, s)
+  'v = array(t, s)
+  
+  msgbox t
+  v(0) = 2002
+  msgbox t
+  
+  msgbox s
+  v(1) = "new - 9876543210"
+  msgbox s
+  
+  endmf
+End Sub
+<#Module>

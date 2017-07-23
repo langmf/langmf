@@ -1,0 +1,55 @@
+Declare Function GetPixel Lib "gdi32" (ByVal hdc As Long, ByVal x As Long, ByVal y As Long) As Long
+Declare Function GetDC Lib "user32" (ByVal hwnd As Long) As Long
+Declare Function ReleaseDC Lib "user32" (ByVal hwnd As Long, ByVal hdc as Long) As Long
+Declare Function GetDesktopWindow Lib "user32" () As Long
+Declare Function GetCursorPos Lib "user32" (lpPoint As POINTAPI) As Long
+
+<#Module=mdlDemo>
+Sub Load(cmdLine)
+  form.add "label",1
+  form.label(1).move 2000,600
+  form.label(1).fontsize=12
+  form.label(1).fontbold=true
+  form.label(1).backstyle = 1
+
+  form.center
+  form.show
+End Sub
+<#Module>
+
+<#form=form>
+Type def_pointapi
+    x as long
+    y as long
+End Type
+
+Dim pos as def_pointapi
+
+'---------------------------------
+Sub Form_Load
+  sys.ontimer 20, array("Read", mf_idm)
+End Sub
+
+'---------------------------------
+Sub Read
+  Call GetCursorPos(pos)
+
+  form.label(1).caption = pos.x & " - " & pos.y
+
+  rc = GetDC(GetDesktopWindow)
+
+  sys.api.bitblt form.hdc, 0, 0, 128, 128, rc, pos.x, pos.y, vbsrccopy
+
+  ReleaseDC GetDesktopWindow, rc
+
+  rc = GetPixel(form.hdc, 0, 0)
+  if rc < 0 then rc = 0
+  form.label(1).backcolor = rc
+End Sub
+
+'---------------------------------
+Sub Form_Unload()
+  sys.offtimer array("Read", mf_idm)
+  endmf
+End Sub
+<#form>

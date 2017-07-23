@@ -1,0 +1,12 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  const host = "google.ru"
+  
+  rc = sys.net.ping(sys.net.Name2IP(host), tmr, ttl)
+  
+  msgbox "Host:     " & host & vbcrlf & "-----------------------" & vbcrlf & "Status:   " & rc & vbcrlf & "Time:    " & tmr & " ms" & vbcrlf & "TTL:      " & ttl
+  
+  endmf
+End Sub
+<#Module>

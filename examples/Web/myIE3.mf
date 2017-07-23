@@ -1,0 +1,42 @@
+<#Module=mdlMain>
+dim ie, t
+
+'---------------------------------------
+Sub Load(cmdLine)
+  form.show
+	
+  t = timegettime
+  set ie = sys.com.addhandler(CreateObject("InternetExplorer.Application"), "ie_", -1)
+    
+  ie.object.Visible = True
+  ie.object.Navigate2 "http://langmf.ru"
+End Sub
+
+Sub ie_(name, arg)
+	on error resume next
+	txt = ""
+	if ubound(arg) > -1 then txt = join(arg, vbtab)
+    v = timegettime - t
+    t = timegettime
+	sys.file.open2 "log.txt",1,"append"
+	sys.file.print2 1, "[" & v & "] " & name & " (" & (ubound(arg) + 1) & ") ->" & vbtab & txt
+	sys.file.close2 1
+End Sub
+
+Sub ie_OnQuit()
+  endmf
+End Sub
+
+Sub ie_BeforeNavigate2(pDisp, URL, Flags, TargetFrameName, PostData, Headers, Cancel)
+  msgbox url
+End Sub
+<#Module>
+
+<#Form=form>
+'---------------------------------
+Sub Form_Unload()
+  ie.object.Quit
+  Set ie = Nothing
+  endmf
+End Sub
+<#Form>

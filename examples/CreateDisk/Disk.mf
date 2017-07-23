@@ -1,0 +1,45 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+   form.caption = "Create Disk Z:\"
+
+   form.add "command",1
+   form.command(1).move 840,600,960,360
+   form.command(1).caption = "Create"
+
+   form.add "command",2
+   form.command(2).move 2160,600,960,360
+   form.command(2).caption = "Delete"
+
+   form.Center
+   form.show
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Command1_CLick
+   cmdpath1 = sys.file.shortname(sys.conv.mpath("%mf_system%")) + "\subst.exe "
+
+   cmdpath2 = sys.file.shortname(sys.pathengine)
+   if right(cmdpath2,1)="\" then cmdpath2=left(cmdpath2,len(cmdpath2)-1)
+   
+   sys.ext.shell cmdpath1 + " Z: " + cmdpath2, 0 
+
+   msgbox "Create Disk Z:"
+End Sub
+
+'-----------------------------------------
+Sub Command2_CLick
+   cmdpath1 = sys.file.shortname(sys.conv.mpath("%mf_system%")) + "\subst.exe "
+
+   sys.ext.shell cmdpath1 + "/D Z:", 0
+
+   msgbox "Delete Disk Z:"
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

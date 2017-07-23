@@ -1,0 +1,46 @@
+<#Module=mdlDemo>
+Const zip_UTF8 = &H800&
+
+'---------------------------------------
+Sub Load(cmdLine)
+  form.move 0,0,4800,2520
+
+  form.add "pbar",1, ".move 240, 600, 4260, 600"
+  form.add "command",1, ".move 1800,1580,1100,300", ".caption=""Search"""
+
+  form.center
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Command1_Click()
+dim files, txt, max, old, zip
+
+  Path = sys.cdlg.showfolder
+
+  files = sys.file.search.find(Path)
+	      
+  if ArraySize(files) then
+     Set zip = sys.com.DllGetClassObject("Lib\Atomix.ZIP.dll", "ZIP")
+  
+     max = ubound(files)
+     for a=0 to max
+        zip.add files(a),,,,zip_UTF8
+        if old<>int((a/(max+1))*100) then form.PBar(1).Pos = int((a / max) * 100)  :  Doevents
+        old = form.PBar(1).Pos
+     next
+    
+     form.PBar(1).PText = "Complete - " & ArraySize(files) & " files."
+     form.PBar(1).Pos = 100
+	      
+     zip.save sys.path + "test.zip"
+  end if
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

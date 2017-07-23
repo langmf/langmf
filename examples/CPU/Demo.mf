@@ -1,0 +1,77 @@
+<#Module=mdlDemo>
+Dim p
+
+'---------------------------------------
+Sub Load(cmdLine)
+  form.move 0,0, 7200, 4800
+  form.caption = "CPU Usage"
+  form.fontsize = 14
+  form.backcolor = 0
+  form.forecolor = &HFFFFFF
+  form.autoredraw = true
+  form.Style.TopMost = true
+  form.Center  
+  form.show
+
+  redim p(form.scalewidth / 48)
+  
+  sys.ontimer 1000, "Usage"
+  Usage
+End Sub
+
+'----------------------------------------
+Sub Usage
+  set dat = sys.ext.GetSysTimes
+  
+  cpu = cint(dat("Usage"))
+
+  NewPoint cpu  
+
+  Draw
+  
+  GPrint form, cpu & " %", 60, 60
+End Sub
+
+'----------------------------------------
+Sub NewPoint(value)
+  form.cls
+  for a = 0 to ubound(p) - 1
+    p(a) = p(a + 1)
+  next
+  p(ubound(p)) = value
+End Sub
+
+'----------------------------------------
+Sub Draw()
+  form.cls
+  
+  cy = form.scaleheight
+  cx = form.scalewidth
+  ky = (cy - 36) / 100
+  kx = 48
+  
+  color = RGB(0,255, 0)
+
+  for a = 0 to form.scalewidth step 240
+    GLine form, a, 0, a, cy, &H204000
+  next
+  
+  for a = 0 to form.scaleheight step 240
+    GLine form, 0, a, cx, a, &H204000
+  next  
+
+  cy = cy - 36
+    
+  for a = 0 to ubound(p) - 1
+    GLine form, a * kx, cy - p(a) * ky, (a+1) * kx, cy - p(a+1) * ky, color
+  next
+End Sub
+<#Module>
+
+<#Form=form>
+'----------------------------------------
+Sub Form_Unload()
+  sys.offtimer "Usage"
+  endmf
+End Sub
+<#Form>

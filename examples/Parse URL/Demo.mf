@@ -1,0 +1,161 @@
+<#Module=mdlDemo>
+Dim dat, FlexGrid
+
+Class def_Value
+  Dim Value
+  Dim Host
+End Class
+
+'---------------------------------------
+Sub Load(cmdLine)
+dim t
+
+  form.subclass.Msg(522) = 1
+
+  form.caption = "URL Parse"
+  form.width=4440
+  form.height=5500
+
+  form.add "check",1
+  form.check(1).move 60, 4680, 1920, 280
+  form.check(1).caption="Show with subdomain."
+  form.check(1).value=0
+
+  form.add "command",1
+  form.command(1).move 2200, 4680, 960, 280
+  form.command(1).caption="OK"
+
+  Sys.Licenses.Add "MSHierarchicalFlexGridLib.MSHFlexGrid"
+  Set FlexGrid = form.createOCX("FlexGrid", "MSHierarchicalFlexGridLib.MSHFlexGrid")
+
+  FlexGrid.visible = true
+  FlexGrid.move 0, 0, form.scalewidth - 60, form.scaleheight - 480
+  FlexGrid.object.cols=2
+  FlexGrid.object.fixedcols=0
+  FlexGrid.object.colwidth(0)=1800
+  FlexGrid.object.colwidth(1)=1800
+  FlexGrid.object.colalignment(0)=1
+  FlexGrid.object.colalignment(1)=1
+
+  form.center
+  form.show
+End Sub
+
+'---------------------------------------
+Sub Add(id)
+  On Error Resume Next
+
+  dat(id).value = dat(id).value + 1
+  dat(id).host = id
+
+  if err.number>0 then
+    Dim tmp as def_Value
+    tmp.value = 1
+    tmp.host = id
+    dat.add tmp, id
+    set tmp = Nothing
+  end if
+End Sub
+
+'---------------------------------------
+Function Sort(mArr)
+  Dim mDat, max, host, cnt
+
+  Set mDat = sys.newcollection
+
+  do
+
+     max=0
+
+     for each c in mArr
+	if c.value>=max then
+	   max = c.value
+	   host = c.host
+	end if
+     next
+
+     Dim tmp as def_Value
+     tmp.value = max
+     tmp.host = host
+     mDat.add tmp, host
+     set tmp = Nothing
+     mArr.remove host
+
+     cnt = cnt + 1
+     if cnt mod 50 = 0 then doevents
+
+  loop until mArr.count=0
+
+  Set Sort = mDat
+  set mDat = Nothing
+End Function
+<#Module>
+
+
+<#Form=form>
+Dim maxCnt
+
+'-----------------------------------------
+Sub Command1_Click
+dim subdmn
+
+  FlexGrid.object.clear
+  FlexGrid.object.rows=2
+  FlexGrid.object.textmatrix(0,0) = "HOST"
+  FlexGrid.object.textmatrix(0,1) = "Connects"
+
+  subdmn = cbool(form.check(1).value)
+
+  Set dat = sys.newcollection
+
+  maxCnt = 0
+
+  with sys.file.api 
+  .fopen sys.path + "test.txt"
+
+  do
+     .finput t
+     t =~ i/[a-z]+\:\/\/([^\/\:]+).+/$1/
+     if not subdmn then t =~ i/.+?([^\.]+\.[a-z][^\.]+)$/$1/
+
+     Add(t)
+
+     maxCnt = maxCnt + 1
+     if maxCnt mod 50 = 0 then doevents
+  loop until .eof
+
+  .fclose
+  end with
+  
+  with FlexGrid.object
+    for each c in Sort(dat)
+      cnt = cnt + 1
+      .additem c.host, cnt
+      .textmatrix(cnt,1) = c.value
+    next
+  
+    .additem "", cnt+1
+    .col = 0 : .row = cnt + 2 : .text = "All Connects" : .cellforecolor = rgb(0,50,255)
+    .col = 1 : .row = cnt + 2 : .text = maxCnt: .cellforecolor = rgb(0,50,255)
+  end with
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+
+'-----------------------------------------
+Function WindowProc(bHandled, hwnd, umsg, wparam, lparam, dwRefData)
+dim numScroll
+
+  numScroll=3
+
+  If wParam = -7864320 Or wParam = -7864304 Then
+     If FlexGrid.object.TopRow <= FlexGrid.object.Rows - numScroll Then FlexGrid.object.TopRow = FlexGrid.object.TopRow + numScroll Else FlexGrid.object.TopRow = FlexGrid.object.Rows - 1
+  End If
+  If wParam = 7864320 Or wParam = 7864336 Then
+     If FlexGrid.object.TopRow >= 1 + numScroll Then FlexGrid.object.TopRow = FlexGrid.object.TopRow - numScroll Else FlexGrid.object.TopRow = 1
+  End If
+End Function
+<#Form>

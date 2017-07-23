@@ -1,0 +1,50 @@
+<#Module=mdlMain>
+Dim obj
+
+'---------------------------------------
+Sub Load(cmdLine)
+  Set obj = sys.com.create(new IDispatch)
+  
+  t1 = timegettime
+  for each v in obj
+    v = 0
+	'msgbox v
+  next
+  t1 = timegettime - t1
+  msgbox t1
+  
+  set obj = nothing
+  
+  endmf
+End Sub
+
+
+
+Class IDispatch
+  Dim cnt
+  
+  Function IEnumVARIANT_Next(this, celt, rgvar, pceltFetched)
+	VType(rgvar, True) = 12
+	rgvar = 101
+	cnt = cnt + 1
+	If cnt > 10000 Then IEnumVARIANT_Next = 1
+  End Function
+  
+  Function COM_Invoke(This, idMember, IDName, wFlags, Params, Result)    
+	If idMember = -4 Then Set Result = (New IEnumVARIANT)(Me)
+  End Function
+End Class
+
+Class IEnumVARIANT
+  Private cbk
+  
+  Public Default Function Create(obj)
+    Set cbk = sys.callback("IEnumVARIANT_Next", obj, 4)
+    Set Create = sys.com.Create(Me)
+  End Function
+  
+  Function COM_Custom(This)
+	COM_Custom = Array(, "{00020404-0000-0000-C000-000000000046}", Array(cbk))
+  End Function
+End Class
+<#Module>

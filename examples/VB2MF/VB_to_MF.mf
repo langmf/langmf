@@ -1,0 +1,312 @@
+<#Module=Demo>
+Dim FName, cntObj, cntMenu, cmd
+
+'---------------------------------------
+Sub Load(cmdLine)
+  form1.Caption = "Convert VB Form to MF Form!"
+  form1.Height = 1800
+  form1.Width = 4500
+  
+  form1.Add "Command", 1
+  form1.Command(1).move 1320, 480, 1560, 420
+  form1.Command(1).Caption = "Open"
+  
+  form1.center
+  form1.show
+  
+  cmd = cmdline
+End Sub
+
+'---------------------------------------
+Sub Convert()
+  Dim txt, out, Frm, Ctr, bTxt, elem, num, a
+  
+  FName = sys.cdlg.showopen("Forms Files (*.frm)|*.frm|All Files (*.*)|*.*", , , sys.path)
+  
+  if FName = "" then
+     msgbox "Never File!"
+     endmf
+     exit sub
+  end if
+  
+  cntObj = 0
+  
+  sys.file.open2 FName, 1, "binary"
+  bTxt = string(sys.file.lof(1), 0)
+  sys.file.get2 1, 0, bTxt
+  sys.file.close2 1
+  
+  frm = GetChild(bTxt)
+  ctr = frm(4)
+  
+  out = out + DoElem(frm(2), frm, empty)
+  
+  if Not IsEmpty(ctr) then
+    for a=0 to ubound(ctr)
+      elem = GetChild(ctr(a))
+      if IsElem(elem(0)) then out = out + DoElem(frm(2), elem, empty)
+    next
+  end if
+  
+  with sys.file
+  	.Open2 sys.path + "Out.mf", 1, "output"
+  	.Print2 1, "<#Module=Demo>"
+  	.Print2 1, "Sub Load(cmdLine)"
+  	.Print2 1, out
+  	.Print2 1, frm(2) + ".show"
+  	.Print2 1, "End Sub"
+  	.Print2 1, "<#Module>" + vbCrLf
+  	.Print2 1, "<#Form=" + frm(2) + ">"
+  	.Print2 1, "Sub Form_Unload()"
+  	.Print2 1, "   endmf"
+  	.Print2 1, "End Sub"
+  	.Print2 1, "<#Form>"
+  	.Close2 1
+  end with
+End Sub
+
+'---------------------------------------
+Function GetChild(value)
+  Dim txt, tmp, Out, isOut, cntB
+  Dim PTag, PElem, PName, PCode, isPCode, CCode, cntC
+  
+  txt = split(value, vbcrlf)
+
+  isPCode = False
+  cntC = 0
+  
+  for a = 0 to ubound(txt)
+    tmp = trim(txt(a))
+    
+    isOut = True
+    
+    if tmp =~ ig/^[ \t\v]*begin ([a-z0-9_]+)\.([a-z0-9_]+) ([a-z_]+)// then 
+      if cntB = 0 then
+        PTag = $$1
+        PElem = $$2
+        PName = $$3
+        isOut = False
+      else
+        if isPCode = False then  
+          isPCode = True
+          PCode = out
+          Out = ""
+        end if      
+      end if
+      
+      if cntB = 1 then 
+        if VarType(CCode) = vbEmpty then
+          Redim CCode(cntC)
+        else
+          Redim Preserve CCode(cntC)          
+        end if
+      end if
+      
+      cntB = cntB + 1
+    end if
+    
+    if tmp =~ ig/^[ \t\v]*end$// then 
+      cntB = cntB - 1
+      
+      if cntB = 0 then 
+        if isPCode = False then PCode = out
+        GetChild = Array(PTag, PElem, PName, PCode, CCode)
+        exit for
+      end if
+      
+      if cntB = 1 then
+        CCode(cntC) = Out + "End"
+        Out = ""
+        isOut = False
+        cntC = cntC + 1  
+      end if
+    end if
+    
+    if isOut and cntB then out = out + tmp + vbcrlf
+  next
+End Function
+
+'---------------------------------------
+Function DoElem(nameForm, elem, Container)
+  Dim txt, tmp, out, a
+
+  if elem(1) = "Menu" then
+    DoElem = DoMenu(nameForm + ".menu", elem)
+    exit function
+  end if
+  
+  txt = Split(elem(3), vbcrlf)
+  
+  if elem(1) <> "Form" then
+    if Not IsEmpty(Container) then out = out + vbcrlf
+    
+    cntObj = cntObj + 1
+    out = out + nameForm + ".add """ + VB_MF(elem(1)) + """," + cstr(cntObj) + vbCrLf
+    
+    if Not IsEmpty(Container) then
+      out = out + "Set " + nameForm + "." + VB_MF(elem(1)) + "(" + cstr(cntObj) + ").Container = " + nameForm + "." + Container + vbCrLf
+    end if
+  end if
+          
+  for a=0 to ubound(txt)-1
+    tmp = txt(a)
+    
+    if tmp =~ ig/([a-z0-9_]+) +\= +(.+)// then
+      if elem(1) = "Form" then
+        If IsProp($$1, "") Then out = out + nameForm + "." + GetProp($$1, $$2, Container) + vbCrLf
+      else
+        If IsProp($$1, VB_MF(elem(1))) Then out = out + nameForm + "." + VB_MF(elem(1)) + "(" + cstr(cntObj) + ")." + GetProp($$1, $$2, Container) + vbCrLf
+      end if
+    end if
+  next
+  
+  if Not IsEmpty(elem(4)) and elem(1) <> "Form" then
+    for a = 0 to ubound(elem(4))
+      out = out + DoElem(nameForm, GetChild(elem(4)(a)), VB_MF(elem(1)) + "(" + cstr(cntObj) + ")")
+    next  
+  end if
+  
+  DoElem = out + vbcrlf
+End Function
+
+'---------------------------------------
+Function DoMenu(nameForm, elem)
+  Dim txt, tmp, out, nameMenu, popupMenu, a
+  
+  txt = Split(elem(3), vbcrlf)
+  
+  for a=0 to ubound(txt)
+    tmp = txt(a)
+    
+    if tmp =~ ig/([a-z0-9_]+) +\= +(.+)// then
+      if lcase($$1) = "caption" then nameMenu = $$2
+    end if
+  next
+    
+  if IsEmpty(elem(4)) then
+    cntMenu = cntMenu + 1
+    out = out + nameForm + ".add " + cstr(cntMenu) + ", " + nameMenu
+  else
+    cntMenu = cntMenu + 1
+    popupMenu = """p" + cstr(cntMenu) + """"
+    out = out + nameForm + ".add " + cstr(cntMenu) + ", " + nameMenu + ", " + popupMenu + vbCrLf
+    for a = 0 to ubound(elem(4))
+      out = out + DoMenu(nameForm + ".SubMenu(" + popupMenu + ")", GetChild(elem(4)(a)))
+    next  
+  end if
+  
+  DoMenu = out + vbcrlf
+End Function
+
+'---------------------------------------
+Function IsElem(txt)
+  IsElem = False
+  Select Case LCase(txt)
+      Case "vb", "atomix", "mswinsocklib"
+        IsElem = True
+  End Select
+End Function
+
+'---------------------------------------
+Function IsProp(txt, mType)
+  IsProp = True
+  Select Case LCase(txt)
+      Case "linktopic", "maxbutton", "scaleheight", "scalewidth", "startupposition", _
+           "multiline", "scrollbars", "name", "icon", "picture", "minbutton", "index", _
+           "extentx", "extenty", "version", "numberofbands", "itemdata", "list", _
+           "style", "sorted", "showintaskbar", "whatsthisbutton", "whatsthishelp", _
+           "hasdc", "negotiate", "mdichild", "_extentx", "_extenty", "_version", _
+           "_numberofbands", "linkmode", "controlbox", "mouseicon", "dragicon", _
+           "lockcontrols", "downpicture"
+  
+         IsProp = False
+  
+      Case "size", "charset", "weight", "underline", "italic", "strikethrough"
+         if instr(1,cmd,"nofont")<>0 then IsProp = False
+  
+      Case "left", "top"
+         If mType = "Timer" Then IsProp = False
+  
+      Case "height"
+         If mType = "Combo" Then IsProp = False
+  End Select
+End Function
+
+'---------------------------------------
+Function GetProp(txt, prop, container)
+  Select Case LCase(txt)
+      Case "clientheight"
+          GetProp = "Height = " + CStr(prop + 480)
+      Case "clientwidth"
+          GetProp = "Width = " + CStr(prop + 45)
+      Case "clientleft"
+          GetProp = "Left = " + prop
+      Case "clienttop"
+          GetProp = "Top = " + prop
+  
+      Case "size", "charset", "weight", "underline", "italic", "strikethrough"
+          GetProp = "Font." + txt + " = " + prop
+          
+      Case "left","x1", "x2"
+          GetProp = txt + " = " + CStr(Int(prop))
+      Case "top","y1", "y2"
+          GetProp = txt + " = " + CStr(Int(prop))
+  
+      Case "height", "width"
+          GetProp = txt + " = " + CStr(Int(prop))
+            
+      Case "visible"
+          GetProp = txt + " = 1"
+  
+      Case Else
+          GetProp = txt + " = " + prop
+  End Select
+End Function
+
+'---------------------------------------
+Function VB_MF(txt)
+  Select Case LCase(txt)
+      Case "textbox"
+          VB_MF = "Text"
+      Case "timer"
+          VB_MF = "Timer"
+      Case "commandbutton"
+          VB_MF = "Command"
+      Case "picturebox"
+          VB_MF = "Pic"
+      Case "combobox"
+          VB_MF = "Combo"
+      Case "hscrollbar"
+          VB_MF = "HScroll"
+      Case "vscrollbar"
+          VB_MF = "VScroll"
+      Case "shape"
+          VB_MF = "cShape"
+      Case "line"
+          VB_MF = "cLine"
+      Case "checkbox"
+          VB_MF = "Check"
+      Case "optionbutton"
+          VB_MF = "Opt"
+      Case "listbox"
+          VB_MF = "List"
+      Case "image"
+          VB_MF = "Img"
+  
+      Case Else
+          VB_MF = txt
+  End Select
+End Function
+<#Module>
+
+<#Form=form1>
+'---------------------------------------
+Sub Command1_Click()
+   Convert
+End Sub
+
+'---------------------------------------
+Sub Form_Unload()
+   endmf
+End Sub
+<#Form>

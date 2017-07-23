@@ -1,0 +1,77 @@
+Declare Function GetDC Lib "user32" (ByVal hwnd As Long) As Long
+Declare Function ReleaseDC Lib "user32" (ByVal hwnd As Long, ByVal hdc as Long) As Long
+Declare Function BitBlt Lib "gdi32" (ByVal hDestDC As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal xSrc As Long, ByVal ySrc As Long, ByVal dwRop As Long) As Long
+
+<#Module=mdlDemo>
+Const WM_PAINT = &HF
+
+Sub Load(cmdLine)
+   form.show
+End Sub
+<#Module>
+
+<#Form=form>
+Sub Form_Load()
+   form.move 0,0,5000,3000
+   form.Center
+   
+   Form.NoOverOutCommand = true
+   
+   form.add "pic",1, ".borderstyle = 0", ".autosize = true", ".visible=false"
+   form.pic(1).Picture = sys.gdi.LoadPicture(sys.path+"test1.ico")
+
+   form.add "pic",2, ".borderstyle = 0", ".autosize = true", ".visible=false"
+   form.pic(2).Picture = sys.gdi.LoadPicture(sys.path+"test2.ico")
+   
+   form.add "command",1
+   form.add "command",2
+   
+   form.command(1).Caption = "Текст1"
+   form.command(1).Move 600, 360, 1200, 960
+   form.command(1).ToolTipText = "Это текст"
+   form.command(1).maskcolor = qbcolor(15)
+   form.command(1).usemaskcolor = true
+   
+   form.command(2).Caption = "Текст2"
+   form.command(2).Move 2400, 360, 1200, 960
+   form.command(2).ToolTipText = "Это текст"
+   
+   form.subclass.msg(WM_PAINT) = 7
+   form.subclass.hookset form, form.command(1).hwnd 
+   form.subclass.hookset form, form.command(2).hwnd       
+End Sub
+
+'-----------------------------------------
+Function WindowProc(byref bHandled, hwnd, umsg, wparam, lparam, dwRefData)
+  if umsg = WM_PAINT then
+    if hwnd = form.command(1).hwnd then
+		with form.pic(1)
+         rc = getdc(form.command(1).hwnd)
+         .backcolor = qbcolor(15)
+         BitBlt rc, (form.command(1).width - .width) / (2 * vbPX), 5, .width / vbPX, .height / vbPY, .hdc, 0, 0, vbsrcand
+         .backcolor = qbcolor(0)
+         BitBlt rc, (form.command(1).width - .width) / (2 * vbPX), 5, .width / vbPX, .height / vbPY, .hdc, 0, 0, vbsrcpaint
+         ReleaseDC form.command(1).hwnd, rc
+		end with
+     end if
+
+    if hwnd = form.command(2).hwnd then
+        with form.pic(2)
+         rc = getdc(form.command(2).hwnd)
+         .backcolor = qbcolor(15)
+         BitBlt rc, 5, (form.command(2).height - .height) / (2 * vbPX), .width / vbPX, .height / vbPY, .hdc, 0, 0, vbsrcand
+         .backcolor = qbcolor(0)
+         BitBlt rc, 5, (form.command(2).height - .height) / (2 * vbPX), .width / vbPX, .height / vbPY, .hdc, 0, 0, vbsrcpaint
+         ReleaseDC form.command(2).hwnd, rc
+        end with
+     end if
+  end if
+End Function
+
+'-----------------------------------------
+Sub Form_Unload()
+   form.subclass.hookclear form, form.command(1).hwnd 
+   form.subclass.hookclear form, form.command(2).hwnd  
+   endmf
+End Sub
+<#Form>

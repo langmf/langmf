@@ -1,0 +1,92 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.caption = "Пример"
+  form.height = 3840
+  form.width = 4200
+
+  form.add "pic",1
+  form.add "pic",2
+  form.add "command",1
+  form.add "command",2
+
+  form.pic(1).move 0, 0, 1800, 1800
+  form.pic(2).move 1920, 0, 1800, 1800
+
+  form.command(1).caption="Test 1"
+  form.command(1).move 0, 1920, 600, 600
+
+  form.command(2).caption="Test 2"
+  form.command(2).move 1920, 1920, 600, 600
+  
+  form.center
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Pic1_MouseOver(button,shift,x,y)
+txt="Over Mouse"
+form.pic(1).cls
+form.pic(1).backcolor=QBColor(1)
+form.pic(1).forecolor=QBColor(15)
+GPrint form.pic(1), txt, -0.1, -0.1
+End Sub
+
+'-----------------------------------------
+Sub Pic1_MouseOut(button,shift,x,y)
+txt="Out Mouse"
+form.pic(1).cls
+form.pic(1).backcolor=QBColor(2)
+form.pic(1).forecolor=QBColor(15)
+GPrint form.pic(1), txt, -0.1, -0.1
+End Sub
+
+'-----------------------------------------
+Sub Pic2_MouseOver(button,shift,x,y)
+txt="Over Mouse"
+form.pic(2).cls
+form.pic(2).backcolor=QBColor(1)
+form.pic(2).forecolor=QBColor(15)
+GPrint form.pic(2), txt, -0.1, -0.1
+End Sub
+
+'-----------------------------------------
+Sub Pic2_MouseOut(button,shift,x,y)
+txt="Out Mouse"
+form.pic(2).cls
+form.pic(2).backcolor=QBColor(2)
+form.pic(2).forecolor=QBColor(15)
+GPrint form.pic(2), txt, -0.1, -0.1
+End Sub
+
+'-----------------------------------------
+Sub Command1_MouseOver(button,shift,x,y)
+form.command(1).height=1200
+form.command(1).width=1200
+End Sub
+
+'-----------------------------------------
+Sub Command1_MouseOut(button,shift,x,y)
+form.command(1).height=600
+form.command(1).width=600
+End Sub
+
+'-----------------------------------------
+Sub Command2_MouseOver(button,shift,x,y)
+form.command(2).height=1200
+form.command(2).width=1200
+End Sub
+
+'-----------------------------------------
+Sub Command2_MouseOut(button,shift,x,y)
+form.command(2).height=600
+form.command(2).width=600
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

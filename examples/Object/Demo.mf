@@ -1,0 +1,46 @@
+<#Module=mdlMain>
+Dim obj
+
+'---------------------------------------
+Sub Load(cmdLine)
+  Set obj = Object
+  
+  obj.[].Hash.ignorecase = false
+  
+  Set obj.new = Object
+
+  obj.func = GetRef("Example")
+  
+  obj(1) = 100
+  obj.my = "test"
+  obj.sys = sys
+  obj("MY") = "OK"
+  obj.new.my = "good"
+  obj.[Привет] = "rus"  
+
+  msgbox obj.func(100, 9)
+  
+  msgbox obj.sys.path(true) & vbcrlf & sys.str.rpt("-", 60) & vbcrlf & obj.MY & vbTab & obj("MY") & vbTab & obj.new.my & vbTab & obj.[Привет]
+  
+  out = obj.[].Hash & vbcrlf & sys.str.rpt("-", 30) & vbcrlf
+  For each v in obj.[].Hash.Items(2)
+	out = out & v(1) & vbTab & "= "
+	if IsObject(v(0)) then
+		out = out & TypeName(v(0)) & vbcrlf
+	elseif VarType(v(0)) = vbString then
+		out = out & """" & v(0) & """" & vbcrlf	
+	else
+		out = out & v(0) & vbcrlf
+	end if
+  next
+  msgbox out
+  
+  set obj = nothing
+  
+  endmf
+End Sub
+
+Function Example(id, id2)
+  Example = (id * 10) + id2
+End Function
+<#Module>

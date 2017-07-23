@@ -1,0 +1,73 @@
+<#Module=mdlDemo>
+Dim web
+
+'---------------------------------------
+Sub Load(cmdLine)
+  Set web = form.createOCX("web", "Shell.Explorer")
+
+  Form.add "Command",1, ".caption=""Back""", ".move 0, 0, 1440, 300"
+
+  form.windowstate = 2
+  form.show
+  
+  web.visible = true
+  web.object.navigate "http://test.com:9191/sd/"
+End Sub
+<#Module>
+
+<#Form=form>
+Dim isLastImages
+
+'-----------------------------------------
+Sub Web_DocumentComplete(pDisp, URL)
+    ScanImages web.object.document.body.innerhtml
+End Sub
+
+'-----------------------------------------
+Sub ScanImages(txt)
+	dim out, path
+	
+	Set mts = sys.rxp.execute(txt, "(\d+)KB +(\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}) +<A href="".+"">(.+)<\/A>")
+	this.caption = mts.count
+	
+	path = web.object.locationurl
+	
+	out = "<HTML><HEAD><meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" /><style>ul {margin: 0; padding: 5px; } ul li {display: inline-table; text-align: center; margin: 0 20px 30px 0; border: 1px solid #000; padding: 3px; } img {border: 0}</style></HEAD><BODY><UL>" + vbcrlf
+	
+	isLastImages = False
+	
+	for each m in mts
+		sz = sys.var.val(m.Submatches(0))
+		
+		if sz > 80 then
+			lnk = path & m.submatches(2)
+			out = out & "<li><a href=""" & lnk & """><img src=" & lnk & " height=190></a><br>" & sz & "KB " & m.submatches(1) & "</li>" & vbcrlf
+			
+			isLastImages = True
+		end if
+	next
+
+	out = out + "</UL></BODY></HTML>" + vbrlf
+		
+	if isLastImages then web.object.document.write out
+End Sub
+
+'-----------------------------------------
+Sub Command1_Click()
+	on error resume next
+	web.object.goback
+	if isLastImages then web.object.goback
+End Sub
+
+'-----------------------------------------
+Sub Form_Resize()
+  If form.scalewidth>0 Then 
+     web.move 0,this.command(1).height,form.scalewidth-60,form.scaleheight-this.command(1).height-60
+  end if
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+ endmf
+End Sub
+<#Form>

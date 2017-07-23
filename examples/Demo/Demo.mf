@@ -1,0 +1,20 @@
+<#Module=mdlDemo>
+
+'---------------------------------------
+Sub Load(cmdLine)
+  logo.mouseicon = sys.gdi.LoadPicture(sys.path+"a2.ico")
+  logo.mousepointer = 99
+  logo.backcolor = QBColor(2)
+  logo.nomovemouse = false
+  logo.style.titlebar = false
+  logo.Center
+  logo.show
+End Sub
+<#Module>
+
+<#Form=logo>
+'-----------------------------------------
+Sub Form_Click()
+  endmf
+End Sub
+<#Form>

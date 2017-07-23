@@ -1,0 +1,131 @@
+<#Module=mdlMain>
+Dim LV
+
+Const lvwReport = 3
+Const lvwColumnRight = 1
+Const lvwColumnCenter = 2
+
+Const LVM_GETTOPINDEX = 4135
+Const LVM_GETCOUNTPERPAGE = 4136
+
+
+'---------------------------------------
+Sub Load(cmdLine)
+  form.show
+End Sub
+<#Module>
+
+<#Form=Form>
+Dim savePos
+
+'-----------------------------------------
+Sub Form_Load()
+  If IsAdmin = False Then msgbox "Запустите программу под администратором, чтобы увидеть больше информации." 
+  
+  form.move 0, 0, 16800, 9600
+  form.caption = "Process Explorer"
+  form.style.maxbutton = true
+  
+  form.add "command", 1, ".move 4440, 5040, 1200, 300", ".Caption = ""Kill Process"""
+  form.add "check", 1, ".move 840, 5040, 1200, 300", ".Caption = ""Refresh""", ".Value = 1"
+  form.center
+
+  savePos = 1
+
+  sys.Licenses.Add "MSComctlLib.ListViewCtrl"
+  Set LV = form.CreateOCX("LV", "MSComctlLib.ListViewCtrl")
+  
+  LV.object.view = lvwReport
+  LV.object.FullRowSelect = True
+  LV.object.Borderstyle = 0
+  LV.object.ColumnHeaders.Add , , "Pid", 600
+  LV.object.ColumnHeaders.Add , , "Name", 1800
+  LV.object.ColumnHeaders.Add , , "Memory", 1020, lvwColumnRight
+  LV.object.ColumnHeaders.Add , , "Session", 660, lvwColumnCenter
+  LV.object.ColumnHeaders.Add , , "User", 1680
+  LV.object.ColumnHeaders.Add , , "Path", 3720
+  LV.object.ColumnHeaders.Add , , "Hwnd", 840, lvwColumnCenter     
+  LV.object.ColumnHeaders.Add , , "Title", 3240
+  LV.object.ColumnHeaders.Add , , "Class", 2160
+  LV.Visible = true
+End Sub
+
+'-----------------------------------------
+Sub Form_Activate()
+  Call ListProcess
+End Sub
+
+Sub Check1_Click()
+  if form.check(1).value = 1 then
+    sys.ontimer 4000, array("ListProcess", mf_IDM)
+  else
+    sys.offtimer array("ListProcess", mf_IDM)
+  end if
+End Sub
+
+Sub LV_ItemClick(Item)
+  savePos = Item.Index
+End Sub
+
+Sub ListProcess()
+  Dim Proc, v
+  
+  Set Proc = sys.process.list
+  
+  pos = sys.api.SendMessage(LV.object.hwnd, LVM_GETTOPINDEX, 0, 0)
+  pos = pos + sys.api.SendMessage(LV.object.hwnd, LVM_GETCOUNTPERPAGE, 0, 0)
+
+  LV.object.ListItems.clear
+  
+  for each obj in Proc
+    Set Item = LV.object.ListItems.Add( , "k" & obj("Pid"), obj("Pid"))
+    Item.SubItems(1) = obj("Name")
+    Item.SubItems(2) = FormatBytes(obj("Mem"))
+    Item.SubItems(3) = obj("Sid")
+    Item.SubItems(4) = obj("User")
+    Item.SubItems(5) = obj("Path")
+    Item.SubItems(6) = obj("Win")(0)
+    Item.SubItems(7) = obj("Win")(1)
+    Item.SubItems(8) = obj("Win")(2)
+  next
+
+  if savePos > LV.object.ListItems.count then savePos = LV.object.ListItems.count
+  LV.object.ListItems(savePos).Selected = True
+    
+  if pos > LV.object.ListItems.count then pos = LV.object.ListItems.count
+  LV.object.ListItems(pos).EnsureVisible
+End Sub
+
+Function FormatBytes(value)
+  value = value \ 1024
+  if value > 0 then FormatBytes = Format(value, "### ###") & " Kb"
+End Function
+
+'-----------------------------------------
+Sub Command1_Click()
+  Dim Pid
+  
+  Pid = clng(Replace(LV.object.ListItems(savePos).Key, "k", ""))
+
+  if sys.process.kill(Pid) = 0 then msgbox "Fail kill process!"
+  
+  Sleep 200
+  
+  Call ListProcess
+End Sub
+
+'-----------------------------------------
+Sub Form_Resize()
+  if isobject(LV) and form.windowstate <> 1 then
+     LV.move 120,120, form.scalewidth - 360, form.scaleheight - 600
+     form.command(1).move form.scalewidth / 2 - 600, form.scaleheight - 420
+     form.check(1).move 840, form.scaleheight - 420
+  end if
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+  sys.offtimer array("ListProcess", mf_IDM)
+  endmf
+End Sub
+<#Form>

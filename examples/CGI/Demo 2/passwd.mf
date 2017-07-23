@@ -1,0 +1,32 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+dim count, num
+
+    sys.cgi.stdout "Content-Type: text/html"+vbcrlf+vbcrlf
+
+    count = clng(0)
+
+    sys.file.open2 sys.path + "host_" + replace(sys.env("Remote_Addr"),":","")+ ".irp", 1, "binary"
+     if sys.file.lof(1) = 0 then sys.file.put2 1, 1, clng(0)
+     sys.file.get2 1, 1, count
+    sys.file.close2 1
+
+    sys.file.filekill sys.path + "host_" + replace(sys.env("Remote_Addr"),":","") + ".irp"
+
+    num = cstr(sys.cgi.inp("pass"))
+
+    if not isnumeric(num) then num = 0
+    if num > 1000000 then num = 0
+
+    num = clng(num)
+    
+    if count = num and num <> 0 then
+       sys.cgi.stdout "<center><b>Password OK!</b></center>" 
+    else
+       sys.cgi.stdout "<center><b>Password Failed!</b></center>" 
+    end if
+
+    endmf
+End Sub
+<#Module>

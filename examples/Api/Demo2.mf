@@ -1,0 +1,22 @@
+Declare Function UrlCreateFromPath Lib "@shlwapi" Alias "UrlCreateFromPathW" (ByVal pszPath As String, ByVal pszUrl As String, pcchUrl As Long, ByVal dwReserved As Long) As Long
+
+<#Module>
+Sub Load(cmdLine)
+	dim orig
+	
+	orig = "c:\test\мои документы\"
+	
+	msgbox orig & vbcrlf & vbcrlf & Url(orig)
+	
+	endmf
+End Sub
+
+Function Url(value)
+	Dim txt, dwSize
+	 
+	txt = string(260,0)
+	dwSize = clng(len(txt))
+	
+	If UrlCreateFromPath(value, txt, dwSize, 0) = 0 Then Url = Left(txt, dwSize)
+End Function
+<#Module>

@@ -1,0 +1,35 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+Sub Form_Load()
+  this.Center
+  this.caption="IP Camera"
+  this.add "timer", 1, ".interval = 1000", ".enabled = true"
+End Sub
+
+'---------------------------------
+Sub Timer1_Timer()
+	on error resume next
+
+	this.timer(1).enabled = false
+  
+	t1 = TimeGetTime
+
+	set obj = sys.net.xmlhttp("http://test.com:9191/tmpfs/auto.jpg", array(,,"admin","password"))
+	
+	set form.picture = sys.conv.str2image(obj.responseBody)
+  
+	this.caption = TimeGetTime - t1
+	if not IsEnd then this.timer(1).enabled = true
+End Sub
+
+'---------------------------------
+Sub Form_Unload()
+  endmf 500
+End Sub
+<#Form>

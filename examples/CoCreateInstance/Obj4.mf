@@ -1,0 +1,33 @@
+<#Module=mdlMain>
+'------------- IActiveDesktop Interface ----------------
+Interface IActiveDesktop [ {75048700-EF1F-11D0-9888-006097DEACF9}, {F490EB00-1240-11D1-9888-006097DEACF9}, 1 ] = QueryInterface(2), AddRef, Release, ApplyChanges(1), GetWallpaper(3), SetWallpaper(2), GetWallpaperOptions(2), SetWallpaperOptions(2), GetPattern(3), SetPattern(2), GetDesktopItemOptions(2), SetDesktopItemOptions(2), AddDesktopItem(2), AddDesktopItemWithUI(3), ModifyDesktopItem(2), RemoveDesktopItem(2), GetDesktopItemCount(2), GetDesktopItem(3), GetDesktopItemByID(3), GenerateDesktopItemHtml(3), AddUrl(4), GetDesktopItemBySource(3)
+
+Type def_Style
+  dwSize as Long
+  dwStyle as Long
+End Type
+
+Const WPSTYLE_CENTER = 0
+Const WPSTYLE_TILE = 1
+Const WPSTYLE_STRETCH = 2
+Const WPSTYLE_KEEPASPECT = 3
+Const WPSTYLE_CROPTOFIT = 4
+
+
+'---------------------------------------
+Sub Load(cmdLine)
+  Dim Desktop As IActiveDesktop
+  Dim Style As def_Style
+
+  Style.dwSize = LenType(Style)
+  Style.dwStyle = WPSTYLE_STRETCH  
+  
+  Desktop.SetWallPaper sys.file.LPath(sys.Path, -1) + "src\test.jpg", 0
+  Desktop.SetWallPaperOptions Style, 0
+  Desktop.ApplyChanges 7
+  
+  msgbox "Change WallPaper"
+
+  endmf
+End Sub
+<#Module>

@@ -1,0 +1,21 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+dim WshShell
+
+set WshShell = CreateObject("WScript.Shell")
+strDesktop = WshShell.SpecialFolders("Desktop")
+set oShellLink = WshShell.CreateShortcut(strDesktop & "\Test Script.lnk")
+oShellLink.TargetPath = "notepad.exe"
+oShellLink.WindowStyle = 1
+oShellLink.Hotkey = "CTRL+SHIFT+F"
+oShellLink.IconLocation = "notepad.exe, 0"
+oShellLink.Description = "Shortcut Script"
+oShellLink.WorkingDirectory = strDesktop
+oShellLink.Save
+
+msgbox "Shortcut is created!",,"Info"
+
+endmf
+End Sub
+<#Module>

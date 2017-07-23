@@ -1,0 +1,433 @@
+'http://langmf.ru/ftp/doc/mb_sensor/
+'http://openhardwaremonitor.org/
+
+#Include "SuperIO.inc"
+
+<#Module=mdlDemo>
+Dim Sensor, frmEXT
+
+'---------------------------
+Sub Load(cmdLine)
+  Set Sensor = FindSensor
+
+  if not Sensor is nothing then
+      form.caption = "MB Sensor [ " & Sensor.Name & " ]"
+      select case Sensor.Family
+        case "IT87x"
+          set frmEXT = frm_IT87x
+      end select
+  else
+      msgbox "Not found sensor!"
+      endmf
+      exit sub
+  end if
+  
+  form.move 0,0,3960,4440
+
+  form.add "pic",1,  ".move 0, 0, vbSM(49) * vbPX, vbSM(50) * vbPY", ".borderstyle = 0", ".autoredraw = true", ".backcolor = &H808080", ".visible = false", ".fontsize = 10"
+
+  form.add "timer",1, ".Interval = 500", ".Enabled = False"
+  form.add "mtext",1, ".move 120, 120, 1800, 720"  
+  form.add "mtext",2, ".move 120, 960, 1800, 2880"
+  form.add "command",1, ".move 2160,1080,1400,300", ".caption=""ALL Fan - OFF"""
+  form.add "command",2, ".move 2160,1560,1400,300", ".caption=""ALL Fan - FULL"""
+  form.add "command",3, ".move 2160,2520,1400,300", ".caption=""Simple"""
+  form.add "command",4, ".move 2160,3000,1400,300", ".caption=""Advanced""", ".Enabled = IIF(IsEmpty(frmEXT), False, True)"
+  form.tray.intray=true
+
+  Call Update
+  
+  form.Center
+  form.Show
+  
+  Sys.OnTimer 500, "Update"
+
+  form.setfocus
+End Sub
+
+'---------------------------
+Sub Update
+  Dim tmp
+
+  if IsObject(frmEXT) then if frmEXT.visible then frmEXT.CodeObject.UpdateEXT
+  if frmSimple.visible then frmSimple.CodeObject.UpdateEXT
+
+  txt = ""
+
+  itm = Sensor.GetTemps
+  for a = 0 to ubound(itm)
+    txt = txt & Sensor.LabelTemps(a) & " = " & itm(a) & " C" & vbcrlf
+  next
+
+  form.mtext(1).text = txt
+
+  '----------------------
+  form.CodeObject.ControlAlarm itm(Sensor.TempCPU)
+  '----------------------
+
+  txt = ""
+  
+  itm = Sensor.GetFans
+  for a = 0 to ubound(itm)
+    txt = txt & Sensor.LabelFans(a) & " = " & itm(a) & " RPM" & vbcrlf  
+  next
+
+  itm = Sensor.GetVolts
+  for a = 0 to ubound(itm)
+    txt = txt & Sensor.LabelVolts(a) & " = " & format(itm(a),"#0.00") & " V" & vbcrlf  
+  next
+  
+  form.mtext(2).text = txt
+End Sub
+<#Module>
+
+
+<#Form=form>
+Dim cntAlarm, isShow
+
+'----------------------
+Sub ControlAlarm(tempCPU)
+  this.pic(1).Cls
+  this.pic(1).forecolor = sys.gdi.getgrad(int(((tempCPU - 40) / 15) * 255), rgb(255,255,255), rgb(255,0,0))
+  GPrint this.pic(1), tempCPU, 0, 0
+  Set this.tray.trayicon = sys.gdi.icotopic(sys.gdi.pictoico(this.pic(1).hdc,this.pic(1).width/vbPX,this.pic(1).height/vbPY))
+
+  if tempCPU >= 60 then
+      if this.timer(1).enabled = false then form.tray.balloon "Critical temperature CPU!", "Warning", 3
+      this.timer(1).enabled = true
+  else
+      if this.timer(1).enabled then
+        this.timer(1).enabled = false
+        this.mtext(1).backcolor = &H80000005
+        form.tray.balloon ""
+        cntAlarm = 0
+      end if  
+  end if
+End Sub
+
+'----------------------
+Sub Timer1_Timer()
+  cntAlarm = cntAlarm + 1
+  if cntAlarm > 11 then Call Command2_Click
+  if this.mtext(1).backcolor = &H80000005 then this.mtext(1).backcolor = QBColor(12) else this.mtext(1).backcolor = &H80000005
+  Call sys.ext.PlaySound(sys.path + "alarm.wav", 0, 1)
+End Sub
+
+'----------------------
+Sub Command1_Click()
+  Sensor.FanALL = False
+End Sub
+
+'----------------------
+Sub Command2_Click()
+  Sensor.FanALL = True
+End Sub
+
+'----------------------
+Sub Command3_Click()
+  frmSimple.Center
+  frmSimple.show
+  frmSimple.CodeObject.UpdateEXT
+End Sub
+
+'----------------------
+Sub Command4_Click()
+  if isobject(frmEXT) then frmEXT.Center : frmEXT.show : frmEXT.CodeObject.UpdateEXT : end if
+End Sub
+
+'----------------------
+Sub Tray_MouseDown(button)
+  isShow = true
+  form.show
+  form.windowstate = 0
+  isShow = false
+End Sub
+
+'----------------------
+Sub Form_Resize()
+  if form.windowstate = 1 and not isShow then form.hide
+End Sub
+
+'----------------------
+Sub Form_Unload()
+  sys.offtimer "Update"
+  Doevents
+  endmf
+End Sub
+<#Form>
+
+<#Form=frmSimple>
+Dim isChange
+
+Sub UpdateEXT
+  Dim tmp
+  
+  isChange = False
+  
+  tmp = Sensor.FanAuto(0)
+  this.lcombo(11).listindex = tmp
+  this.hscroll(11).visible = not cbool(tmp)
+  this.label(12).visible = not cbool(tmp)
+  if not cbool(tmp) then 
+      this.hscroll(11).value = Sensor.FanPWM(0)
+      this.label(12).caption = this.hscroll(11).value
+  end if 
+  
+  tmp = Sensor.FanAuto(1)
+  this.lcombo(21).listindex = tmp
+  this.hscroll(21).visible = not cbool(tmp)
+  this.label(22).visible = not cbool(tmp)
+  if not cbool(tmp) then 
+      this.hscroll(21).value = Sensor.FanPWM(1)
+      this.label(22).caption = this.hscroll(21).value
+  end if 
+  
+  tmp = Sensor.FanAuto(2)
+  this.lcombo(31).listindex = tmp
+  this.hscroll(31).visible = not cbool(tmp)
+  this.label(32).visible = not cbool(tmp)
+  if not cbool(tmp) then 
+      this.hscroll(31).value = Sensor.FanPWM(2)
+      this.label(32).caption = this.hscroll(31).value
+  end if 
+  
+  isChange = True
+End Sub
+
+
+Sub Form_Load()
+  this.move 0,0,3120, 3360
+  this.caption = " Simple Control"
+  this.style.toolwindow = true
+  this.autoredraw = true
+
+  this.add "label",11, ".backstyle = 1", ".move 240,84,480", ".caption = ""  FAN1  """
+  this.add "cshape",11, ".move 120,180,2760,780", ".bordercolor = &HC0C0C0"
+  this.add "lcombo",11, ".move 240,300,2520", ".additem ""Manual Mode""", ".additem ""Automatic Mode"""
+  this.add "hscroll",11, ".move 240,660,2040,180", ".min=0", ".max=100", ".largechange = 5"
+  this.add "label",12, ".move 2400,660"
+
+  this.add "label",21, ".backstyle = 1", ".move 240,1044,480", ".caption = ""  FAN2  """
+  this.add "cshape",21, ".move 120,1140,2760,780", ".bordercolor = &HC0C0C0"
+  this.add "lcombo",21, ".move 240,1260,2520", ".additem ""Manual Mode""", ".additem ""Automatic Mode"""
+  this.add "hscroll",21, ".move 240,1620,2040,180", ".min=0", ".max=100", ".largechange = 5"
+  this.add "label",22, ".move 2400,1620"
+  
+  this.add "label",31, ".backstyle = 1", ".move 240,2004,480", ".caption = ""  FAN3  """
+  this.add "cshape",31, ".move 120,2100,2760,780", ".bordercolor = &HC0C0C0"
+  this.add "lcombo",31, ".move 240,2220,2520", ".additem ""Manual Mode""", ".additem ""Automatic Mode"""
+  this.add "hscroll",31, ".move 240,2580,2040,180", ".min=0", ".max=100", ".largechange = 5"
+  this.add "label",32, ".move 2400,2580"
+End Sub
+
+
+Sub LCombo11_Click()
+  if isChange then Sensor.FanAuto(0) = this.lcombo(11).listindex
+End Sub
+Sub HScroll11_Change() : Call HScroll11_Scroll : End Sub
+Sub HScroll11_Scroll()
+  if isChange then Sensor.FanPWM(0) = this.hscroll(11).value
+End Sub
+
+Sub LCombo21_Click()
+  if isChange then Sensor.FanAuto(1) = this.lcombo(21).listindex
+End Sub
+Sub HScroll21_Change() : Call HScroll21_Scroll : End Sub
+Sub HScroll21_Scroll()
+  if isChange then Sensor.FanPWM(1) = this.hscroll(21).value
+End Sub
+
+Sub LCombo31_Click()
+  if isChange then Sensor.FanAuto(2) = this.lcombo(31).listindex
+End Sub
+Sub HScroll31_Change() : Call HScroll31_Scroll : End Sub
+Sub HScroll31_Scroll()
+  if isChange then Sensor.FanPWM(2) = this.hscroll(31).value
+End Sub
+<#Form>
+
+
+<#Form=frm_IT87x>
+Sub UpdateEXT
+  Dim tmp
+
+  With sys.bytes
+      tmp = Sensor.CF.Port(ITE_SMARTGUARD_MAIN_CONTROL)
+
+      this.lcombo(11).listindex = .GetBit(tmp, 0)
+      this.lcombo(12).visible = cbool(this.lcombo(11).listindex)
+      this.check(11).visible = not this.lcombo(12).visible
+
+      this.lcombo(21).listindex = .GetBit(tmp, 1)
+      this.lcombo(22).visible = cbool(this.lcombo(21).listindex)
+      this.check(21).visible = not this.lcombo(22).visible
+
+      this.lcombo(31).listindex = .GetBit(tmp, 2)
+      this.lcombo(32).visible = cbool(this.lcombo(31).listindex)
+      this.check(31).visible = not this.lcombo(32).visible
+
+      tmp = Sensor.CF.Port(ITE_FAN_CTL_REG)
+      this.check(11).value = .GetBit(tmp, 0)  
+      this.check(21).value = .GetBit(tmp, 1) 
+      this.check(31).value = .GetBit(tmp, 2) 
+
+      if this.lcombo(12).visible then
+          tmp = Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(0))
+          this.lcombo(12).listindex = .GetBit(tmp, 7)
+
+          if this.lcombo(12).listindex = 0 then
+              this.hscroll(11).value = tmp and &H7F
+              this.label(12).caption = this.hscroll(11).value
+              this.lcombo(13).visible = false
+              this.hscroll(11).visible = true
+              this.label(12).visible = true
+          else
+              this.lcombo(13).listindex = tmp and &H3
+              this.lcombo(13).visible = true
+              this.hscroll(11).visible = false
+              this.label(12).visible = false
+          end if
+      else
+          this.lcombo(13).visible = false
+          this.hscroll(11).visible = false
+          this.label(12).visible = false
+      end if 
+
+      if this.lcombo(22).visible then
+          tmp = Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(1))
+          this.lcombo(22).listindex = .GetBit(tmp, 7)
+
+          if this.lcombo(22).listindex = 0 then
+              this.hscroll(21).value = tmp and &H7F
+              this.label(22).caption = this.hscroll(21).value
+              this.lcombo(23).visible = false
+              this.hscroll(21).visible = true
+              this.label(22).visible = true
+          else
+              this.lcombo(23).listindex = tmp and &H3
+              this.lcombo(23).visible = true
+              this.hscroll(21).visible = false
+              this.label(22).visible = false
+          end if
+      else
+          this.lcombo(23).visible = false
+          this.hscroll(21).visible = false
+          this.label(22).visible = false
+      end if
+
+      if this.lcombo(32).visible then
+          tmp = Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(2))
+          this.lcombo(32).listindex = .GetBit(tmp, 7)
+
+          if this.lcombo(32).listindex = 0 then
+              this.hscroll(31).value = tmp and &H7F
+              this.label(32).caption = this.hscroll(31).value
+              this.lcombo(33).visible = false
+              this.hscroll(31).visible = true
+              this.label(32).visible = true
+          else
+              this.lcombo(33).listindex = tmp and &H3
+              this.lcombo(33).visible = true
+              this.hscroll(31).visible = false
+              this.label(32).visible = false
+          end if
+      else
+          this.lcombo(33).visible = false
+          this.hscroll(31).visible = false
+          this.label(32).visible = false
+      end if
+  End With
+End Sub
+
+
+Sub Form_Load()
+  this.move 0,0,3120,4560
+
+  this.caption = " Advanced Control - IT87x"
+  this.style.toolwindow = true
+
+  this.add "label",11, ".backstyle = 1", ".move 240,84,480", ".caption = ""  FAN1 (CPU Voltage Mode)  """
+  this.add "cshape",11, ".move 120,180,2760,1080", ".bordercolor = &HC0C0C0"
+  this.add "lcombo",11, ".move 240,300,2520", ".additem ""ON/OFF Mode""", ".additem ""SmartGuardian Mode"""
+  this.add "check",11, ".move 240,600,2520", ".caption = ""Enable"""
+  this.add "lcombo",12, ".move 240,600,2520", ".additem ""Software Mode""", ".additem ""Automatic Mode"""
+  this.add "hscroll",11, ".move 240,900,2040,180", ".min=0", ".max=127", ".largechange = 5"
+  this.add "label",12, ".move 2400,900"
+  this.add "lcombo",13, ".move 240,900,2520", ".additem ""TMPIN1""", ".additem ""TMPIN2""", ".additem ""TMPIN3""", ".additem ""Reserved"""
+
+  this.add "label",21, ".backstyle = 1", ".move 240,1464,480", ".caption = ""  FAN2 (SYSTEM)  """
+  this.add "cshape",21, ".move 120,1560,2760,1080", ".bordercolor = &HC0C0C0"
+  this.add "lcombo",21, ".move 240,1680,2520", ".additem ""ON/OFF Mode""", ".additem ""SmartGuardian Mode"""
+  this.add "check",21, ".move 240,1980,2520", ".caption = ""Enable"""
+  this.add "lcombo",22, ".move 240,1980,2520", ".additem ""Software Mode""", ".additem ""Automatic Mode"""
+  this.add "hscroll",21, ".move 240,2280,2040,180", ".min=0", ".max=127", ".largechange = 5"
+  this.add "label",22, ".move 2400,2280"
+  this.add "lcombo",23, ".move 240,2280,2520", ".additem ""TMPIN1""", ".additem ""TMPIN2""", ".additem ""TMPIN3""", ".additem ""Reserved"""  
+
+  this.add "label",31, ".backstyle = 1", ".move 240,2844,480", ".caption = ""  FAN3 (CPU PWM Mode)  """
+  this.add "cshape",31, ".move 120,2940,2760,1080", ".bordercolor = &HC0C0C0"
+  this.add "lcombo",31, ".move 240,3060,2520", ".additem ""ON/OFF Mode""", ".additem ""SmartGuardian Mode"""
+  this.add "check",31, ".move 240,3360,2520", ".caption = ""Enable"""
+  this.add "lcombo",32, ".move 240,3360,2520", ".additem ""Software Mode""", ".additem ""Automatic Mode"""
+  this.add "hscroll",31, ".move 240,3660,2040,180", ".min=0", ".max=127", ".largechange = 5"
+  this.add "label",32, ".move 2400,3660"
+  this.add "lcombo",33, ".move 240,3660,2520", ".additem ""TMPIN1""", ".additem ""TMPIN2""", ".additem ""TMPIN3""", ".additem ""Reserved""" 
+End Sub
+
+
+Sub Check11_Click()
+  Sensor.CF.Bit(ITE_FAN_CTL_REG, 0) = this.check(11).value
+End Sub
+Sub LCombo11_Click()
+  Sensor.CF.Bit(ITE_SMARTGUARD_MAIN_CONTROL, 0) = this.lcombo(11).listindex
+End Sub
+Sub LCombo12_Click()
+  Sensor.CF.Bit(ITE_SMARTGUARD_PWM_CONTROL(0), 7) = this.lcombo(12).listindex
+End Sub
+Sub LCombo13_Click()
+  Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(0)) = (Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(0)) And &H80) or this.LCombo(13).listindex
+End Sub
+Sub HScroll11_Change() : Call HScroll11_Scroll : End Sub
+Sub HScroll11_Scroll()
+  Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(0)) = (Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(0)) And &H80) or this.hscroll(11).value
+  this.label(12).caption = this.hscroll(11).value 
+End Sub
+
+
+Sub Check21_Click()
+  Sensor.CF.Bit(ITE_FAN_CTL_REG, 1) = this.check(21).value
+End Sub
+Sub LCombo21_Click()
+  Sensor.CF.Bit(ITE_SMARTGUARD_MAIN_CONTROL, 1) = this.lcombo(21).listindex
+End Sub
+Sub LCombo22_Click()
+  Sensor.CF.Bit(ITE_SMARTGUARD_PWM_CONTROL(1), 7) = this.lcombo(22).listindex
+End Sub
+Sub LCombo23_Click()
+  Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(1)) = (Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(1)) and &H80) or this.LCombo(23).listindex
+End Sub
+Sub HScroll21_Change() : Call HScroll21_Scroll : End Sub
+Sub HScroll21_Scroll()
+  Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(1)) = (Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(1)) and &H80) or this.hscroll(21).value
+  this.label(22).caption = this.hscroll(21).value 
+End Sub
+
+
+Sub Check31_Click()
+  Sensor.CF.Bit(ITE_FAN_CTL_REG, 2) = this.check(31).value
+End Sub
+Sub LCombo31_Click()
+  Sensor.CF.Bit(ITE_SMARTGUARD_MAIN_CONTROL, 2) = this.lcombo(31).listindex
+End Sub
+Sub LCombo32_Click()
+  Sensor.CF.Bit(ITE_SMARTGUARD_PWM_CONTROL(2), 7) = this.lcombo(32).listindex
+End Sub
+Sub LCombo33_Click()
+  Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(2)) = (Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(2)) and &H80) or this.LCombo(33).listindex
+End Sub
+Sub HScroll31_Change() : Call HScroll31_Scroll : End Sub
+Sub HScroll31_Scroll()
+  Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(2)) = (Sensor.CF.Port(ITE_SMARTGUARD_PWM_CONTROL(2)) and &H80) or this.hscroll(31).value
+  this.label(32).caption = this.hscroll(31).value
+End Sub
+<#Form>

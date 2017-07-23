@@ -1,0 +1,186 @@
+Private Declare Function GetCursorPos Lib "User32" (lpPoint As POINTAPI) As Long
+
+<#Module=mdlMain>
+Dim Clip
+
+'---------------------------------------
+Sub SetShape(thisObj, thisObjLeft, thisObjTop, picWidth, picHeight, x1, y1, x2, y2, x3, y3)
+  with thisObj
+  	.move thisObjLeft * vbPX, thisObjTop * vbPY
+  	.fill .default, Clip.Clip(x1,y1,picWidth,picHeight),,,&HFC56FC
+	.fill .hover, Clip.Clip(x2,y2,picWidth,picHeight),,,&HFC56FC
+	.fill .down, Clip.Clip(x3,y3,picWidth,picHeight),,,&HFC56FC
+	.Update
+  end with
+End Sub
+
+'---------------------------------------
+Sub Load(cmdLine)
+	on error resume next
+	
+	form.scalemode = 3
+	form.autoredraw = true
+	form.nomovemouse = false
+	form.style.titlebar = false
+	
+	Set Clip = sys.gdi.clip.createnew
+	Clip.picture = sys.gdi.loadpicture("..\..\src\skin.gif")
+	
+	sys.gdi.trans form, Clip.Clip(0,0,450,100), Clip.Clip(0,100,450,100)
+	
+	form.add "label",1, ".move 30,4", ".fontbold=true", ".forecolor=rgb(96,96,96)", ".caption = ""SkinPlayer""", ".fontsize = 8 * (120 / vbDC(88))"
+	form.add "label",2, ".move 13,43", ".forecolor=rgb(118,118,118)", ".caption = ""version 0.86""", ".fontsize = 8 * (120 / vbDC(88))"
+	form.add "label",3, ".move 130,43",  ".forecolor=rgb(96,96,96)", ".caption = ""00:00:00/00:00:00""", ".fontsize = 8 * (120 / vbDC(88))"
+	form.add "label",4, ".move 180,54", ".forecolor=rgb(118,118,118)", ".caption = ""Repeat off""", ".fontsize = 8 * (120 / vbDC(88))"
+	form.add "label",5, ".move 215,4", ".forecolor=rgb(96,96,96)", ".caption = ""Stop""", ".fontsize = 8 * (120 / vbDC(88))"
+	
+	SetShape form.add("skin",1), 6, 71, 34, 23, 0, 200, 34, 200, 68, 200
+	SetShape form.add("skin",2), 40, 71, 56, 23, 102, 200, 158, 200, 214, 200
+	SetShape form.add("skin",3), 96, 71, 35, 23, 270, 200, 305, 200, 340, 200
+	SetShape form.add("skin",4), 131, 71, 35, 23, 0, 223, 35, 223, 70, 223
+	SetShape form.add("skin",5), 166, 71, 34, 23, 105, 223, 139, 223, 173, 223
+	SetShape form.add("skin",6), 430, 4, 15, 16, 376, 201, 391, 201, 406, 201
+	SetShape form.add("skin",7), 410, 4, 15, 16, 376, 264, 391, 264, 406, 264
+	SetShape form.add("skin",8), 225, 77, 11, 11, 376, 218, 387, 218, 398, 218
+	SetShape form.add("skin",9), 209, 75, 15, 16, 376, 230, 391, 230, 406, 230
+	SetShape form.add("skin",10), 275, 75, 15, 16, 376, 247, 391, 247, 406, 247
+	SetShape form.add("skin",11), 255, 45, 33, 23, 207, 223, 240, 223, 273, 223
+	SetShape form.add("skin",12), 300, 45, 33, 23, 306, 223, 339, 223, 0, 246
+	SetShape form.add("skin",13), 337, 45, 33, 23, 33, 246, 66, 246, 99, 246
+	SetShape form.add("skin",14), 374, 45, 33, 23, 132, 246, 165, 246, 198, 246
+	SetShape form.add("skin",15), 411, 45, 33, 23, 231, 246, 264, 246, 297, 246
+	SetShape form.add("skin",16), 300, 71, 33, 23, 330, 246, 0, 269, 33, 269
+	SetShape form.add("skin",17), 337, 71, 33, 23, 66, 269, 99, 269, 132, 269
+	SetShape form.add("skin",18), 374, 71, 33, 23, 165, 269, 198, 269, 231, 269
+	SetShape form.add("skin",19), 411, 71, 33, 23, 264, 269, 297, 269, 330, 269
+	
+	form.center
+	form.show
+End Sub
+<#Module>
+
+<#Form=form>
+type def_pointapi
+    x as long
+    y as long
+end type
+
+Dim point as def_pointapi
+
+dim ismov
+
+'-----------------------------------------
+Sub Skin_MouseOut(id)
+form.label(1).caption = "SkinPlayer"
+End Sub
+
+'-----------------------------------------
+Sub Skin1_MouseOver()
+form.label(1).caption = "Previous"
+End Sub
+
+'-----------------------------------------
+Sub Skin2_MouseOver()
+form.label(1).caption = "Play"
+End Sub
+
+'-----------------------------------------
+Sub Skin3_MouseOver()
+form.label(1).caption = "Pause"
+End Sub
+
+'-----------------------------------------
+Sub Skin4_MouseOver()
+form.label(1).caption = "Stop"
+End Sub
+
+'-----------------------------------------
+Sub Skin5_MouseOver()
+form.label(1).caption = "Next"
+End Sub
+
+'-----------------------------------------
+Sub Skin7_MouseOver()
+form.label(1).caption = "Hide player"
+End Sub
+
+'-----------------------------------------
+Sub Skin11_MouseOver()
+form.label(1).caption = "Open"
+End Sub
+
+'-----------------------------------------
+Sub Skin12_MouseOver()
+form.label(1).caption = "Preferences"
+End Sub
+
+'-----------------------------------------
+Sub Skin13_MouseOver()
+form.label(1).caption = "Load Subtitles"
+End Sub
+
+'-----------------------------------------
+Sub Skin14_MouseOver()
+form.label(1).caption = "Aspect Ratio Cycle"
+End Sub
+
+'-----------------------------------------
+Sub Skin15_MouseOver()
+form.label(1).caption = "Add bookmark"
+End Sub
+
+'-----------------------------------------
+Sub Skin16_MouseOver()
+form.label(1).caption = "Full Screen"
+End Sub
+
+'-----------------------------------------
+Sub Skin17_MouseOver()
+form.label(1).caption = "Custom Pan Scan"
+End Sub
+
+'-----------------------------------------
+Sub Skin18_MouseOver()
+form.label(1).caption = "Playlist"
+End Sub
+
+'-----------------------------------------
+Sub Skin19_MouseOver()
+form.label(1).caption = "Change Skin"
+End Sub
+
+'-----------------------------------------
+Sub Skin8_MouseDown(button,shift,x,y)
+ismov=true
+End Sub
+
+Sub Skin8_MouseMove(button,shift,x,y)
+Call GetCursorPos(point)
+
+if ismov then
+   if point.x >= form.left / vbPX + 231 and point.x <= form.left / vbPX + 269 then
+      form.Skin(8).move (point.x - form.left / vbPX - 6) * vbPX
+   else
+      if point.x < form.left / vbPX + 231 then
+         form.Skin(8).move 225 * vbPX
+      else
+         form.Skin(8).move 263 * vbPY
+      end if
+   end if
+end if
+End Sub
+
+Sub Skin8_MouseUp(button,shift,x,y)
+ismov=false
+End Sub
+
+'-----------------------------------------
+Sub Skin7_MouseDown(button,shift,x,y)
+form.windowstate=1
+End Sub
+
+'-----------------------------------------
+Sub Skin6_MouseUp(button,shift,x,y)
+  endmf
+End Sub
+<#Form>

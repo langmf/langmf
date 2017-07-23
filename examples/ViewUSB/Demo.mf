@@ -1,0 +1,40 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.width=6000
+  form.height=4800
+
+  form.caption="Информация о USB устройствах"
+
+  form.add "textbox",1, ".Parent.Move2 $0, ,,,,1,1"
+
+  form.center
+  form.show
+
+  sys.ontimer 1000, "ListUSB"
+End Sub
+
+'---------------------------------------
+Sub ListUSB()
+    Dim objWMIService, colItems
+
+    Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
+    Set colItems = objWMIService.ExecQuery("SELECT * FROM Win32_PnPEntity WHERE DeviceID LIKE 'USB\\VID%' OR DeviceID LIKE 'USBPRINT%' OR DeviceID LIKE 'IRENUM%'")
+
+    For Each objItem In colItems
+        txt = txt + "Name: " & objItem.Name & vbCrLf
+        txt = txt + "Manufacturer: " & objItem.Manufacturer & vbCrLf
+        txt = txt + "Service: " & objItem.service & vbCrLf
+        txt = txt + "Device: " & objItem.DeviceID & vbCrLf & vbCrLf
+    Next
+
+    form.textbox(1).Text = txt
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

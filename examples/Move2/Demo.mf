@@ -1,0 +1,42 @@
+<#Module=mdlDemo>
+Sub Load(cmdLine)
+  form.move 0,0,8000,8000
+  form.Center
+
+  form.style.maxbutton=true
+  form.style.sizeborder=true
+
+  form.Add "command", 1, ".Parent.Move2 $0, -1,-1,,,0.1,0.1,1"
+  form.Add "command", 2, ".Parent.Move2 $0, -1.1,-1.1,,,600,600,1"
+  form.Add "command", 3, ".Parent.Move2 $0, -1.2,-1.2,,,600,600,1"
+  form.Add "command", 4, ".Parent.Move2 $0, -1.1,-1.2,,,600,600,1"    
+  form.Add "command", 5, ".Parent.Move2 $0, -1.2,-1.1,,,600,600,1"
+
+  form.Add "command", 6, ".Parent.Move2 $0, ,,1200,,600,600,1"
+  form.Add "command", 7, ".Parent.Move2 $0, ,,-1200,,600,600,1"
+  form.Add "command", 8, ".Parent.Move2 $0, ,,,1200,600,600,1"    
+  form.Add "command", 9, ".Parent.Move2 $0, ,,,-1200,600,600,1"
+    
+  form.Add "command", 10, ".Parent.Move2 $0, -2,-2,,,600,600,1"
+  form.Add "command", 11, ".Parent.Move2 $0, -3,-3,,,600,600,1"  
+  form.Add "command", 12, ".Parent.Move2 $0, -2,-3,,,600,600,1"
+  form.Add "command", 13, ".Parent.Move2 $0, -3,-2,,,600,600,1"
+        
+  form.Add "command", 14, ".Parent.Move2 $0, -1,-2,,,600,600,1"
+  form.Add "command", 15, ".Parent.Move2 $0, -1,-3,,,600,600,1"
+  form.Add "command", 16, ".Parent.Move2 $0, -2,-1,,,600,600,1"
+  form.Add "command", 17, ".Parent.Move2 $0, -3,-1,,,600,600,1"
+  
+  for a=1 to 17
+	form.command(a).caption = a
+  next
+  
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+Sub Form_Unload()
+   endmf
+End Sub
+<#Form>

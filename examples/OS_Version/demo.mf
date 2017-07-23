@@ -1,0 +1,39 @@
+'Windows 10                           = 10.0
+'Windows 8.1                          =  6.3 
+'Windows 8                            =  6.2 
+'Windows 7                            =  6.1 
+'Windows Server 2008 R2               =  6.1 
+'Windows Server 2008                  =  6.0 
+'Windows Vista                        =  6.0 
+'Windows Server 2003 R2               =  5.2 
+'Windows Home Server                  =  5.2 
+'Windows Server 2003                  =  5.2 
+'Windows XP x64 Edition               =  5.2 
+'Windows XP                           =  5.1
+'Windows 2000                         =  5.0 
+
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  msgbox "OS 64 bit = " & Is64
+  msgbox "Wine - " & IsWine
+  
+  
+  msgbox "WindowsVer - " & sys.ext.OSVer(1) & vbcrlf & _
+         "WindowsVer - " & sys.ext.OSVer(2) & vbcrlf & _
+         "ServicePack - " & sys.ext.OSVer(3) & vbcrlf & _
+         "SuiteMask - &H" & hex(sys.ext.OSVer(4)) & vbcrlf & _
+         "ProductType - " & sys.ext.OSVer(5)  
+
+  '---------------------------------------------------
+  'sys.ext.OSVer - return ptr to struct OSVERSIONINFOEX
+  
+  txt = string(128,0)
+  rc = Struct(sys.ext.OSVer, Array(20,,128,strptr(txt),0))
+  msgbox txt
+
+  msgbox Struct(sys.ext.OSVer + 4) & "." & Struct(sys.ext.OSVer + 8)
+    
+  endmf
+End Sub
+<#Module>
