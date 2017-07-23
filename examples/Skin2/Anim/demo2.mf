@@ -1,0 +1,22 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  with form.add("skin",1)
+	  .Fill .Default, sys.gdi.LoadPicture("..\..\src\nuclear.gif"), 5, 6
+
+      .Anim.interval = 50
+      .Anim.enabled = true
+      
+      .child = false
+      .nomovemouse = false
+      .Update
+      .center
+  end with
+End Sub
+<#Module>
+
+<#Form=form>
+Sub Skin1_MouseDown(Button, Shift, x, y)
+  If Button = 2 Then endmf
+End Sub
+<#Form>

@@ -1,0 +1,34 @@
+#include "..\SQLite\sqlite.inc"
+
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+
+	with sys.file.api
+
+		set e = sys.com.enums2(new SQLite)
+		
+		if e.count then
+			.fopen "info2.log", 2
+					
+			.fprint "Members"
+			.fprint sys.str.rpt("=", 60)
+				
+			for each f in e.items(2)	
+				.fprint f(1) & " = " & f(0)
+			next
+
+			.fprint sys.str.rpt("=", 60)		
+			.fprint
+			
+			.fclose
+			
+			msgbox "Object enums complete!"
+		else
+			msgbox "Object does not support - ITYPEINFO"
+		end if
+	end with
+	
+	endmf
+End Sub
+<#Module>

@@ -1,0 +1,12 @@
+<#--Develop="your@company.com">
+
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+
+  txt = mid(txt,0,2)
+  
+  endmf
+  
+End Sub
+<#Module>

@@ -1,0 +1,27 @@
+
+Type This                  'len=128
+  pVTable As Long          'offset = 0   len=4
+  cRefs As Long            'offset = 4   len=4
+  maskFnc As Long          'offset = 8   len=4
+  objWrap As Object        'offset = 12  len=4
+  idName As Variant        'offset = 16  len=16
+  IID_User As UUID         'offset = 32  len=16
+  VTable(19) As Long       'offset = 48  len=80  
+End Type
+
+Type SafeArray_1d          'len=24
+  cDims As Integer         'offset = 0   len=2
+  fFeatures As Integer     'offset = 2   len=2
+  cbElements As Long       'offset = 4   len=4
+  cLocks As Long           'offset = 8   len=4
+  pvData As Long           'offset = 12  len=4
+  cElements As Long        'offset = 16  len=4
+  lLbound As Long          'offset = 20  len=4
+End Type
+
+Enum DispInvokeFlags
+    INVOKE_FUNC = 1
+    INVOKE_PROPERTYGET = 2
+    INVOKE_PROPERTYPUT = 4
+    INVOKE_PROPERTYPUTREF = 8
+End Enum

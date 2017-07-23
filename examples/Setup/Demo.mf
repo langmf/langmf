@@ -1,0 +1,10 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  'very advanced function - see documentation
+  
+  sys.ext.Setup "http://langmf.ru/ftp/other/TABCTL32.cab"
+
+  endmf
+End Sub
+<#Module>

@@ -1,0 +1,75 @@
+<#Module=mdlDemo>
+Dim MP
+
+'---------------------------------------
+Sub Load(cmdLine)
+  form.nooveroutpic = true
+  form.height = 6000
+  form.width = 6000
+  form.caption = "MediaPlayer"
+  form.backcolor=qbcolor(4)
+  form.Center
+
+  form.menu.add 10, "File"
+  form.menu.show
+  
+  Set MP = form.createOCX("MP", "MediaPlayer.MediaPlayer.1")
+
+  MP.object.SendKeyboardEvents = True
+  MP.object.SendMouseClickEvents = True
+  MP.object.SendMouseMoveEvents = True 
+  MP.object.showcontrols = false
+
+  MP.move 0, 0, form.scalewidth, form.scaleheight
+  MP.visible=true
+
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Menu10_Click()
+  on error resume next
+
+  sFile = sys.cdlg.showopen("All Files (*.*)|*.*|AVI Files (*.avi)|*.avi", "Open Video Files")
+
+  MP.object.showcontrols = false
+  MP.object.filename = sFile
+  MP.object.play
+End Sub
+
+'-----------------------------------------
+Sub MP_NewStream()
+  on error resume next
+  form.width = MP.object.ImageSourceWidth * vbPX + form.width - form.scalewidth
+  form.height = MP.object.ImageSourceHeight * vbPY + form.height - form.scaleheight
+  MP.move 0, 0, MP.object.ImageSourceWidth * vbPX, MP.object.ImageSourceHeight * vbPY
+End Sub
+
+'-----------------------------------------
+Sub MP_MouseMove(button, shift, x, y)
+	MP.move 0, 0, form.scalewidth, form.scaleheight
+	if y > form.scaleheight / vbPY - 50 then
+		if MP.object.showcontrols=false then MP.object.showcontrols=true
+	else
+		if MP.object.showcontrols=true then MP.object.showcontrols=false
+	end if
+End Sub
+
+'-----------------------------------------
+Sub MP_MouseDown(button, shift, x, y) 
+  if MP.object.showcontrols=false or MP.object.displaysize=3 then
+    if mp.object.playstate <> 2 then
+       MP.object.play
+    else
+       MP.object.pause
+    end if
+  end if
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

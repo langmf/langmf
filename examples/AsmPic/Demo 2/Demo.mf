@@ -1,0 +1,174 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+	form.show
+End Sub
+<#Module>
+
+<#Form=form>
+Dim f, cx, cy, id, brush, gc
+
+'---------------------------------
+Sub Form_Load()
+	this.add "timer",1, ".interval = 20"
+	this.add "pic",3, ".Visible=False", ".move 0,0", ".AutoSize = True", ".ScaleMode = 3", ".BorderStyle = 0", ".Picture = sys.gdi.plus.LoadPicture(""..\..\src\test2.jpg"")"
+	this.add "pic",2, ".Visible=False", ".BorderStyle = 0", ".backcolor = vbwhite", ".Parent.Move2 $0,-2,-3,,,3800,1600,1", ".ScaleMode = 3"
+	this.add "pic",1,  ".Autosize = true", ".ScaleMode = 3", ".Move 0,0"
+	
+	this.Menu.add 1, "Action", "p1", , , , , , , Array(100, "Add Color", "Gray & Blue", "Negative", _
+	"Contrast 100%", "Color Negative", "High Contrast", "Light MidTone", "Gray Infrared", "Red +200% & Green +200%", _
+	"Gradient Map 1", "Gradient Map 2", "Gradient Map 3", "Replace Color", "Table", "4 Bits", "Matrix")
+	this.Menu.show
+
+    this.move 0, 0, this.pic(3).image.width * vbDC(88) * vbPX / 2540 + 120, this.pic(3).image.height * vbDC(90) * vbPY / 2540 + (this.height - this.scaleheight) + 480
+		
+	this.add "check",1, ".Caption = ""Rectangle""", ".Parent.Move2 $0,-3,-3,-120,-100,1080,300"
+	this.add "check",2, ".Caption = ""Brush""", ".Parent.Move2 $0,-3,-3,-1500,-100,1080,300"
+	this.add "check",3, ".Caption = ""Gistogram""", ".Parent.Move2 $0,-3,-3,-3300,-100,1080,300"
+    
+	this.Center
+	
+	Set f = sys.NewFAP(this.pic(1))
+	
+	call Pic1_Refresh
+	
+	brush = sys.gdi.plus.Pic2DIB(sys.conv.file2str("..\..\src\lens.png"))
+	'brush = sys.gdi.plus.Pic2DIB(sys.conv.file2str("..\..\src\lens.png"), vbred or &H80000000)
+    
+	cx = 1 : cy = 1 : id = 0 : gc = 0
+	
+	this.timer(1).enabled = true 
+End Sub
+
+'---------------------------------
+Sub Timer1_Timer()
+	this.timer(1).enabled = false
+	t1 = TimeGetTime
+	Draw
+	this.caption = "Time - " & TimeGetTime - t1 & " ms."
+	this.timer(1).enabled = true  
+End Sub
+
+'---------------------------------
+Sub Pic1_Refresh()
+	set this.pic(1).picture = this.pic(3).image
+End Sub
+
+'---------------------------------
+Sub Pic1_MouseMove(button, shift, x, y)
+	cx = x - 80
+	cy = y - 80
+End Sub
+
+'---------------------------------
+Sub Menu_Click(num)
+	id = num
+End Sub
+
+'---------------------------------
+Sub Pic2_Click()
+	gc = gc + 1
+    if gc > 4 then gc = 0
+End Sub
+
+'---------------------------------
+Sub Draw()
+	call Pic1_Refresh
+
+	f.GetDI
+
+	if this.Check(1).value then f.SetRect -1, -1, 0, 0, 300, 300
+
+	select case id
+		case 100	'Add Color 100
+			f.Curves 0, array(0,255,100,-1)
+
+		case 101	'Gray & Blue
+			f.Gray
+			f.Curves 1, array(0,255,255,0)
+
+		case 102	'Negative
+			f.Curves 0, array(0,255,255,1)
+
+		case 103	'Contrast 100%
+			f.Contrast 0, 100
+
+		case 104	'Color Negative
+			f.Curves 1, array(0,25,255,0), array(26,108,332,3.07), array(109,255,0,0)
+			f.Curves 2, array(0,28,255,0), array(29,132,324,2.45), array(133,255,0,0)
+			f.Curves 3, array(0,59,255,0), array(60,181,378,2.09), array(182,255,0,0)
+
+		case 105	'High Contrast
+			f.Curves 0, array(0,77,0,-0.649), array(78,175,-58,-1.408), array(176,255,42,-0.837)
+
+		case 106	'Light MidTone
+			f.Levels 0, 0, 255, 0, 255, 1.25
+
+		case 107	'Gray Infrared
+			f.Mix -70,200,-30,-70,200,-30,-70,200,-30
+
+		case 108	'Red +200% & Green +200%
+			f.Mix 200,,,,200
+
+		case 109	'Gradient Map 1
+			f.Gradient array(0,&HFFFFFF), array(255,&HFF0000)
+
+		case 110	'Gradient Map 2
+			f.Gradient array(0,41,137,204), array(127,255,255,255), array(132,144,106,0), array(163,217,159,0), array(255,255,255,255)
+
+		case 111	'Gradient Map 3
+			f.Gradient array(0,83,91,94), array(63,254,254,254), array(127,74,81,84), array(191,253,253,253), array(255,83,91,94)
+
+		case 112	'Replace Color
+			f.Replace &HDDA398, vbWhite, 40, 40, 40
+
+		case 113	'Table
+			redim tbl(255)
+
+			for a = 0 to 255
+			tbl(a) = a xor 255
+			next
+
+			f.Table tbl
+			f.Table 0
+
+		case 114	'Bit
+			f.Main 1, 0, 64
+
+		case 115	'Matrix
+			'f.matrix array(0, 1, 0, 1, 1, 1, 0, 1, 0)             'blur
+            'f.matrix array(1, 1, 1, 1, 1, 1, 1, 1, 1)             'blur2
+			'f.matrix array(1, 2, 1, 2, 4, 2, 1, 2, 1)             'blur3
+			'f.matrix array(0,1,0,1,-4,1,0,1,0)                    'edge2
+			'f.matrix array(-5, -5, -5, -5, 39, -5, -5, -5, -5)    'edge3
+			f.matrix array(0,-1,0,-1,5,-1,0,-1,0)                 'sharpen
+			'f.matrix array(-1, -1, -1, -1, 16, -1, -1, -1, -1)    'sharpen2
+			'f.matrix array(-2, -1, 0, -1, 1, 1, 0, 1, 2)          'emboss
+			'f.matrix array(1, 2, 1, 0, 0, 0, -1, -2, -1)          'sobel
+			'f.matrix array(-1,-1,-1,-1,8,-1,-1,-1,-1)             'laplacian
+			'f.matrix array(0,0,-1,0,0, 0,-1,-2,-1,0, -1,-2,16,-2,-1, 0,-1,-2,-1,0, 0,0,-1,0,0)             'laplacian of Gaussian
+			'f.matrix array(0,0,0,5,0,0,0,  0,5,18,32,18,5,0,  0,18,64,100,64,18,0,  5,32,100,100,100,32,5,  0,18,64,100,64,18,0,  0,5,18,32,18,5,0,  0,0,0,5,0,0,0)             'Gaussian blur
+	end select
+
+	if this.Check(2).value then f.Copy brush, iif(cx<1, 1, cx), iif(cy<1, 1, cy), iif(cx<1, abs(cx)+2, 0), iif(cy<1, abs(cy)+2, 0), , , 0, , -1
+
+    if this.Check(3).value then
+        f.SetRect
+        buf = f.Gistogram(gc, max, min, brs)
+        with this.pic(2) : .cls : .visible = true : .currentx = 5 : .currenty = 0 :  end with
+        GPrint this.pic(2), "Ch = " & array("RGB", "Blue", "Green", "Red", "Alpha")(gc), -1
+        GPrint this.pic(2), "   Max = " & max, -1   :   GPrint this.pic(2), "   Min = " & min, -1   :   GPrint this.pic(2), "   Brs = " & brs
+        GPrint this.pic(2), "0",15,110   :   GPrint this.pic(2), "255",290,110
+        for a=0 to 255   :   GLine this.pic(2), a+30, 120, a+30, 120 - (buf(a) / max) * 90   :   next
+    else
+        this.pic(2).visible = false
+    end if
+	
+	f.SetDI
+End Sub
+
+'---------------------------------
+Sub Form_Unload()
+	endmf
+End Sub
+<#Form>

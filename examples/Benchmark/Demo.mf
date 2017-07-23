@@ -1,0 +1,173 @@
+<#Module=mdlDemo>
+Dim cnt, dat, zoom
+
+Sub SetData
+    set dat = sys.newcollection
+
+	dat.add array("Core i5 - 2500",492,492,641,917)
+	dat.add array("Intel Celeron G1840",401,427,531,806)
+	dat.add array("A10-5800K",400,427,581,800)
+	dat.add array("Athlon || X4 620",270,322,370,526)
+	dat.add array("Pentium 4 2800 MHz HT",147,180,196,331)
+	dat.add array("Intel Atom Z3735G",139,165,215,253)
+	dat.add array("Athlon XP 2000+",103,110,152,193)
+	dat.add array("Pentium 3 1200 MHz",59,69,80,110)
+	dat.add array("Celeron 900 MHz",42,51,58,82)
+	dat.add array("Pentium 3 550 MHz",26,30,36,52)
+	dat.add array("Pentium 2 233 MHz",13,16,19,28)
+End Sub
+
+Sub Load(cmdLine)
+    Dim bt1, bt2, bt3, clr
+    Dim buf(1000000)
+
+	
+	sys.ext.setpriority &H80
+ 
+    cnt = 1000000
+    
+    zoom = 4
+
+    SetData
+
+    frmlogo.Caption = "Logo"
+    frmlogo.Width = 3000
+    frmlogo.Height = 1200
+    frmlogo.Center
+    frmlogo.Add "label", 1, ".Move 840, 240", ".Caption = ""Please wait...""", ".FontSize = 14"
+
+    frmlogo.Show
+    doevents
+
+    Form.Caption = "Benchmark XP"
+    Form.Width = 8400
+    Form.Height = 4200
+    Form.AutoRedraw = True
+    Form.Center
+	
+    Sys.DoParams Nothing, Array(Array(  1,".Caption = """,  2,".BackStyle = 1",  3,".BackColor = QBColor(2)",  4,".BackColor = QBColor(4)", _
+                                        5,".ForeColor = QBColor(15)", 6,".ZOrder 0"  ))
+   
+    Form.Add "label", 100, "$1Your System"" : .Move 7200, 120 : $2 : $3 : $5"
+    Form.Add "label", 101, "$1Other System"" : .Move 7200, 300 : $2 : $4 : $5"
+    Form.Add "label", 1, "$1"" : .Move 120, 120, 2400, 240 : $2 : $3 : $5"
+    Form.Add "label", 2, "$1"" : .Move 120, 840, 2400, 240 : $2 : $3 : $5"
+    Form.Add "label", 3, "$1"" : .Move 120, 1560, 2400, 240 : $2 : $3 : $5"
+    Form.Add "label", 4, "$1"" : .Move 120, 2280, 2400, 240 : $2 : $3 : $5"
+    Form.Add "label", 11, ".Move 180, 180 : $5 : $6"
+    Form.Add "label", 22, ".Move 180, 900 : $5 : $6"
+    Form.Add "label", 33, ".Move 180, 1620 : $5 : $6"
+    Form.Add "label", 44, ".Move 180, 2340 : $5 : $6"
+    Form.Add "label", 5, "$1"" : .Move 120, 360, 2400, 240 : $2 : $4 : $5"
+    Form.Add "label", 6, "$1"" : .Move 120, 1080, 2400, 240 : $2 : $4 : $5"
+    Form.Add "label", 7, "$1"" : .Move 120, 1800, 2400, 240 : $2 : $4 : $5"
+    Form.Add "label", 8, "$1"" : .Move 120, 2520, 2400, 240 : $2 : $4 : $5"
+    Form.Add "label", 55, ".Move 180, 420 : $5 : $6"
+    Form.Add "label", 66, ".Move 180, 1140 : $5 : $6"
+    Form.Add "label", 77, ".Move 180, 1860 : $5 : $6"
+    Form.Add "label", 88, ".Move 180, 2580 : $5 : $6"
+
+    Form.add "lcombo",1
+    Form.lcombo(1).move 2640,3120,3600
+    for a=1 to dat.count
+	    form.lcombo(1).additem dat(a)(0)
+    next
+	
+    For a = 0 To Form.Height
+      clr = 255 - int((a/(form.scaleheight))*255)
+      If clr < 0 Then clr = 0
+      GLine Form, 0, a, Form.scaleWidth, a, RGB(0, 0, clr)
+    Next
+
+   form.forecolor = qbcolor(15)
+
+   s = ScriptEngine & " Version " & ScriptEngineMajorVersion & "." & ScriptEngineMinorVersion & "." & ScriptEngineBuildVersion
+
+   GPrint form, s,3600,3480
+
+    doevents
+
+    '-------------------------------------------------------
+    b = 0
+
+    bt1 = TimeGetTime
+    For a = 0 To cnt
+      b = b + 1
+    Next
+    bt1 = TimeGetTime - bt1
+
+    '-------------------------------------------------------
+    b = CSng(0)
+
+    bt2 = TimeGetTime
+    For a = 0 To cnt
+      b = b + 0.01
+    Next
+    bt2 = TimeGetTime - bt2
+
+    '-------------------------------------------------------
+    b = 0
+
+    bt3 = TimeGetTime
+    For a = 0 To cnt
+      b = 1
+    Next
+    bt3 = TimeGetTime - bt3
+
+    '-------------------------------------------------------
+    bt4 = TimeGetTime
+    For a = 0 To cnt
+    buf(a) = 1
+    Next
+    bt4 = TimeGetTime - bt4
+
+    '---------------------------------------------------------
+    bt1 = int((1/bt1)*100000)
+	Form.Label(1).Width = bt1 * zoom
+    Form.Label(11).Caption = "I - " & bt1
+
+	bt2 = int((1/bt2)*100000)
+    Form.Label(2).Width = bt2 * zoom
+    Form.Label(22).Caption = "F - " & bt2
+	
+	bt4 = int((1/bt4)*100000)
+    Form.Label(3).Width = bt4 * zoom
+    Form.Label(33).Caption = "M - " & bt4
+
+	bt3 = int((1/bt3)*100000)
+    Form.Label(4).Width = bt3 * zoom
+    Form.Label(44).Caption = "C - " & bt3
+
+    frmlogo.Hide
+    Form.Show
+
+    Form.lcombo(1).listindex=0
+End Sub
+<#Module>
+
+<#form=form>
+Sub LCombo1_Click()
+dim ind
+
+    ind = form.lcombo(1).listindex + 1
+
+    Form.Label(5).Width = dat(ind)(1) * zoom
+    Form.Label(55).Caption = "I - " & dat(ind)(1)
+
+    Form.Label(6).Width = dat(ind)(2) * zoom
+    Form.Label(66).Caption = "F - " & dat(ind)(2)
+
+    Form.Label(7).Width = dat(ind)(3) * zoom
+    Form.Label(77).Caption = "M - " & dat(ind)(3)
+
+    Form.Label(8).Width = dat(ind)(4) * zoom
+    Form.Label(88).Caption = "C - " & dat(ind)(4)
+End Sub
+
+Sub Form_Unload()
+  endmf
+End Sub
+<#form>
+
+<#form=frmLogo>
+<#form>

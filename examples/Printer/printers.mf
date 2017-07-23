@@ -1,0 +1,66 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+dim prn
+
+  For Each X In sys.Printers
+    'msgbox X.devicename
+  	'If X.devicename = "FinePrint" Then
+  	'	call sys.setprinter(X)
+  	'	exit for
+  	'End If
+  Next
+
+  if sys.cdlg.showprinter then
+  	  'a = sys.cdlg.FromPage
+  	  'a = sys.cdlg.ToPage
+      'a = sys.cdlg.PrnFlag
+		  	  
+	  set prn = sys.ext.printer
+    	  
+	  prn.fontsize = 48
+	  prn.forecolor = qbcolor(9)
+	  GPrint prn, "Printer", prn.width / 2 - prn.textwidth("Printer") / 2, 500
+	
+	  prn.fontsize = 36
+	  prn.forecolor = qbcolor(13)
+	  GPrint prn, "Example", prn.width / 2 - prn.textwidth("Example") / 2
+	
+	  for a=0 to 31
+	  	color = rgb(255-a*8,255-a*8,255-a*8)
+	    GCircle prn, prn.width / 2, prn.height / 2, 600+a*150, color
+	  next
+	  
+	  prn.fontsize = 28
+	  prn.forecolor = qbcolor(0)
+	  GPrint prn, Date, prn.width / 2 - prn.textwidth(Date) / 2, 15000
+	
+	  prn.newpage
+	  
+	  set pic = sys.gdi.loadpicture("..\Compile\Side - 1\install.gif")
+	  
+	  for a=0 to 5
+	  	  x1 = rnd*10000
+	  	  y1 = rnd*16000	  	  
+		  prn.paintpicture pic, x1, y1
+	  next
+	  
+	  for a=0 to 14
+	     GLine prn, 6000 - a*200, 7000 - a*200, 7000 + a*200, 8000 + a*200, qbcolor(a), 1
+	  next
+	
+	  prn.enddoc
+	
+	  msgbox "Pages send to printer!"
+	
+	  doevents
+	  Sleep 1000
+	  doevents
+  end if
+
+  endmf
+End Sub
+<#Module>
+
+<#Form=form>
+<#Form>

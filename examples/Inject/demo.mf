@@ -1,0 +1,212 @@
+' LangMF-скрипт выводит список текущих процессов и позволяет нормально
+' завершить заданный процесс путем создания дополнительного потока в памяти 
+' этого процесса. Этот поток содержит функцию ExitProcess, которая и завершает 
+' процесс изнутри.
+'
+' Скрипт открывает и останавливает только процессы пользователя, он 
+' не работает со службами.
+'
+' Аналогичным образом, в пространстве другого процесса, можно останавливать 
+' потоки и выгружать библиотеки.
+
+Declare Function VirtualAllocEx Lib "kernel32" (ByVal hProcess As Long, ByVal lpAddress As Long, ByVal dwSize As Long, ByVal flAllocationType As Long, ByVal flProtect As Long) As Long
+Declare Function CreateToolhelp32Snapshot Lib "Kernel32" (ByVal lFlags As Long, ByVal lProcessID As Long) As Long 
+Declare Function Process32First Lib "Kernel32" (ByVal hSnapShot As Long, uProcess As PROCESSENTRY32) As Long
+Declare Function Process32Next Lib "Kernel32" (ByVal hSnapshot As Long, uProcess As PROCESSENTRY32) As Long
+Declare Function CloseHandle Lib "Kernel32" (ByVal hObject As Long) As Long
+Declare Function GetModuleHandleA Lib "kernel32" (ByVal lpModuleName As String) As Long
+Declare Function GetProcAddress Lib "kernel32" (ByVal hModule As Long, ByVal lpProcName As String) As Long
+Declare Function OpenProcess Lib "kernel32" (ByVal dwDesiredAccess As Long, ByVal bInheritHandle As Long, ByVal dwProcessId As Long) As Long
+Declare Function WriteProcessMemory Lib "kernel32" (ByVal hProcess As Long, lpBaseAddress As Any, lpBuffer As Any, ByVal nSize As Long, lpNumberOfBytesWritten As Long) As Long
+Declare Function CreateRemoteThread Lib "kernel32" (ByVal hProcess As Long, lpThreadAttributes As SECURITY_ATTRIBUTES, ByVal dwStackSize As Long, ByVal lpStartAddress As Long, lpParameter As Any, ByVal dwCreationFlags As Long, lpThreadId As Long) As Long
+Declare Sub RtlMoveMemory Lib "kernel32" (Destination As Any, Source As Any, ByVal Length As Long)
+
+<#Module=ProcessList>
+Type tagPROCESSENTRY32
+   dwSize As Long
+   cntUsage As Long
+   th32ProcessID As Long
+   th32DefaultHeapID As Long
+   th32ModuleID As Long
+   cntThreads As Long
+   th32ParentProcessID As Long
+   pcPriClassBase As Long
+   dwFlags As Long
+   szExeFile as String * 260
+End Type
+
+'--------------------------------------------------------------------
+Const TH32CS_SNAPPROCESS	=2
+Const PROCESS_TERMINATE = 1
+Const PROCESS_CREATE_THREAD = 2
+Const PROCESS_SET_SESSIONID = 4
+Const PROCESS_VM_OPERATION = 8
+Const PROCESS_VM_READ = &H10
+Const PROCESS_VM_WRITE = &H20
+Const PROCESS_DUP_HANDLE = &H40
+Const PROCESS_CREATE_PROCESS = &H80
+Const PROCESS_QUERY_INFORMATION = &H400
+
+
+'--------------------------------------------------------------------
+Const PAGE_NOACCESS = 1
+Const PAGE_READONLY= 2 
+Const PAGE_READWRITE = 4
+Const PAGE_WRITECOPY = 8
+Const PAGE_EXECUTE = &H10
+Const PAGE_EXECUTE_READ = &H20
+Const PAGE_EXECUTE_READWRITE = &H40
+Const PAGE_EXECUTE_WRITECOPY = &H80
+Const PAGE_GUARD = &H100
+Const PAGE_NOCACHE = &H200
+
+
+'--------------------------------------------------------------------
+Const MEM_COMMIT = &H1000
+Const MEM_RESERVE = &H2000
+Const MEM_DECOMMIT = &H4000
+Const MEM_RELEASE = &H8000
+Const MEM_FREE = &H10000
+Const MEM_PRIVATE = &H20000
+Const MEM_MAPPED = &H40000
+Const MEM_RESET = &H80000
+Const MEM_TOP_DOWN = &H100000
+'--------------------------------------------------------------------
+
+Dim PROCESSENTRY32 as tagPROCESSENTRY32
+
+
+'[Загрузка формы]
+'--------------------------------------------------------------------
+Sub Load(command)
+
+ With Form
+	.Width = 2436
+	.Height	= 5760
+    .Center
+	.Caption = "Список процессов"
+	.AutoRedraw = True
+	.BackColor = &HC0C0C0
+	.Style.ToolWindow = True
+
+	.Add "Label", 1, ".move 60, 180, 2220, 240", ".Alignment=2",".Caption=""Процессы"""
+	.Add "List", 1, ".move 60, 540, 2220, 3600"
+	.Add "Command", 1,".Caption=""Обновить""", ".move 60, 4320, 2220, 240",".ToolTipText=""Обновление списка процессов"""		
+	.Add "Command", 2,".Caption=""Завершить процесс""", ".move 60, 4620, 2220, 240",".ToolTipText=""Нормальное завершение выбранного процесса"""		
+	.Add "Command", 3,".Caption=""Выход""", ".move 60, 4920, 2220, 240",".ToolTipText=""Выход"""				
+
+	For Each Control In .Controls
+			On Error Resume Next
+				Control.Appearance = 0	
+				Control.FontSize = 9
+	Next
+
+	.Visible = True
+	DoEvents
+ End With
+ 
+ EnumProcesses
+End Sub
+
+'[Перечисление процессов]
+'--------------------------------------------------------------------
+Function EnumProcesses()
+
+	Form.List(1).Clear
+	Form.Command(2).Enabled = False
+	Form.Command(3).Enabled = False
+	DoEvents
+
+  PROCESSENTRY32.dwSize = LenType(PROCESSENTRY32) 
+
+	'/Получение данных системного процесса/
+	'------------------------------------------------------------
+	fShShot	= CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
+
+	fRes = Process32First(fShShot, PROCESSENTRY32)
+
+	If fRes = 0 Then Exit Function
+	'------------------------------------------------------------
+	Form.List(1).AddItem Replace(PROCESSENTRY32.szExeFile, chr(0), ""), form.list(1).ListCount
+	Form.List(1).ItemData(form.List(1).NewIndex) = PROCESSENTRY32.th32ProcessID
+	DoEvents
+
+	'/Получение данных для остальных процессов/
+	'------------------------------------------------------------
+	j=0
+	Do
+	  PROCESSENTRY32.szExeFile = ""
+		
+    fRes=Process32Next(fShShot, PROCESSENTRY32)
+		
+		If fRes=0 Then Exit Do
+		j=j+1
+
+		form.List(1).AddItem Replace(PROCESSENTRY32.szExeFile, chr(0), ""), form.list(1).ListCount
+		form.List(1).ItemData(form.List(1).NewIndex) = PROCESSENTRY32.th32ProcessID
+		DoEvents
+	Loop
+	'------------------------------------------------------------
+	dRes = CloseHandle(fShShot)
+
+	'------------------------------------------------------------	
+	Form.Command(2).Enabled = True
+	Form.Command(3).Enabled = True
+	DoEvents
+
+End Function
+
+'[Нормальное завершение процесса. Создание дополнительного потока в памяти процесса]
+'--------------------------------------------------------------------
+Function CloseProcess()
+	'/Получение адреса внешней API функции/
+	'------------------------------------------------------------
+	hModule = GetModuleHandleA("KERNEL32.DLL")
+	hAPIProc = GetProcAddress(hModule, "ExitProcess")
+	If hAPIProc = 0 Then MsgBox "Произошла ошибка", vbExclamation + vbSystemModal, "Error": Exit Function
+
+	'/Открытие процесса/
+	'------------------------------------------------------------
+	hProcess = CLng(Form.List(1).ItemData(Form.List(1).ListIndex))
+	hOpen = OpenProcess(PROCESS_CREATE_THREAD + PROCESS_VM_OPERATION + PROCESS_QUERY_INFORMATION + PROCESS_VM_WRITE + PROCESS_VM_READ, True, hProcess)
+	If hOpen = 0 Then MsgBox "Произошла ошибка - не удалось получить доступ.", vbExclamation + vbSystemModal, "Error": Exit Function
+
+	'/Выделение памяти в пространстве процесса и запись параметра для внешней API/
+	'-------------------------------------------------------------
+	hMem = VirtualAllocEx(hOpen, 0, 4, MEM_RESERVE + MEM_COMMIT, PAGE_EXECUTE_READWRITE)
+	hRes = WriteProcessMemory(hOpen, hMem, VarPtr(0), 4, 0)	
+	If hRes = 0 Then MsgBox "Произошла ошибка", vbExclamation + vbSystemModal, "Error": Exit Function
+	
+	'/Создание потока, который выполняет внешнюю API в пространстве процесса/
+	'-------------------------------------------------------------
+	hRemoteThread = CreateRemoteThread(hOpen, 0, 0, hAPIProc, hMem, 0, 0)	
+
+	'/Закрытие дескриптора/
+	'-------------------------------------------------------------
+	dRes = CloseHandle(hOpen)
+	
+	Sleep(200)
+	If hRemoteThread <> 0 Then EnumProcesses()
+	Sleep(200)
+
+End Function
+<#Module>
+
+<#Form=form>
+'--------------------------------------------------------------------
+ Sub Form_Unload()
+	EndMF
+ End Sub
+'--------------------------------------------------------------------
+ Sub Command1_Click()
+	EnumProcesses()
+ End Sub
+'--------------------------------------------------------------------
+ Sub Command2_Click()
+	If Form.List(1).ListIndex <> -1 Then CloseProcess()
+ End Sub
+'--------------------------------------------------------------------
+ Sub Command3_Click()
+	Unload Form
+ End Sub
+<#Form>

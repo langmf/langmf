@@ -1,0 +1,15 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  Dim obj
+  
+  Set obj = sys.NewGlob
+  
+  rc = obj.Pipe("storage")
+  
+  MsgBox "Значение переменной ""test"": " & obj("test") , vbInformation
+  MsgBox "Тип переменной ""fso"": " & TypeName(obj("fso")), vbInformation
+
+  endmf
+End Sub
+<#Module>

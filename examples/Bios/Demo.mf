@@ -1,0 +1,24 @@
+<#Module=mdlDemo>
+'---------------------------
+Sub Load(cmdLine)
+  Set objWMI = GetObject("winmgmts:\\.\root\WMI")
+   
+  Set Item = objWMI.ExecQuery("SELECT * FROM MSSmBios_RawSMBiosTables") 
+  
+  For Each obj In Item 
+    msgbox "Active: " & obj.Active 
+    msgbox "DmiRevision: " & obj.DmiRevision 
+    msgbox "InstanceName: " & obj.InstanceName 
+    msgbox "Size: " & obj.Size 
+    
+    sys.conv.buf2file obj.SMBiosData, "test.txt"
+    
+    strSMBiosData = Join(obj.SMBiosData, ",") 
+    msgbox "SMBiosData: " & strSMBiosData 
+    msgbox "SmbiosMajorVersion: " & obj.SmbiosMajorVersion 
+    msgbox "SmbiosMinorVersion: " & obj.SmbiosMinorVersion
+  Next
+  
+  endmf
+End Sub
+<#Module>

@@ -1,0 +1,126 @@
+<#Module=mdlDemo>
+Dim MP1, MP2, MP3, MP4
+
+'---------------------------------------
+Sub Load(cmdLine)
+  with form
+      .nooveroutpic = true
+      .width = 12288
+      .height = 9200
+      .caption = "MediaPlayer"
+      .Center
+
+      .add "check",1,".move 240,  form.scaleheight - 450, 192, 360"
+      .add "check",2,".move 1680, form.scaleheight - 450, 192, 360"
+      .add "check",3,".move 3120, form.scaleheight - 450, 192, 360"
+      .add "check",4,".move 4560, form.scaleheight - 450, 192, 360"
+    
+      .add "command",1,".move 480,  form.scaleheight - 450, 840, 360", ".caption=""Video 1"""
+      .add "command",2,".move 1920, form.scaleheight - 450, 840, 360", ".caption=""Video 2"""
+      .add "command",3,".move 3360, form.scaleheight - 450, 840, 360", ".caption=""Video 3"""
+      .add "command",4,".move 4800, form.scaleheight - 450, 840, 360", ".caption=""Video 4"""
+
+      .add "command",5,".move 7200, form.scaleheight - 450, 840, 360", ".caption=""Play"""
+    
+      Set MP1 = .createOCX("MP1", "MediaPlayer.MediaPlayer.1")
+      MP1.object.showcontrols = false : MP1.object.autostart = false : MP1.visible=true
+
+      Set MP2 = .createOCX("MP2", "MediaPlayer.MediaPlayer.1")
+      MP2.object.showcontrols = false : MP2.object.autostart = false : MP2.visible=true
+      
+      Set MP3 = .createOCX("MP3", "MediaPlayer.MediaPlayer.1")
+      MP3.object.showcontrols = false : MP3.object.autostart = false : MP3.visible=true
+      
+      Set MP4 = .createOCX("MP4", "MediaPlayer.MediaPlayer.1")
+      MP4.object.showcontrols = false : MP4.object.autostart = false : MP4.visible=true
+
+      Size
+      
+      .show
+  end with
+End Sub
+
+'-----------------------------------------
+Sub Size
+  MP1.move 120, 120, form.scalewidth/2 - 120, form.scaleheight/2 - 360
+  MP2.move form.scalewidth/2, 120, form.scalewidth/2 - 120, form.scaleheight/2 - 360
+  MP3.move 120, form.scaleheight/2 - 360, form.scalewidth/2 - 120, form.scaleheight/2 - 360
+  MP4.move form.scalewidth/2, form.scaleheight/2 - 360, form.scalewidth/2 - 120, form.scaleheight/2 - 360
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub MP1_Validate(Cancel)
+Cancel = true
+msgbox "ok"
+End Sub
+
+'-----------------------------------------
+Sub Check1_Click()
+  if form.check(1).value=1 then MP1.object.showcontrols = true else MP1.object.showcontrols = false
+  Size
+End Sub
+
+'-----------------------------------------
+Sub Check2_Click()
+  if form.check(2).value=1 then MP2.object.showcontrols = true else MP2.object.showcontrols = false
+  Size
+End Sub
+
+'-----------------------------------------
+Sub Check3_Click()
+  if form.check(3).value=1 then MP3.object.showcontrols = true else MP3.object.showcontrols = false
+  Size
+End Sub
+
+'-----------------------------------------
+Sub Check4_Click()
+  if form.check(4).value=1 then MP4.object.showcontrols = true else MP4.object.showcontrols = false
+  Size
+End Sub
+
+'-----------------------------------------
+Sub Player(obj)
+  On Error Resume Next
+  obj.object.Stop
+  DoEvents
+  obj.object.FileName = sys.cdlg.showopen("All Files (*.*)|*.*|AVI Files (*.avi)|*.avi")
+  Do : DoEvents : Loop Until obj.object.ReadyState = 4
+  Size
+End Sub
+
+'-----------------------------------------
+Sub Command1_Click()
+  Player MP1
+End Sub
+
+'-----------------------------------------
+Sub Command2_Click()
+  Player MP2
+End Sub
+
+'-----------------------------------------
+Sub Command3_Click()
+  Player MP3
+End Sub
+
+'-----------------------------------------
+Sub Command4_Click()
+  Player MP4
+End Sub
+
+'-----------------------------------------
+Sub Command5_Click()
+  On Error Resume Next
+  MP1.object.Play
+  MP2.object.Play
+  MP3.object.Play
+  MP4.object.Play
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

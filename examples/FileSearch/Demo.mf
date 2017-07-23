@@ -1,0 +1,38 @@
+<#Module=mdlDemo>
+
+'---------------------------------------
+Sub Load(cmdLine)
+  form.move 0,0,7200,7200
+
+  form.add "textbox",1, ".Parent.Move2 $0,-2,-2,,,1,-600"
+  form.add "command",1, ".Parent.Move2 $0,,-3,,-120,1200,360", ".caption=""Search"""
+
+  form.Center
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Command1_Click()
+  dim files, txt
+
+  Path = sys.cdlg.showfolder
+
+  t1 = timeGetTime
+  
+  files = sys.file.search.find(Path)
+  
+  this.caption = (timeGetTime - t1) & " msec."
+
+  if ArraySize(files) then
+     txt = join(files,vbcrlf)
+     form.textbox(1).text = "Count = " & ubound(files) & vbcrlf & txt 
+  end if
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

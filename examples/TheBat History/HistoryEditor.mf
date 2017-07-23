@@ -1,0 +1,206 @@
+<#Module=Demo>
+Sub Load(cmdLine)
+  form.Caption = "Редактор автозаполнения        [The Bat!]"
+  form.Height = 7200
+  form.Width = 6200
+
+  form.Add "LCombo", 1, ".move 96, 96, 5880"
+  form.Add "List", 1, ".move 96, 384, 5880, 5820"
+  form.Add "Command", 1, ".Caption = ""Открыть""", ".move 600, 6336, 1260, 300"
+  form.Add "Command", 2, ".Caption = ""Закрыть""", ".move 2400, 6336, 1260, 300"
+  form.Add "Command", 3, ".Caption = ""Help""", ".move 4500, 6336, 1260, 300"
+  
+  form.center
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+Class def_History
+    Dim txt()
+    Dim hdr
+
+    Sub ReArray(num)
+	Redim txt(num)
+    End Sub
+End Class
+
+Dim fName
+Dim dat
+
+'---------------------------------------
+Sub LCombo1_Click()
+  For b = 1 To UBound(dat)
+      If dat(b).hdr = form.LCombo(1).Text Then
+  
+          form.List(1).Clear
+  
+          For a = 1 To UBound(dat(b).txt)
+            form.List(1).AddItem dat(b).txt(a)
+          Next
+  
+      End If
+  Next
+End Sub
+
+'---------------------------------------
+Sub Command1_Click()
+  Dim lb, cur, pos, txt, a, b
+  
+  fName = sys.cdlg.ShowOpen("TheBat History Files (*.his)|*.his|All Files (*.*)|*.*", , ,sys.conv.mpath("%reg_HKCU\Software\RIT\The Bat!\Working Directory%"))
+  
+  if fname="" then exit sub
+  
+  cur = 0
+  form.lcombo(1).clear
+  
+  With sys.file
+    .open2 fName, 1, "binary"
+    
+    lb = clng(0)
+    
+    .get2 1,0,lb
+
+    Dim dat(lb) as def_History
+    
+    lb = clng(0)
+    
+    Do
+        If lb = 0 Then cur = cur + 1
+    
+        .get2 1, 0, lb
+    
+        If lb <> 0 Then
+            txt = String(lb, 0)
+            .get2 1, 0, txt
+    
+            dat(cur).hdr = txt
+            form.lcombo(1).AddItem txt
+    
+            .get2 1, 0, lb
+    
+            dat(cur).rearray(lb)
+    
+            pos = 0
+    
+            Do
+                .get2 1, 0, lb
+                If lb <> 0 Then
+                    pos = pos + 1
+    
+                    txt = String(lb, 0)
+                    .get2 1, 0, txt
+                    dat(cur).txt(pos) = sys.conv.DecodeUTF8(txt)
+                End If
+            Loop Until .EOF(1) Or lb = 0
+        End If
+    Loop Until .EOF(1)
+
+    .close2 1
+  End With
+End Sub
+
+'---------------------------------------
+Sub Command2_Click()
+  Dim a, b, txt
+  
+  if isempty(dat) then exit sub
+  
+  With sys.file
+    .Open2 fName,1,"output"
+    .Close2 1
+    
+    .Open2 fName,1,"binary"
+    
+    .Put2 1, 0, CLng(UBound(dat))
+    
+    For b = 1 To UBound(dat)
+        .Put2 1, 0, CLng(Len(dat(b).hdr))
+        .Put2 1, 0, dat(b).hdr
+    
+        .Put2 1, 0, CLng(UBound(dat(b).txt))
+    
+        For a = 1 To UBound(dat(b).txt)
+            if CLng(Len(dat(b).txt(a))) > 0 then
+                txt = sys.conv.EncodeUTF8(dat(b).txt(a))
+                .Put2 1, 0, CLng(Len(txt))
+                .Put2 1, 0, txt
+            end if
+        Next
+    
+        .Put2 1, 0, CLng(0)
+    Next
+    
+    .Close2 1
+  End With
+  
+  form.list(1).clear
+  form.lcombo(1).clear
+End Sub
+
+'---------------------------------------
+Sub List1_KeyDown(KeyCode, Shift)
+  Dim pos
+
+  With form.List(1)
+    If KeyCode = 46 And .ListCount > 0 Then
+        If .ListIndex = -1 Then .ListIndex = 0
+        pos = .ListIndex
+        .RemoveItem pos
+        If .ListCount > 1 Then
+           If pos = .ListCount Then
+                .ListIndex = pos - 1
+           Else
+                .ListIndex = pos
+           End If
+        End If
+        .Refresh
+    End If
+  End With
+  
+  Update
+End Sub
+
+'---------------------------------------
+Sub List1_DblClick()
+  Dim txt, txt1
+  
+  With form.List(1)
+    txt = .list(.listindex)
+    txt1 = inputbox(txt, "Input Text", txt)
+    if txt1 <> "" then .list(.listindex) = txt1
+  End With
+
+  Update
+End Sub
+
+'---------------------------------------
+Sub Command3_Click()
+  Msgbox "--------------- Control Action ---------------" + vbcrlf + _
+         "Mouse Double Click - Edit current record" + vbcrlf + _
+         "Key 'Del' - Delete current record" + vbcrlf + _
+         "------------------------------------------------", vbinformation, "Help"
+End Sub
+
+'---------------------------------------
+Sub Update
+  Dim b, a
+
+  With form.List(1)
+    For b = 1 To UBound(dat)
+        If dat(b).hdr = form.LCombo(1).Text Then
+            dat(b).rearray(.ListCount)
+    
+            For a = 1 To .ListCount
+              dat(b).txt(a) = .List(a - 1)
+            Next
+        End If
+    Next
+  End With
+End Sub
+
+'---------------------------------------
+Sub Form_Unload()
+   endmf
+End Sub
+<#Form>

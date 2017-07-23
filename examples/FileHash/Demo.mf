@@ -1,0 +1,98 @@
+Private Declare Function RtlComputeCrc32 Lib "ntdll.dll" (ByVal dwInitial As Long, ByVal pData As Long, ByVal iLen As Long) As Long
+     
+<#Module=mdlMain>
+Dim Size, nameFile, Debug
+
+'---------------------------------------
+Sub Load(cmdLine)
+  form.width = 10000
+  form.autoredraw = true
+  'form.fontname = "Lucida Console"
+  form.fontsize = 10
+  form.caption = "File Info"
+  form.Center
+  form.show
+  
+  'Debug = True
+  
+  nameFile = sys.conv.mpath("%mf_pathengine%\LangMF.exe")
+  'nameFile = "d:\Video\00100004.avi"
+
+  With sys.file.api
+    .FOpen nameFile, 3, &H80000000
+    Size = .LOF
+    .FClose
+  End With
+  
+  Print vbcrlf & " " & nameFile & vbcrlf, ""
+
+  Print " CRC   - ", Hash(0)
+  Print " MD4   - ", Hash(&H8002&)
+  Print " MD5   - ", Hash(&H8003&)
+  Print " SHA1  - ", Hash(vbSHA1)
+  Print " SHA256  - ", Hash(vbSHA256)
+  a = sys.str.lsplit(Hash(vbSHA512), 64)
+  for each v in a : txt = txt & v & vbcrlf : next
+  Print " SHA512  - ", txt
+End Sub
+
+'---------------------------------------
+Function Print(value1, value2)
+	if len(value1) then form.fontbold = true : GPrint form, value1, -1 : form.fontbold = false
+    GPrint form, value2
+End Function
+
+'---------------------------------------
+Function Hash(value)
+	t1 = timegettime
+    
+    if value = 0 then
+        Hash = CRC32(nameFile)
+    else
+        Hash = sys.conv.hashfile(nameFile, value)
+    end if
+    
+    t1 = (timegettime - t1 + 1) / 1000
+    if Debug then Hash = Hash & vbtab & sys.file.formatbytes(Size / t1) & "/sec."
+End Function
+
+'---------------------------------------
+Function CRC32(nFile)
+    Dim fs, pos, sz, ptr
+    
+    Const OPEN_EXISTING  = 3
+    Const GENERIC_READ   = &H80000000
+    Const BUFFER_SIZE    = 8000000
+    
+    CRC32 = 0
+    
+    Set f = sys.file.api
+    If f.FOpen(nFile, OPEN_EXISTING, GENERIC_READ) = -1 Then Exit Function
+    
+    pos = 0  :  fs = f.LOF  :  sz = BUFFER_SIZE
+    
+    Do
+        If fs - pos = 0 Then Exit Do
+        If fs - pos < BUFFER_SIZE Then sz = fs - Pos
+        
+        f.UnMap
+        ptr = f.Map(,,pos,sz)
+        If ptr = 0 Then Exit Do
+  
+        CRC32 = RtlComputeCrc32(CRC32, ptr, sz)
+        
+        pos = pos + sz
+    Loop Until pos >= fs
+    
+    f.FClose
+    
+    CRC32 = Hex(CRC32)
+End Function
+<#Module>
+
+<#Form=form>
+'---------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

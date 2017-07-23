@@ -1,0 +1,95 @@
+<#Module=mdlXML>
+Sub Load(cmdLine)
+    Form.Caption = "Работа с XML"
+    Form.Width = 3360
+    Form.Height = 2400
+    
+    Form.Add "label", 1, ".Move 120, 120", ".Caption = ""First Name"""
+    Form.Add "label", 2, ".Move 120, 480", ".Caption = ""Last Name"""
+    Form.Add "label", 3, ".Move 120, 840", ".Caption = ""Street"""
+    Form.Add "label", 4, ".Move 120, 1200", ".Caption = ""City"""
+    Form.Add "label", 5, ".Move 120, 1560", ".Caption = ""State"""
+    Form.Add "label", 6, ".Move 1680, 1560", ".Caption = ""Zip"""
+
+    Form.Add "text", 1, ".Text = """"", ".Move 1080, 84, 1800, 240"
+    Form.Add "text", 2, ".Text = """"", ".Move 1080, 444, 1800, 240"
+    Form.Add "text", 3, ".Text = """"", ".Move 1080, 804, 1800, 240"
+    Form.Add "text", 4, ".Text = """"", ".Move 1080, 1164, 1800, 240"
+    Form.Add "text", 5, ".Text = """"", ".Move 1080, 1524, 360, 240"
+    Form.Add "text", 6, ".Text = """"", ".Move 1980, 1524, 840, 240"
+    
+    Form.center
+    Form.Show
+End Sub
+
+Sub CreateNode(parent, node_name, node_value)
+    Dim new_node
+
+    Set new_node = parent.ownerDocument.createElement(node_name)
+
+    new_node.Text = node_value
+
+    parent.appendChild new_node
+End Sub
+
+
+Function GetNodeValue(start_at_node, node_name, default_value)
+    Dim value_node
+
+    Set value_node = start_at_node.selectSingleNode(".//" & node_name)
+    If value_node Is Nothing Then
+        GetNodeValue = default_value
+    Else
+        GetNodeValue = value_node.Text
+    End If
+End Function
+
+
+Sub LoadValues()
+    Dim xml_document, values_node
+
+    Set xml_document = CreateObject("MSXML2.DOMDocument")
+    xml_document.Load sys.path & "Values.xml"
+
+    If xml_document.documentElement Is Nothing Then Exit Sub
+
+    Set values_node = xml_document.selectSingleNode("Values")
+
+    form.text(1).Text = GetNodeValue(values_node, "FirstName", "???")
+    form.text(2).Text = GetNodeValue(values_node, "LastName", "???")
+    form.text(3).Text = GetNodeValue(values_node, "Street", "???")
+    form.text(4).Text = GetNodeValue(values_node, "City", "???")
+    form.text(5).Text = GetNodeValue(values_node, "State", "???")
+    form.text(6).Text = GetNodeValue(values_node, "Zip", "???")
+End Sub
+
+Sub SaveValues()
+    Dim xml_document, values_node
+
+    Set xml_document = CreateObject("MSXML2.DOMDocument")
+
+    Set values_node = xml_document.createElement("Values")
+
+    xml_document.appendChild values_node
+
+    CreateNode values_node, "FirstName", 	form.text(1).Text
+    CreateNode values_node, "LastName", 	form.text(2).Text
+    CreateNode values_node, "Street", 		form.text(3).Text
+    CreateNode values_node, "City", 		form.text(4).Text
+    CreateNode values_node, "State", 		form.text(5).Text
+    CreateNode values_node, "Zip", 		form.text(6).Text
+
+    xml_document.save sys.path & "Values.xml"
+End Sub
+<#Module>
+
+<#Form=form>
+Sub Form_Activate()
+    LoadValues
+End Sub
+
+Sub Form_Unload()
+    SaveValues
+    endmf
+End Sub
+<#Form>

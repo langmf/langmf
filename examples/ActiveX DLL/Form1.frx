@@ -1,0 +1,7 @@
+~<#Module=main>
+Function Test(s1, s2)
+  Test = s1 * s2
+  form.Command1.Visible = False
+  form.MY
+End Function
+<#Module>

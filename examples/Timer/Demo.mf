@@ -1,0 +1,36 @@
+<#Module=mdlDemo>
+dim cnt
+
+'---------------------------------------
+Sub Load(cmdLine)
+  logo.add "label",1
+  logo.label(1).autosize=false
+  logo.label(1).fontsize=10
+  logo.label(1).move 360, 480, 3600, 1080
+  logo.label(1).caption=""
+
+  logo.center
+  logo.show
+
+  sys.ontimer 30, "test"
+End Sub
+
+'----------------------------------------
+sub Test()
+  cnt = cnt + 1
+
+  txt = "Данный скрипт-движок позволяет создавать очень мощные скрипты, в то же время обладая простым языком и графическим интерфейсом."
+
+  if cnt >= len(txt) then sys.offtimer "test"
+
+  logo.label(1).caption = logo.label(1).caption + mid(txt, cnt, 1)
+End sub
+<#Module>
+
+<#Form=logo>
+'----------------------------------------
+Sub Form_Unload()
+  sys.offtimer "test"
+  endmf
+End Sub
+<#Form>

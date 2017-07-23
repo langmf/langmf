@@ -1,0 +1,58 @@
+<#Module=VBNETBuilder>
+Sub Load(cmdstr)
+    msgbox Program.test()(0)
+    endmf
+End Sub
+<#Module>
+
+
+<#VBNet instance="Program" start="main" lang=CSharp #>
+using System;
+using System.Runtime.InteropServices;
+using System.Collections.Generic;//
+using System.Windows.Forms;
+
+[ComImport()][Guid("00020400-0000-0000-C000-000000000046")][InterfaceType(ComInterfaceType.InterfaceIsIUnknown)] interface IDispatch { int GetTypeInfoCount(out int Count); void GetTypeInfo([MarshalAs(UnmanagedType.U4)] int iTInfo, [MarshalAs(UnmanagedType.U4)] int lcid, out System.Runtime.InteropServices.ComTypes.ITypeInfo typeInfo); int GetIDsOfNames(ref Guid riid, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)] string[] rgsNames, int cNames, int lcid, [MarshalAs(UnmanagedType.LPArray)] int[] rgDispId); int Invoke(int dispIdMember, ref Guid riid, uint lcid, ushort wFlags, ref System.Runtime.InteropServices.ComTypes.DISPPARAMS pDispParams, out object pVarResult, ref System.Runtime.InteropServices.ComTypes.EXCEPINFO pExcepInfo, out UInt32 pArgErr); }
+
+class Dispatch
+{
+    [DllImport(@"oleaut32.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall)]static extern Int32 VariantClear(IntPtr pvarg);
+    private static Guid IID_NULL = new Guid("00000000-0000-0000-0000-000000000000");
+    private const int LOCALE_SYSTEM_DEFAULT = 2048, DISPID_PROPERTYPUT = -3, SizeOfNativeVariant = 16;
+    private static IDispatch obj;
+    
+    public Dispatch(object _obj) { obj = (IDispatch)_obj; }
+
+    public Dispatch Child(object name, params object[] args) { return new Dispatch(Invoke(name, 3, args)); }
+
+    public int GetDispId(object name) {
+        int[] rgDispId = new int[1] { 0 };
+        if (name is string) { var hrRet = obj.GetIDsOfNames(ref IID_NULL, new string[1] { (string)name }, 1, LOCALE_SYSTEM_DEFAULT, rgDispId); } else { rgDispId[0] = (int)name; }
+        return rgDispId[0];
+    }
+
+    public object Invoke(object name, ushort iFlags = 3, params object[] args) {
+        var MAFree = new List<IntPtr>(); var VarClear = new List<IntPtr>(); IntPtr rgdispidNamedArgs; int cNamedArgs; IntPtr rgvarg; UInt32 pArgErr = 0; object varResult; var excepInfo = new System.Runtime.InteropServices.ComTypes.EXCEPINFO();
+        if (iFlags == 4) { var pdPutID = Marshal.AllocCoTaskMem(sizeof(Int64)); Marshal.WriteInt64(pdPutID, DISPID_PROPERTYPUT); MAFree.Add(pdPutID); rgdispidNamedArgs = pdPutID; cNamedArgs = 1; } else { rgdispidNamedArgs = IntPtr.Zero; cNamedArgs = 0; }        
+        if (args.Length == 0) rgvarg = IntPtr.Zero; else { rgvarg = Marshal.AllocCoTaskMem(SizeOfNativeVariant * args.Length); MAFree.Add(rgvarg); for (var index = 0; index < args.Length; index++) { var arg = args[(args.Length - 1) - index]; var pVariant = new IntPtr(rgvarg.ToInt64() + (SizeOfNativeVariant * index)); Marshal.GetNativeVariantForObject(arg, pVariant); VarClear.Add(pVariant); }}
+        var dispParams = new System.Runtime.InteropServices.ComTypes.DISPPARAMS() { cArgs = args.Length, rgvarg = rgvarg, cNamedArgs = cNamedArgs, rgdispidNamedArgs = rgdispidNamedArgs };
+        try { var hrRet = obj.Invoke(GetDispId(name), ref IID_NULL, LOCALE_SYSTEM_DEFAULT, iFlags, ref dispParams, out varResult, ref excepInfo, out pArgErr); return varResult; }
+        finally { foreach (var tmp in VarClear) VariantClear(tmp); foreach (var tmp in MAFree) Marshal.FreeCoTaskMem(tmp); }
+    }
+}
+
+
+public class Program
+{
+    public static void Main(object LMF)
+    {
+        var SYS = (new Dispatch(LMF)).Child("script").Child("eval", new object[1] {"sys"});
+
+        MessageBox.Show((string)SYS.Invoke("path", args: new object[1] {true}));
+
+        //SYS.Child("SHD").Invoke("EndMF");
+    }
+
+    public object test() { return new object[] {"good",1}; }
+}
+<#VBNet#>

@@ -1,0 +1,107 @@
+<#Module=mdlCompare>
+Dim regexp
+
+Sub Load(cmdLine)
+Set regexp = new regexp
+regexp.global=true
+
+form1.caption="–абота с регул€рными выражени€ми."
+form1.width = 6000
+form1.height = 4500
+
+form1.add "label",1
+
+form1.label(1).move 1764, 192, 12, 156
+form1.label(1).caption="¬ведите любое число"
+
+form1.add "label",2
+form1.label(2).move 840, 888, 0, 156
+form1.label(2).caption="¬ведите маленькие буквы русского алфавита или цифры"
+
+form1.add "label",3
+form1.label(3).move 1308, 1512, 0, 156
+form1.label(3).caption="¬ведите любые символы кроме чисел"
+
+form1.add "label",4
+form1.label(4).move 612, 2184, 0, 156
+form1.label(4).caption="¬ведите любые символы причем 2-ой символ должен быть "+chr(34)+"Y"+chr(34)
+
+form1.add "label",5
+form1.label(5).move 1980, 2904, 0, 156
+form1.label(5).caption="¬ведите Email"
+
+form1.add "text",1
+form1.text(1).text=""
+form1.text(1).move 1716, 432, 1368, 276
+
+form1.add "text",2
+form1.text(2).text=""
+form1.text(2).move 1716, 1140, 1368, 276
+
+form1.add "text",3
+form1.text(3).text=""
+form1.text(3).move 1716, 1800, 1368, 276
+
+form1.add "text",4
+form1.text(4).text=""
+form1.text(4).move 1716, 2400, 1368, 276
+
+form1.add "text",5
+form1.text(5).text=""
+form1.text(5).move 1716, 3120, 1368, 276
+
+form1.add "command",1
+form1.command(1).caption="OK"
+form1.command(1).move 3156, 432, 480, 276
+
+form1.add "command",2
+form1.command(2).caption="OK"
+form1.command(2).move 3156, 1140, 480, 276
+
+form1.add "command",3
+form1.command(3).caption="OK"
+form1.command(3).move 3156, 1800, 480, 276
+
+form1.add "command",4
+form1.command(4).caption="OK"
+form1.command(4).move 3156, 2400, 480, 276
+
+form1.add "command",5
+form1.command(5).caption="OK"
+form1.command(5).move 3156, 3120, 480, 276
+
+form1.Center
+form1.show
+End Sub
+<#Module>
+
+<#Form=form1>
+Sub Command1_Click()
+  regexp.pattern="^[\-\+]?\d+(\d*|\.\d+)$"
+  msgbox regexp.test(form1.text(1).text)
+End Sub
+
+Sub Command2_Click()
+  regexp.pattern="^[а-€\d]+$"
+  msgbox regexp.test(form1.text(2).text)
+End Sub
+
+Sub Command3_Click()
+  regexp.pattern="^[^\d]+$"
+  msgbox regexp.test(form1.text(3).text)
+End Sub
+
+Sub Command4_Click()
+  regexp.pattern="^.Y.*$"
+  msgbox regexp.test(form1.text(4).text)
+End Sub
+
+Sub Command5_Click()
+  regexp.pattern="^[\w\d._%+-]+@[\w\d.-]+\.\w{2,4}$"
+  msgbox regexp.test(form1.text(5).text)
+End Sub
+
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

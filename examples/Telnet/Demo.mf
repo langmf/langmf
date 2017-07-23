@@ -1,0 +1,71 @@
+<#Module=Main>
+'---------------------------------------
+Sub Load(cmdLine)
+  txt = sys.registry.GetSetting("LangMF Telnet", "Setup", "Host", "pop3.mail.ru:110")
+  txt = inputbox("Введите параметры соединения." & vbcrlf & "Например: pop3.mail.ru:110", "Ввод" , txt)
+  if not txt =~ i/.+:\d+// then
+      endmf
+      exit sub
+  end if
+  sys.registry.SaveSetting "LangMF Telnet", "Setup", "Host", txt
+  param = split(txt, ":")
+  
+  with form
+    .caption = "Telnet v1.0"
+    .width = 9600
+    .height = 7200
+
+    .add "mtext", 1, ".move 0, 0, form.scalewidth, form.scaleheight", ".backcolor=0", ".forecolor=QBColor(10)", ".fontname=""Courier New""", ".fontsize=12", ".font.charset = 204"
+    .add "wsk", 1, ".remotehost=""" & param(0) & """", ".remoteport=" & param(1), ".connect"
+
+    .center
+    .show
+  end with
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+sub mtext1_keypress(cod)
+  dim mts, reg
+  
+  on error resume next
+  
+  set reg = new regexp
+  
+  select case cod
+    case 13
+      reg.global = true
+      reg.ignorecase = true
+      reg.pattern = ".+"
+      set mts = reg.execute(form.mtext(1).text)
+      form.wsk(1).senddata cstr(mts(mts.count - 1).value) + vbcrlf
+    case 27
+      form.mtext(1).text = ""
+  end select
+end sub
+
+'-----------------------------------------
+sub wsk1_connect
+  form.mtext(1).text = form.mtext(1).text + "Connected... OK!" + vbcrlf
+  form.mtext(1).selstart = len(form.mtext(1).text)
+end sub
+
+'-----------------------------------------
+sub wsk1_dataarrival(total)
+  txt = cstr(txt)
+  form.wsk(1).getdata txt
+  form.mtext(1).text = form.mtext(1).text+txt
+  form.mtext(1).selstart = len(form.mtext(1).text)
+end sub
+
+'-----------------------------------------
+sub wsk1_error(number,descr,flag)
+  form.mtext(1).text = form.mtext(1).text + descr + vbcrlf
+end sub
+
+'-----------------------------------------
+Sub Form_unload()
+  endmf
+End Sub
+<#form>

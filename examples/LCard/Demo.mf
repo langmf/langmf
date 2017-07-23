@@ -1,0 +1,65 @@
+#Include "LCard.inc"
+
+<#Module=mdlDemo>
+Dim dev as LCard
+
+'-----------------------------------
+Sub Load(cmdLine)
+  form.caption = "LCard - www.lcard.ru"
+  form.move 0, 0, 4400, 5000
+
+  form.Add "label", 1, ".AutoSize = False", ".BorderStyle = 1", ".BackStyle = 1", ".BackColor = vbBlack", ".Parent.Move2 $0,-2,-2,120,120,-240,-240,1", _
+  						".FontName = ""Lucida Console""", ".FontSize = 10", ".FontBold = True", ".ForeColor = &H00E0E0E0&"
+
+  rc = dev.Create(0)
+  if dev.pIUnknown = 0 then msgbox "Not Found LCard Devices" : endmf : exit sub
+
+  form.label(1).caption = GetSlotInfo
+  form.center
+  form.show
+  
+  WaitMs 1000
+  
+  sys.ontimer 200, "Test"
+End Sub
+
+'-----------------------------------
+Sub Test
+  if dev.pIUnknown then form.caption = Format(dev.ADC_IN(0), "0.000") & " Volt"
+End Sub
+
+'-----------------------------------
+Function GetSlotInfo()
+    Dim txt
+    
+	with dev.descr
+		txt = sys.str.rpt("-", 26) & vbCrLf & "Read FLASH" & vbCrLf & sys.str.rpt("-", 26) & vbCrLf
+	    txt = txt & " SerNum       " & .SerNum & vbCrLf
+	    txt = txt & " BrdName      " & .BrdName & vbCrLf
+	    txt = txt & " Rev          " & .Rev & vbCrLf
+	    txt = txt & " DspType      " & .DspType & vbCrLf
+	    txt = txt & " IsDacPresent " & .IsDacPresent & vbCrLf
+	    txt = txt & " Quartz       " & (.Quartz / 1000000) & " MHz" & vbCrLf
+	end with
+	
+	with dev.slot
+		txt = txt & vbCrLf & sys.str.rpt("-", 26) & vbCrLf & "Slot parameters" & vbCrLf & sys.str.rpt("-", 26) & vbCrLf	
+	    txt = txt & " Base       " & Hex(.Base) & vbCrLf
+	    txt = txt & " BaseL      " & Hex(.BaseL) & vbCrLf
+	    txt = txt & " Mem        " & Hex(.Mem) & vbCrLf
+	    txt = txt & " MemL       " & Hex(.MemL) & vbCrLf
+	    txt = txt & " Type       " & .BoardType & vbCrLf
+	    txt = txt & " DSPType    " & .DspType & vbCrLf
+	    txt = txt & " Irq        " & Hex(.Irq) & vbCrLf
+	end with
+
+    GetSlotInfo = txt
+End Function
+<#Module>
+
+<#Form=form>
+Sub Form_Unload()
+   Set dev = Nothing 
+   endmf
+End Sub
+<#Form>

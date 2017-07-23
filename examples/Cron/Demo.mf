@@ -1,0 +1,25 @@
+<#Module=mdlDemo>
+dim v
+
+'---------------------------------------
+Sub Load(cmdLine)
+  form.Center  
+  form.show
+
+  sys.cron.add	"*	*	*	*	*	*	*", "E!v = ""GOOD"""
+  sys.cron.add	"*/5	?	*	*	*	*	*", "sys.ext.shell(""calc"")", "id"
+  sys.cron.add	"0	*	*	*	*	*	*", "R!id"
+  
+  'Other example:
+  '		"1-20/5	?	*	*"
+  '		"1-20/5,30-40/2  ?	*	*	Ïם,Mon	ÿםג,פוג,jul  2014"
+  End Sub
+<#Module>
+
+<#form=form>
+'---------------------------------------
+Sub form_unload
+  msgbox v
+  endmf
+End Sub
+<#form>

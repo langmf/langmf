@@ -1,0 +1,20 @@
+Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+Declare Function PostMessage Lib "user32" Alias "PostMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+
+<#Module=mdlMain>
+Dim hwnd
+
+'---------------------------------------
+Sub Load(cmdLine)
+  hwnd = FindWindow("TTOTAL_CMD", 0)
+
+  if hwnd=0 then
+    msgbox "Total Commander не найден!"
+  else
+    PostMessage hwnd, 1075, 303, 0
+    PostMessage hwnd, 1075, 2001, 0
+  end if
+
+  endmf
+End Sub
+<#Module>

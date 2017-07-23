@@ -1,0 +1,22 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+
+  b1 = sys.conv.file2buf("demo.txt") 'String(30000, 0)
+ 
+  sys.bytes.crypt "qwerty",0
+  'b2 = sys.bytes.crypt(b1)
+  b2 = sys.bytes.crypt(b1,2)
+  
+  sys.bytes.crypt ,1
+  'b3 = sys.bytes.crypt(b2)
+  b3 = sys.bytes.crypt(b2,3)
+  
+  sys.conv.buf2file b2, "int_encrypt.txt"  
+  sys.conv.buf2file b3, "int_decrypt.txt"
+  
+  msgbox "Complete!"
+  
+  endmf
+End Sub
+<#Module>

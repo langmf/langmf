@@ -1,0 +1,184 @@
+'----------------------------------------------------------------------------------------
+' Без гарантий. Используете на свой страх и риск.
+' Poltergeyst 2010 (C)
+'----------------------------------------------------------------------------------------
+' Скрипт предназначен для записи звука от внешнего источника(магнитофон) в WAV-файл с помощью 
+' команд интерфейса MCI. Соедините выход наушников магнитофона и вход микрофона 
+' звуковой карты с помощью симметричного 3.5 Jack кабеля. Далее - 
+'----------------------------------------------------------------------------------------
+'1] Включить запись с микрофона.
+' [sndvol32.exe] - [Меню Параметры] - [Свойства] - [Запись] - включить Microphone - Ok- проставить уровень записи.
+'
+'2] Включить воспроизведение звука со входа микрофона Mic-In через выход Speaker-Out звуковой карты.
+' [sndvol32.exe] - [Меню Параметры] - [Свойства] - [Воспроизведение] - включить Microphone - Ok и проставить 
+' громкость звука идущего на звуковую карту через микрофон.
+'
+'3] Включить магнитофон и прослушать звучание через колонки или наушники подключенные к звуковой карте.
+'
+'4] Чтобы записать звук идущий с магнитофона, нужно запустить скрипт и нажать кнопку "Начать запись", 
+' для окончания записи нажать "Остановить", при этом записанный звук будет сохранен в Wav-файл.
+'
+'5] Для конверсии полученного файла в формат mp3, нажмите "Экспорт MP3". Потребуется mp3-конвертор lame.exe, 
+' расположенный рядом со скриптом (http://lame.sourceforge.net,  http://audiophilesoft.ru/commandline/lame/LAME_3.99.5.7z)
+'--------------------------------------------------------------------------------------
+
+
+<#Module=main>
+  Public PID, f, g, WavTemp
+
+'----------------------------------------------
+Sub Load(cmdstr)
+	f = False	
+	g = False
+
+	With Form
+		.Caption		= "Wav Record"
+		.Width			= 3960
+		.Height			= 3000
+		.BackColor		= &Hc0c0c0
+		.Style.MinButton = False
+
+		.Add "Timer", 1, ".Interval = 500"
+		.Add "Command", 1, ".Move 60,60,1200,360", ".Caption=""Начать запись"""
+		.Add "Command", 2, ".Move 1320,60,1200,360",	".Caption=""Экспорт MP3"""
+		.Add "Command", 3, ".Move 2580,60,1200,360", ".Caption=""Закрыть"""
+		.Add "Label", 1, ".Move 60,540,3720,1200", ".Alignment=2", ".Caption=""Готово"""
+		.Add "CShape", 1, ".Move 60,1800,3720,240", ".Shape=4", ".BackStyle=1", ".BackColor = Form.BackColor"
+		.Add "PBar", 1, ".Move 60, 2220, 3720, 240"
+		
+		For Each Control In .Controls
+			On Error Resume Next
+			Control.Appearance = 0
+			Control.FontName = "Lucida Console"		
+			Control.FontSize = 8
+			Control.Font.Charset = 204
+		Next
+	
+		.center
+		.Show
+	End With
+End Sub
+
+'[Начать запись MCI waveaudio]
+'-----------------------------------
+Sub StartRecord()
+	DevId = Sys.ext.Mci("open new type waveaudio alias myrecord wait")
+	DoEvents
+	mciRes = Sys.ext.Mci("set myrecord time format milliseconds format tag pcm bitspersample 16 samplespersec 44100 channels 2")
+	DoEvents
+
+	mciStatus = _
+	"Номер устройства MCI: [" & DevId & "]" & vbCR & _
+	"Битрейт, КБайт/сек: " & Sys.ext.Mci("status myrecord bytespersec") & vbCR & _
+	"Глубина оцифровки, бит: " & Sys.ext.Mci("status myrecord bitspersample") & vbCR & _
+	"Частота оцифровки, гц: " & Sys.ext.Mci("status myrecord samplespersec")
+
+	Form.Label(1).Caption = "Запись..." & vbCR & mciStatus
+	Form.Command(2).Enabled = False
+	Form.Timer(1).Enabled = True
+	Form.SetFocus
+
+	mciRes = Sys.ext.Mci("record myrecord notify")
+	DoEvents
+End Sub
+
+'[Завершить запись MCI waveaudio]
+'-----------------------------------
+Sub StopRecord()
+	'/Сохранить результат/
+	'-------------------------------------------
+	WavTemp = Sys.File.ShortName(Sys.Path) & Sys.GenStr(7) & ".wav"
+	Form.Label(1).Caption = "Идет сохранение результата: " & vbCR & WavTemp
+	res = Sys.ext.Mci("save myrecord " & WavTemp & " wait")
+	DoEvents
+
+	'/Закрыть устройство/
+	'-------------------------------------------
+	res = Sys.ext.Mci("close myrecord")
+	DoEvents
+	Form.Label(1).Caption = "Готово"
+	Form.Command(2).Enabled = True
+	Form.Timer(1).Enabled = False
+	Form.CShape(1).BackColor = Form.BackColor
+	Form.SetFocus
+	DoEvents
+End Sub
+
+'[Конверсия wav - mp3 (потребуется lame.exe расположенный рядом со скриптом)]
+'-----------------------------------------------------------------------------
+Sub Record2MP3()
+	If Not Sys.File.exists(Sys.Path & "lame.exe") Then
+		MsgBox "Разместите 'lame.exe' рядом со скриптом", vbExclamation Or vbSystemModal, "lame.exe"
+		Exit Sub
+	End If
+
+    sys.cdlg.hwndOwner = Form.hWnd
+    
+	SourceWav = Sys.CDlg.ShowOpen("Звукозапись (*.wav)|*.wav", "Открыть звукозапись", Sys.File.GetFileName(WavTemp), Sys.Path, , , 2)
+	If Len(SourceWav) = 0 Then Exit Sub
+
+	TargetMp3 = Sys.CDlg.ShowSave("Файлы (*.mp3)|*.mp3", "Файл для сохранения:", Sys.File.GetFileTitle(SourceWav), Sys.Path, ".mp3", , 2)
+	If Len(TargetMp3) = 0 Then Exit Sub
+	
+	Call Sys.Ext.Shell_SyncOut("""" & Sys.Path & "lame.exe"" -b 128 -h """ & SourceWav & """ """ & TargetMp3 & """", , , GetRef("Data"))
+    
+	DoEvents
+	Form.SetFocus
+End Sub
+
+Function Data(value)	
+	if value(0) > 0 then
+		call value(1) =~ ig/(\d+)\%.+(\d+:\d+).+(\d+:\d+).+(\d+:\d+).+(\d+:\d+)//
+		Form.Label(1).Caption = $$1 & "% - " & $$5
+		Form.PBar(1).Pos = $$1
+		PID = value(3)
+	else
+		PID = 0		'exit
+	end if
+End Function
+<#Module>
+
+
+<#Form=Form>
+	'-----------------------------------------
+	Sub Timer1_Timer()
+		If Not g Then
+			Form.CShape(1).BackColor = &H0000FF
+			g = True
+		Else
+			Form.CShape(1).BackColor = &HFF0000
+			g = False
+		End If
+
+	End Sub
+	'-----------------------------------------
+	Sub Command1_Click()
+		If Not f Then 
+			f = True
+			Form.Command(1).Caption = "Остановить"
+			StartRecord()
+		Else
+			f = False
+			Form.Command(1).Caption = "Начать запись"
+			StopRecord()
+		End If
+		
+	End Sub
+	
+	'---------------------------------------
+	Sub Command2_Click()
+		Record2MP3()
+	End Sub
+	
+	'---------------------------------------
+	Sub Command3_Click()
+		unload Form
+	End Sub
+	
+	'---------------------------------------
+	Sub Form_Unload()
+		if PID > 0 then sys.process.kill PID
+		res = Sys.ext.Mci("close myrecord")
+		EndMF
+	End Sub	
+<#Form>

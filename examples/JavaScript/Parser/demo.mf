@@ -1,0 +1,32 @@
+#Lib "lib.inc"
+
+<#Module=mdlFile>
+'---------------------------------------
+Sub Load(cmdLine)
+  info "test box"
+  
+  сообщение
+  
+  lib.go
+  
+  endmf
+End Sub
+<#Module>
+
+<#Script=Parser1#>
+  function LMF_Parser_Raw(code) {
+	code = code.replace(/info "([^"]*)"/g, 'msgbox("$1")')
+	//code = Parser1.Sys.Ext.Modify(code, ['(test )(.*)', '$1good'].toVBArray(), 1)
+	code = Parser1.Sys.Ext.Modify(code, Parser1.Sys.Conv.ArrayJS(['(test )(.*)', '$1good']), 1)
+	code = code.replace(/сообщение/ig, 'msgbox("Привет")')
+	Parser1.Sys.Ext.msgbox(mf_IDS)
+	return code
+  }
+  
+  Array.prototype.toVBArray = function() {  
+     var dict = new ActiveXObject("Scripting.Dictionary");  
+     for(var i = 0, len = this.length; i < len; i++) dict.add(i, this[i]);  
+     return dict.Items();  
+  }; 
+
+<#Script#>

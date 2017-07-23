@@ -1,0 +1,95 @@
+Declare Function SetLayeredWindowAttributes Lib "user32.dll" (ByVal Hwnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
+Declare Function ReleaseCapture Lib "user32" () As Long
+
+
+<#Module=mdlMain>
+Const HTCAPTION = 2
+Const HWND_TOPMOST = -1
+Const GWL_EXSTYLE = -20
+Const GWL_STYLE = -16
+Const WM_NCLBUTTONDOWN = &H00A1
+Const WS_EX_LAYERED = &H00080000
+Const WS_BORDER = &H00800000
+Const SWP_NOMOVE = &H2
+Const SWP_NOSIZE = &H1
+
+dim f
+
+'---------------------------------------
+Sub Load(cmdLine)
+  frmMain.scalemode = 3
+  frmMain.add "command",1, ".caption=""Unload""", ".Move 140, 30, 120, 20"
+  frmMain.add "text",1, ".Text=""Test""", ".Move 140, 60, 120, 20"
+  frmBkg.nomovemouse = false
+
+  frmMain.autoredraw = false
+  frmMain.backcolor = qbcolor(13)
+  frmMain.style.titlebar = false 
+  frmMain.style.taskbar = false
+
+  frmBkg.scalemode = 3
+  frmBkg.width = 6000
+  frmBkg.height = 6000
+  frmBkg.NoMoveMouse = true
+  frmBkg.style.taskbar = false
+  
+  sys.gdi.plus.LoadPngSkin frmBkg, "..\..\src\fon.png"
+
+  SetWindowLong frmMain.Hwnd, GWL_EXSTYLE, GetWindowLong(frmMain.Hwnd, GWL_EXSTYLE) Or WS_EX_LAYERED
+  SetLayeredWindowAttributes frmMain.Hwnd, frmMain.BackColor, 0, 1
+  SetWindowLong frmMain.Hwnd, GWL_STYLE, GetWindowLong(frmMain.Hwnd, GWL_STYLE) And Not WS_BORDER
+  
+  frmBkg.Show
+  frmBkg.center
+  frmMain.Show ,frmBkg
+  frmMain.Move -10000, -10000
+
+  sys.api.SetWindowPos frmMain.Hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
+ 
+  frmBkg.style.titlebar = false
+  
+  DoEvents
+  frmMain.Move frmBkg.Left, frmBkg.Top
+      
+  sys.ontimer 5, "SyncForms"
+
+  set f = sys.newfap(frmBkg, ,".IHandle = " & frmBkg.gdip_MainBitmap)
+End Sub
+
+Sub SyncForms
+  frmBkg.Move frmMain.Left, frmMain.Top
+
+  f.getdi
+  f.Curves 4, array(0,255,-1,-1)
+  f.setdi
+
+  sys.gdi.plus.UpdatePngSkin frmBkg
+End Sub
+<#Module>
+
+<#Form=frmBkg>
+Sub Form_MouseMove(Button, Shift, X, Y)
+  if button = 1 then
+    ReleaseCapture
+    sys.api.SendMessage frmMain.hwnd, WM_NCLBUTTONDOWN, HTCAPTION, 0
+  end if
+End Sub
+
+Sub Form_Unload()
+  frmMain.visible = False
+  frmBkg.visible = False
+  sys.gdi.plus.UnloadPngSkin frmBkg
+  sys.ext.vb_unload frmMain
+  endmf
+End Sub
+<#Form>
+
+
+<#Form=frmMain>
+'---------------------------------
+Sub Command1_Click()
+  sys.ext.vb_unload frmBkg
+End Sub
+<#Form>

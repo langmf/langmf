@@ -1,0 +1,67 @@
+<#Module=mdlDemo>
+Const triangl_list = 1
+Dim theta
+
+Sub Load(cmdLine)
+	sys.host.script.addobject "OGL", sys.com.DllGetClassObject("Lib\Atomix.OpenGL.dll", "OpenGL"), True
+
+	Form.Center
+	Form.show
+	
+	Triangl
+
+    Do
+        kresli
+        Sleep 10
+        DoEvents
+    Loop until IsEnd
+End Sub
+
+Sub kresli()
+  	glClear 16384
+    glPushMatrix
+    glRotatef theta, 0, 1, 1
+    glCallList triangl_list
+    glPopMatrix
+    
+    SwapBuffers form.hDC
+
+    theta = theta + 1
+End Sub
+
+Sub Triangl()
+	glNewList triangl_list, 4864
+
+  	glBegin 4
+
+  	glColor3f 1, 0, 0
+  	glVertex2f 0, 1
+  	glColor3f 0, 1, 0
+  	glVertex2f 0.87, -0.5
+  	glColor3f 0, 0, 1
+  	glVertex2f -0.87, -0.5
+
+  	glEnd
+
+  	glEndList
+End Sub
+<#Module>
+
+<#form=form>
+Dim hOGL
+
+Sub Form_Load()
+    this.Caption = "OpenGL Simple Demo"
+    this.Width = 6000
+    this.Height = 6000
+
+    hOGL = CreateContext(this.hDC)
+
+    glClearColor 0, 0, 0, 0
+End Sub
+
+Sub Form_Unload()
+  DeleteContext hOGL
+  endmf
+End Sub
+<#form>

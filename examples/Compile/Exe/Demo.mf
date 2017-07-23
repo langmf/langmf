@@ -1,0 +1,26 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  form1.show
+End Sub
+<#Module>
+
+<#Form=form1>
+Sub Form_Load()
+  this.Center
+  this.caption="Работа с WINAPI"
+  this.add "command",1
+  this.add "command",2
+
+  this.command(1).caption="Верхний уровень"
+  this.command(1).move 1200, 480, 1680, 300
+
+  this.command(2).caption="Норм. уровень"
+  this.command(2).move 1200, 1200, 1680, 300
+End Sub
+
+'---------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

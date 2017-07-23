@@ -1,0 +1,8 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+	msgbox sys.ext.shell_syncout(sys.conv.mpath("%COMSPEC%") & " /c ver.exe")
+		
+	endmf
+End Sub
+<#Module>

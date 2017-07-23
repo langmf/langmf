@@ -1,0 +1,61 @@
+<#Module=mdlMain>
+class test
+	dim my
+end class
+
+'---------------------------------------
+Sub Load(cmdLine)
+  msgbox Go_ObjectDirect + Go_VBScript + Go_ObjectNormal
+  endmf
+End Sub
+
+'---------------------------------------
+Function Go_ObjectNormal()
+  Set obj = Object
+
+  t1 = timegettime
+  
+  For a = 1 to 100000
+	obj.my = obj.my + 1
+  next
+  
+  t1 = timegettime - t1
+	
+  Go_ObjectNormal = "Object - " & t1 & " ms" & vbTab & " Count=" & obj.my & vbcrlf
+End Function
+
+'---------------------------------------
+Function Go_ObjectDirect()
+  Set obj = Object
+
+  t1 = timegettime
+  
+  obj.my = empty
+  p = obj.[].Hash.Items(3, "^my$")(0)
+  v = clng(p + 8)
+  vtype(v, true) = 12
+  
+  For a = 1 to 100000
+	v = v + 1
+  next
+  
+  t1 = timegettime - t1
+	
+  Go_ObjectDirect = "Direct - " & t1 & " ms" & vbTab & " Count=" & obj.my & vbcrlf
+End Function
+
+'---------------------------------------
+Function Go_VBScript()
+  dim vbs as test
+
+  t1 = timegettime
+  
+  For a = 1 to 100000
+	vbs.my = vbs.my + 1
+  next
+  
+  t1 = timegettime - t1
+	
+  Go_VBScript = "VBScript - " & t1 & " ms" & vbTab & " Count=" & vbs.my & vbcrlf
+End Function
+<#Module>

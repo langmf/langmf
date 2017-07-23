@@ -1,0 +1,29 @@
+<#Module=VBNETBuilder>
+Sub Load(cmdstr)
+    msgbox Program.test()(0)
+    endmf
+End Sub
+<#Module>
+
+
+<#VBNet instance="Program" start="main" lang=CSharp #>
+using System;
+//using System.Core;
+using Microsoft.CSharp;
+using System.Windows.Forms;
+
+
+public class Program
+{
+    public static void Main(dynamic LMF)
+    {
+        MessageBox.Show(LMF.Script.CodeObject.sys.path(true));
+        MessageBox.Show(LMF.Script.Eval("sys.path(true)"));
+        MessageBox.Show(LMF.Script.Eval("shd").CallByName(LMF.Script.Eval("sys"), "path", 3, true));
+        
+        //LMF.Script.Eval("EndMF");
+    }
+    
+    public object test() { return new object[] {"good",1}; }
+}
+<#VBNet#>

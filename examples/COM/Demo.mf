@@ -1,0 +1,30 @@
+<#Module=mdlMain>
+Dim obj
+
+'---------------------------------------
+Sub Load(cmdLine)
+  Set obj = sys.com.create(new IDispatch)
+  
+  txt = "оригинал text"
+  msgbox txt
+  obj.my.test txt
+  msgbox txt
+  
+  set obj = nothing
+  
+  endmf
+End Sub
+
+
+
+Class IDispatch
+  Function COM_Invoke(This, idMember, idName, wFlags, Params, Result)  
+    Select Case idName
+      Case "my"
+        Set Result = ObjFromPtr(This)
+      Case "test"
+        Params(0) = "replace text"
+    End Select
+  End Function
+End Class
+<#Module>

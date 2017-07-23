@@ -1,0 +1,15 @@
+<#Module>
+Sub Load(cmdLine)
+
+	sOut = String(200, vbNullChar) 
+	
+	rc = DllCall("*@user32", "wsprintfW", sOut, "Param1 = %d , Param2 = %s", 12345, "abcd")
+	
+	sOut = left(sOut, rc)
+	
+	msgbox sOut
+	
+	endmf
+	
+End Sub
+<#Module>

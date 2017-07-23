@@ -1,0 +1,42 @@
+#Include "xpbutton.inc"
+
+<#Module=mdlDemo>
+Dim xpbutton1, xpbutton2
+
+'---------------------------------------
+Sub Load(cmdLine)
+  form.move 0,0,4800,2400
+  form.scalemode=3
+  form.center
+  form.show
+
+  Dim xpbutton1 as new XPButton(form, "xpbutton1")
+  xpbutton1.move 1400, 500, 1800, 360
+
+  Dim xpbutton2 as new XPButton(form, "xpbutton2")
+  xpbutton2.caption = "Example 2"
+  xpbutton2.move 1400, 1100, 1800, 360
+	 
+  form.setfocus
+End Sub
+<#Module>
+
+
+<#Form=form>
+'-----------------------------------------
+Sub xpbutton1_click()
+ form.caption = "button 1"
+End Sub
+
+'-----------------------------------------
+Sub xpbutton2_click()
+ form.caption = "button 2"
+End Sub
+
+'-----------------------------------------
+Function Form_Unload()
+  Set xpbutton1 = nothing
+  Set xpbutton2 = nothing
+  endmf
+End Function
+<#Form>

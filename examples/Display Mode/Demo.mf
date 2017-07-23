@@ -1,0 +1,52 @@
+<#Module=mdlMain>
+Dim All_Disp
+
+'---------------------------------------
+Sub Load(cmdLine)
+  Dim Disp, tmp, pos
+
+  form.add "command",1
+  form.command(1).move 1440, 960, 1200, 300
+  form.command(1).caption = "Установить"
+
+  form.add "lcombo",1
+  form.lcombo(1).move 960, 480, 2500
+
+  Set Disp = sys.gdi.GetDisplayMode
+
+  Set All_Disp = sys.gdi.EnumDisplay
+
+  pos = 0
+  cnt = 0
+
+  for each m in All_Disp
+    form.lcombo(1).additem m("width") & " x " & m("height") & " (" & m("bpp") & " bit " & m("freq") & " Hz)"
+
+    if m("width") = Disp("width") and m("height") = Disp("height") and m("bpp") = Disp("bpp") and m("freq") = Disp("freq") then
+        pos = cnt
+    end if
+
+    cnt = cnt + 1
+  next
+
+  form.lcombo(1).listindex = pos
+  form.Center
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+'---------------------------------
+Sub Command1_Click()
+  Dim num
+
+  num = form.lcombo(1).listindex + 1
+
+  sys.gdi.SetDisplayMode All_Disp(num)("width"), All_Disp(num)("height"), All_Disp(num)("bpp"), All_Disp(num)("freq"), 1
+End Sub
+
+'---------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

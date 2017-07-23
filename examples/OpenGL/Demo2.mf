@@ -1,0 +1,286 @@
+<#Module=mdlDemo>
+Class glCoord
+    Dim X,Y,Z
+End Class
+
+Class glColors
+    Dim R,G,B
+End Class
+
+Class TmyObject
+    Dim numfaces
+    Dim numverts
+    Dim numsides
+    Dim faces()
+    Dim vertices()
+    Dim colors()
+    Dim B
+
+    Sub redimFaces(num)
+        redim faces(num)
+    End Sub
+
+    Sub redimVertices(num)
+        redim vertices(num)
+
+        for a = 0 to num
+          Set vertices(a) = new glCoord
+        next
+    End Sub
+
+    Sub redimColors(num)
+        redim colors(num)
+
+        for a = 0 to num
+          Set colors(a) = new glColors
+        next
+    End Sub
+End Class
+
+'---------------------------------------------
+Sub Load(cmdLine)
+	sys.host.script.addobject "OGL", sys.com.DllGetClassObject("Lib\Atomix.OpenGL.dll", "OpenGL"), True
+	
+    Form.Center
+	Form.show
+	
+	Form.CodeObject.MainLoop
+End Sub
+
+'---------------------------------------------
+Sub CreateKnot(SCALING_FACTOR1, SCALING_FACTOR2, RADIUS1, RADIUS2, RADIUS3)
+    Dim pi, I, J, Count1, Count2, Alpha, Beta, Rotation, Distance, MinDistance
+    Dim X, Y, Z, dx, dy, dz, Value, modulus, dist, index1, index2
+
+    With new TmyObject
+
+    pi = Atn(1) * 4
+    
+    .numsides = 4
+
+    .redimVertices(SCALING_FACTOR1 * SCALING_FACTOR2)
+    .redimColors(SCALING_FACTOR1 * SCALING_FACTOR2)
+    .redimFaces(SCALING_FACTOR1 * SCALING_FACTOR2 * 4 * 4)
+
+    Alpha = 0
+    For Count2 = 0 To SCALING_FACTOR2 - 1
+        Alpha = Alpha + 2 * pi / SCALING_FACTOR2
+        X = RADIUS2 * Cos(2 * Alpha) + RADIUS1 * Sin(Alpha)
+        Y = RADIUS2 * Sin(2 * Alpha) + RADIUS1 * Cos(Alpha)
+        Z = RADIUS2 * Cos(3 * Alpha)
+        dx = -2 * RADIUS2 * Sin(2 * Alpha) + RADIUS1 * Cos(Alpha)
+        dy = 2 * RADIUS2 * Cos(2 * Alpha) - RADIUS1 * Sin(Alpha)
+        dz = -3 * RADIUS2 * Sin(3 * Alpha)
+        Value = Sqr(dx * dx + dz * dz)
+        modulus = Sqr(dx * dx + dy * dy + dz * dz)
+
+        Beta = 0
+        For Count1 = 0 To SCALING_FACTOR1 - 1
+
+            Beta = Beta + 2 * pi / SCALING_FACTOR1
+
+            .vertices(.numverts).X = X - RADIUS3 * (Cos(Beta) * dz - Sin(Beta) * dx * dy / modulus) / Value
+            .vertices(.numverts).Y = Y - RADIUS3 * Sin(Beta) * Value / modulus
+            .vertices(.numverts).Z = Z + RADIUS3 * (Cos(Beta) * dx + Sin(Beta) * dy * dz / modulus) / Value
+
+            dist = Sqr(.vertices(.numverts).X * .vertices(.numverts).X + _
+                       .vertices(.numverts).Y * .vertices(.numverts).Y + _
+                       .vertices(.numverts).Z * .vertices(.numverts).Z)
+
+            .colors(.numverts).R = ((2 / dist) + (0.5 * Sin(Beta) + 0.4)) / 2
+            .colors(.numverts).G = ((2 / dist) + (0.5 * Sin(Beta) + 0.4)) / 2
+            .colors(.numverts).B = ((2 / dist) + (0.5 * Sin(Beta) + 0.4)) / 2
+
+            .numverts = .numverts + 1
+        Next
+    Next
+
+    For Count1 = 0 To SCALING_FACTOR2 - 1
+        index1 = Count1 * SCALING_FACTOR1
+        index2 = index1 + SCALING_FACTOR1
+        index2 = index2 Mod .numverts
+        Rotation = 0
+        MinDistance = (.vertices(index1).X - .vertices(index2).X) * (.vertices(index1).X - .vertices(index2).X) + _
+                      (.vertices(index1).Y - .vertices(index2).Y) * (.vertices(index1).Y - .vertices(index2).Y) + _
+                      (.vertices(index1).Z - .vertices(index2).Z) * (.vertices(index1).Z - .vertices(index2).Z)
+
+        For Count2 = 1 To SCALING_FACTOR1 - 1
+            index2 = Count2 + index1 + SCALING_FACTOR1
+            If Count1 = SCALING_FACTOR2 - 1 Then index2 = Count2
+            Distance = (.vertices(index1).X - .vertices(index2).X) * (.vertices(index1).X - .vertices(index2).X) + _
+                       (.vertices(index1).Y - .vertices(index2).Y) * (.vertices(index1).Y - .vertices(index2).Y) + _
+                       (.vertices(index1).Z - .vertices(index2).Z) * (.vertices(index1).Z - .vertices(index2).Z)
+            If Distance < MinDistance Then
+                MinDistance = Distance
+                Rotation = Count2
+            End If
+        Next
+
+        For Count2 = 0 To SCALING_FACTOR1 - 1
+            .faces(4 * (index1 + Count2) + 0) = index1 + Count2
+
+            index2 = Count2 + 1
+            index2 = index2 Mod SCALING_FACTOR1
+            .faces(4 * (index1 + Count2) + 1) = index1 + index2
+
+            index2 = Round(Count2 + Rotation + 1)
+            index2 = index2 Mod SCALING_FACTOR1
+            .faces(4 * (index1 + Count2) + 2) = (index1 + index2 + SCALING_FACTOR1) Mod .numverts
+
+            index2 = Round(Count2 + Rotation)
+            index2 = index2 Mod SCALING_FACTOR1
+
+            .faces(4 * (index1 + Count2) + 3) = (index1 + index2 + SCALING_FACTOR1) Mod .numverts
+            .numfaces = .numfaces + 1
+        Next
+    Next
+
+    glNewList 1, 4864
+    glBegin (7)
+    
+    J = .numfaces * 4
+    For I = 0 To J
+        Count1 = .faces(I)
+        glColor3f .colors(Count1).R * 2, .colors(Count1).G, .colors(Count1).B
+        glVertex3f .vertices(Count1).X, .vertices(Count1).Y, .vertices(Count1).Z
+    Next
+    
+    glEnd
+    glEndList
+    
+    End With
+End Sub
+<#Module>
+
+<#form=form>
+Dim DemoStart, ElapsedTime, xcoord, ycoord, isLoad, hOGL
+
+Sub Form_Load()
+    Form.Caption = "OpenGL Demo"
+    Form.Width = 9600
+    Form.height = 7200
+    Form.style.maxbutton = true
+    Form.style.sizeborder = true
+End Sub
+
+Sub Form_Activate()
+    isLoad = true
+
+    hOGL = CreateContext(form.hDC)
+    
+    DrawInit
+
+    Form_Resize
+End Sub
+
+Sub Form_KeyDown(KeyCode, Shift)
+    If KeyCode = 27 Then Form_Unload
+End Sub
+
+Sub Form_MouseMove(Button, Shift, X, Y)
+    xcoord = X / vbPX - form.ScaleWidth / (vbPX * 2)
+    ycoord = Y / vbPY - form.ScaleHeight / (vbPY * 2)
+End Sub
+
+Sub Form_Resize()
+    Dim w, h
+
+    if isLoad then
+      w = form.ScaleWidth / vbPX
+      h = form.ScaleHeight / vbPY
+      If h = 0 Then h = 1
+
+	  glViewport 0, 0, w, h
+      glMatrixMode 5889
+      glLoadIdentity
+      gluPerspective 45, w / h, 1, 100
+      glMatrixMode 5888
+      glLoadIdentity
+    end if
+End Sub
+
+Sub Form_Unload()
+  DeleteContext hOGL
+  endmf
+End Sub
+
+Sub DrawInit()
+    glClearColor 0, 0, 0, 0
+    glShadeModel 7425
+    glClearDepth 1
+    glEnable 2929
+    glDepthFunc 513
+    glEnable 2960
+    glHint 3152, 4354
+    
+	createKnot 16, 64, 2, 4, 1
+    'createKnot 16, 64, 3, 3, 1
+    'createKnot 16, 64, 4, 2, 1
+End Sub
+
+Sub MainLoop()
+    Dim LastTime
+
+    DemoStart = TimeGetTime
+    Do
+        LastTime = ElapsedTime
+        ElapsedTime = TimeGetTime - DemoStart
+        ElapsedTime = (LastTime + ElapsedTime) \ 2
+        DoEvents
+        Render
+    Loop Until IsEnd
+End Sub
+
+Sub Render()
+    glClear 16384 Or 256 Or 1024
+    glLoadIdentity
+    glTranslatef 0, 0, -20
+    glPolygonMode 1028, 6914
+    glPolygonMode 1029, 6914
+    glStencilFunc 519, 1, 1
+    glStencilOp 7681, 7681, 7681
+    glBegin 7
+        glVertex3f -1 + xcoord / 100, -1 - ycoord / 100, 13
+        glVertex3f 1 + xcoord / 100, -1 - ycoord / 100, 13
+        glVertex3f 1 + xcoord / 100, 1 - ycoord / 100, 13
+        glVertex3f -1 + xcoord / 100, 1 - ycoord / 100, 13
+    glEnd
+
+    ' clear buffers and draw screen and draw only in that square area
+    glClear 16384 Or 256
+    glStencilFunc 514, 1, 1
+    glStencilOp 7680, 7680, 7680
+
+    ' set wireframe mode
+    glPolygonMode 1028, 6913
+    glPolygonMode 1029, 6913
+
+    'draw a square border sothat you can see where the square is
+    glLineWidth 2
+    glColor3f 0.2, 0.2, 1
+    glBegin 7 ' draw the square borders
+        glVertex3f -1 + xcoord / 100, -1 - ycoord / 100, 13
+        glVertex3f 1 + xcoord / 100, -1 - ycoord / 100, 13
+        glVertex3f 1 + xcoord / 100, 1 - ycoord / 100, 13
+        glVertex3f -1 + xcoord / 100, 1 - ycoord / 100, 13
+    glEnd
+    glLineWidth 1
+
+    'Rotate and draw the wireframe knot
+    glRotatef ElapsedTime / 10, 1, 0, 0
+    glRotatef ElapsedTime / 8, 0, 1, 0
+
+    glCallList 1
+
+    'now draw in the area that is not in the square (Not equal to sqaure area)
+    glStencilFunc 517, 1, 1
+    glStencilOp 7680, 7680, 7680
+    glPolygonMode 1028, 6914
+    glPolygonMode 1029, 6914
+
+    glCallList 1
+
+    'DoEvents
+    SwapBuffers form.hDC
+End Sub
+<#form>

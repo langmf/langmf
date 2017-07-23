@@ -1,0 +1,42 @@
+<#--asyncload="10">
+
+<#Module=mdlDemo>
+Sub Load(cmdLine)
+  Cnt = 100
+  
+  ReDim b(8000000-1)
+  
+  for a=0 to ubound(b)
+  b(a) = a mod 256
+  next
+  
+  buf = sys.conv.buf(b, vbarray + vbbyte)
+  ptr = arrayptr(buf)
+  sz = ubound(buf) + 1
+  
+  set f = sys.newform(".show")
+  sys.file.filekill "big.txt"
+
+  with sys.file.api
+      '.autoflush = true
+
+      .fopen "big.txt"
+      
+      t1 = timegettime
+      for a=1 to Cnt
+          '.fput buf
+          .putmem ptr, sz
+          f.caption = sys.file.formatbytes(sz * a)
+          doevents
+      next
+      t1 = timegettime - t1
+      t = t1 & " ms." & vbcrlf & sys.file.formatbytes(.lof / (t1 / 1000)) & "/sec."
+      
+      .fclose
+  end with
+  
+  msgbox t
+  
+  endmf
+End Sub
+<#Module>

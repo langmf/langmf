@@ -1,0 +1,55 @@
+Declare Function SHGetFileInfoA Lib "shell32" (ByVal pszPath As String, ByVal dwFileAttributes As Long, psfi As SHFILEINFO, ByVal cbFileInfo As Long, ByVal uFlags As Long)
+Declare Function SHBrowseForFolderW Lib "shell32" (bi)
+Declare Function SHGetPathFromIDListW Lib "@shell32" (rc1, rc2)
+
+<#Module=mdlMain>
+Type BrowseInfo
+     hwndOwner As Long
+     pIDLRoot As Long
+     pszDisplayName As String
+     lpszTitle As String
+     ulFlags As Long
+     lpfnCallback As Long
+     lParam As Long
+     iImage As Long
+End Type
+
+Type SHFILEINFO
+    hIcon As Long
+    iIcon As Long
+    dwAttributes As Long
+    szDisplayName As String * 260
+    szTypeName As String * 80
+End Type
+
+'---------------------------------------
+Sub Load(cmdLine)
+	Dim bi as browseinfo
+	Dim shinfo as shfileinfo
+
+	lRes = SHGetFileInfoA(sys.pathengine(true), 0, shinfo, lentype(shinfo), &H610&)
+	
+	msgbox sys.str.trimnull(shinfo.sztypename) & " - " & sys.str.trimnull(shinfo.szDisplayName)
+	
+	txt = "Ваша реклама может быть здесь!"
+
+	
+	With bi
+	    .hwndOwner = 0
+	    .lpszTitle = txt
+	    .ulFlags = 0
+	End With
+	
+	txt = string(260, 0)
+	
+	lRes = SHBrowseForFolderW(bi)
+	
+	msgbox bi.pszDisplayName
+	
+	rc = SHGetPathFromIDListW(lRes, txt)
+	
+	msgbox txt
+	
+	endmf
+End Sub
+<#Module>

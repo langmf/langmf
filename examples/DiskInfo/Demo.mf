@@ -1,0 +1,60 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+dim di, drv, d
+
+  form.move 0, 0, 6600, 3500
+  form.autoredraw=true
+  form.FontSize = 10
+  form.font.charset = 204
+  form.fontbold = True
+  form.caption = "Сведения о дисках"
+  
+  form.add "lcombo", 1, ".move 120,120,5400"
+
+  form.Center
+  form.show
+  
+  ViewDrive ""
+  
+  form.lcombo(1).listindex = 0
+End Sub
+
+Sub ViewDrive(curDrive)
+  dim di, drv, d
+
+  unit = Array(" байт", " КБ", " МБ", " ГБ", " ТБ")
+  
+  set drv = sys.file.getlogicaldrives
+
+  for each d in drv
+    set di = sys.file.getdiskinfo(d)
+    
+	if len(curDrive) = 0 then
+	   form.lcombo(1).additem d	
+	elseif curDrive = d then
+	    form.cls
+		GPrint form, vbcrlf & vbcrlf & vbcrlf
+		GPrint form, "  Used    - " & format(di("used"),"### ### ### ### ##0") & " байт   ( " & sys.file.formatbytes(di("used"), unit) & " )"
+		GPrint form, "  Free    - " & format(di("free"),"### ### ### ### ##0") & " байт   ( " & sys.file.formatbytes(di("free"), unit) & " )"
+		GPrint form, "  Total   - " & format(di("total"),"### ### ### ### ##0") & " байт   ( " & sys.file.formatbytes(di("total"), unit) & " )"
+		GPrint form, "  Type    - " & di("typestr")
+		GPrint form, "  FS Name - " & di("name")
+		GPrint form, "  Label   - " & di("label")
+		GPrint form, "  Serial  - " & di("serial")
+	end if
+  next
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub LCombo1_Click()
+	ViewDrive form.lcombo(1).text
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+ endmf
+End Sub
+<#Form>

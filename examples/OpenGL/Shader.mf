@@ -1,0 +1,127 @@
+Declare Function glGetString Lib "opengl32" (ByVal hglrc As Long) As String
+Declare Function glCreateShader Lib "!" (ByVal hglrc As Long) As Long
+Declare Function glCreateProgram Lib "!" () As Long
+Declare Function glGetUniformLocation Lib "!" (ByVal programObj As Long, name As string) As Long
+Declare Sub glGetShaderInfoLog Lib "!" (ByVal shaderObj As Long, ByVal types As Long, length As Long, pstring as string)
+Declare Sub glGetProgramInfoLog Lib "!" (ByVal shaderObj As Long, ByVal types As Long, length As Long, pstring as string)
+Declare Sub glShaderSource Lib "!" (ByVal shaderObj As Long, ByVal count As Long, pstring as any, byval length As Long)
+Declare Sub glGetShaderiv Lib "!" (ByVal shaderObj As Long, ByVal types As Long, length As Long)
+Declare Sub glGetProgramiv Lib "!" (ByVal shaderObj As Long, ByVal types As Long, length As Long)
+Declare Sub glAttachShader Lib "!" (ByVal program As Long, ByVal shaderObj As Long)
+Declare Sub glUniform1f Lib "!" (ByVal location As Long, ByVal v0 As Single)
+Declare Sub glCompileShader Lib "!" (ByVal shaderObj As Long)
+Declare Sub glDeleteShader Lib "!" (ByVal shaderObj As Long)
+Declare Sub glLinkProgram Lib "!" (ByVal program As Long)
+Declare Sub glUseProgram Lib "!" (ByVal program As Long)
+
+<#Module=mdlDemo>
+Dim angle, r_mod
+
+Sub Load(cmdLine)
+	sys.host.script.addobject "OGL", sys.com.DllGetClassObject("Lib\Atomix.OpenGL.dll", "OpenGL"), True
+
+	Form.Center
+	Form.show
+
+    angle = 0
+    
+    Do
+        Render
+        Sleep 100
+        DoEvents
+    Loop until IsEnd
+End Sub
+
+Sub Render()
+    randomize timer
+    
+	glClear(16384)
+	glUniform1f r_mod, Rnd
+
+	glLoadIdentity
+	glRotatef angle, angle * 0.1, 1, 0
+	glBegin 4
+		glVertex3f -1, -.5, 0
+		glVertex3f 0, 1, 0
+		glVertex3f 1, 0, 0
+	glEnd
+	angle = angle + 0.02
+    
+    SwapBuffers form.hDC
+End Sub
+<#Module>
+
+<#form=form>
+Dim hOGL
+
+Sub Form_Load()
+    this.Width = 6000
+    this.Height = 6000
+    
+    hOGL = CreateContext(this.hDC)
+    
+    this.Caption = glGetString(7937)
+
+    'msgbox "Vendor: " + vbtab + glGetString(7936) + vbcrlf + "Device: " + glGetString(7937) + vbcrlf + "Version: " + glGetString(7938)
+    'msgbox replace(glGetString(7939), " ", vbcrlf)
+    
+    const GL_FRAGMENT_SHADER = &H8B30&
+    const GL_VERTEX_SHADER = &H8B31&
+    
+    f = "varying float x, y, z;" + vbcrlf + _
+		"uniform float r_mod;" + vbcrlf + _
+		"float rand(float s, float r) { return mod(mod(s, r + r_mod) * 112341, 1); }" + vbcrlf + _
+		"void main() {" + vbcrlf + _
+		"	gl_FragColor = vec4(rand(gl_FragCoord.x, x), rand(gl_FragCoord.y, y), rand(gl_FragCoord.z, z), 1);" + vbcrlf + _
+		"}"
+        
+	v = "varying float x, y, z;" + _
+		"void main() {" + _
+		"   gl_Position = ftransform();" + _
+		"	x = gl_Position.x; y = gl_Position.y; z = gl_Position.z;" + _
+		"	x += y; y -= x; z += x - y;" + _
+		"}"
+        
+	vs = glCreateShader(GL_VERTEX_SHADER)
+	ps = glCreateShader(GL_FRAGMENT_SHADER)
+
+	glShaderSource ps, 1, array(strconv(f,vbfromunicode)), 0
+	glShaderSource vs, 1, array(strconv(v,vbfromunicode)), 0
+    
+	glCompileShader vs
+	glCompileShader ps
+
+    glGetShaderiv ps, &H8B81&, status
+
+    if status = 0 then
+        txt = string(256,0)
+        glGetShaderInfoLog ps, 256, k, txt
+        msgbox txt,,status & " - " & k
+    end if
+    
+	prog = glCreateProgram
+	glAttachShader prog, ps
+	glAttachShader prog, vs
+ 
+	glLinkProgram prog
+    
+    glGetProgramiv prog, &H8B82&, status
+    if status = 0 then
+        glGetProgramiv prog, &H8B84&, Length
+        txt = string(256,0)
+        glGetProgramInfoLog prog, Length, k, txt
+        msgbox txt,,status & " - " & k
+    end if
+
+    glDeleteShader ps
+    glDeleteShader vs
+    
+	glUseProgram prog
+	r_mod = glGetUniformLocation(prog, "r_mod")     
+End Sub
+
+Sub Form_Unload()
+  DeleteContext hOGL
+  endmf
+End Sub
+<#form>

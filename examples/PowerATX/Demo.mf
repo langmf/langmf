@@ -1,0 +1,50 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.height=3600
+  form.width=2040
+  form.caption="POWER"
+  form.style.minbutton=false
+
+  form.add "opt",1, ".move 360,240,1440", ".caption=""LOGOFF""", ".value=true"
+  form.add "opt",2, ".move 360,540,1440", ".caption=""REBOOT"""
+  form.add "opt",3, ".move 360,840,1440", ".caption=""SHUTDOWN"""
+  form.add "opt",4, ".move 360,1140,1440", ".caption=""POWEROFF"""
+  form.add "opt",5, ".move 360,1440,1440", ".caption=""SUSPEND"""
+  form.add "opt",6, ".move 360,1740,1440", ".caption=""HIBERNATE"""
+  form.add "opt",7, ".move 360,2040,1440", ".caption=""MONITOR OFF"""
+
+  form.add "command",1, ".move 480,2760,1200,300", ".caption=""OK"""
+
+  form.center
+  form.show
+End Sub
+
+'-----------------------------------------
+Function QueryEndSession(lParam)
+	sys.conv.str2file hex(lparam), "log.txt"
+	sys.ext.vb_unload form
+End Function
+<#Module>
+
+<#Form=form>
+Const EWX_SHUTDOWN = 1
+Const EWX_FORCE = 4
+
+'-----------------------------------------
+Sub Command1_Click()
+  if form.opt(1) then sys.power.logoff
+  if form.opt(2) then sys.power.reboot
+  if form.opt(3) then sys.power.control(EWX_SHUTDOWN or EWX_FORCE)
+  if form.opt(4) then sys.power.poweroff
+  if form.opt(5) then sys.power.suspend
+  if form.opt(6) then sys.power.suspend ,,1
+  if form.opt(7) then sys.power.monitor(2)
+  endmf
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

@@ -1,0 +1,45 @@
+Declare Function SetWindowPos Lib "user32" (ByVal hwnd As Long, ByVal hWndInsertAfter As Long, ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
+
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  form1.show
+End Sub
+<#Module>
+
+<#Form=form1>
+Sub Form_Load()
+  this.Center
+  this.caption="Работа с WINAPI"
+  this.add "command",1
+  this.add "command",2
+
+  this.command(1).caption="Верхний уровень"
+  this.command(1).move 1700, 600, 1680, 400
+
+  this.command(2).caption="Норм. уровень"
+  this.command(2).move 1700, 1400, 1680, 400
+  
+  Set this.onEvent = GetRef("Test")
+End Sub
+
+'---------------------------------
+Function Test(frm, evt)
+  Test = Replace(evt, "Command1_", "C1_")
+End Function
+
+'---------------------------------
+Sub C1_Click()
+  rc = SetWindowPos(form1.hwnd, -1, form1.left/vbPX, form1.top/vbPY, form1.width/vbPX, form1.height/vbPY, 0)
+End Sub
+
+'---------------------------------
+Sub Command2_Click()
+  rc = SetWindowPos(form1.hwnd, -2, form1.left/vbPX, form1.top/vbPY, form1.width/vbPX, form1.height/vbPY, 0)
+End Sub
+
+'---------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

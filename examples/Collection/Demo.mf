@@ -1,0 +1,39 @@
+<#Module=mdlDemo>
+Dim dat
+
+Class defStr
+ Dim Value
+End Class
+
+'---------------------------------------
+Sub Load(cmdLine)
+Set dat = sys.newcollection
+
+for a=0 to 5000
+  SetData "T" & a ,"This number value - " & a
+next
+
+msgbox GetData("t3400"),,"Message"
+
+endmf
+End Sub
+
+'---------------------------------------
+Function GetData(id)
+GetData = dat.item(id).value
+End Function
+
+'---------------------------------------
+Sub SetData(id, value)
+On Error Resume Next
+
+dat.item(id).value = value
+
+if err.number>0 then
+ Dim tmp as defStr
+ tmp.value = value
+ dat.add tmp, id
+ set tmp = Nothing
+end if
+End Sub
+<#Module>

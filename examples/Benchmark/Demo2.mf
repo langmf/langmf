@@ -1,0 +1,120 @@
+<#Module=mdlDemo>
+Dim Ver, Res, tm, fn, min
+
+Sub Load(cmdLine)
+    sys.ext.setpriority &H80
+ 
+    Form.Caption = "Benchmark Engine"
+    Form.Width = 8000
+    Form.Height = 3500
+    Form.AutoRedraw = True
+    Form.Center
+
+    For a = 0 To Form.Height
+      clr = 255 - int((a/(form.scaleheight))*255)
+      If clr < 0 Then clr = 0
+      GLine Form, 0, a, Form.scaleWidth, a, RGB(0, 0, clr)
+    Next
+
+    sys.gdi.savebmp "..\src\test2.jpg","test.bmp"
+    b = sys.conv.buf(sys.conv.file2buf("test.bmp"))
+    
+    Set Res = sys.newcollection
+    
+    
+    '-------------------------------------------------------
+    TStart  :  TStop VB.Test(b), "Native"
+    
+    '-------------------------------------------------------
+    TStart  :  TStop Sys.Conv.ArrayJS(JS2.Test(b), -1), "toString"
+
+    '-------------------------------------------------------
+    TStart  :  TStop Sys.Conv.ArrayJS(JS1.Test(b), 0), "Invoke"
+    
+    '-------------------------------------------------------
+    TStart  :  TStop Sys.Conv.ArrayJS(JS1.Test(b), -1), "toString"
+
+
+    '---------------------------------------------------------
+    i = 0
+    For Each v In Res
+        With Form.Add("label", i * 2 + 1, ".Caption = Empty", ".BackStyle = 1", ".BackColor = QBColor(2)", ".ForeColor = QBColor(15)")
+            .Move 160, 400 + i * 600, ((Form.scaleWidth - 320) * min) / (v(1)+1), 360
+        End With
+
+        With Form.Add("label", i * 2 + 2,  ".ForeColor = QBColor(15)", ".ZOrder 0")
+            .Move 220, 480 + i * 600, 1000, 360
+            .Caption = "Time = " & v(1) & " ms." & sys.str.rpt(" ",10) & v(0)
+        End With
+        
+        i = i + 1
+    Next
+
+    Form.Show
+End Sub
+
+Sub TStart()
+    DoEvents
+    tm = timeGetTime
+End Sub
+
+Sub TStop(buf, txt)
+    tm = timeGetTime - tm
+    If min = Empty Then min=tm
+    If tm < min Then min = tm
+    Res.Add Array(Ver + sys.str.rpt(" ",15) + txt, tm)
+    fn = fn + 1
+    sys.conv.buf2file buf, "out" & fn & ".bmp"
+End Sub
+<#Module>
+
+
+<#form=form>
+Sub Form_Unload()
+  endmf
+End Sub
+<#form>
+
+
+<#Script=VB,VBScript#>
+    Function Test(ByVal b)
+        dim a
+        
+        for a = 54 to ubound(b) - 2 step 3
+            b(a + 1) = b(a)
+            b(a + 2) = b(a)
+        next
+        
+        Test = b
+        
+        VB.Ver = ScriptEngine & " = " & ScriptEngineMajorVersion & "." & ScriptEngineMinorVersion & "." & ScriptEngineBuildVersion
+    End Function
+<#Script#>
+
+
+<#Script=JS1#>
+    function Test(b) {
+        b = new VBArray(b).toArray();
+        s = b.length - 2
+        for (a = 54; a < s; a = a + 3) {
+            b[a + 1] = b[a]
+            b[a + 2] = b[a]
+        }
+        JS1.Ver = ScriptEngine() + " = " + ScriptEngineMajorVersion() + "." + ScriptEngineMinorVersion() + "." + ScriptEngineBuildVersion();
+        return b;
+    }
+<#Script#>
+
+
+<#Script=JS2,chakra#>
+    function Test(b) {
+        b = new VBArray(b).toArray();
+        s = b.length - 2
+        for (a = 54; a < s; a = a + 3) {
+            b[a + 1] = b[a]
+            b[a + 2] = b[a]
+        }
+        JS2.Ver = ScriptEngine() + " = " + ScriptEngineMajorVersion() + "." + ScriptEngineMinorVersion() + "." + ScriptEngineBuildVersion();
+        return b;
+    }
+<#Script#>

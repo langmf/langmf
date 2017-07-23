@@ -1,0 +1,31 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+	Set objConn = CreateObject("ADODB.Connection")
+	objConn.ConnectionString = "DSN=SQLite3 Datasource;Database=" + sys.path + "test.db;Charset=cp1251;"
+	objConn.Open
+    Set rs = objConn.Execute("SELECT * FROM my")
+
+	txt = ""
+
+	for each tmp in rs.fields
+		txt = txt & tmp.name	& vbtab & vbtab
+	next
+	
+	txt = txt & vbcrlf & sys.str.rpt("-", 80) & vbcrlf
+			
+	while not rs.eof 
+		for each tmp in rs.fields
+				txt = txt & tmp.value	& vbtab & vbtab
+		next
+		txt = txt & vbcrlf
+		rs.movenext
+	wend
+	
+	msgbox txt
+	
+	objConn.Close
+	
+	endmf
+End Sub
+<#Module>

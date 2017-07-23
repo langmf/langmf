@@ -1,0 +1,53 @@
+Declare Function CoCreateInstance Lib "ole32" (rclsid As Guid, ByVal pUnkOuter As Long, ByVal dwClsContext As Long, riid As Guid, ppv As Long) As Long
+Declare Function CLSIDFromString Lib "ole32" (ByVal lpsz As Long, pclsid As Guid) As Long
+
+<#Module=mdlMain>
+Type Guid
+    Data1 As Long
+    Data2 As Integer
+    Data3 As Integer
+    Data4(7) As Byte
+End Type
+
+Const CLSCTX_INPROC_SERVER = 1
+Const CLSCTX_LOCAL_SERVER = 4
+
+Dim obj
+
+'---------------------------------------
+Function Create(progID)
+    Dim ppv, hr, txtIID, txtCLSID, typeServer
+    Dim CLSID As Guid
+    Dim IID As Guid
+    
+    txtCLSID = sys.registry.regread("HKCR\" & progID & "\CLSID\")
+    
+    if len(sys.registry.regread("HKCR\CLSID\" & txtCLSID & "\InprocServer32\")) then
+		   typeServer = CLSCTX_INPROC_SERVER
+	  else
+		   typeServer = CLSCTX_LOCAL_SERVER	
+	  end if
+  
+    txtIID = "{00020400-0000-0000-C000-000000000046}"		'IDispatch Interface
+    
+    Call CLSIDFromString(StrPtr(txtCLSID), CLSID)
+    Call CLSIDFromString(StrPtr(txtIID), IID)
+    
+    hr = CoCreateInstance(CLSID, 0, typeServer, IID, ppv)
+    if hr <> 0 then msgbox "Error  (" & hr & ")"
+
+    Set Create = ObjFromPtr(ppv)
+End Function
+
+'---------------------------------------
+Sub Load(cmdLine)
+
+  Set obj2 = Create("Shell.Application.1")
+  obj2.MinimizeALL
+  obj2.FindFiles
+  obj2.Open "C:\"
+  obj2.ShellExecute "c:\windows\system32\cmd.exe"
+
+  endmf
+End Sub
+<#Module>

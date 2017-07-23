@@ -1,0 +1,16 @@
+<#Module=mdlDemo>
+Dim w
+
+'---------------------------------------
+Sub Load(cmdLine)
+    Set w = sys.com.addhandler(CreateObject("WbemScripting.SWbemSink"), "SINK_")
+    
+    GetObject("winmgmts:\\.\root\CIMV2").ExecNotificationQueryAsync w.Object, "SELECT * FROM __InstanceModificationEvent WITHIN 20 WHERE TargetInstance ISA ""Win32_DesktopMonitor"""
+End Sub
+
+sub SINK_OnObjectReady(obj, ctx)
+    with obj.targetinstance
+        msgbox .MonitorType & " -> " & .ScreenWidth & " x " & .ScreenHeight
+    end with
+end sub
+<#Module>

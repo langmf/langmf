@@ -1,0 +1,15 @@
+<#VBNet start="main" #>
+Imports System
+Imports Microsoft.VisualBasic
+
+public Module mdlMain
+    Public Sub Main(ByVal LMF as Object)
+        Dim SYS as Object = LMF.Script.Eval("sys")
+        
+        MsgBox(SYS.Path(true))
+        MsgBox(SYS.Host("arg"))
+        
+        SYS.SHD.EndMF
+    End Sub
+End Module
+<#VBNet#>

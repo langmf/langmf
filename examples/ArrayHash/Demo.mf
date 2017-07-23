@@ -1,0 +1,24 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+  Set Dat = sys.newhash()
+  Dat.Init 5000			'big size of hash table = fast work
+  
+  For a = 0 To 5000
+    dat("txt_" & a) = "This number value - " & a
+  Next
+
+  msgbox dat("txt_3400")
+  
+  dat("txt_3400") = sys.newhash
+  dat("txt_3400")("id") = "ok"
+
+  msgbox dat("txt_3400")("id")
+    
+  dat("txt_3400") = "my"
+  
+  msgbox dat("txt_3400")
+ 
+  EndMF
+End Sub
+<#Module>

@@ -1,0 +1,49 @@
+<#Module=mdlDemo>
+Dim loadWeb, web
+
+'---------------------------------------
+Sub Load(cmdLine)
+  form.move 0, 0, 12288, 9216
+  form.caption = "Internet Explorer"
+  
+  sys.registry.regwrite "HKCU\Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BROWSER_EMULATION\langmf.exe", 11000, "REG_DWORD"
+  
+  Set web = form.createOCX("web", "Shell.Explorer")  
+  loadWeb = true
+
+  form.add "text",1
+  form.text(1).move 0,0,form.scalewidth,240
+
+  form.center
+  form.show
+  
+  web.visible = true
+  web.object.navigate "http://www.google.ru"
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Web_DocumentComplete(pDisp, URL)
+    form.text(1).text = URL
+    form.style.maxbutton = 1
+End Sub
+
+'-----------------------------------------
+Sub Text1_KeyPress(keyCode)
+    if keyCode = 13 then web.object.navigate form.text(1).text
+End Sub
+
+'-----------------------------------------
+Sub Form_Resize()
+  If loadWeb and form.scalewidth>0 Then 
+     web.move 0,form.text(1).height+2,form.scalewidth-5,form.scaleheight-form.text(1).height-5
+     form.text(1).move 0,0,form.scalewidth
+  end if
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+ endmf
+End Sub
+<#Form>

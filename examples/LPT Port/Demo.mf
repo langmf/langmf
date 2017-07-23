@@ -1,0 +1,41 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.add "label",1
+  form.label(1).move 1680, 480
+  form.label(1).fontsize=16
+
+  form.add "command",1
+  form.command(1).move 1560, 1200, 960, 360
+  form.command(1).caption="OK"
+
+  form.center
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Command1_Click()
+  Dim numPort, byt
+  
+  randomize timer
+  
+  Do
+    PortIO(&H378) = int(rnd*255)
+  
+    byt = PortIO(&H378)
+  
+  
+    form.label(1).caption = byt
+    DoEvents
+    Sleep 100
+  
+  Loop Until IsEnd
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

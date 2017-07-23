@@ -1,0 +1,27 @@
+Declare Function EnumChildWindows Lib "user32" (ByVal hWndParent As Long, ByVal lpEnumFunc As Long, ByVal lParam As Long) As Long
+
+<#Module=mdlDemo>
+'---------------------------------------
+Function Test(hwnd, lParam)
+  form.lcombo(1).additem hex(hwnd)
+  Test = True
+End Function
+
+'---------------------------------------
+Sub Load(cmdLine)
+    form.add "lcombo",1
+    form.lcombo(1).move 1500,900,2000
+    form.Center    
+    form.show
+    
+    EnumChildWindows form.hwnd, sys.callback("Test"), 0
+    
+    form.lcombo(1).listindex=0
+End Sub
+<#Module>
+
+<#Form=form>
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

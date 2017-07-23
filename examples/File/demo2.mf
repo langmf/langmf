@@ -1,0 +1,46 @@
+<#Module=mdlFile>
+'---------------------------------------
+Sub Load(cmdLine)
+   Set f1 = Sys.File.api
+   Set f2 = Sys.File.api
+
+   f1.fOpen "test.txt", 2
+   f1.fPrint "Is Demo file print!"
+   f1.fPrint "Is 2 line!"
+   'msgbox f1.handle
+   f1.fClose
+   
+   f1.fOpen "test.txt"
+   fs = f1.LOF + 1
+   f1.fPut cbyte(32), fs
+
+   for a=0 to 255
+      f1.fPut cbyte(a)
+   next
+
+   f1.fClose
+
+   f1.fOpen "test.txt"
+   f1.Pos = f1.LOF + 1
+   f1.fPrint
+   f1.fPrint "Complete"
+   f1.fClose
+
+   f1.fOpen "test.txt"
+   f2.fOpen "test_out.txt"
+
+   b=cbyte(0)
+
+   Do
+      f1.fGet b
+      if Not f1.EOF then f2.fPut b
+   Loop Until f1.EOF   
+
+   f2.fClose
+   f1.fClose
+
+   msgbox "File create finish!", vbInformation, "Message"
+   
+   endmf
+End Sub
+<#Module>

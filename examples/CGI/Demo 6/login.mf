@@ -1,0 +1,32 @@
+<#Module>
+Sub Load(d)
+dim user, password, txt
+ 
+    txt = sys.env("HTTP_AUTHORIZATION")
+
+    if len(txt) > 0 then
+	 txt = right(txt, len(txt) - 6)		'Basic - AUTHORIZATION
+	 txt = split(sys.conv.decodebase64(txt), ":")
+	 user = txt(0)
+	 password = txt(1)
+    end if
+
+    if user="root" and password="qwerty" then
+       sys.cgi.stdout "Content-Type: text/html"+vbcrlf+vbcrlf
+       sys.cgi.stdout "<HTML><BODY>"
+       sys.cgi.stdout "<p style=""height:150px"">&nbsp;</p>"
+       sys.cgi.stdout "<center><font color=green size=7>ACCESS ALLOW</font></center>"
+       sys.cgi.stdout "</BODY></HTML>"
+    else
+       sys.cgi.stdout "WWW-Authenticate: Basic realm=LangMF" + vbcrlf
+       sys.cgi.stdout "status: 401 Unauthorized" + vbcrlf + vbcrlf
+
+       sys.cgi.stdout "<HTML><BODY>"
+       sys.cgi.stdout "<p style=""height:150px"">&nbsp;</p>"
+       sys.cgi.stdout "<center><font color=red size=7>ACCESS DENIED</font></center>"
+       sys.cgi.stdout "</BODY></HTML>"
+    end if
+
+    endmf
+End Sub
+<#Module>

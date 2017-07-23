@@ -1,0 +1,110 @@
+<#Module=mdlMain>
+Dim cnt2, nap2, cnt3, nap3, img1, img2, img3
+
+'---------------------------------------
+Sub Load(cmdLine)
+  Set img1 = sys.gdi.plus.LoadPicture("..\..\src\anim_1.png",,,&H946337)
+  Set img2 = sys.gdi.plus.LoadPicture("..\..\src\anim_2.png",,,&H946337)
+  Set img3 = sys.gdi.plus.LoadPicture("..\..\src\anim_3.png",,,&H946337)
+  
+  form.picture = sys.gdi.LoadPicture("..\..\src\fon.jpg")
+  
+  form.move 0, 0, form.picture.width * vbDC(88) * vbPX / 2540, form.picture.height * vbDC(90) * vbPY / 2540 + (form.height - form.scaleheight)
+
+  with form.add("skin", 1)
+      .move 220 * vbPX, 5 * vbPY
+      
+      '.hover.one = true
+      '.default.one = true
+  	  '.down.one = true
+  	  '.disabled.one = true
+  
+      .Fill .Default, img1, 16
+      .Fill .Hover, img2, 12
+      .Fill .Down, img3, 11
+
+      '.interval 200, .hover, .default, .down
+  	  '.default.slides(5).interval = 500
+	  '.default.slides(6).interval = 40
+	  
+      .Anim.interval = 40
+      .Anim.enabled = true
+  end with
+  
+  
+  with form.add("skin", 2)
+      .move 120 * vbPX, 5 * vbPY
+      
+      .Fill .Default, img1, 16
+      .Fill .Hover, img2, 12
+      .Fill .Down, img3, 11
+
+      .Anim.interval = 40
+      .Anim.enabled = true
+	  
+	  Set .Bag = sys.NewFAP(form.skin(2))	  
+  end with
+ 
+
+  with form.add("skin", 3)
+      .move 20 * vbPX, 5 * vbPY
+      
+      .Fill .Default, img1, 16
+      .Fill .Hover, img2, 12
+      .Fill .Down, img3, 11
+
+      .Anim.interval = 40
+      .Anim.enabled = true
+	  
+	  .Bag = Array(sys.NewFAP(form.image,,".GetDI"), sys.NewFAP(form.skin(3)))
+  end with
+  
+  
+  form.center
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+Sub Skin1_Update()
+  'if form.skin(1).Action = 2 then if form.skin(1).Down.Counter > 2 then form.skin(1).Down.Counter = 0
+End Sub
+
+Sub Skin1_UpdateEnd()
+  With form.skin(1)
+    'if .Action = 1 then .forecolor = qbcolor(12) : .font.bold = true : .font.size = 10 : GPrint form.skin(1), "OK", -0.1, -0.1
+  End With
+End Sub
+
+Sub Skin2_UpdateEnd()
+  if nap2 = false then cnt2 = cnt2 + 1
+  if nap2 = true then cnt2 = cnt2 - 1
+  if cnt2 > 70 then nap2 = true : cnt2 = 70 : end if
+  if cnt2 < 0 then nap2 = false : cnt2 = 0 : end if
+  
+  With this.skin(2).Bag
+	.GetDI
+	.Curves 3, array(0, 255, cnt2 * 3, -1)
+	.SetDI
+  End With
+End Sub
+
+Sub Skin3_UpdateEnd()
+  if nap3 = false then cnt3 = cnt3 + 3
+  if nap3 = true then cnt3 = cnt3 - 3
+  if cnt3 > 255 then nap3 = true : cnt3 = 255 : end if
+  if cnt3 < 0 then nap3 = false : cnt3 = 0 : end if
+  
+  v = this.skin(3).Bag
+  
+  With v(1)
+	  .GetDI
+	  .Copy v(0).GetBuffer,,,(this.skin(3).left / vbPX) + 1, (this.skin(3).top / vbPY) + 1,,,,,cnt3
+	  .SetDI
+  End With
+End Sub
+
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

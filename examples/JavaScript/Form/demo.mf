@@ -1,0 +1,28 @@
+<#Script=Parser1#>
+function Form() {
+	var form = Parser1.sys.newform()
+	form.codeobject = this
+      
+	this.Form_MouseMove = function (Button, Shift, x, y) {
+		form.caption = x + " - " + y
+	}
+	
+	this.Form_Unload = function () {
+		Parser1.sys.shd.endmf()
+	}
+
+	this.Command1_Click = function () {
+		Parser1.sys.ext.msgbox('press')
+	}
+    
+    return form
+} 
+
+function LMF_Parser_Raw(code) {
+	frm = new Form()
+	frm.add('command', 1, '.move 1800, 940, 1440, 400', '.caption = "Button"')
+	frm.center()
+	frm.show()
+	return code
+}
+<#Script#>

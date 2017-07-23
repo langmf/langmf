@@ -1,0 +1,32 @@
+<#--AddRus>
+
+<#Module=mdlFile>
+'---------------------------------------
+Sub Load(cmdLine)
+  a=99
+  a++
+  a=-10
+  
+  счетчик = "a = "
+  счетчик =& a & vbcrlf
+
+  a=/4
+  счетчик =+ "a = "
+  счетчик =& a
+  
+  msgbox счетчик,,$mdl_name
+  
+  endmf
+End Sub
+<#Module>
+
+<#Script=Parser1#>
+  function LMF_Parser_Raw(code) {
+    var rule = Parser1.Sys.Conv.ArrayJS([
+        '\\$([\\w_]*)(,?\\d*)',   'sys.host("$1"$2)',
+        '\n[ \\t]*([\\w\\d_]+)([\\+\\-])\\2',   '$1 = $1 $2 1',
+        '\n[ \\t]*([\\w\\d_]+)[ \\t]*=([\\+\\-\\*\/&])(.+)',   '$1 = $1 $2 $3'
+    ]);
+	return Parser1.Sys.Ext.Modify(code, rule);
+  }
+<#Script#>

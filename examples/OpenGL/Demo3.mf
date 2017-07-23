@@ -1,0 +1,323 @@
+<#Module=mdlDemo>
+'---------------------------------------------
+Sub Load(cmdLine)
+	sys.host.script.addobject "OGL", sys.com.DllGetClassObject("Lib\Atomix.OpenGL.dll", "OpenGL"), True
+	
+	Form.Center
+    Form.Show
+    
+	Form.CodeObject.MainLoop
+End Sub
+<#Module>
+
+<#form=form>
+Dim Tunnels_X(32, 32)
+Dim Tunnels_Y(32, 32)
+Dim Tunnels_Z(32, 32)
+Dim Texcoord_U(32, 32)
+Dim Texcoord_V(32, 32)
+
+Dim hOGL
+
+Dim angle, DemoStart, ElapsedTime, isLoad
+
+Sub Form_Load()
+    Form.Caption = "OpenGL Demo"
+    Form.Width = 12288
+    Form.height = 9216
+    Form.style.maxbutton=true
+End Sub
+
+Sub Form_Activate()
+    isLoad = true
+
+    hOGL = CreateContext(form.hDC)
+    
+    DrawInit
+
+    Form_Resize
+End Sub
+
+Sub Form_KeyDown(KeyCode, Shift)
+    If KeyCode = 27 Then Form_Unload
+End Sub
+
+Sub Form_Resize()
+    Dim w, h
+
+    w = form.ScaleWidth / vbPX : h = form.ScaleHeight / vbPY
+    If h = 0 Then h = 1
+
+    if isLoad then
+      glViewport 0, 0, w, h
+      glMatrixMode 5889
+      glLoadIdentity
+      gluPerspective 45, w / h, 1, 100
+      glMatrixMode 5888
+      glLoadIdentity
+    end if
+End Sub
+
+Sub Form_Unload()
+    DeleteContext hOGL
+    EndMF
+End Sub
+
+Sub DrawInit()
+    glClearColor 0, 0, 0, 0
+    glShadeModel 7425
+    glClearDepth 1
+    glEnable 2929
+    glDepthFunc 513
+    glHint 3152, 4354
+    glEnable 3553
+    
+    LoadTexture
+    CreateTunnel
+End Sub
+
+Sub MainLoop()
+    Dim lasttime
+
+    DemoStart = TimeGetTime
+
+    Do
+        ElapsedTime = TimeGetTime - DemoStart
+        ElapsedTime = (lasttime + ElapsedTime) \ 2
+        angle = (ElapsedTime + lasttime) / 48
+        lasttime = ElapsedTime
+        Render
+        DoEvents
+    Loop Until IsEnd
+End Sub
+
+Sub Render()
+    Dim I, J, c
+    Dim Buf()
+
+    glClear 16384 Or 256
+    glLoadIdentity
+
+    glTranslatef 0, 0, -4
+
+    For I = 0 To 32
+        For J = 0 To 32
+            Texcoord_U(I, J) = I / 32 + Cos((angle + 8 * J) / 60) / 2 '     //cos((zrot + 8*J)/60)/2
+            Texcoord_V(I, J) = J / 32 + (angle + J) / 120             '     //cos((zrot + 8*J)/60)/4
+        Next
+    Next
+
+    Redim Buf(20 * 32 - 1)
+
+    ' draw tunnel "cylinder"
+    For J = 0 To 31
+        If J > 24 Then
+            c = 1 - (J - 24) / 10
+        Else
+            c = 1
+        End If
+
+        glColor3f c, c, c
+        glBegin 7
+
+        For I = 0 To 31
+            Buf(I * 20 + 0)=Texcoord_U(I, J): Buf(I * 20 + 1)=Texcoord_V(I, J)
+            Buf(I * 20 + 2)=Tunnels_X(I, J): Buf(I * 20 + 3)=Tunnels_Y(I, J): Buf(I * 20 + 4)=Tunnels_Z(I, J)
+
+            Buf(I * 20 + 5)=Texcoord_U(I+1, J): Buf(I * 20 + 6)=Texcoord_V(I+1, J)
+            Buf(I * 20 + 7)=Tunnels_X(I+1, J): Buf(I * 20 + 8)=Tunnels_Y(I+1, J): Buf(I * 20 + 9)=Tunnels_Z(I+1, J)
+
+            Buf(I * 20 + 10)=Texcoord_U(I+1, J+1): Buf(I * 20 + 11)=Texcoord_V(I+1, J+1)
+            Buf(I * 20 + 12)=Tunnels_X(I+1, J+1): Buf(I * 20 + 13)=Tunnels_Y(I+1, J+1): Buf(I * 20 + 14)=Tunnels_Z(I+1, J+1)
+
+            Buf(I * 20 + 15)=Texcoord_U(I, J+1): Buf(I * 20 + 16)=Texcoord_V(I, J+1)
+            Buf(I * 20 + 17)=Tunnels_X(I, J+1): Buf(I * 20 + 18)=Tunnels_Y(I, J+1): Buf(I * 20 + 19)=Tunnels_Z(I, J+1)
+        Next
+
+        Fast_glTexCoord2f_glVertex3f Buf
+
+        glEnd
+    Next
+
+    SwapBuffers form.hDC
+End Sub
+
+Sub CreateTunnel()
+    Dim pi, I, J
+
+    pi = Atn(1) * 4
+
+    For I = 0 To 32
+        For J = 0 To 32
+            Tunnels_X(I, J) = (3 - J / 12) * Cos(2 * pi / 32 * I)
+            Tunnels_Y(I, J) = (3 - J / 12) * Sin(2 * pi / 32 * I)
+            Tunnels_Z(I, J) = -J
+        Next
+    Next
+End Sub
+
+Function LoadTexture()
+    Set buf = sys.newfap(ResToPic("texture"))
+    
+	If buf.GetDI Then
+
+        '---------------------------------------------
+        'effect - 1
+		ChangeImageMap buf
+        
+        'effect - 2
+		'buf.Gradient array(0,83,91,94), array(63,254,254,254), array(127,74,81,84), array(191,253,253,253), array(255,83,91,94)
+        
+        'effect - 3
+		'buf.Curves 1, array(0,25,255,0), array(26,108,332,3.07), array(109,255,0,0)
+		'buf.Curves 2, array(0,28,255,0), array(29,132,324,2.45), array(133,255,0,0)
+		'buf.Curves 3, array(0,59,255,0), array(60,181,378,2.09), array(182,255,0,0)
+        '---------------------------------------------
+
+        glTexEnvi 8960, 8704, 8448
+        glTexParameteri 3553, 10240, 9729
+        glTexParameteri 3553, 10241, 9729
+        glTexImage2D 3553, 0, 3, buf.Width, buf.Height, 0, 32993, 5121, buf.Ptr
+        LoadTexture = True
+    End If
+End Function
+
+Sub ChangeImageMap(buf)
+  Dim x,y,v
+
+    For x = 1 To buf.Width
+        For y = 1 To buf.Height
+            If (y \ 20) mod 2 = 0 Then
+                buf(x, y) = buf(x, y) And &HFF00&
+            Else
+                buf(x, y) = buf(x, y) And &HFF
+            End If
+        Next
+    Next
+End Sub
+<#form>
+
+
+<#res id="texture" mode=base64 #>
+/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsK
+CwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQU
+FBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCACAAIADASIA
+AhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA
+AAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3
+ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm
+p6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA
+AwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx
+BhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK
+U1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3
+uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD27xJH
+eSWNlZXg2NbJtjVk2tj/ACtYd5cWmivAYJ/tE8ybnjw26Nv7tdknjrR9engvL+Arbpu+8d26uU8U
+atofiHxHZRafFbaNa4SE3LF2BO7mR8kn8q/QaXN8LifIVFFLmUjSs9S09dOnnuYYp7h9qRpn51P9
+76VQTwzcR2MuoJOYkmkMRj343Nx/D/wKuO1m+j8O+JLyzivIb/yJCouoj+6fHcZrdh+IyQ/2dcPK
+Z2t51mMH8P8ADu/9BWtnSmvegZe2g9zrfEDXK6XZ2WoRhVt4/k3Jtbb/AJWvHPGd9BYljp8ju235
+1x/FXu8fjLR/FDwXeoQeXaoGU7j6/SuB+MHgg6HFc31nZFtFkQPHeQfPG+V65/Oow8nGXLJGWMhH
+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
+UuWfPBnw2Fq88OSaR//Z
+<#res#>

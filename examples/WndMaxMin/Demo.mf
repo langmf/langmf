@@ -1,0 +1,20 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.move 0,0,300 * vbPX, 300 * vbPY
+  form.center
+  form.show
+  
+  form.style.sizeborder=true
+  form.style.maxbutton=true
+  
+  with form : .xMin = 300 : .yMin = 300 : .xMax = 500 : .yMax = 500 : end with
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

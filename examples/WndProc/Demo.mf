@@ -1,0 +1,31 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+	form.add "label",1, ".move 120, 600, 4200, 360"
+	form.autoredraw = true
+	form.center
+	form.show
+
+	form.subclass.msg = true
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Form_Click()
+	msgbox "ok"
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+	EndMF
+End Sub
+
+'-----------------------------------------
+Function WindowProc(bHandled, hwnd, umsg, wparam, lparam, dwRefData)
+	if umsg >= &H200 and umsg <= &H210 then 
+		form.label(1).caption = hwnd & " - " & umsg & " - " & wparam & " - " & lparam & " - " & dwRefData
+		'sys.var.memword(bHandled) = true
+	end if
+End Function
+<#Form>

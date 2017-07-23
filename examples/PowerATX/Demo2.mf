@@ -1,0 +1,179 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+  on error resume next
+
+  form.height = 2280
+  form.width = 3960
+  form.autoredraw = true
+  form.caption = "Control Power"
+  form.style.titlebar = false
+  form.nomovemouse = true
+
+  form.add "command",1
+  form.command(1).move 3120, 1920, 720, 300
+  form.command(1).caption = "Отмена"
+
+  with form.add("label", 10)
+  	.caption = "Выключить компьютер"
+  	.fontsize = 10
+  	.forecolor = qbcolor(15)
+  	.move 240,120
+  end with
+
+  with form.add("img", 1)
+  	.picture = ResToPic("1")
+  	.mousepointer=99
+  	.mouseicon=form.icoinet.picture
+  	.move 600,840
+  end with
+
+  with form.add("label", 1)
+  	.caption = "Ждущий режим"
+  	.fontsize=8
+  	.fontbold=true
+  	.forecolor = qbcolor(15)
+  	.move 180, 1320
+  end with
+
+  with form.add("img", 2)
+  	.picture = ResToPic("2")
+  	.mousepointer=99
+  	.mouseicon=form.icoinet.picture
+  	.move 1800, 840
+  end with
+
+  with form.add("label", 2)
+  	.caption = "Выключение"
+  	.fontsize=8
+  	.fontbold=true
+  	.forecolor = qbcolor(15)
+  	.move 1560, 1320
+  end with
+
+  with form.add("img", 3)
+  	.picture = ResToPic("3")
+  	.mousepointer=99
+  	.mouseicon=form.icoinet.picture
+  	.move 3000, 840
+  end with
+
+  with form.add("label", 3)
+  	.caption = "Перезагрузка"
+  	.fontsize=8
+  	.fontbold=true
+  	.forecolor = qbcolor(15)
+  	.move 2760, 1320
+  end with
+
+  W = form.scalewidth / 2
+
+  for a=0 to w
+      GLine form,a,0,a,form.scaleheight,sys.gdi.getgrad(int((a/w)*255),rgb(90,125,222),rgb(150,180,245))
+  next
+
+  for a=0 to w
+      GLine form,a+w,0,a+w,form.scaleheight,sys.gdi.getgrad(int((a/w)*255),rgb(150,180,245),rgb(90,125,222))
+  next
+
+  GLine form,0,0,form.scalewidth,480,rgb(0,50,150), 2
+
+  GLine form,0,1800,form.scalewidth,2280,rgb(0,50,150), 2
+
+  for a=0 to w
+      GLine form,a,480,a,504,sys.gdi.getgrad(int((a/w)*255),rgb(48,83,181),rgb(213,230,248))
+  next
+
+  for a=0 to w
+      GLine form,a+w,480,a+w,504,sys.gdi.getgrad(int((a/w)*255),rgb(213,230,248),rgb(48,83,181))
+  next
+
+  GLine form,0,0,form.scalewidth-12,form.scaleheight-12,qbcolor(0), 1
+ 
+  form.center
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Form_Load()
+    sys.api.SetWindowPos form.hwnd, -1, form.left/vbPX, form.top/vbPY, form.width/vbPX, form.height/vbPY, 0
+End Sub
+
+'-----------------------------------------
+Sub Img1_Click()
+  sys.power.suspend
+End Sub
+
+'-----------------------------------------
+Sub Img2_Click()
+  sys.power.poweroff
+End Sub
+
+'-----------------------------------------
+Sub Img3_Click()
+  sys.power.reboot
+End Sub
+
+'-----------------------------------------
+Sub Command1_Click()
+  endmf
+End Sub
+<#Form>
+
+<#res id="1" mode=base64 #>
+R0lGODlhIQAhAOYAAP//////AP8A//8AAAD//wD/AAAA/wAAAPb2/uzu9eLl7+ru+t3i7tff7uns
+8ery/u/x8f7++f7bG/bFCf3KMOCoCuaxGdiWA9yfGuWsJtCSFeKpOfvw2sB/A7l6CNqZJv7688+C
+Ar59Ff2vMbl/JP60Pf67Sv69Vv7DY/7Kd/rWmNGEDPqeE65uDdCDFNWMG7R2F/2pJuyeJtaPJMmK
+Le3r6Mp1ArVqAqtiAvvlyPnhxu7r6P3z6vHIs/729e/u7v7+/v///wAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5
+BAEAAEEALAAAAAAhACEAAAf/gEFBOz8AhoeIiYqICAqCQT85KCWUJSOXmJcxm5ydLJ8bPQ5BNTom
+KagpKKsnra0mryYmlZYjmxguPQoQJykqvyqpqqvErK6ylLYyLjQIAKfAv8KoxcTHs5cyLy1Az77A
+09XGsbOW2i2GJd/SqcU+79e02dsAQOrfwtYnPCAg5fKYZMyAkQ7FtGGqTpjgB4KSwkwBBxoaYTCf
+Lx4qFDKkpEPHCVsgYwiE0a1Er3a+AERQIYuHS0sqAHA4sQnkyHojThjcqQJIBB0oWvYbUQIFByAc
+LMXIJhFIzmIpOPxUOMslj1ompKpYulTGB4IARpgo1pNHCqoL+yUbkQIACJAj/zJ88GAoBixiOn7C
+kpW2IYW/FHgAOUFhqVywMUzqPJE3I1oQESJQKEFhBIXGEwpnwEAXQGJXJziAcMz3H2AKMVMAjoFB
+RF3FrUST5lvpdOrVrV/Dir2y9NjTgHUAUCFhQgwLnOsS3R1ztm/AEgSjkEBhAvLOLJbDiskBBVoT
+wCmkiABAgvnqFbATLSHL6PDnFAj/5TDcfHEL6Q2xSMx+u8qMssQnHwo6AMEDBfZNMEEFHei3VCX+
+IaUCCoD5IlUEKdhX3ILYLbUceyeoEBkIHJRYYgRIZaihggzqt98ltIylAgiJcKACghpu2CIAn9S0
+Hi2UUQZdjhsu2AEQQPToY4MmtZ1GZJEXeIDkBZ+wIINImXhoSwxOFsniBTcAsIAMF7yAgQxoepVm
+BhlY4Oab1ikoZwUXdEACAgzoYMMKK7jg5wsvuACoBi9ogMGhFSSqKJ0XXBDCDboE4YAOJLSAQwuY
+ZoqpB5x26mkHoHpwAwmiPNJAAt0giSQiqarq6qsPOBJEIAA7
+<#res#>
+
+<#res id="2" mode=base64 #>
+R0lGODlhIQAhANUAAP//////AP8A//8AAAD//wD/AAAA/wAAAPb2/t7l+OHn+eru+tXf993l+OXr
++t/n+Obs+t7o+ury/v7++fvw2v768+W5ePnhxv3z6vHIs+RIFts5CcAvCMNBHs1II/6GZJ0mB6Q0
+GIgrFLw8HOJRLMhgR+qCaN6YhuRZOedkRudvVMNIMfyJdfqZh/qsn8I8Kv729f7+/v///wAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAADIALAAAAAAhACEAAAb/QJls
+sQAYj8ikEolICIcXUyqFQpGqpKx2qyF1NeBNKQOBpkwsk9qkarvd03jVSvJ0QJnEQmVquVwnaWtr
+fGxvKlN0HiMrEgApJ3+ALYGDlmpviXUjIDExKSyRLpQmJ5aFh4iaiyBGZ5EnlWsuFzBHMBcuqolV
+rEYofSctgiYuE56eSDEVLXNXdS+dAMCl1SYZnhguUlMqJxieGVt1d57UxBcAMbpycygt4Vu+04Vq
+LjEI7O1YJCqeLVpYxQDQb9AxfVOQ0ckCD4YiTgNR1LuHAQ4VheMoxDiRRWCMfnxUXFjXJk4KdTEW
+djER40JHTkZIpHADztAulAu9nITRRSDB/5ltPFlM+IuLBnUvWxGU2MZIpoTmch4FAGbeFTdOhyqU
+aqQqzBgaUADFAMCQSQATJvDzogIABi/zPIhtM1KXRbRqVbYAkMGr0i5x4FXclWLgNJUYJrDw2/UK
+UBgkZ0JNubDFBBheNPiKseHKXHgATpik4o4EixgTWoDRDBNA5yrdMhhxYbK05XWrN8zb0AX2FNkx
+tJmY88EChWN9w+jmII13ljlTWsBISz2tERiqV2tY3olz5+fuUrTIQDZbBhaZc3NXt4G3B/DOcmrR
+vr29B+YDOejWPK5/evXttcccAguswAEHHXTgwYIMMqggg7oFGOCBIIRAYAYgHMjBCBx26DOhhiCG
+yBweDMjgQAYrgCACCCy26OKLMLIYQgYPPNFABMgggAxKyCRjhCfHXIYAAgoIEQQAOw==
+<#res#>
+
+<#res id="3" mode=base64 #>
+R0lGODlhIQAhANUAAP//////AP8A//8AAAD//wD/AAAA/wAAAPb2/uru+urv+9jk+tnl+t3o+97o
+++Hr/OLs/OXu/eTt/Obv/ery/gKdAgKOAgKEAgJ8AgJyAgJiAgiGCA+zDw6TDgx9DA10DRCEEA5i
+DhqYGhmLGSKtIhl7GSq8KiaYJjW7NSaHJjSpNDOYM0TDRD+gP0ulS1erVz5zPme0Z3i8eIjRiKTZ
+pL/hv/7+/v///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAADcALAAAAAAhACEAAAb/wNtt
+ogAYj8ikEolwCG+UWqxFXVmv2NVpe0ptR2BQi/aA1lwxmSwWe7lfLrhrTqdWtalSqCahpGc0MzNq
+a2yGb4hzVV0lGgg2LjKAgYSFhpeJLi1WeRo2kJKBg2qXMTZGiHKam3khRi2SgoSYL6cAqqt3ract
+f7NsiLa5d1e7ACtps59vcwCfxEZYrc4tL8lszjaq2ZtWRydaK9PH1pYvRpCatlff4Yyu5KVu6MPe
+Rlxb4nrRaIdv1MRW3MO3ZZqNFXGsZVLUTYUWfCLw7QNwIqGbNqrsXFHBhYSIiAUnnqh2LtupOi1U
+qFyhgoQzdBRP7LMxMo4SlFZackxCU8TM/5olkeBkSWInkp4/W8xJhTKlSpUkokYV4dEnPBEI42jF
+ReVpS6kkOFS1emrECqVbbaazo/ITWA4cRHTQU/YsWq2nILVA4RVdWLFw52pwNgLcXRf0qBzha8Iv
+XA4dBBsBYRjtkVUsbKkwERXd4wqSAYDAatfFSTstjqg0wfnU5wqNJhe2ghq1imyb3362EBvAhhFe
+aNdWiVs33AoVLGAY7BtMvixXbBnngDz58lMYQIDxAu4hwS0f40KubuFChsEJVnwAUaJEivfw34MB
+81Fu5MgWyp9PgQBCDQ0hfCBgewQW2J4HCCaIwYIZnKcBDQ5QEEENMAAYwoUYYmghgBp06BihhynQ
+sMATDCTwyYkopqhiXp8g0IAQQQAAOw==
+<#res#>

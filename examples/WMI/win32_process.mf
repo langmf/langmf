@@ -1,0 +1,40 @@
+' See Details:
+'http://msdn.microsoft.com/en-us/magazine/aa394372(VS.85).aspx
+'http://msdn.microsoft.com/en-us/magazine/aa394084(VS.85).aspx
+
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.width=6000
+  form.height=4800
+
+  form.caption="Process - WMI"
+
+  form.add "textbox",1, ".Parent.Move2 $0, ,,,,1,1"
+
+  form.center
+  form.show
+
+  List
+End Sub
+
+'---------------------------------------
+Sub List()
+    Dim objWMI, colItems
+
+	For Each objWMI In GetObject("winmgmts://").InstancesOf("win32_process")
+		txt = txt & objWMI.handle & "   " & objWMI.Name & vbCrLf
+	Next
+	
+	Set objWMI = Nothing
+
+    form.textbox(1).Text = txt
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

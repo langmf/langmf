@@ -1,0 +1,55 @@
+#Include "sci.inc"
+
+<#Module=mdlDemo>
+Dim editor1, editor2
+
+'---------------------------------------
+Sub Load(cmdLine)
+	Dim editor1 as new Scintilla(form, "Sci1")
+
+	With editor1
+		.Move 0, 0, 350, 350
+		.Syntax = sys.conv.file2str("syntax.ini")
+		.Text = sys.conv.file2str(mf_namemod + ".mf")
+		.Expand = false
+	End With
+  
+	Dim editor2 as new Scintilla(form, "Sci2")
+	
+	With editor2
+		.Move 370, 0, 350, 350
+		.Syntax = sys.conv.file2str("syntax.ini")
+		.Text = sys.conv.file2str(mf_namemod + ".mf")
+	End With
+  
+	form.move 0,0, 9600, 7200
+	form.style.maxbutton = true
+	form.style.sizeborder = true  
+	form.center
+	form.show
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Form_Resize()
+  h = this.scaleheight / vbPX
+  w = this.scalewidth / (vbPY * 2)
+  if h > 30 then
+    editor1.move 10, 10, w - 15, h - 20
+    editor2.move w+5, 10, w - 20, h - 20
+  end if
+End Sub
+
+'-----------------------------------------
+Sub Finish()
+  Set editor1 = Nothing
+  Set editor2 = Nothing
+  endmf
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+  sys.ontimer -1, Array("Finish", mf_IDM)
+End Sub
+<#Form>

@@ -1,0 +1,53 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.show
+End Sub
+<#Module>
+
+
+<#Form=form>
+Dim W, H
+
+'---------------------------------
+Sub Form_Load
+  With this
+  	.move 0, 0, 8400, 8400
+  	.autoredraw = true
+  	.caption = "Градиентная заливка"
+	.Center
+
+  	with .add("command",1) : .caption="1" : .move 2400, 7200, 480, 300 : end with
+  	with .add("command",2) : .caption="2" : .move 3600, 7200, 480, 300 : end with
+  	with .add("command",3) : .caption="3" : .move 4800, 7200, 480, 300 : end with
+
+  	W = .scalewidth / vbPX
+  	H = .scaleheight / vbPY
+  End With
+  
+  Call Command1_Click
+End Sub
+
+'---------------------------------
+Sub Command1_Click()
+  this.cls
+  sys.gdi.Gradient this, array(, array(W,H,0,255,255))
+End Sub
+
+'---------------------------------
+Sub Command2_Click()
+  this.cls
+  sys.gdi.Gradient this, array(array(,,,255), array(W,,,,255), array(W,H,255), array(,H,,255,255)), array(array(0,1,2), array(0,2,3)), 2
+End Sub
+
+'---------------------------------
+Sub Command3_Click()
+  this.cls
+  sys.gdi.Gradient this, array(array(0,H/4,,255), array(W,H/4,,,255), array(W/2,H,255)), array(array(0,1,2)), 2
+End Sub
+
+'---------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

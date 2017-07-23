@@ -1,0 +1,85 @@
+<#Module=VBNETBuilder>
+Sub Load(cmdstr)
+    With Form
+        .Caption = "Динамическая компилляция сборки VB.NET..."
+        .Width = 8400
+        .Height	= 6000
+        .AutoRedraw = True
+        .BackColor = vbBlack
+        .Style.MinButton = True
+        .Style.MaxButton = True
+        .Style.SizeBorder = True
+        .center
+        .show
+    End With
+
+    DoEvents
+End Sub
+<#Module>
+
+<#Form=Form>
+	'----------------------------------------------------------------------
+	Sub Form_Resize()
+		res = Class1.DrawStringEx(Form, 10, 10, Form.ScaleWidth / vbPX - 20, Form.ScaleHeight / vbPY - 20)
+	End Sub
+	
+	'-----------------------------------------------------------------------
+	Sub Form_Unload()
+		EndMF
+		DoEvents
+	End Sub	
+	'-----------------------------------------------------------------------
+<#Form>
+
+
+<#VBNet=objWrap instance="Class1" start="main" #>
+Imports System
+Imports System.Windows.Forms
+Imports System.Drawing
+Imports Microsoft.VisualBasic
+
+
+public Module mdlMain
+    Public Sub Main(Byval LMF as Object)
+        Dim SYS as Object = LMF.Script.Eval("sys")
+        MsgBox(SYS.Path)
+        MsgBox(SYS.Host("arg"))
+    End Sub
+End Module
+
+
+Public Class Class1
+    ' Общие объекты и переменные
+    '---------------------------------------------------------
+    Public Shared drawString As String = "LangMF & VB.NET"
+    Public Shared drawFont As Object = New System.Drawing.Font("Courier", 36, System.Drawing.FontStyle.Bold Or System.Drawing.FontStyle.Underline Or System.Drawing.FontStyle.Italic)
+    Public Shared drawBrush As Object = New System.Drawing.SolidBrush(System.Drawing.Color.Black)
+    Public Shared drawBack As Object = New System.Drawing.SolidBrush(System.Drawing.ColorTranslator.FromHtml("#f5c889"))
+    Public Shared drawFormat As Object = New System.Drawing.StringFormat
+
+    ' Обновление параметров графического вывода
+    '---------------------------------------------------------
+    Public Function DrawStringEx(ByVal Frm As Object, ByVal x1 As Integer, ByVal y1 As Integer, ByVal x2 As Integer, ByVal y2 As Integer) As Integer
+        Dim sw As Integer, sh As Integer, g As Graphics, m As SizeF
+        
+        Frm.Cls
+        
+        g = Graphics.FromHdc(CInt(Frm.hDC))
+        m = g.MeasureString(drawString, drawFont)
+        
+        sw = (x2 + x1 - m.Width) / 2 	'x координата угла строки
+        sh = (y2 + y1 - m.Height) / 2	'y координата угла строки
+
+        '/Прорисовка заливки/
+        g.FillRectangle(drawBack, x1, y1, x2, y2)
+
+        '/Прорисовка строки и тени/
+        g.DrawString(drawString, drawFont, SystemBrushes.ControlLight, sw + 2, sh + 2, drawFormat)
+        g.DrawString(drawString, drawFont, drawBrush, sw, sh, drawFormat)
+
+        g.dispose()
+        
+        DrawStringEx = 101
+    End Function
+End Class
+<#VBNet#>

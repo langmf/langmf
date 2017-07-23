@@ -1,0 +1,37 @@
+<#Module=mdlDemo>
+Const BF_RECT = 15
+
+'---------------------------------------
+Sub Load(cmdLine)
+	form.autoredraw=true
+	form.add "command",1
+	form.command(1).move 1800, 1800, 1440, 400
+	form.command(1).caption="DrawButton"
+	form.Center
+	form.show
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Command1_Click
+Dim b
+
+Set b = sys.newbuf(,".size = 16")
+
+z = vbDC(88) / 120
+
+for a=0 to 3
+  call DllCall("user32", "SetRect", b.ptr, (15+a*100) * z, 15 * z, (100+a*100) * z, 100 * z)
+  call DllCall("gdi32", "Rectangle", form.hdc, (15+a*100) * z, 15 * z, (100+a*100) * z, 100 * z)
+  call DllCall("user32", "DrawEdge", form.hdc, b.ptr, &H4, BF_RECT)
+next
+
+form.refresh
+End Sub
+
+'-----------------------------------------
+Sub Form_Unload()
+endmf
+End Sub
+<#Form>

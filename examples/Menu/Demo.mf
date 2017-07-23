@@ -1,0 +1,131 @@
+<#Module=mdlMain>
+Const MF_GRAYED = &H1
+Const MF_DISABLED = &H2
+Const MF_BITMAP = &H4
+Const MF_CHECKED = &H8
+Const MF_POPUP = &H10
+Const MF_MENUBARBREAK = &H20
+Const MF_MENUBREAK = &H40
+Const MF_HILITE = &H80
+Const MF_OWNERDRAW = &H100
+Const MF_SEPARATOR = &H800
+Const MF_DEFAULT = &H1000
+Const MF_SYSMENU = &H2000
+Const MF_HELP = &H4000
+Const MF_RIGHTJUSTIFY = &H4000
+Const MF_MOUSESELECT = &H8000
+
+'---------------------------------------
+Sub Load(cmdLine)
+ form.width=4800
+ form.height=4800
+ form.caption="Μενώ"
+ form.Center
+
+ SetMenu
+ 
+ form.show
+End Sub
+
+Sub SetMenu()
+ With form
+
+  '.menu.popup = true
+
+'------------ menu #1 --------------
+  set child = .menu.add(10,"File","Popup1")
+  With child
+	.add 11, "New",,,,,ResToPic("100")
+	.add 12, "Open",,1
+	.add 13, "Save",,,1
+	.add 14, "Save as",,,,1
+	.add 15, "-"
+	.add 16, "Page Setup"
+	.add 17, "Print"
+	.add 18, "-"
+	.add 19, array("Exit" + vbTab + "F1", "mnuExit", &H70)      '4 * &H10000 + 65) '= Shift + A
+  End with
+  
+'------------ menu #2 --------------
+  .menu.add 20,"","Popup2"
+  .menu.SubMenu("Popup2").popup = true
+  .menu.SubMenu("Popup2").add 21, "Undo",,1
+  .menu.SubMenu("Popup2").add 22, "-"
+  .menu.SubMenu("Popup2").add 23, "Cut",,1
+  .menu.SubMenu("Popup2").add 24, "Copy",,1
+  .menu.SubMenu("Popup2").add 25, "Paste"
+  .menu.SubMenu("Popup2").add 26, "Delete",,1
+  .menu.SubMenu("Popup2").add 27, "-"
+  .menu.SubMenu("Popup2").add 28, "Select All"
+
+'------------ menu #3 --------------
+  .menu.add 30,"Format","Popup3"
+  .menu.SubMenu("Popup3").add 31, "PopupMenu",,,1
+  .menu.SubMenu("Popup3").add 32, "Font...",,,,1
+
+'------------ menu #4 --------------
+  .menu.add 40,"View"
+
+'------------ menu #5 --------------
+  .menu.add 50,"Help","Popup5"
+  .menu.SubMenu("Popup5").add(51, "Help Topics","Popup6",,,,,,, Array(52, "New", "Open", "Save", "Save as", "-", array("Exit", "mnuExit"))).add(58, "-").add 59, "About"
+
+  .menu.show
+  
+  'msgbox cbool(.menu.state(12, MF_GRAYED)) 
+  
+  'msgbox .menu.state(15)
+  
+  '.menu.state(13, MF_HILITE) = true
+
+  '.menu.state(11, &H100) = true
+  '.menu.state(11, &H2000) = true
+    
+  '.menu.text(13) = "new name"
+
+  .menu.SubMenu("Popup1").bitmap 19, "..\src\comp.gif"  
+  '.menu.SubMenu("Popup1").bitmap 11, sys.gdi.LoadPicture("..\src\comp.gif")
+  
+  .menu.nameevent(25) = "mnuPaste"
+  
+  '.menu.style &H10 or &H80000000,,,&H10000000
+  '.menu.style ,vbred
+  '.menu.SubMenu("Popup5").style ,rgb(0,200,255), 100
+ End With
+End Sub
+<#Module>
+
+
+<#Form=form>
+'---------------------------------
+Function Menu31_Click()
+ form.menu.SubMenu("Popup2").show
+ Menu31_Click = True
+End Function
+
+'---------------------------------
+Sub Menu_Click(id)
+ msgbox id
+End Sub
+
+Sub mnuPaste_Click()
+  msgbox "Paste"
+End Sub
+
+Sub mnuExit_Click()
+  msgbox "Exit"
+End Sub
+
+'---------------------------------
+Sub Form_Unload()
+ endmf
+End Sub
+<#Form>
+
+
+<#res id="100" mode=base64 #>
+R0lGODlhDQANAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAAAAzmZmZADMzAMzMZv//mefn1v/7
+8P/Mmerq6oaGhlVVVU1NTf///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEA
+ABQALAAAAAANAA0AAAVIICWO0WiaESSdYpJEgNNM7Nsgd7O2bt/rLYBwCHgsEqsEgMFkPhiPRENB
+STShUGOCanViH1Fu9gvdtp7orLnqa1NFirhcTgkBADs=
+<#res#>

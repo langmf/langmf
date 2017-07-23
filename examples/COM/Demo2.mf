@@ -1,0 +1,84 @@
+<#Module=mdlMain>
+Dim obj
+
+'---------------------------------------
+Sub Load(cmdLine)
+  Set obj = sys.com.create(new IDispatch)
+  
+  txt = "original text"
+  msgbox txt
+  call obj.my.test(txt)
+  msgbox txt
+  
+  msgbox obj.wrap.File
+    
+  set obj = nothing
+  
+  endmf
+End Sub
+
+
+
+Const VT_BYREF = &H4000
+Const E_NOTIMPL = &H80004001
+Const E_NOINTERFACE = &H80004002
+Const E_POINTER = &H80004003
+Const E_FAIL = &H80004005
+Const E_OUTOFMEMORY = &H8007000E
+Const E_INVALIDARG = &H80070057
+Const S_OK = 0
+Const S_FALSE = 1
+Const DISP_UNKNOWN = -1
+Const DISP_E_TYPEMISMATCH = &H80020005
+Const DISP_E_EXCEPTION = &H80020009
+Const DISP_E_BADINDEX = &H8002000B
+
+Const mask_QueryInterface = &H1
+Const mask_GetIDsOfNames = &H2
+
+
+Class IDispatch
+  Dim File
+  
+  Private Sub Class_Initialize()
+    File = "c:\example.txt"
+  End Sub
+  
+  Function COM_Custom(This)
+    COM_Custom = Array(mask_QueryInterface or mask_GetIDsOfNames)
+  End Function
+  
+  Function COM_QueryInterface(This, riid, pvObj)
+    Select Case sys.com.GetStrIID(riid)
+      Case "{00020400-0000-0000-C000-000000000046}"       'IDispatch
+        Struct(pvObj) = This
+		Struct(This, 4.0) = Struct(This, 4.0) + 1
+        COM_QueryInterface = 0
+        
+      Case Else
+        Struct(pvObj) = 0
+        COM_QueryInterface = E_NOINTERFACE
+    End Select
+  End Function
+  
+  Function COM_GetIDsOfNames(This, riid, rgszNames, cNames, LCID, rgDispId)
+    Struct(rgDispId) = DISP_UNKNOWN
+    COM_GetIDsOfNames = S_OK
+  End Function
+  
+  Function COM_Invoke(This, idMember, idName, wFlags, Params, Result)
+    select case idName
+      case "wrap"
+        set Result = objfromptr(Struct(This, 12.0))
+      case "my"
+        set Result = objfromptr(This)
+      case "test"
+        Result = test(Params)
+    end select 
+  End Function  
+  
+  function test(id)
+    id(0) = "replace text"
+  end function
+End Class
+<#Module>

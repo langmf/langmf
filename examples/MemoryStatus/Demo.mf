@@ -1,0 +1,66 @@
+'-------------------------------------------------------------------------------
+' Где 1024  - кол-во байт в килобайте
+'-------------------------------------------------------------------------------
+
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.caption = "Сведения о памяти"
+  form.autoredraw=true
+  form.height=4200
+  form.Center
+  form.show
+
+  sys.ontimer 1000, "Memory"
+
+  Memory
+End Sub
+
+'---------------------------------------
+Sub Memory
+dim mem
+
+  form.cls
+
+  set mem = sys.ext.GetMemoryStatus
+
+  GPrint form, ""
+
+  form.forecolor = QBColor(9)
+  GPrint form, "    Memory Phys:"
+  form.forecolor = &H80000008
+
+  GPrint form, "    Used Phys - " & format(mem("Phys Used"),"### ### ### ##0") & " байт      " & sys.file.FormatBytes(mem("Phys Used"))
+  GPrint form, "    Free Phys - " & format(mem("Phys Free"),"### ### ### ##0") & " байт      " & sys.file.FormatBytes(mem("Phys Free"))
+  GPrint form, "    Total Phys - " & format(mem("Phys Total"),"### ### ### ##0") & " байт      " & sys.file.FormatBytes(mem("Phys Total"))
+  GPrint form, ""
+
+
+  form.forecolor = QBColor(9)
+  GPrint form, "    Memory PageFile:"
+  form.forecolor = &H80000008
+
+  GPrint form, "    Used PageFile - " & format(mem("PageFile Used"),"### ### ### ##0") & " байт      " & sys.file.FormatBytes(mem("PageFile Used"))
+  GPrint form, "    Free PageFile - " & format(mem("PageFile Free"),"### ### ### ##0") & " байт      " & sys.file.FormatBytes(mem("PageFile Free"))
+  GPrint form, "    Total PageFile - " & format(mem("PageFile Total"),"### ### ### ##0") & " байт      " & sys.file.FormatBytes(mem("PageFile Total"))
+  GPrint form, ""
+
+
+  form.forecolor = QBColor(9)
+  GPrint form, "    Memory Virtual:"
+  form.forecolor = &H80000008
+
+  GPrint form, "    Used Virtual - " & format(mem("Virtual Used"),"### ### ### ##0") & " байт      " & sys.file.FormatBytes(mem("Virtual Used"))
+  GPrint form, "    Free Virtual - " & format(mem("Virtual Free"),"### ### ### ##0") & " байт      " & sys.file.FormatBytes(mem("Virtual Free"))
+  GPrint form, "    Total Virtual - " & format(mem("Virtual Total"),"### ### ### ##0") & " байт      " & sys.file.FormatBytes(mem("Virtual Total"))
+  GPrint form, ""
+
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Form_Unload()
+ endmf
+End Sub
+<#Form>

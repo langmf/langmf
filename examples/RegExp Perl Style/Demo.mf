@@ -1,0 +1,34 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+
+  my="John + Anna = LOVE!"
+
+  msgbox my,,"Example 1"
+
+  my=~i/([a-z]+)(.+?)([a-z]+)/$3$2$1/
+
+  msgbox my,,"Example 1"
+
+  call my=~i///
+
+  msgbox "Men - " + $$3,,"Example 1"
+  msgbox "Women - " + $$1,,"Example 1"
+
+  txt1 = inputbox("Input any symbol!","Message", "T1h2i3s4 5i6s7 8h9i0d1e2 3s4t5r6i7n8g9!0")
+
+  msgbox txt1,,"Example 2"
+
+  if txt1 =~ /([0-9]+)// then
+     msgbox "Find Digit",,"Example 2"
+  else
+     msgbox "Not Find Digit",,"Example 2"
+  end if
+
+  txt1 =~ mg/"[0-9]+"/""/
+
+  msgbox txt1,,"Example 2"
+
+  endmf
+End Sub
+<#Module>

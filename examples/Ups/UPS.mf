@@ -1,0 +1,90 @@
+<#Module=UPS>
+Dim Comm
+
+Sub Load(cmdLine)
+  on error resume next
+  
+  Set comm = CreateObject("MSCommlib.MSComm")
+
+  comm.handshaking = 3
+  comm.portopen = true
+
+  form.caption="Работа с ИБП (PowerMan 625 Plus)"
+  form.width = 6300
+  form.height = 3500
+
+  form.add "label",1
+  form.label(1).move 1800, 480
+  form.label(1).caption="Power AC"
+  form.label(1).fontsize = 16
+  form.label(1).backstyle=1
+
+  form.add "label",2
+  form.label(2).move 1800, 960
+  form.label(2).caption="Battery charge"
+  form.label(2).fontsize = 16
+  form.label(2).backstyle=1
+
+  form.add "label",3
+  form.label(3).move 770, 1716
+  form.label(3).caption="UPS Status:"
+
+  form.add "text",1
+  form.text(1).text=""
+  form.text(1).move 1680, 1680, 2660, 240
+
+  form.add "timer",1
+  form.timer(1).interval=100
+  form.timer(1).enabled=true
+
+  form.center
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+Sub Timer1_Timer()
+Dim val, txt
+
+ txt = txt & "   "
+ txt = txt & PortIO(&H3F8) & "  "
+ txt = txt & PortIO(&H3F9) & "  "
+ txt = txt & PortIO(&H3FA) & "  "
+ txt = txt & PortIO(&H3FB) & "  "
+ txt = txt & PortIO(&H3FC) & "  "
+ txt = txt & PortIO(&H3FD) & "  "
+ txt = txt & PortIO(&H3FE) & "  "
+ txt = txt & PortIO(&H3FF) & "  "
+
+ form.text(1).text=txt
+
+
+ val = PortIO(&H3FE)
+
+ Select Case val
+   Case 0
+     form.label(1).Caption = "POWER UPS"
+     form.label(1).BackColor = QBColor(12)
+     form.label(2).Caption = "Battery Empty"
+     form.label(2).BackColor = QBColor(12)
+
+   Case 144
+     form.label(1).Caption = "POWER AC"
+     form.label(1).BackColor = RGB(0, 190, 0)
+     form.label(2).Caption = "Battery Charge"
+     form.label(2).BackColor = RGB(0, 190, 0)
+
+   Case Else
+     form.label(1).Caption = "POWER UPS"
+     form.label(1).BackColor = QBColor(12)
+     form.label(2).Caption = "Battery Recharge"
+     form.label(2).BackColor = RGB(255, 255, 0)
+End Select
+End Sub
+
+Sub Form_Unload()
+  on error resume next
+  comm.portopen = false
+  endmf
+End Sub
+<#Form>

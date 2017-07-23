@@ -1,0 +1,97 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.width=7000
+  form.height=6000
+
+  form.caption="Пример работы с кодировками"
+
+  form.add "textbox",1, ".Parent.Move2 $0, ,,,,1,1"
+  
+  With form.menu.add(10,"Convert","Popup1")
+  	.add 10, "from ISO-8859 (table from file)"
+  	.add 11, "from ISO-8859"
+  	.add 12, "from KOI8-r"
+  	.add 13, "from CP866"
+  	.add 14, "from BASE64"
+  	.add 15, "to ISO-8859"
+  	.add 16, "to KOI8-r"
+  	.add 17, "to CP866"
+  	.add 18, "to BASE64"	
+  End With
+  form.menu.show
+
+  form.center
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+'-----------------------------------------
+Sub Display(txt)
+  form.textbox(1).text = txt
+  msgbox "You display original text!",vbinformation,"Info"
+End Sub
+
+'-----------------------------------------
+Sub Convert_from(codepage)
+  txt = sys.conv.file2str(codepage + ".txt")
+  display txt
+  txt = sys.conv.xlt(txt, codepage)
+  form.textbox(1).text=txt
+End Sub
+
+'-----------------------------------------
+Sub Convert_to(codepage)
+  txt = sys.conv.file2str(codepage + ".txt")
+  txt = sys.conv.xlt(txt, codepage)
+  display txt
+  txt = sys.conv.xlt(txt, codepage, , true)
+  form.textbox(1).text=txt
+End Sub
+
+'-----------------------------------------
+Sub Menu_Click(id)
+  select case id
+    case 11 : Convert_from("iso") 
+    case 12 : Convert_from("koi8-r") 
+    case 13 : Convert_from("cp866") 
+    case 15 : Convert_to("iso") 
+    case 16 : Convert_to("koi8-r") 
+    case 17 : Convert_to("cp866")                 
+  end select
+End Sub
+
+'-----------------------------------------
+Function Menu10_Click
+  XLT = sys.conv.file2str("iso.xlt")
+  txt = sys.conv.file2str("iso.txt")
+  
+  display txt
+  txt = sys.conv.xlt(txt,,XLT)
+  
+  form.textbox(1).text=txt
+End Function
+
+'-----------------------------------------
+Function Menu14_Click
+  txt = sys.conv.file2str("rus.txt")
+  txt = sys.conv.encodebase64(txt)
+  display txt
+  txt = sys.conv.decodebase64(txt)
+  form.textbox(1).text=txt
+End Function
+
+'-----------------------------------------
+Function Menu18_Click
+  txt = sys.conv.file2str("rus.txt")
+  display txt
+  txt = sys.conv.encodebase64(txt)
+  form.textbox(1).text=txt
+End Function
+
+'-----------------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>
