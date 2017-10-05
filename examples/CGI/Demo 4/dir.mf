@@ -44,7 +44,7 @@ Sub DoNavigate()
 		
 		macName = sys.file.GetDir(macPath, 16)
 		
-		base = sys.cgi.VarToUrl(sys.file.getdirectory(left(macPath, len(macPath) - 1)))
+		base = sys.conv.EncodeUrl(sys.file.getdirectory(left(macPath, len(macPath) - 1)))
 		
 		sys.cgi.stdout "<img src=icon\up.ico><a href=dir.mf" + iif(len(base), "?path=" + base, "") + "> [..]</a><br>" + vbcrlf
 		sys.cgi.stdout "<p style=""margin: 0 0 5 0""></p>"
@@ -54,9 +54,9 @@ Sub DoNavigate()
 			   macName = sys.file.GetDir
 			Else
 			   If (sys.file.Attr(macPath & macName) and 16) Then
-			       sys.cgi.stdout "<img src=icon\folder.ico><a href=dir.mf?path=" + sys.cgi.VarToUrl(macPath & macName) + "> " + macName + "</a><br>" + vbcrlf
+			       sys.cgi.stdout "<img src=icon\folder.ico><a href=dir.mf?path=" + sys.conv.EncodeUrl(macPath & macName) + "> " + macName + "</a><br>" + vbcrlf
 			   else
-				   sys.cgi.stdout "<img src=" + GetIcon(macPath & macName) + " width=16 height=16><a href=dir.mf?file=" + sys.cgi.VarToUrl(macPath & macName) + "> " + macName + "</a><br>" + vbcrlf		       
+				   sys.cgi.stdout "<img src=" + GetIcon(macPath & macName) + " width=16 height=16><a href=dir.mf?file=" + sys.conv.EncodeUrl(macPath & macName) + "> " + macName + "</a><br>" + vbcrlf		       
 			   End If
 			   
 			   sys.cgi.stdout "<p style=""margin: 0 0 5 0""></p>"

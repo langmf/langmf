@@ -65,6 +65,38 @@ Public Function Buf(value As Variant, Optional ByVal typeVar As Integer = vbArra
     ConvFromBufferByte Buf, tmpBuf
 End Function
 
+Public Function EncodeUrl(ByVal value As String, Optional ByVal Cpg As Long = -1) As String
+    Dim i As Long, b As Byte, tmpBuf() As Byte
+    If Len(value) = 0 Then Exit Function
+    tmpBuf = Int_W2A_Buf(value, Cpg):   value = ""
+    For i = 0 To UBound(tmpBuf)
+        b = tmpBuf(i)
+        If (b >= 48 And b <= 57) Or (b >= 65 And b <= 90) Or (b >= 97 And b <= 122) Then
+            EncodeUrl = EncodeUrl + Chr$(b)
+        ElseIf b < 16 Then
+            EncodeUrl = EncodeUrl + "%0" + Hex$(b)
+        Else
+            EncodeUrl = EncodeUrl + "%" + Hex$(b)
+        End If
+    Next
+End Function
+
+Public Function DecodeUrl(ByVal value As String, Optional ByVal Cpg As Long = -1) As String
+    Dim i As Long, c As Long, b As Byte, srcBuf() As Byte, dstBuf() As Byte
+    If Len(value) = 0 Then Exit Function
+    srcBuf = Int_W2A_Buf(value):   value = "":   ReDim dstBuf(UBound(srcBuf))
+    For i = 0 To UBound(srcBuf)
+        b = srcBuf(i)
+        If b = 37 Then
+            b = GT_IHex(srcBuf(i + 1)) * 16 + GT_IHex(srcBuf(i + 2)):   i = i + 2
+        ElseIf b = 43 Then
+            b = 32
+        End If
+        dstBuf(c) = b:   c = c + 1
+    Next
+    Erase srcBuf:   ReDim Preserve dstBuf(c - 1):   DecodeUrl = Int_A2W_Buf(dstBuf, Cpg)
+End Function
+
 Public Function ArrayJS(ByVal Disp As ATL.IDispatchEx, Optional ByVal VType As Long) As Variant()
     Dim a As Long, b As Long, uds As Long, sz As Long, out() As Variant, tmpBuf() As Byte, m(10) As Long
     Dim o As Long, p As Long, pAE As Long, pDP As ATL.DISPPARAMS, pEI As ATL.EXCEPINFO
@@ -131,11 +163,11 @@ Public Sub Str2File(ByVal value As String, ByVal nameFile As String)
 End Sub
 
 Public Function Hex2Buf(ByVal value As String) As Byte()
-    Hex2Buf = m_HexBuf(value)
+    Hex2Buf = m_Hex2Buf(value)
 End Function
 
 Public Function Buf2Hex(value As Variant) As String
-    Buf2Hex = m_BufHex(value)
+    Buf2Hex = m_Buf2Hex(value)
 End Function
 
 Public Function MPath(ByVal value As String) As String
