@@ -51,41 +51,13 @@ Public Function StdOut(ByVal txt As String, Optional ByVal numPipe As Long) As L
     StdOut = WriteFile(numPipe, ByVal txt, Len(txt), nb, 0)
 End Function
 
-Public Function UrlToVar(ByVal value As String) As String
-    Dim i As Long, a As Integer
-    
-    value = Replace$(value, "+", " ")
-
-    i = 0
-    Do
-        i = InStr(i + 1, value, "%")
-        If i Then
-            a = Val("&H" + Mid$(value, i + 1, 2))
-            If a Then value = Left$(value, i - 1) + Chr$(a) + Mid$(value, i + 3)
-        End If
-    Loop While i
-    
-    UrlToVar = value
-End Function
-
-Public Function VarToUrl(ByVal value As String) As String
-    Dim i As Long, txt As String, b As Long
-    
-    For i = 1 To Len(value)
-        b = Asc(Mid$(value, i, 1))
-        If b < 16 Then txt = txt + "%0" + Hex$(b) Else txt = txt + "%" + Hex$(b)
-    Next
-    
-    VarToUrl = txt
-End Function
-
 Public Function Inp(Optional ByVal ID As Variant) As Variant
     Dim tmp As Variant, Col As New clsHash, txt() As String
     
     If IsMissing(ID) Or IsEmpty(ID) Then
         For Each tmp In arrGIV
             txt = Split(tmp, "=")
-            txt(1) = UrlToVar(txt(1))
+            txt(1) = SYS.Conv.DecodeUrl(txt(1))
             Col.Add txt(1), txt(0)
         Next
         Set Inp = Col

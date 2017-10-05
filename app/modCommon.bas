@@ -89,10 +89,10 @@ Function IsRus() As Boolean
     IsRus = (GetSystemDefaultLangID = 1049)
 End Function
 
-Function IsJS(ByVal obj As Object) As Boolean
+Function IsJS(ByVal Obj As Object) As Boolean
     Dim tmp As String
     On Error Resume Next
-    tmp = obj
+    tmp = Obj
     IsJS = (tmp = "[object Object]")
 End Function
 
@@ -125,29 +125,29 @@ Function m_PHY(ByVal value As Long) As Long
     m_PHY = (value * 2540) / GetDeviceCaps(frmScript.hDC, 90)
 End Function
 
-Sub FlexMove(ByVal obj As Object, Optional x As Variant = "Left", Optional y As Variant = "Top", Optional Width As Variant = "Width", Optional Height As Variant = "Height", Optional ByVal PrtWidth As Single, Optional ByVal PrtHeight As Single, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal offsetX As Single, Optional ByVal offsetY As Single, Optional ByVal typeW As Single, Optional ByVal typeH As Single)
+Sub FlexMove(ByVal Obj As Object, Optional x As Variant = "Left", Optional y As Variant = "Top", Optional Width As Variant = "Width", Optional Height As Variant = "Height", Optional ByVal PrtWidth As Single, Optional ByVal PrtHeight As Single, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal offsetX As Single, Optional ByVal offsetY As Single, Optional ByVal typeW As Single, Optional ByVal typeH As Single)
     Dim sx As String, sy As String, sw As String, sh As String
     
-    If VarType(Width) = vbString Then sw = Width:     Width = CBN(obj, sw, VbGet)
-    If VarType(Height) = vbString Then sh = Height:   Height = CBN(obj, sh, VbGet)
-    If VarType(x) = vbString Then sx = x:   x = CBN(obj, sx, VbGet)
-    If VarType(y) = vbString Then sy = y:   y = CBN(obj, sy, VbGet)
-    If PrtWidth = 0 Then If obj.Parent Is Nothing Then PrtWidth = obj.ScaleWidth Else PrtWidth = obj.Parent.ScaleWidth
-    If PrtHeight = 0 Then If obj.Parent Is Nothing Then PrtHeight = obj.ScaleHeight Else PrtHeight = obj.Parent.ScaleHeight
+    If VarType(Width) = vbString Then sw = Width:     Width = CBN(Obj, sw, VbGet)
+    If VarType(Height) = vbString Then sh = Height:   Height = CBN(Obj, sh, VbGet)
+    If VarType(x) = vbString Then sx = x:   x = CBN(Obj, sx, VbGet)
+    If VarType(y) = vbString Then sy = y:   y = CBN(Obj, sy, VbGet)
+    If PrtWidth = 0 Then If Obj.Parent Is Nothing Then PrtWidth = Obj.ScaleWidth Else PrtWidth = Obj.Parent.ScaleWidth
+    If PrtHeight = 0 Then If Obj.Parent Is Nothing Then PrtHeight = Obj.ScaleHeight Else PrtHeight = Obj.Parent.ScaleHeight
     
     Select Case typeW
         Case Is > 1:    Width = typeW
         Case Is > 0:    Width = PrtWidth * typeW
         Case Is < 0:    Width = PrtWidth + typeW
     End Select
-    If LenB(sw) Then CBN obj, sw, VbLet, Array(Width)
+    If LenB(sw) Then CBN Obj, sw, VbLet, Array(Width)
     
     Select Case typeH
         Case Is > 1:    Height = typeH
         Case Is > 0:    Height = PrtHeight * typeH
         Case Is < 0:    Height = PrtHeight + typeH
     End Select
-    If LenB(sh) Then CBN obj, sh, VbLet, Array(Height)
+    If LenB(sh) Then CBN Obj, sh, VbLet, Array(Height)
     
     Select Case typeX
         Case -1:        x = PrtWidth / 2 - Width / 2 + offsetX
@@ -157,7 +157,7 @@ Sub FlexMove(ByVal obj As Object, Optional x As Variant = "Left", Optional y As 
         Case -2:        x = offsetX
         Case -3:        x = PrtWidth - Width + offsetX
     End Select
-    If LenB(sx) Then CBN obj, sx, VbLet, Array(x)
+    If LenB(sx) Then CBN Obj, sx, VbLet, Array(x)
 
     Select Case typeY
         Case -1:        y = PrtHeight / 2 - Height / 2 + offsetY
@@ -167,7 +167,7 @@ Sub FlexMove(ByVal obj As Object, Optional x As Variant = "Left", Optional y As 
         Case -2:        y = offsetY
         Case -3:        y = PrtHeight - Height + offsetY
     End Select
-    If LenB(sy) Then CBN obj, sy, VbLet, Array(y)
+    If LenB(sy) Then CBN Obj, sy, VbLet, Array(y)
 End Sub
 
 Function m_RegionFromBitmap(ByVal picSrc As IPictureDisp, Optional ByVal TransColor As Variant) As Long
@@ -848,7 +848,7 @@ Function CreateInstance(ByVal txtCLSID As String, ByVal txtIID As String, Option
     Call CoCreateInstance(CLSID, 0, dwClsContext, IID, CreateInstance)
 End Function
 
-Function m_BufHex(Buf As Variant) As String
+Function m_Buf2Hex(Buf As Variant) As String
     Dim i As Long, p As Long, cnt As Long, n1 As Byte, n2 As Byte
     Dim tmpBuf() As Byte, tmpOut() As Byte
     
@@ -867,10 +867,10 @@ Function m_BufHex(Buf As Variant) As String
     
     Erase tmpBuf
     
-    m_BufHex = StrConv(tmpOut, vbUnicode)
+    m_Buf2Hex = StrConv(tmpOut, vbUnicode)
 End Function
 
-Function m_HexBuf(value As String) As Byte()
+Function m_Hex2Buf(value As String) As Byte()
     Dim i As Long, p As Long, cnt As Long, n1 As Byte, n2 As Byte, Pos As Long
     Dim tmpBuf() As Byte, tmpOut() As Byte
     
@@ -894,7 +894,7 @@ Function m_HexBuf(value As String) As Byte()
     Erase tmpBuf
     ReDim Preserve tmpOut(p - 1)
     
-    m_HexBuf = tmpOut
+    m_Hex2Buf = tmpOut
 End Function
 
 Function IsMask(ByVal value As Long, ByVal maskValue As Long) As Boolean
@@ -1186,7 +1186,7 @@ Function ShellSync(ByVal CommandLine As String, Optional ByVal Timeout As Long =
     Dim Proc As PROCESS_INFORMATION, Start As STARTUPINFO
     
     Start.cb = Len(Start)
-    If Hide Then Start.dwFlags = 1: Start.wShowWindow = 0
+    If Hide Then Start.dwFlags = STARTF_USESHOWWINDOW:   Start.wShowWindow = SW_HIDE
     
     CreateProcessW 0, StrPtr(CommandLine), 0, 0, 1, NORMAL_PRIORITY_CLASS, 0, 0, Start, Proc
     Call WaitForSingleObject(Proc.hProcess, Timeout)
@@ -1198,7 +1198,7 @@ Function ShellSyncEx(ByVal FileName As String, Optional ByVal CommandLine As Str
     Dim SEI As SHELLEXECUTEINFO
  
     With SEI
-       .cbSize = Len(SEI)
+       .cbSize = LenB(SEI)
        .fMask = SEE_MASK_NOCLOSEPROCESS Or SEE_MASK_NOASYNC
        .lpVerb = lpVerb
        .lpFile = FileName
@@ -1318,14 +1318,14 @@ Function ExistsMember(ByVal Disp As ATL.IDispatch, ProcName As String) As Boolea
     ExistsMember = (Disp.GetIDsOfNames(IID_Null, ProcName, 1, LOCALE_USER_DEFAULT, 0&) = S_OK)
 End Function
 
-Function CBN(obj As Variant, ProcName As Variant, ByVal CallType As VbCallType, Optional ByVal Args As Variant, Optional ByVal cntArgs As Long = -1, Optional ByVal pvarResult As Long) As Variant
+Function CBN(Obj As Variant, ProcName As Variant, ByVal CallType As VbCallType, Optional ByVal Args As Variant, Optional ByVal cntArgs As Long = -1, Optional ByVal pvarResult As Long) As Variant
     Dim Disp As ATL.IDispatch, pDispParams As ATL.DISPPARAMS, pexcepinfo As ATL.EXCEPINFO, puArgError As Long
     Dim idMember As Long, pNamed As Long, hr As Long, SA As SafeArray
     
-    If IsObject(obj) Then
-        Set Disp = obj
+    If IsObject(Obj) Then
+        Set Disp = Obj
     Else
-        If Not CAS Is Nothing Then Set Disp = CAS.CodeObject(obj)
+        If Not CAS Is Nothing Then Set Disp = CAS.CodeObject(Obj)
     End If
     
     If Disp Is Nothing Then Exit Function
@@ -1414,11 +1414,11 @@ Function m_PrintType(ByVal Info As ITypeInfo, tdesc As TYPEDESC) As String
     If tdesc.vt And vbArray Then m_PrintType = m_PrintType & "()"
 End Function
 
-Function m_DoParams(ByVal obj As Object, Arg As Variant) As Object
+Function m_DoParams(ByVal Obj As Object, Arg As Variant) As Object
     Dim a As Long, b As Long, uds As Long, txt As String, nMod As String
     Static Preset(32) As String
     
-    Set m_DoParams = obj
+    Set m_DoParams = Obj
     If VarType(Arg) = vbString Then Arg = Array(Arg)
     uds = m_ArraySize(Arg) - 1
     If uds < 0 Then Exit Function
@@ -1443,7 +1443,7 @@ Function m_DoParams(ByVal obj As Object, Arg As Variant) As Object
         End Select
     Next
     
-    Preset(0) = "ObjFromPtr(" & ObjPtr(obj) & ")"
+    Preset(0) = "ObjFromPtr(" & ObjPtr(Obj) & ")"
     
     If LenB(txt) Then
         For a = 0 To UBound(Preset)
