@@ -45,8 +45,8 @@ Public Function Mci(ByVal sCommand As String, Optional ByVal isVal As Boolean) A
     If rc <> 0 Then Mci = rc Else If isVal Then Mci = Val(TrimNull(txt)) Else Mci = TrimNull(txt)
 End Function
 
-Public Function Link(ByVal nameLink As String, Optional ByVal strOper As String = vbNullChar, Optional ByVal strParam As String = vbNullChar) As Long
-    Link = ShellExecuteW(frmScript.hWnd, StrPtr(strOper), StrPtr(nameLink), StrPtr(strParam), StrPtr("C:\"), SW_SHOW)
+Public Function Link(ByVal nameLink As String, Optional ByVal strOper As String = vbNullChar, Optional ByVal strParam As String = vbNullChar, Optional ByVal nShowCmd As Long = SW_SHOWNORMAL) As Long
+    Link = ShellExecuteW(frmScript.hWnd, StrPtr(strOper), StrPtr(nameLink), StrPtr(strParam), StrPtr("C:\"), nShowCmd)
 End Function
 
 Public Function Modify(ByVal txtCode As String, Optional txtConv As Variant, Optional ByVal Flags As Long) As String

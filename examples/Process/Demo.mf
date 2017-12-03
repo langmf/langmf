@@ -108,6 +108,7 @@ Sub Command1_Click()
   Pid = clng(Replace(LV.object.ListItems(savePos).Key, "k", ""))
 
   if sys.process.kill(Pid) = 0 then msgbox "Fail kill process!"
+  'if sys.process.kill(array(false, "name", "iexplore", "name", "apiload")) = 0 then msgbox "Fail kill process!"
   
   Sleep 200
   

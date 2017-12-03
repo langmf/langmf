@@ -29,48 +29,39 @@ Public Sub AdjustToken(Optional ByVal typePrivilege As String = "SeDebugPrivileg
     modCommon.AdjustToken typePrivilege, processID, Flag
 End Sub
 
-Public Function Kill(ByVal processID As Variant) As Boolean
-    Dim a As Long, hProcess As Long, pid As Long, cl As Collection, isStr As Boolean, isFind As Boolean
-    
-    isStr = (VarType(processID) = vbString)
-    
-    Set cl = List
-    
-    For a = 1 To cl.Count
-        If isStr Then
-            If LCase$(cl(a)("Name")) = LCase$(processID) Then isFind = True
-        Else
-            If cl(a)("Pid") = processID Then isFind = True
-        End If
-        
-        If isFind Then
-            pid = cl(a)("Pid")
-            hProcess = OpenProcess(1, False, pid)
-            Kill = TerminateProcess(hProcess, 0)
-            CloseHandle hProcess
-            Exit For
-        End If
-    Next
+Public Function Kill(ByVal processID As Variant, Optional ByVal maxCount As Long) As Boolean
+    Dim c As Collection, v As Collection
+    Set c = Find(processID, maxCount)
+    If c.Count Then Kill = True:    For Each v In c:    Kill = Kill And KillProcess(v("Pid")):    Next
 End Function
 
 'Default Member
-Public Function Find(ByVal processID As Variant) As Boolean
+Public Function Find(ByVal processID As Variant, Optional ByVal maxCount As Long) As Collection
 Attribute Find.VB_UserMemId = 0
-    Dim a As Long, cl As Collection, isStr As Boolean, isFind As Boolean
+    Dim a As Long, b As Long, vt As Integer, txt As String, isFind As Boolean, cl As Collection, RX As New RegExp
     
-    isStr = (VarType(processID) = vbString)
-    
-    Set cl = List
-    
-    For a = 1 To cl.Count
-        If isStr Then
-            If LCase$(cl(a)("Name")) = LCase$(processID) Then isFind = True
-        Else
-            If cl(a)("Pid") = processID Then isFind = True
-        End If
-        
-        If isFind Then Find = True:   Exit For
-    Next
+    Set Find = New Collection:     Set cl = List:     vt = VarType(processID):     RX.IgnoreCase = True
+
+    If (vt And vbArray) <> 0 Then
+        For a = 1 To cl.Count
+            vt = processID(0):    isFind = vt
+            For b = 1 To UBound(processID) Step 2
+                RX.Pattern = processID(b + 1):   txt = cl(a)(processID(b))
+                If vt Then isFind = isFind And RX.Test(txt) Else isFind = isFind Or RX.Test(txt)
+            Next
+            If isFind Then Find.Add cl(a):   If maxCount > 0 And Find.Count >= maxCount Then Exit Function
+        Next
+    ElseIf vt = vbString Then
+        txt = LCase$(processID)
+        For a = 1 To cl.Count
+            If LCase$(cl(a)("Name")) = txt Then Find.Add cl(a):   If maxCount > 0 And Find.Count >= maxCount Then Exit Function
+        Next
+    Else
+        b = processID
+        For a = 1 To cl.Count
+            If cl(a)("Pid") = b Then Find.Add cl(a):   Exit Function
+        Next
+    End If
 End Function
 
 Public Function List() As Collection
@@ -145,7 +136,14 @@ Private Sub ListWTS()
         WTSFreeMemory lpBuffer
     End If
 End Sub
-    
+
+Private Function KillProcess(ByVal processID As Long) As Boolean
+    Dim hProcess As Long
+    hProcess = OpenProcess(1, False, processID)
+    KillProcess = TerminateProcess(hProcess, 0)
+    CloseHandle hProcess
+End Function
+
 Private Sub InitNTDevice()
     Dim a As Long, txt As String
     
