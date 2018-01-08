@@ -145,7 +145,7 @@ End Sub
 Public Function Add(ByVal ID_Menu As Long, ByVal Names As Variant, Optional ByVal nameSubMenu As String, Optional ByVal bDisable As Boolean = False, Optional ByVal bDefault As Boolean = False, Optional ByVal bChecked As Boolean = False, Optional ByVal img1 As Variant, Optional ByVal img2 As Variant, Optional ByVal bPopup As Boolean, Optional ByVal arrSubMenu As Variant) As Object
 Attribute Add.VB_UserMemId = 0
     Dim a As Long, itemName As String, itemEvent As String, itemHotKey As Long
-    Static offset As Long
+    Static vOffset As Long
     
     On Error Resume Next
     
@@ -184,10 +184,10 @@ Attribute Add.VB_UserMemId = 0
             If LenB(itemName) Then AppendMenuW hWnd, MF_STRING Or MF_POPUP, .hWnd, StrPtr(itemName)
     
             If IsArray(arrSubMenu) Then
-                If arrSubMenu(0) <> vbEmpty Then offset = arrSubMenu(0)
+                If arrSubMenu(0) <> vbEmpty Then vOffset = arrSubMenu(0)
                 For a = 1 To UBound(arrSubMenu)
-                    .Add offset, arrSubMenu(a)
-                    offset = offset + 1
+                    .Add vOffset, arrSubMenu(a)
+                    vOffset = vOffset + 1
                 Next
             End If
         End With

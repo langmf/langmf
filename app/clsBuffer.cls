@@ -13,129 +13,201 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 Option Explicit
 
-Private iPtr As Long, Buffer() As Byte
+Private m_Ptr As Long, m_Offset As Long, m_Size As Long, m_Overflow As Boolean, Buffer() As Byte
 
-
-Public Property Get Ptr(Optional ByVal allowExec As Boolean) As Long
-    If m_ArraySize(Buffer) = 0 Then Exit Property
-    iPtr = VarPtr(Buffer(0))
-    If allowExec Then AllowExecuteCode iPtr, Size
-    Ptr = iPtr
-End Property
-
-Public Property Let Ptr(Optional ByVal allowExec As Boolean, ByVal value As Long)
-    iPtr = value
-End Property
-
-Public Property Get Size() As Long
-    Size = m_ArraySize(Buffer)
-End Property
-
-Public Property Let Size(ByVal value As Long)
-    If value = 0 Then
-        Erase Buffer
-    ElseIf value < 0 Then
-        ReDim Preserve Buffer(Abs(value) - 1)
-    Else
-        ReDim Buffer(value - 1)
-    End If
-    iPtr = Ptr
-End Property
 
 Public Sub SetData(Buf As Variant)
-    ConvToBufferByte Buf, Buffer
-    iPtr = Ptr
+    ConvToBufferByte Buf, Buffer:    m_Ptr = Ptr
 End Sub
 
 Public Function GetData(Optional Buf As Variant) As Byte()
-    If IsMissing(Buf) Then GetData = Buffer: Exit Function
-    ConvFromBufferByte Buf, Buffer
+    If IsMissing(Buf) Then GetData = Buffer Else ConvFromBufferByte Buf, Buffer
 End Function
+
+Public Property Get Ptr(Optional ByVal allowExec As Boolean) As Long
+    m_Size = m_ArraySize(Buffer):    If m_Size = 0 Then Exit Property
+    m_Ptr = VarPtr(Buffer(0)):       If allowExec Then AllowExecuteCode m_Ptr, Size
+    Ptr = m_Ptr
+End Property
+
+Public Property Let Ptr(Optional ByVal allowExec As Boolean, ByVal value As Long)
+    m_Ptr = value
+End Property
+
+Public Property Get Size() As Long
+    Size = m_Size
+End Property
+
+Public Property Let Size(ByVal value As Long)
+    If value = 0 Then Erase Buffer
+    If value < 0 Then ReDim Preserve Buffer(Abs(value) - 1)
+    If value > 0 Then ReDim Buffer(value - 1)
+    m_Ptr = Ptr
+End Property
+
+Public Property Get Offset() As Long
+    Offset = m_Offset
+End Property
+
+Public Property Let Offset(ByVal value As Long)
+    If value < 0 Then m_Offset = m_Offset + value:  If m_Offset < 0 Then m_Offset = 0
+    If value >= 0 Then m_Offset = value
+End Property
+
+Public Property Get Overflow() As Boolean
+    Overflow = m_Overflow
+End Property
+
+Public Property Let Overflow(ByVal value As Boolean)
+    m_Overflow = value
+End Property
 
 
 'Default Member
-Public Property Get PByte(ByVal offset As Long) As Byte
+Public Property Get PByte(Optional ByVal vOffset As Long = -1) As Byte
 Attribute PByte.VB_UserMemId = 0
-    GetMem1 iPtr + offset, PByte
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 1) Then Exit Property
+    GetMem1 m_Ptr + m_Offset, PByte
+    m_Offset = m_Offset + 1
 End Property
 
-Public Property Let PByte(ByVal offset As Long, ByVal value As Byte)
-    PutMem1 iPtr + offset, value
+Public Property Let PByte(Optional ByVal vOffset As Long = -1, ByVal value As Byte)
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 1) Then Exit Property
+    PutMem1 m_Ptr + m_Offset, value
+    m_Offset = m_Offset + 1
 End Property
 
-Public Property Get PWord(ByVal offset As Long) As Long
-    GetMem2_Wrd iPtr + offset, PWord
+Public Property Get PWord(Optional ByVal vOffset As Long = -1) As Long
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 2) Then Exit Property
+    GetMem2_Wrd m_Ptr + m_Offset, PWord
+    m_Offset = m_Offset + 2
 End Property
 
-Public Property Let PWord(ByVal offset As Long, ByVal value As Long)
-    PutMem2_Wrd iPtr + offset, value
+Public Property Let PWord(Optional ByVal vOffset As Long = -1, ByVal value As Long)
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 2) Then Exit Property
+    PutMem2_Wrd m_Ptr + m_Offset, value
+    m_Offset = m_Offset + 2
 End Property
 
-Public Property Get PInteger(ByVal offset As Long) As Integer
-    GetMem2 iPtr + offset, PInteger
+Public Property Get PInteger(Optional ByVal vOffset As Long = -1) As Integer
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 2) Then Exit Property
+    GetMem2 m_Ptr + m_Offset, PInteger
+    m_Offset = m_Offset + 2
 End Property
 
-Public Property Let PInteger(ByVal offset As Long, ByVal value As Integer)
-    PutMem2 iPtr + offset, value
+Public Property Let PInteger(Optional ByVal vOffset As Long = -1, ByVal value As Integer)
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 2) Then Exit Property
+    PutMem2 m_Ptr + m_Offset, value
+    m_Offset = m_Offset + 2
 End Property
 
-Public Property Get PBoolean(ByVal offset As Long) As Boolean
-    GetMem2_Bln iPtr + offset, PBoolean
+Public Property Get PBoolean(Optional ByVal vOffset As Long = -1) As Boolean
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 2) Then Exit Property
+    GetMem2_Bln m_Ptr + m_Offset, PBoolean
+    m_Offset = m_Offset + 2
 End Property
 
-Public Property Let PBoolean(ByVal offset As Long, ByVal value As Boolean)
-    PutMem2_Bln iPtr + offset, value
+Public Property Let PBoolean(Optional ByVal vOffset As Long = -1, ByVal value As Boolean)
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 2) Then Exit Property
+    PutMem2_Bln m_Ptr + m_Offset, value
+    m_Offset = m_Offset + 2
 End Property
 
-Public Property Get PLong(ByVal offset As Long) As Long
-    GetMem4 iPtr + offset, PLong
+Public Property Get PLong(Optional ByVal vOffset As Long = -1) As Long
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 4) Then Exit Property
+    GetMem4 m_Ptr + m_Offset, PLong
+    m_Offset = m_Offset + 4
 End Property
 
-Public Property Let PLong(ByVal offset As Long, ByVal value As Long)
-    PutMem4 iPtr + offset, value
+Public Property Let PLong(Optional ByVal vOffset As Long = -1, ByVal value As Long)
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 4) Then Exit Property
+    PutMem4 m_Ptr + m_Offset, value
+    m_Offset = m_Offset + 4
 End Property
 
-Public Property Get PSingle(ByVal offset As Long) As Single
-    GetMem4_Sng iPtr + offset, PSingle
+Public Property Get PSingle(Optional ByVal vOffset As Long = -1) As Single
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 4) Then Exit Property
+    GetMem4_Sng m_Ptr + m_Offset, PSingle
+    m_Offset = m_Offset + 4
 End Property
 
-Public Property Let PSingle(ByVal offset As Long, ByVal value As Single)
-    PutMem4_Sng iPtr + offset, value
+Public Property Let PSingle(Optional ByVal vOffset As Long = -1, ByVal value As Single)
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 4) Then Exit Property
+    PutMem4_Sng m_Ptr + m_Offset, value
+    m_Offset = m_Offset + 4
 End Property
 
-Public Property Get PDouble(ByVal offset As Long) As Double
-    GetMem8_Dbl iPtr + offset, PDouble
+Public Property Get PDouble(Optional ByVal vOffset As Long = -1) As Double
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 8) Then Exit Property
+    GetMem8_Dbl m_Ptr + m_Offset, PDouble
+    m_Offset = m_Offset + 8
 End Property
 
-Public Property Let PDouble(ByVal offset As Long, ByVal value As Double)
-    PutMem8_Dbl iPtr + offset, value
+Public Property Let PDouble(Optional ByVal vOffset As Long = -1, ByVal value As Double)
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 8) Then Exit Property
+    PutMem8_Dbl m_Ptr + m_Offset, value
+    m_Offset = m_Offset + 8
 End Property
 
-Public Property Get PCurrency(ByVal offset As Long) As Currency
-    GetMem8 iPtr + offset, PCurrency
+Public Property Get PCurrency(Optional ByVal vOffset As Long = -1) As Currency
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 8) Then Exit Property
+    GetMem8 m_Ptr + m_Offset, PCurrency
+    m_Offset = m_Offset + 8
 End Property
 
-Public Property Let PCurrency(ByVal offset As Long, ByVal value As Currency)
-    PutMem8 iPtr + offset, value
+Public Property Let PCurrency(Optional ByVal vOffset As Long = -1, ByVal value As Currency)
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 8) Then Exit Property
+    PutMem8 m_Ptr + vOffset, value
+    m_Offset = m_Offset + 8
 End Property
 
-Public Property Get PString(ByVal offset As Long, ByVal lenStr As Long) As String
+Public Property Get PString(Optional ByVal vOffset As Long = -1, Optional ByVal lenStr As Long) As String
+    If vOffset <> -1 Then m_Offset = vOffset
+    If lenStr = 0 Then lenStr = m_Size - m_Offset
+    If (Overflow = False And m_Offset > (m_Size - Abs(lenStr))) Or (lenStr = 0) Then Exit Property
     PString = String$(Abs(lenStr), 0)
-    CopyMemory ByVal PString, ByVal iPtr + offset, Abs(lenStr)
+    CopyMemory ByVal PString, ByVal m_Ptr + m_Offset, Abs(lenStr)
     If lenStr < 0 Then PString = TrimNull(PString)
+    m_Offset = m_Offset + Abs(lenStr)
 End Property
 
-Public Property Let PString(ByVal offset As Long, ByVal lenStr As Long, ByVal value As String)
+Public Property Let PString(Optional ByVal vOffset As Long = -1, Optional ByVal lenStr As Long, ByVal value As String)
+    If vOffset <> -1 Then m_Offset = vOffset
+    If lenStr = 0 Then lenStr = Len(value)
+    If (Overflow = False And m_Offset > (m_Size - Abs(lenStr))) Or (lenStr = 0) Then Exit Property
     lenStr = Abs(lenStr)
     If Len(value) < lenStr Then value = value & String$(lenStr - Len(value), 0)
-    CopyMemory ByVal iPtr + offset, ByVal value, lenStr
+    CopyMemory ByVal m_Ptr + m_Offset, ByVal value, lenStr
+    m_Offset = m_Offset + lenStr
 End Property
 
-Public Property Get PArray(ByVal offset As Long, ByVal lenArr As Long) As Byte()
+Public Property Get PArray(Optional ByVal vOffset As Long = -1, Optional ByVal lenArr As Long) As Byte()
+    If vOffset <> -1 Then m_Offset = vOffset
+    If (Overflow = False And m_Offset > (m_Size - lenArr)) Or (lenArr <= 0) Then Exit Property
     ReDim value(lenArr - 1) As Byte
-    CopyMemory value(0), Buffer(offset), lenArr
+    CopyMemory value(0), Buffer(m_Offset), lenArr
+    m_Offset = m_Offset + lenArr
 End Property
 
-Public Property Let PArray(ByVal offset As Long, ByVal lenArr As Long, value() As Byte)
-    CopyMemory Buffer(offset), value(0), lenArr
+Public Property Let PArray(Optional ByVal vOffset As Long = -1, Optional ByVal lenArr As Long, value() As Byte)
+    If vOffset <> -1 Then m_Offset = vOffset
+    If (Overflow = False And m_Offset > (m_Size - lenArr)) Or (lenArr <= 0) Then Exit Property
+    CopyMemory Buffer(m_Offset), value(0), lenArr
+    m_Offset = m_Offset + lenArr
 End Property

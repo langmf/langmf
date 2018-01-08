@@ -414,7 +414,7 @@ Sub Parse_Resource(txtCode As String)
 End Sub
 
 Sub Parse_VBNET(txtCode As String)
-    Dim a As Long, REG1 As RegExp, Mts As MatchCollection, obj As Object, tmp As Variant, PCD() As def_ParseCustom
+    Dim a As Long, REG1 As RegExp, Mts As MatchCollection, Obj As Object, tmp As Variant, PCD() As def_ParseCustom
 
     On Error Resume Next
     
@@ -428,19 +428,19 @@ Sub Parse_VBNET(txtCode As String)
     For a = 0 To UBound(PCD)
         Set Mts = REG1.Execute(PCD(a).Param)
         
-        Set obj = CreateObject("Atomix.VBNET")
+        Set Obj = CreateObject("Atomix.VBNET")
         
         With Mts(0)
-            If Len(.SubMatches(1)) > 0 Then CAS.AddObject .SubMatches(1), obj
+            If Len(.SubMatches(1)) > 0 Then CAS.AddObject .SubMatches(1), Obj
 
             If Len(PCD(a).Data) Then
                 tmp = Parse_Data_Mode(PCD(a), .SubMatches(10), , True)
-                If Len(.SubMatches(8)) > 0 Then tmp = obj.Build(tmp, .SubMatches(8)) Else tmp = obj.Build(tmp)
+                If Len(.SubMatches(8)) > 0 Then tmp = Obj.Build(tmp, .SubMatches(8)) Else tmp = Obj.Build(tmp)
                 If Len(tmp) > 0 And Len(.SubMatches(2)) = 0 Then MsgBox tmp, , "VBNET Error!":   m_Str2File CStr(tmp), "vbnet.log"
             
                 If Len(.SubMatches(5)) > 0 Then
-                    For Each tmp In obj.Find(Trim$(.SubMatches(6)))
-                        obj.CallMethod tmp.Member, LMF
+                    For Each tmp In Obj.Find(Trim$(.SubMatches(6)))
+                        Obj.CallMethod tmp.Member, LMF
                     Next
                 End If
                 
@@ -448,9 +448,9 @@ Sub Parse_VBNET(txtCode As String)
                     For Each tmp In Split(.SubMatches(4), ",")
                         tmp = Split(tmp, "->")
                         If UBound(tmp) = 0 Then
-                            CAS.AddObject Trim$(tmp(0)), obj.CreateInstance(Trim$(tmp(0)))
+                            CAS.AddObject Trim$(tmp(0)), Obj.CreateInstance(Trim$(tmp(0)))
                         Else
-                            CAS.AddObject Trim$(tmp(1)), obj.CreateInstance(Trim$(tmp(0)))
+                            CAS.AddObject Trim$(tmp(1)), Obj.CreateInstance(Trim$(tmp(0)))
                         End If
                     Next
                 End If
@@ -460,7 +460,7 @@ Sub Parse_VBNET(txtCode As String)
 End Sub
 
 Function Parse_CScript(txtCode As String) As Collection
-    Dim a As Long, obj As clsActiveScript, REG1 As RegExp, Mts As MatchCollection, PCD() As def_ParseCustom
+    Dim a As Long, Obj As clsActiveScript, REG1 As RegExp, Mts As MatchCollection, PCD() As def_ParseCustom
     Static cntCScript As Long
     
     Set Parse_CScript = New Collection
@@ -479,28 +479,28 @@ Function Parse_CScript(txtCode As String) As Collection
             Set Mts = REG1.Execute(PCD(a).Param)
             
             If Mts.Count Then
-                Set obj = New clsActiveScript
-                Set obj.Parent = frmScript
-                obj.Name = "Custom"
+                Set Obj = New clsActiveScript
+                Set Obj.Parent = frmScript
+                Obj.Name = "Custom"
                 
                 With Mts(0)
-                    If Len(.SubMatches(1)) Then obj.Language = .SubMatches(1) Else obj.Language = "JavaScript"
-                    obj.Tag = .SubMatches(0)
-                    obj.AddObject .SubMatches(0), CAS.CodeObject
-                    obj.AddCode "mf_IDS = " & cntCScript & vbCrLf & PCD(a).Data
-                    CAS.AddObject .SubMatches(0), obj.CodeObject, Val(.SubMatches(2))
+                    If Len(.SubMatches(1)) Then Obj.Language = .SubMatches(1) Else Obj.Language = "JavaScript"
+                    Obj.Tag = .SubMatches(0)
+                    Obj.AddObject .SubMatches(0), CAS.CodeObject
+                    Obj.AddCode "mf_IDS = " & cntCScript & vbCrLf & PCD(a).Data
+                    CAS.AddObject .SubMatches(0), Obj.CodeObject, Val(.SubMatches(2))
                 End With
                 
-                Parse_CScript.Add obj
+                Parse_CScript.Add Obj
                 
-                frmScript.CScript.Add obj, CStr(cntCScript)
+                frmScript.CScript.Add Obj, CStr(cntCScript)
                 cntCScript = cntCScript + 1
             End If
         End If
     Next
 End Function
 
-Function Parse_Types_Sub(ByVal Mts As MatchCollection, wrapProp As String, ByVal sz As Long, offset As Long) As String
+Function Parse_Types_Sub(ByVal Mts As MatchCollection, wrapProp As String, ByVal sz As Long, vOffset As Long) As String
     Dim txt As String, pArg As String, pProp As String, nameVar As String, cntBound As Long, isBound As Boolean, sz2 As Long
     
     sz2 = sz:  sz = Abs(sz)
@@ -513,13 +513,13 @@ Function Parse_Types_Sub(ByVal Mts As MatchCollection, wrapProp As String, ByVal
     
                         
     If isBound Then pArg = "Class___index" & IIF(sz > 1, " * " & sz, "") & " + "
-    pArg = pArg & "Class___Offset + " & offset & IIF(wrapProp = "PString", ", " & sz2, "")
+    pArg = pArg & "Class___Offset + " & vOffset & IIF(wrapProp = "PString", ", " & sz2, "")
     pProp = "Class___Wrapper." & wrapProp & "(" & pArg & ")"
     
     txt = txt & "  Property Get " & nameVar & "(" & IIF(isBound, "Class___index", "") & ") : " & nameVar & " = " & pProp & " : End Property" & vbCrLf
     txt = txt & "  Property Let " & nameVar & "(" & IIF(isBound, "Class___index, ", "") & "Class___value) : " & pProp & " = Class___value : End Property" & vbCrLf
     
-    offset = offset + sz * (cntBound + 1)
+    vOffset = vOffset + sz * (cntBound + 1)
     
     Parse_Types_Sub = vbCrLf & txt
 End Function
@@ -528,12 +528,12 @@ Sub Parse_Types(txtCode As String)
     Dim cntBound As Long, isBound As Boolean, nameVar As String, cntString As Long, nameType As String
     Dim aDim As String, aPtr As String, oTxt As String, iTxt As String, vTxt As String, rTxt As String
     Dim a As Long, Mts As MatchCollection, mts1 As MatchCollection, txt() As String
-    Dim offset As Long, offsetUnion As Long
+    Dim vOffset As Long, offsetUnion As Long
     
     REG.Global = False
     
     Do
-        aDim = "": aPtr = "": vTxt = "": iTxt = "": oTxt = "": offset = 0
+        aDim = "": aPtr = "": vTxt = "": iTxt = "": oTxt = "": vOffset = 0
         
         REG.Pattern = "\n[ \t\v]*(private |public )?type +([a-z0-9_]+)([\d\D]+?)\n[ \t\v]*end type"
         
@@ -566,13 +566,13 @@ Sub Parse_Types(txtCode As String)
                             Case "@"
                                 Select Case LCase$(nameVar)
                                     Case "union"
-                                        If offset > offsetUnion Then offsetUnion = offset
-                                        offset = cntString
-                                        If offset < 0 Then offset = 0
+                                        If vOffset > offsetUnion Then offsetUnion = vOffset
+                                        vOffset = cntString
+                                        If vOffset < 0 Then vOffset = 0
                                         
                                     Case "offset"
-                                        If cntString < 0 Then offset = offset + cntString Else offset = cntString
-                                        If offset < 0 Then offset = 0
+                                        If cntString < 0 Then vOffset = vOffset + cntString Else vOffset = cntString
+                                        If vOffset < 0 Then vOffset = 0
                                 End Select
                                 
                             Case "string"
@@ -580,49 +580,49 @@ Sub Parse_Types(txtCode As String)
                                     'nonfixed string
                                     If isBound Then
                                         aDim = aDim & "  Dim " & nameVar & "(" & cntBound & ")" & vbCrLf
-                                        aPtr = aPtr & "    mf_t_ofs = " & offset & vbCrLf
+                                        aPtr = aPtr & "    mf_t_ofs = " & vOffset & vbCrLf
                                         aPtr = aPtr & "    For mf_v1 = 0 To " & cntBound & vbCrLf
                                         aPtr = aPtr & "      Class___Wrapper.PLong(Class___Offset + mf_t_ofs) = StrPtr(" & nameVar & "(mf_v1), True)" & vbCrLf
                                         aPtr = aPtr & "      mf_t_ofs = mf_t_ofs + 4" & vbCrLf
                                         aPtr = aPtr & "    Next" & vbCrLf
                                     Else
                                         aDim = aDim & "  Dim " & nameVar & vbCrLf
-                                        aPtr = aPtr & "    Class___Wrapper.PLong(Class___Offset + " & offset & ") = StrPtr(" & nameVar & ", True)" & vbCrLf
+                                        aPtr = aPtr & "    Class___Wrapper.PLong(Class___Offset + " & vOffset & ") = StrPtr(" & nameVar & ", True)" & vbCrLf
                                     End If
-                                    offset = offset + 4 * (cntBound + 1)
+                                    vOffset = vOffset + 4 * (cntBound + 1)
                                 Else
                                     'fixed string
-                                    vTxt = vTxt & Parse_Types_Sub(mts1, "PString", cntString, offset)
+                                    vTxt = vTxt & Parse_Types_Sub(mts1, "PString", cntString, vOffset)
                                 End If
                             
                             Case "byte"
-                                vTxt = vTxt & Parse_Types_Sub(mts1, "PByte", 1, offset)
+                                vTxt = vTxt & Parse_Types_Sub(mts1, "PByte", 1, vOffset)
                                 
                             Case "word"
-                                vTxt = vTxt & Parse_Types_Sub(mts1, "PWord", 2, offset)
+                                vTxt = vTxt & Parse_Types_Sub(mts1, "PWord", 2, vOffset)
                                 
                             Case "integer"
-                                vTxt = vTxt & Parse_Types_Sub(mts1, "PInteger", 2, offset)
+                                vTxt = vTxt & Parse_Types_Sub(mts1, "PInteger", 2, vOffset)
                                 
                             Case "boolean"
-                                vTxt = vTxt & Parse_Types_Sub(mts1, "PBoolean", 2, offset)
+                                vTxt = vTxt & Parse_Types_Sub(mts1, "PBoolean", 2, vOffset)
                                 
                             Case "long"
-                                vTxt = vTxt & Parse_Types_Sub(mts1, "PLong", 4, offset)
+                                vTxt = vTxt & Parse_Types_Sub(mts1, "PLong", 4, vOffset)
                                 
                             Case "single"
-                                vTxt = vTxt & Parse_Types_Sub(mts1, "PSingle", 4, offset)
+                                vTxt = vTxt & Parse_Types_Sub(mts1, "PSingle", 4, vOffset)
                                 
                             Case "double"
-                                vTxt = vTxt & Parse_Types_Sub(mts1, "PDouble", 8, offset)
+                                vTxt = vTxt & Parse_Types_Sub(mts1, "PDouble", 8, vOffset)
                                 
                             Case "currency"
-                                vTxt = vTxt & Parse_Types_Sub(mts1, "PCurrency", 8, offset)
+                                vTxt = vTxt & Parse_Types_Sub(mts1, "PCurrency", 8, vOffset)
                                 
                             Case Else
                                 If isBound Then
                                     aDim = aDim & "  Dim " & nameVar & "(" & cntBound & ")" & vbCrLf
-                                    iTxt = iTxt & "    mf_t_ofs = " & offset & vbCrLf
+                                    iTxt = iTxt & "    mf_t_ofs = " & vOffset & vbCrLf
                                     iTxt = iTxt & "    For mf_v1 = 0 To " & cntBound & vbCrLf
                                     iTxt = iTxt & "      Set " & nameVar & "(mf_v1) = New " & nameType & vbCrLf
                                     iTxt = iTxt & "      Class___Enum.Add Array(" & nameVar & "(mf_v1), mf_t_ofs)" & vbCrLf
@@ -631,9 +631,9 @@ Sub Parse_Types(txtCode As String)
                                 Else
                                     aDim = aDim & "  Dim " & nameVar & vbCrLf
                                     iTxt = iTxt & "    Set " & nameVar & " = New " & nameType & vbCrLf
-                                    iTxt = iTxt & "    Class___Enum.Add Array(" & nameVar & ", " & offset & ")" & vbCrLf
+                                    iTxt = iTxt & "    Class___Enum.Add Array(" & nameVar & ", " & vOffset & ")" & vbCrLf
                                 End If
-                                offset = offset + Types(nameType) * (cntBound + 1)
+                                vOffset = vOffset + Types(nameType) * (cntBound + 1)
                         End Select
                     Else
                         rTxt = rTxt + txt(a) + vbCrLf
@@ -642,7 +642,7 @@ Sub Parse_Types(txtCode As String)
                 End If
             Next
             
-            If offsetUnion <> -1 Then If offset < offsetUnion Then offset = offsetUnion
+            If offsetUnion <> -1 Then If vOffset < offsetUnion Then vOffset = offsetUnion
 
             oTxt = oTxt + "Class " + .SubMatches(1) + vbCrLf
             oTxt = oTxt + "  Dim Class___Wrapper, Class___Enum, Class___Offset" + vbCrLf
@@ -651,7 +651,7 @@ Sub Parse_Types(txtCode As String)
             oTxt = oTxt + "    Set Class___Enum = Sys.NewCollection" + vbCrLf
             oTxt = oTxt + iTxt
             oTxt = oTxt + "  End Sub" + vbCrLf + vbCrLf
-            oTxt = oTxt + "  Public Property Get Class___Size() : Class___Size = " + CStr(offset) + " : End Property" + vbCrLf + vbCrLf
+            oTxt = oTxt + "  Public Property Get Class___Size() : Class___Size = " + CStr(vOffset) + " : End Property" + vbCrLf + vbCrLf
             oTxt = oTxt + "  Public Default Property Get Class___Ptr()" + vbCrLf
             oTxt = oTxt + "    Class___Ptr = Class___Wrapper.Ptr(True) + Class___Offset" + vbCrLf
             oTxt = oTxt + aPtr
@@ -663,7 +663,7 @@ Sub Parse_Types(txtCode As String)
 
             txtCode = Left$(txtCode, .FirstIndex + 1) + oTxt + Right$(txtCode, Len(txtCode) - .FirstIndex - .Length - 2)
         
-            Types.Add offset, .SubMatches(1)
+            Types.Add vOffset, .SubMatches(1)
             
             End With
         End If
@@ -1331,8 +1331,8 @@ End Sub
 
 Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZLIB)
     Dim setupPath As String, txtINI As String, txtMode As String, txtRes As String, txtOpt As String, txtFls As String
+    Dim nameIcon As String, nameExe As String, txt As String, a As Long, v As Variant, Buf() As Byte
     Dim Mts As MatchCollection, Base64 As New clsBase64, RX As New clsRXP, f As New clsFileAPI
-    Dim nameIcon As String, txt As String, a As Long, v As Variant, Buf() As Byte
     
     nameMF = FileLongName(nameMF)
     setupPath = RX.Eval(nameMF, "(.+\\)", GetAppPath)
@@ -1389,7 +1389,8 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
             Select Case LCase$(Parse_MPath(RX.Mts(0).SubMatches(0)))
                 Case "exe"
                     CompressMF nameMF, , Packer
-                    mf_Tmp = MakeEXE(nameMF, nameIcon, txtRes)
+                    nameExe = Parse_MPath(RX.Eval(txtOpt, "\nexe[ \t]*=[ \t]*([^\r]+)"))
+                    mf_Tmp = MakeEXE(nameExe, nameMF, nameIcon, txtRes)
                     
                 Case "full"
                     CompressMF nameMF, , Packer
@@ -1413,23 +1414,22 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
 End Sub
 
 
-Function MakeEXE(ByVal nameDest As String, ByVal nameIcon As String, ByVal txtRes As String) As String
+Function MakeEXE(ByVal nameExe As String, ByVal nameDest As String, ByVal nameIcon As String, ByVal txtRes As String) As String
     Dim txtOper As String, txtTable1 As String, txtTable2 As String, txtKey As String, txtValue As String
     Dim a As Long, f As New clsFileAPI, RXP As New clsRXP, ver As clsHash, clsNR As New clsNativeRes
-    Dim isVerModify As Boolean, lngType As Long, lngLang As Long, nameExe As String
+    Dim isVerModify As Boolean, lngType As Long, lngLang As Long
     
-    nameExe = nameDest & ".tmp"
-    
-    FileCopy SYS.PathEngine(True), nameExe
-
+    If Len(nameExe) = 0 Then nameExe = SYS.PathEngine(True)
+    If Not IsFile(nameExe) Then Exit Function
+    FileCopy nameExe, nameDest & ".tmp":    nameExe = nameDest & ".tmp"
     If Not IsFile(nameExe) Then Exit Function
 
     If IsFile(nameIcon) Then clsNR.UpdateMainIcon nameExe, nameIcon
 
-    RXP.obj.MultiLine = True
+    RXP.Obj.MultiLine = True
     
     '-------------------<Type>-------<Oper>-----<Lang>----<Table1>---<Table2>----<Key>------<Value>---
-    RXP.obj.Pattern = "\n([a-z0-9]+)\.([a-z0-9]*)\.([0-9]*)\.([a-z]*)\.([a-f0-9]*)\.(.+)[ \t]*=[ \t]*([^\r]+)"
+    RXP.Obj.Pattern = "\n([a-z0-9]+)\.([a-z0-9]*)\.([0-9]*)\.([a-z]*)\.([a-f0-9]*)\.(.+)[ \t]*=[ \t]*([^\r]+)"
 
     If RXP.Execute(txtRes).Count Then
         clsNR.UpdateVersion nameExe, ver
