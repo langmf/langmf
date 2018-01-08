@@ -133,7 +133,7 @@ End Type
 
 Public Function UpdateString(ByVal nameExeFile As String, ByVal numRes As Long, ByVal szTxt As String, Optional ByVal wLang As Long = 0) As Long
     Dim rc As Long, hLib As Long, hGlobal As Long, hRsrc As Long, lPtr As Long, lenTxt As Integer, numStr As Long
-    Dim dlHw As Long, resID As Long, cntStr As Long, offset As Long, Buf() As Byte, txt(16) As String
+    Dim dlHw As Long, resID As Long, cntStr As Long, ofs As Long, Buf() As Byte, txt(16) As String
     
     resID = (numRes \ 16) + 1
     numStr = (numRes Mod 16) + 1
@@ -159,13 +159,13 @@ Public Function UpdateString(ByVal nameExeFile As String, ByVal numRes As Long, 
         Do
             cntStr = cntStr + 1
             
-            CopyMemory lenTxt, Buf(offset), 2
-            offset = offset + 2
+            CopyMemory lenTxt, Buf(ofs), 2
+            ofs = ofs + 2
             
             If lenTxt <> 0 Then
                 txt(cntStr) = String$(lenTxt * 2, 0)
-                CopyMemory ByVal txt(cntStr), Buf(offset), lenTxt * 2
-                offset = offset + lenTxt * 2
+                CopyMemory ByVal txt(cntStr), Buf(ofs), lenTxt * 2
+                ofs = ofs + lenTxt * 2
             End If
         Loop Until cntStr >= 16
     End If
@@ -177,23 +177,23 @@ Public Function UpdateString(ByVal nameExeFile As String, ByVal numRes As Long, 
     
     '----------------------Запись таблицы----------------------------
     cntStr = 0
-    offset = 0
+    ofs = 0
         
     Do
         cntStr = cntStr + 1
         
         lenTxt = Len(txt(cntStr)) \ 2
         
-        ReDim Preserve Buf(offset + 2 - 1)
+        ReDim Preserve Buf(ofs + 2 - 1)
         
-        CopyMemory Buf(offset), lenTxt, 2
-        offset = offset + 2
+        CopyMemory Buf(ofs), lenTxt, 2
+        ofs = ofs + 2
         
         If lenTxt <> 0 Then
-            ReDim Preserve Buf(offset + lenTxt * 2 - 1)
+            ReDim Preserve Buf(ofs + lenTxt * 2 - 1)
         
-            CopyMemory Buf(offset), ByVal txt(cntStr), lenTxt * 2
-            offset = offset + lenTxt * 2
+            CopyMemory Buf(ofs), ByVal txt(cntStr), lenTxt * 2
+            ofs = ofs + lenTxt * 2
         End If
     Loop Until cntStr >= 16
 
@@ -256,7 +256,7 @@ Public Function UpdateVersion(ByVal nameExeFile As String, dataVer As Variant, O
     Dim hLib As Long, hGlobal As Long, hRsrc As Long, lPtr As Long, rc As Long, dlHw As Long, isWrite As Boolean
     Dim Buf() As Byte, txtKey As String, txtValue As String, txt As String, v As Variant, v2 As Variant
     Dim sizeBuf As Long, a As Long, b As Long, numHdr As Long, numSD As Long, szHdr As Long, tmpLng As Long
-    Dim offset As Long, offSet_Start As Long, offSet_Start_KV As Long, offSet_Start_SFI As Long
+    Dim ofs As Long, offSet_Start As Long, offSet_Start_KV As Long, offSet_Start_SFI As Long
     Dim offSet_End_SFI As Long, offSet_Start_SFI_Hdr As Long, korrLen As Long, korrAllLen As Long
     
     Dim b_VFI As Boolean, m_VFI As VarFileInfo, m_VFI_Hdr As NRVar, m_VFI_Value() As Long
@@ -304,7 +304,7 @@ Public Function UpdateVersion(ByVal nameExeFile As String, dataVer As Variant, O
     
     '--------------------------- Parse Resource Version -------------------------
     CopyMemory m_VS, Buf(0), Len(m_VS)
-    offset = Len(m_VS)
+    ofs = Len(m_VS)
     
     With m_VS.value
         If isWrite = False Then
@@ -341,20 +341,20 @@ Public Function UpdateVersion(ByVal nameExeFile As String, dataVer As Variant, O
     Do
         '----------------------- Parse VarFileInfo Struct ------------------------
         If b_VFI = False Then
-            CopyMemory ByVal txtVFI, Buf(offset + 6), Len(txtVFI)
+            CopyMemory ByVal txtVFI, Buf(ofs + 6), Len(txtVFI)
             
             txtVFI = StrConv(txtVFI, vbFromUnicode)
             
             If InStr(txtVFI, "VarFileInfo") > 0 Then
-                CopyMemory m_VFI, Buf(offset), Len(m_VFI)
-                offset = offset + Len(m_VFI)
+                CopyMemory m_VFI, Buf(ofs), Len(m_VFI)
+                ofs = ofs + Len(m_VFI)
                 
-                CopyMemory m_VFI_Hdr, Buf(offset), Len(m_VFI_Hdr)
-                offset = offset + Len(m_VFI_Hdr)
+                CopyMemory m_VFI_Hdr, Buf(ofs), Len(m_VFI_Hdr)
+                ofs = ofs + Len(m_VFI_Hdr)
                 
                 For a = 0 To m_VFI_Hdr.wValueLength Step 5
-                    CopyMemory m_VFI_Value(UBound(m_VFI_Value)), Buf(offset), 4
-                    offset = offset + 4
+                    CopyMemory m_VFI_Value(UBound(m_VFI_Value)), Buf(ofs), 4
+                    ofs = ofs + 4
                     
                     ReDim Preserve m_VFI_Value(UBound(m_VFI_Value) + 1)
                 Next
@@ -367,29 +367,29 @@ Public Function UpdateVersion(ByVal nameExeFile As String, dataVer As Variant, O
     
         '----------------------- Parse StringFileInfo Struct ------------------------
         If b_SFI = False Then
-            CopyMemory ByVal txtSFI, Buf(offset + 6), Len(txtSFI)
+            CopyMemory ByVal txtSFI, Buf(ofs + 6), Len(txtSFI)
             
             txtSFI = StrConv(txtSFI, vbFromUnicode)
             
             If InStr(txtSFI, "StringFileInfo") > 0 Then
-                offSet_Start_SFI = offset
+                offSet_Start_SFI = ofs
                 
-                CopyMemory m_SFI, Buf(offset), Len(m_SFI)
-                offset = offset + Len(m_SFI)
+                CopyMemory m_SFI, Buf(ofs), Len(m_SFI)
+                ofs = ofs + Len(m_SFI)
                 
-                Padding offset
+                Padding ofs
                 
-                offSet_End_SFI = offset
+                offSet_End_SFI = ofs
                 
                 Do
-                    offSet_Start = offset
+                    offSet_Start = ofs
                     
                     numHdr = UBound(m_SFI_Hdr)
                     
-                    CopyMemory m_SFI_Hdr(numHdr), Buf(offset), Len(m_SFI_Hdr_Len)
-                    offset = offset + Len(m_SFI_Hdr_Len)
+                    CopyMemory m_SFI_Hdr(numHdr), Buf(ofs), Len(m_SFI_Hdr_Len)
+                    ofs = ofs + Len(m_SFI_Hdr_Len)
                     
-                    Padding offset
+                    Padding ofs
                     
                     ReDim m_SFI_Hdr(numHdr).m_SFI_Str(0)
                     ReDim m_SFI_Hdr(numHdr).m_SFI_StrData(0)
@@ -397,32 +397,32 @@ Public Function UpdateVersion(ByVal nameExeFile As String, dataVer As Variant, O
                     Do
                         numSD = UBound(m_SFI_Hdr(numHdr).m_SFI_Str)
                         
-                        CopyMemory m_SFI_Hdr(numHdr).m_SFI_Str(numSD), Buf(offset), Len(m_SFI_Hdr(numHdr).m_SFI_Str(0))
-                        offset = offset + Len(m_SFI_Hdr(numHdr).m_SFI_Str(0))
+                        CopyMemory m_SFI_Hdr(numHdr).m_SFI_Str(numSD), Buf(ofs), Len(m_SFI_Hdr(numHdr).m_SFI_Str(0))
+                        ofs = ofs + Len(m_SFI_Hdr(numHdr).m_SFI_Str(0))
 
-                        offSet_Start_KV = offset
+                        offSet_Start_KV = ofs
                         
-                        For a = offset To offset + m_SFI_Hdr(numHdr).m_SFI_Str(numSD).wLength Step 2
+                        For a = ofs To ofs + m_SFI_Hdr(numHdr).m_SFI_Str(numSD).wLength Step 2
                             If Buf(a) = 0 And Buf(a + 1) = 0 Then
-                                ReDim m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).szKey(a - offset - 1)
+                                ReDim m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).szKey(a - ofs - 1)
                         
-                                CopyMemory m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).szKey(0), Buf(offset), UBound(m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).szKey) + 1
-                                offset = offset + UBound(m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).szKey) + 2
+                                CopyMemory m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).szKey(0), Buf(ofs), UBound(m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).szKey) + 1
+                                ofs = ofs + UBound(m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).szKey) + 2
                                 
-                                Padding offset
+                                Padding ofs
                                 
                                 Exit For
                             End If
                         Next
                         
-                        For a = offset To offSet_Start_KV + m_SFI_Hdr(numHdr).m_SFI_Str(numSD).wLength Step 2
+                        For a = ofs To offSet_Start_KV + m_SFI_Hdr(numHdr).m_SFI_Str(numSD).wLength Step 2
                             If Buf(a) = 0 And Buf(a + 1) = 0 Then
-                                ReDim m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).value(a - offset + 2 - 1)
+                                ReDim m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).value(a - ofs + 2 - 1)
                         
-                                CopyMemory m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).value(0), Buf(offset), UBound(m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).value) + 1
-                                offset = offset + UBound(m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).value)
+                                CopyMemory m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).value(0), Buf(ofs), UBound(m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).value) + 1
+                                ofs = ofs + UBound(m_SFI_Hdr(numHdr).m_SFI_StrData(numSD).value)
                                 
-                                Padding offset
+                                Padding ofs
                                 
                                 Exit For
                             End If
@@ -434,7 +434,7 @@ Public Function UpdateVersion(ByVal nameExeFile As String, dataVer As Variant, O
                         ReDim Preserve m_SFI_Hdr(numHdr).m_SFI_Str(numSD + 1)
                         ReDim Preserve m_SFI_Hdr(numHdr).m_SFI_StrData(numSD + 1)
                         
-                        korrLen = (offset - offSet_Start) - m_SFI_Hdr(numHdr).wLength
+                        korrLen = (ofs - offSet_Start) - m_SFI_Hdr(numHdr).wLength
                     Loop Until korrLen >= 0 And korrLen <= 2    '2 - корректировка у неправильных программ
                     
                     korrAllLen = korrAllLen + korrLen
@@ -456,7 +456,7 @@ Public Function UpdateVersion(ByVal nameExeFile As String, dataVer As Variant, O
                 b_SFI = True
             End If
         End If
-    Loop Until offset >= m_VS.wLength
+    Loop Until ofs >= m_VS.wLength
     
     If isWrite = False Then
         dataVer.Child "Tables"
@@ -541,55 +541,55 @@ Public Function UpdateVersion(ByVal nameExeFile As String, dataVer As Variant, O
         Next
         
         'Посчитываем размер всех фиксированных структур
-        offset = Len(m_VS) + Len(m_VFI) + Len(m_VFI_Hdr) + (UBound(m_VFI_Value) + 1) * 4
+        ofs = Len(m_VS) + Len(m_VFI) + Len(m_VFI_Hdr) + (UBound(m_VFI_Value) + 1) * 4
 
         'Запоминаем начало структуры StringFileInfo
-        offSet_Start_SFI = offset
+        offSet_Start_SFI = ofs
 
         'Добавляем к общему размеру структур - структуру StringFileInfo
-        offset = offset + Len(m_SFI)
-        Padding offset
+        ofs = ofs + Len(m_SFI)
+        Padding ofs
         
         a = 0
         
         For Each v In dataVer("Tables").Items(1)
             'Запоминаем начало структуры StringTable
-            offSet_Start_SFI_Hdr = offset
+            offSet_Start_SFI_Hdr = ofs
             
             'Добавляем к общему размеру структур - структуру StringTable
-            offset = offset + Len(m_SFI_Hdr(a)) - 8
-            Padding offset
+            ofs = ofs + Len(m_SFI_Hdr(a)) - 8
+            Padding ofs
     
             'Заполняем все данные структуры StringFileInfo
             For b = 0 To UBound(m_SFI_Hdr(a).m_SFI_Str)
-                offSet_Start = offset
+                offSet_Start = ofs
     
-                offset = offset + Len(m_SFI_Hdr(a).m_SFI_Str(b))
+                ofs = ofs + Len(m_SFI_Hdr(a).m_SFI_Str(b))
 
-                CopyMemory Buf(offset), m_SFI_Hdr(a).m_SFI_StrData(b).szKey(0), UBound(m_SFI_Hdr(a).m_SFI_StrData(b).szKey) + 1
-                offset = offset + UBound(m_SFI_Hdr(a).m_SFI_StrData(b).szKey) + 1
+                CopyMemory Buf(ofs), m_SFI_Hdr(a).m_SFI_StrData(b).szKey(0), UBound(m_SFI_Hdr(a).m_SFI_StrData(b).szKey) + 1
+                ofs = ofs + UBound(m_SFI_Hdr(a).m_SFI_StrData(b).szKey) + 1
     
-                'Исправляет если offset и так выровнен.
-                offset = offset + 1
+                'Исправляет если ofs и так выровнен.
+                ofs = ofs + 1
     
-                Padding offset
+                Padding ofs
     
-                CopyMemory Buf(offset), m_SFI_Hdr(a).m_SFI_StrData(b).value(0), UBound(m_SFI_Hdr(a).m_SFI_StrData(b).value) + 1
-                offset = offset + UBound(m_SFI_Hdr(a).m_SFI_StrData(b).value) + 1
+                CopyMemory Buf(ofs), m_SFI_Hdr(a).m_SFI_StrData(b).value(0), UBound(m_SFI_Hdr(a).m_SFI_StrData(b).value) + 1
+                ofs = ofs + UBound(m_SFI_Hdr(a).m_SFI_StrData(b).value) + 1
     
-                Padding offset
+                Padding ofs
     
-                m_SFI_Hdr(a).m_SFI_Str(b).wLength = offset - offSet_Start
+                m_SFI_Hdr(a).m_SFI_Str(b).wLength = ofs - offSet_Start
                 m_SFI_Hdr(a).m_SFI_Str(b).wValueLength = UBound(m_SFI_Hdr(a).m_SFI_StrData(b).value) + 1
                 CopyMemory Buf(offSet_Start), m_SFI_Hdr(a).m_SFI_Str(b), Len(m_SFI_Hdr(a).m_SFI_Str(b))
             Next
     
-            Padding offset
+            Padding ofs
             
             txt = StrConv(v, vbUnicode)
             CopyMemory m_SFI_Hdr(a).szKey(0), ByVal txt, Len(txt)
             
-            m_SFI_Hdr(a).wLength = offset - offSet_Start_SFI_Hdr
+            m_SFI_Hdr(a).wLength = ofs - offSet_Start_SFI_Hdr
             m_SFI_Hdr(a).wType = 1
             CopyMemory m_SFI_Hdr(a).szKey(0), ByVal txt, Len(txt)
             CopyMemory Buf(offSet_Start_SFI_Hdr), m_SFI_Hdr(a), Len(m_SFI_Hdr(a)) - 8
@@ -598,31 +598,31 @@ Public Function UpdateVersion(ByVal nameExeFile As String, dataVer As Variant, O
         Next
         
         'Обрезаем лишнее
-        ReDim Preserve Buf(offset - 1)
+        ReDim Preserve Buf(ofs - 1)
 
         'Заполняем длины структур
         m_VFI_Hdr.wValueLength = (UBound(m_VFI_Value) + 1) * 4
         m_VFI_Hdr.wLength = Len(m_VFI_Hdr) + m_VFI_Hdr.wValueLength
         m_VFI.wLength = Len(m_VFI) + m_VFI_Hdr.wLength
-        m_SFI.wLength = offset - offSet_Start_SFI
-        m_VS.wLength = offset
+        m_SFI.wLength = ofs - offSet_Start_SFI
+        m_VS.wLength = ofs
 
         'Записываем сами структуры
-        offset = 0
+        ofs = 0
 
-        CopyMemory Buf(offset), m_VS, Len(m_VS)
-        offset = offset + Len(m_VS)
+        CopyMemory Buf(ofs), m_VS, Len(m_VS)
+        ofs = ofs + Len(m_VS)
 
-        CopyMemory Buf(offset), m_VFI, Len(m_VFI)
-        offset = offset + Len(m_VFI)
+        CopyMemory Buf(ofs), m_VFI, Len(m_VFI)
+        ofs = ofs + Len(m_VFI)
 
-        CopyMemory Buf(offset), m_VFI_Hdr, Len(m_VFI_Hdr)
-        offset = offset + Len(m_VFI_Hdr)
+        CopyMemory Buf(ofs), m_VFI_Hdr, Len(m_VFI_Hdr)
+        ofs = ofs + Len(m_VFI_Hdr)
 
-        CopyMemory Buf(offset), m_VFI_Value(0), (UBound(m_VFI_Value) + 1) * 4
-        offset = offset + (UBound(m_VFI_Value) + 1) * 4
+        CopyMemory Buf(ofs), m_VFI_Value(0), (UBound(m_VFI_Value) + 1) * 4
+        ofs = ofs + (UBound(m_VFI_Value) + 1) * 4
 
-        CopyMemory Buf(offset), m_SFI, Len(m_SFI)
+        CopyMemory Buf(ofs), m_SFI, Len(m_SFI)
 
         '----------------------Обновляем ресурс-----------------------------
         dlHw = BeginUpdateResource(nameExeFile, False)
@@ -719,9 +719,9 @@ Public Function LoadResString(ByVal ID As Long) As String
     LoadResString = VB.LoadResString(ID)
 End Function
 
-Private Function Padding(offset As Long) As Boolean
-    While offset Mod 4 <> 0
-        offset = offset + 1
+Private Function Padding(vOffset As Long) As Boolean
+    While vOffset Mod 4 <> 0
+        vOffset = vOffset + 1
         Padding = True
     Wend
 End Function

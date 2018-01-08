@@ -50,19 +50,18 @@ Public Function GetBit(ByVal value As Long, ByVal bits As Long) As Long
 End Function
 
 Public Function Bin2Long(ByVal value As String) As Long
-    Dim a As Long, lenTxt As Long
+    Dim a As Long, i As Long, s As String, lenTxt As Long
 
-    value = UCase$(Trim$(value))
-    If Left$(value, 2) = "&B" Then value = Mid$(value, 3)
-    value = Replace$(value, " ", "")
-    lenTxt = Len(value)
+    value = UCase$(Trim$(value)):     lenTxt = Len(value)
     
-    For a = 1 To lenTxt
-        If Mid$(value, a, 1) = "1" Then Bin2Long = Bin2Long Or lPow(lenTxt - a)
+    For a = lenTxt To 1 Step -1
+        s = Mid$(value, a, 1):      If i > 31 Then Exit For
+        If s = "0" Then i = i + 1
+        If s = "1" Then Bin2Long = Bin2Long Or lPow(i):   i = i + 1
     Next
 End Function
 
-Public Function Long2Bin(ByVal value As Long) As String
+Public Function Long2Bin(ByVal value As Long, Optional ByVal vShort As Long = -32) As String
     Dim a As Long
     
     Long2Bin = String$(32, "0")
@@ -71,8 +70,10 @@ Public Function Long2Bin(ByVal value As Long) As String
         If GetBit(value, a) Then Mid$(Long2Bin, 32 - a, 1) = "1"
     Next
     
-    a = InStr(Long2Bin, "1")
-    If a = 0 Then Long2Bin = "0"
+    Long2Bin = Right$(Long2Bin, Abs(vShort))
+    
+    If vShort >= 0 Then Exit Function
+    a = InStr(Long2Bin, "1"):    If a = 0 Then Long2Bin = "0"
     If a > 1 Then Long2Bin = Right$(Long2Bin, Len(Long2Bin) - a + 1)
 End Function
 

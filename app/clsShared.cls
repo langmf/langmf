@@ -247,12 +247,12 @@ Public Function LenType(Obj As Variant) As Long
     LenType = Obj.Class___Size
 End Function
 
-Public Function InitType(Obj As Variant, Optional ByVal offset As Long, Optional ByVal wrap As Object) As Object
+Public Function InitType(Obj As Variant, Optional ByVal vOffset As Long, Optional ByVal wrap As Object) As Object
     Dim tmp As Variant
     
     On Error GoTo err1
     
-    Obj.Class___Offset = offset
+    Obj.Class___Offset = vOffset
     
     With Obj
         If wrap Is Nothing Then Set .Class___Wrapper = New clsBuffer: .Class___Wrapper.Size = .Class___Size Else Set .Class___Wrapper = wrap
