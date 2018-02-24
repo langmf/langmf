@@ -16,7 +16,7 @@ Sub Load(cmdLine)
     form.Center
     form.show
     
-    ptr = sys.api.loadlibrary(sys.wininfo("system") + "\shell32.dll")
+    ptr = sys.api.loadlibrary(sys.path("system") + "shell32.dll")
     EnumResourceTypes ptr, sys.callback("Test"), 0
     sys.api.freelibrary ptr
     

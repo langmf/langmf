@@ -339,7 +339,7 @@ Public Function Setup(ByVal value As String, Optional ByVal sActiveX As String, 
     
         pathSystem = GetSystemPath + "\"
         If Len(sDir) = 0 Then pathTemp = GetTmpPath + "lmf_" + GenTempStr(12) + "\":       isTemp = True
-        If Len(sDir) <> 0 Then pathTemp = SYS.File.CPath(Parse_MPath(sDir))
+        If Len(sDir) <> 0 Then pathTemp = CPath(Parse_MPath(sDir))
         mf_Tmp = pathTemp
         CreateDir pathTemp
         

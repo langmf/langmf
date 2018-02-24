@@ -64,12 +64,32 @@ Public Function AddFileMF(ByVal nameScript As String, Optional ByVal nameLib As 
     AddFileMF = Code_Parse(Buf, IIF(LenB(nameLib), nameLib, nameScript))
 End Function
 
-Public Function Path(Optional ByVal isFull As Boolean = False) As String
-    If isFull = False Then Path = GetDirectory(Info.File) Else Path = Info.File
-End Function
-
-Public Function PathEngine(Optional ByVal isFull As Boolean = False) As String
-    PathEngine = GetAppPath(isFull)
+Public Function Path(Optional ByVal value As Variant = False, Optional ByVal backSlash As Boolean = True) As String
+    Dim vt As Long, Buf As String
+    
+    vt = VarType(value)
+    
+    If vt = 11 Then
+        If value = False Then Path = GetDirectory(Info.File) Else Path = Info.File:   Exit Function
+        
+    ElseIf vt = 8 Then
+        Buf = String$(MAX_PATH_X2, 0):      vt = Len(Buf)
+        
+        Select Case LCase$(value)
+            Case "script":          Path = Path(False)
+            Case "script_full":     Path = Path(True):                                                   Exit Function
+            Case "engine":          Path = GetAppPath(False)
+            Case "engine_full":     Path = GetAppPath(True):                                             Exit Function
+            Case "system":          Path = GetSystemPath
+            Case "windows":         Path = GetWindowsPath
+            Case "temp":            Path = GetTmpPath
+            Case "tmp":             Path = mf_Tmp:                                                       Exit Function
+            Case "user":            Call GetUserNameW(StrPtr(Buf), vt):         Path = Left$(Buf, vt):   Exit Function
+            Case "computer":        Call GetComputerNameW(StrPtr(Buf), vt):     Path = Left$(Buf, vt):   Exit Function
+        End Select
+    End If
+    
+    Path = CPath(Path, backSlash)
 End Function
 
 Public Function Env(Optional ByVal ID As Variant) As Variant
@@ -152,21 +172,6 @@ Public Function Host(Optional ByVal value As String, Optional ByVal ID As Long =
         Case "mdl_type":        Host = MDL(ID).Type
         Case "time_parse":      Host = mf_TimeParse
         Case "time_lmf":        Host = mf_TimeLMF
-    End Select
-End Function
-
-Public Function WinInfo(ByVal Param As String) As String
-    Dim Buf As String, w As Long
-    
-    Buf = String$(MAX_PATH_X2, 0):      w = Len(Buf)
-    
-    Select Case LCase$(Param)
-        Case "system":          WinInfo = GetSystemPath
-        Case "windows":         WinInfo = GetWindowsPath
-        Case "temp":            WinInfo = File.CPath(GetTmpPath, False)
-        Case "tmp":             WinInfo = File.CPath(mf_Tmp, False)
-        Case "user":            Call GetUserNameW(StrPtr(Buf), w):         WinInfo = Left$(Buf, w - 1)
-        Case "computer":        Call GetComputerNameW(StrPtr(Buf), w):     WinInfo = Left$(Buf, w)
     End Select
 End Function
 

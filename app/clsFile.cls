@@ -348,6 +348,10 @@ Public Function GetExtension(ByVal txtFile As String, Optional ByVal dm As Strin
     GetExtension = modCommon.GetExtension(txtFile, dm)
 End Function
 
+Public Function CPath(ByVal fPath As String, Optional ByVal typePath As Boolean = True, Optional ByVal delim As String = "\") As String
+    CPath = modCommon.CPath(fPath, typePath, delim)
+End Function
+
 Public Function LPath(ByVal fPath As String, Optional ByVal numLevel As Long = 0, Optional ByVal delim As String = "\") As String
     Dim a As Long, cnt As Long, txt() As String
     
@@ -370,15 +374,6 @@ Public Function LPath(ByVal fPath As String, Optional ByVal numLevel As Long = 0
             Next
         End If
     End If
-End Function
-
-Public Function CPath(ByVal fPath As String, Optional ByVal typePath As Boolean = True, Optional ByVal delim As String = "\") As String
-    If typePath Then
-        If Right$(fPath, 1) <> delim Then fPath = fPath + delim
-    Else
-        If Right$(fPath, 1) = delim Then fPath = Left$(fPath, Len(fPath) - 1)
-    End If
-    CPath = fPath
 End Function
 
 Public Function GetDiskInfo(ByVal sDrive As String) As Collection

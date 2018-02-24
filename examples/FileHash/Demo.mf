@@ -15,7 +15,7 @@ Sub Load(cmdLine)
   
   'Debug = True
   
-  nameFile = sys.conv.mpath("%mf_pathengine%\LangMF.exe")
+  nameFile = sys.conv.mpath("%mf_engine%\LangMF.exe")
   'nameFile = "d:\Video\00100004.avi"
 
   With sys.file.api

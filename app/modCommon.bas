@@ -989,6 +989,15 @@ Sub CreateDir(ByVal nameDir As String)
     Next
 End Sub
 
+Function CPath(fPath As String, Optional ByVal typePath As Boolean = True, Optional ByVal delim As String = "\") As String
+    If typePath Then
+        If Right$(fPath, 1) <> delim Then fPath = fPath + delim
+    Else
+        If Right$(fPath, 1) = delim Then fPath = Left$(fPath, Len(fPath) - 1)
+    End If
+    CPath = fPath
+End Function
+
 Function FormatBytes(ByVal value As Double, Optional ByVal arrUnit As Variant) As String
     Const KB1 As Single = 1024, MB1 As Single = KB1 * 1024, GB1 As Single = MB1 * 1024, TB1 As Single = GB1 * 1024
     If Not IsArray(arrUnit) Then arrUnit = Array(" bytes", " KB", " MB", " GB", " TB")
