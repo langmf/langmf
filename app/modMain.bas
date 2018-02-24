@@ -1058,25 +1058,12 @@ Function Parse_MPath(ByVal MPath As String) As String
         
             Case "mf_"
                 Arg = LCase$(Mts(a).SubMatches(2))
-                Select Case Arg
-                    Case "path"
-                        tmp = SYS.Path
-                        If Len(tmp) Then tmp = Left$(tmp, Len(tmp) - 1)
-                        MPath = Replace$(MPath, txt, tmp)
-                    
-                    Case "pathengine"
-                        tmp = SYS.PathEngine
-                        If Len(tmp) Then tmp = Left$(tmp, Len(tmp) - 1)
-                        MPath = Replace$(MPath, txt, tmp)
-                    
-                    Case Else
-                        If LCase$(Left$(Arg, 3)) = "rnd" Then
-                            idx = Val(Mid$(Arg, 4))
-                            MPath = Replace$(MPath, txt, IIF(idx, GenTempStr(idx), GenTempStr))
-                        Else
-                            MPath = Replace$(MPath, txt, SYS.WinInfo(Arg))
-                        End If
-                End Select
+                If LCase$(Left$(Arg, 3)) = "rnd" Then
+                    idx = Val(Mid$(Arg, 4))
+                    MPath = Replace$(MPath, txt, IIF(idx, GenTempStr(idx), GenTempStr))
+                Else
+                    MPath = Replace$(MPath, txt, SYS.Path(Arg, False))
+                End If
                 isFind = True
 
             Case "env_"
@@ -1419,7 +1406,7 @@ Function MakeEXE(ByVal nameExe As String, ByVal nameDest As String, ByVal nameIc
     Dim a As Long, f As New clsFileAPI, RXP As New clsRXP, ver As clsHash, clsNR As New clsNativeRes
     Dim isVerModify As Boolean, lngType As Long, lngLang As Long
     
-    If Len(nameExe) = 0 Then nameExe = SYS.PathEngine(True)
+    If Len(nameExe) = 0 Then nameExe = SYS.Path("engine_full")
     If Not IsFile(nameExe) Then Exit Function
     FileCopy nameExe, nameDest & ".tmp":    nameExe = nameDest & ".tmp"
     If Not IsFile(nameExe) Then Exit Function

@@ -52,7 +52,7 @@ End Function
 Public Function Bin2Long(ByVal value As String) As Long
     Dim a As Long, i As Long, s As String, lenTxt As Long
 
-    value = UCase$(Trim$(value)):     lenTxt = Len(value)
+    lenTxt = Len(value)
     
     For a = lenTxt To 1 Step -1
         s = Mid$(value, a, 1):      If i > 31 Then Exit For

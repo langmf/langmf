@@ -27,7 +27,7 @@ Sub Load(cmdLine)
 	Dim bi as browseinfo
 	Dim shinfo as shfileinfo
 
-	lRes = SHGetFileInfoA(sys.pathengine(true), 0, shinfo, lentype(shinfo), &H610&)
+	lRes = SHGetFileInfoA(sys.path("engine_full"), 0, shinfo, lentype(shinfo), &H610&)
 	
 	msgbox sys.str.trimnull(shinfo.sztypename) & " - " & sys.str.trimnull(shinfo.szDisplayName)
 	

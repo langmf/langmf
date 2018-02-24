@@ -21,7 +21,7 @@ End Sub
 Sub Command1_CLick
    cmdpath1 = sys.file.shortname(sys.conv.mpath("%mf_system%")) + "\subst.exe "
 
-   cmdpath2 = sys.file.shortname(sys.pathengine)
+   cmdpath2 = sys.file.shortname(sys.path("engine"))
    if right(cmdpath2,1)="\" then cmdpath2=left(cmdpath2,len(cmdpath2)-1)
    
    sys.ext.shell cmdpath1 + " Z: " + cmdpath2, 0 
