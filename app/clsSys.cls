@@ -70,26 +70,24 @@ Public Function Path(Optional ByVal value As Variant = False, Optional ByVal bac
     vt = VarType(value)
     
     If vt = 11 Then
-        If value = False Then Path = GetDirectory(Info.File) Else Path = Info.File:   Exit Function
+        If value Then Path = Info.File Else Path = CPath(GetDirectory(Info.File), backSlash)
         
     ElseIf vt = 8 Then
         Buf = String$(MAX_PATH_X2, 0):      vt = Len(Buf)
         
         Select Case LCase$(value)
-            Case "script":          Path = Path(False)
-            Case "script_full":     Path = Path(True):                                                   Exit Function
-            Case "engine":          Path = GetAppPath(False)
-            Case "engine_full":     Path = GetAppPath(True):                                             Exit Function
-            Case "system":          Path = GetSystemPath
-            Case "windows":         Path = GetWindowsPath
-            Case "temp":            Path = GetTmpPath
-            Case "tmp":             Path = mf_Tmp:                                                       Exit Function
-            Case "user":            Call GetUserNameW(StrPtr(Buf), vt):         Path = Left$(Buf, vt):   Exit Function
-            Case "computer":        Call GetComputerNameW(StrPtr(Buf), vt):     Path = Left$(Buf, vt):   Exit Function
+            Case "script":          Path = CPath(Path(False), backSlash)
+            Case "script_full":     Path = Path(True)
+            Case "engine":          Path = CPath(GetAppPath(False), backSlash)
+            Case "engine_full":     Path = GetAppPath(True)
+            Case "system":          Path = CPath(GetSystemPath, backSlash)
+            Case "windows":         Path = CPath(GetWindowsPath, backSlash)
+            Case "temp":            Path = CPath(GetTmpPath, backSlash)
+            Case "tmp":             Path = mf_Tmp
+            Case "user":            Call GetUserNameW(StrPtr(Buf), vt):       Path = Left$(Buf, vt - 1)
+            Case "computer":        Call GetComputerNameW(StrPtr(Buf), vt):   Path = Left$(Buf, vt)
         End Select
     End If
-    
-    Path = CPath(Path, backSlash)
 End Function
 
 Public Function Env(Optional ByVal ID As Variant) As Variant
