@@ -211,9 +211,7 @@ Public Sub AutoIcon(ByVal hWnd As Long, Data As Variant, Optional ByVal kNormal 
     Dim rs As Single, rb As Single, ms As Single, mb As Single
     Dim iconDE() As ICONDIRENTRY, iconHdr As ICONDIR, Buf() As Byte
     
-    ConvToBufferByte Data, Buf
-    
-    If m_ArraySize(Buf) < 23 Then Exit Sub
+    ConvToBufferByte Data, Buf:      If m_ArraySize(Buf) < 23 Then Exit Sub
     
     szIconB = GetSystemMetrics(SM_CXICON)
     szIconS = GetSystemMetrics(SM_CXSMICON)
@@ -235,8 +233,8 @@ Public Sub AutoIcon(ByVal hWnd As Long, Data As Variant, Optional ByVal kNormal 
                 If b = .wBitCount Then
                     If .bWidth = 0 Then rs = 256 / szIconS Else rs = .bWidth / szIconS
                     If .bWidth = 0 Then rb = 256 / szIconB Else rb = .bWidth / szIconB
-                    If rs >= kSmall And rs < ms Then hIconS = a: ms = rs
-                    If rb >= kNormal And rb < mb Then hIconB = a: mb = rb
+                    If rs >= kSmall And rs < ms Then hIconS = a:   ms = rs
+                    If rb >= kNormal And rb < mb Then hIconB = a:  mb = rb
                 End If
             End With
         Next

@@ -19,7 +19,6 @@ clsNativeRes = 150, 150, 1410, 791, C
 clsSubClass = 90, 90, 1066, 596, C
 clsCallback = 30, 30, 1280, 671, C
 clsRegistry = 300, 300, 1627, 941, C
-clsPowerATX = 90, 90, 1359, 731, C
 clsFileAPI = 60, 60, 1295, 701, C
 clsProcess = 150, 150, 1419, 791, C
 clsBase64 = 150, 150, 1410, 791, C

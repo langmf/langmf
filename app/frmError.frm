@@ -174,7 +174,7 @@ Private Sub Form_Load()
     Set Image1.Picture = SYS.GDI.IcoToPic(LoadImageAsString(App.hInstance, 1, IMAGE_ICON, sz, sz, LR_SHARED))
     Image1.Move Me.ScaleWidth - Image1.Width * 2, lblFon.Top / 2 - Image1.Height / 2
     
-    If IsRus Then
+    If GetSystemDefaultLangID = 1049 Then
         Label1.Caption = "В программе обнаружена ошибка." + vbCrLf + "Приложение будет закрыто." + vbCrLf + "Приносим извинения за неудобства."
     Else
         Label1.Caption = "Program has encountered a" + vbCrLf + "problem and needs to close." + vbCrLf + "We are sorry for the inconvenience."

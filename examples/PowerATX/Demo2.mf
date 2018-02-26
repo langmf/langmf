@@ -103,17 +103,17 @@ End Sub
 
 '-----------------------------------------
 Sub Img1_Click()
-  sys.power.suspend
+  sys.power("suspend")
 End Sub
 
 '-----------------------------------------
 Sub Img2_Click()
-  sys.power.poweroff
+  sys.power("off")
 End Sub
 
 '-----------------------------------------
 Sub Img3_Click()
-  sys.power.reboot
+  sys.power("reboot")
 End Sub
 
 '-----------------------------------------

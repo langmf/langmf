@@ -180,8 +180,7 @@ Private Sub GetNamePath(ByVal hProcess As Long, txtName As String, txtPath As St
         Next
         txtName = GetFileTitle(txtPath)
     Else
-        txtPath = ""
-        txtName = "unknown"
+        txtName = "unknown":      txtPath = ""
     End If
 End Sub
 

@@ -64,8 +64,8 @@ Global CAS As clsActiveScript
 Global REG As New RegExp
 Global Types As clsHash
 
-Global mf_TimeLMF As Long, mf_TimeParse As Long, mf_AsyncLoad As Long, mf_Tmp As String, mf_IsEnd As Boolean
-Global NotShowError As Boolean, curRunMF As Integer
+Global mf_TimeLMF As Long, mf_TimeParse As Long, mf_AsyncLoad As Long, mf_NoShowError As Boolean
+Global mf_Counter As Integer, mf_IsEnd As Boolean, mf_Tmp As String
 
 
 Sub Main()
@@ -245,8 +245,8 @@ Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
 
 
     '----------------------------- DEBUG MODE ---------------------------
-    'm_Str2File txtCode, "script" & curRunMF & ".txt"
-    'm_Str2File txtDLL, "dll" & curRunMF & ".txt"
+    'm_Str2File txtCode, "script" & mf_Counter & ".txt"
+    'm_Str2File txtDLL, "dll" & mf_Counter & ".txt"
     '--------------------------------------------------------------------
     
     
@@ -258,8 +258,8 @@ Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
     End If
     
     '------------------------------ Modules Count -----------------------
-    curRunMF = curRunMF + 1
-    mainRunMF = curRunMF
+    mf_Counter = mf_Counter + 1
+    mainRunMF = mf_Counter
     
     '--------------------- Add Const to Main Module ---------------------
     If mainRunMF = 1 Then AddBaseMF txtMain
@@ -275,14 +275,14 @@ Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
     '--------------------------------------------------------------------
     If Parse_Custom(PCD, txtCode, "<#form=", ">", "<#form>") Then
         For a = 0 To UBound(PCD)
-            curRunMF = curRunMF + 1
+            mf_Counter = mf_Counter + 1
             
             txtName = PCD(a).Param
             txtForm = PCD(a).Data
             
             '-----------------------------------
             If mainRunMF > 1 Then
-                txtTmp = "Dim " + txtName + vbCrLf + "Set " + txtName + " = " + "mf_forms_" + CStr(curRunMF) + vbCrLf
+                txtTmp = "Dim " + txtName + vbCrLf + "Set " + txtName + " = " + "mf_forms_" + CStr(mf_Counter) + vbCrLf
                 txtMain = txtTmp + txtMain
                 txtForm = txtTmp + txtForm
             End If
@@ -290,16 +290,16 @@ Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
             '-----------------------------------
             txtForm = "Const mf_NameMod = """ + txtName + """" + vbCrLf + vbCrLf + txtForm
             txtForm = "Const mf_NameLib = """ + MDL(mainRunMF).Name + """" + vbCrLf + txtForm
-            txtForm = "Private Const mf_IDM = " + CStr(curRunMF) + vbCrLf + txtForm
+            txtForm = "Private Const mf_IDM = " + CStr(mf_Counter) + vbCrLf + txtForm
                 
             '-----------------------------------
-            If mainRunMF > 1 Then txtName = "mf_forms_" + CStr(curRunMF)
+            If mainRunMF > 1 Then txtName = "mf_forms_" + CStr(mf_Counter)
             
             '------------------------------------
             txtForm = "Private This" + vbCrLf + "Set This = " + txtName + vbCrLf + txtForm
                 
             '------------------------------------
-            With MDL(curRunMF)
+            With MDL(mf_Counter)
                 .Name = txtName
                 .Path = ""
                 .Code = txtForm
@@ -310,7 +310,7 @@ Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
             '------------------------------------
             Set tmpForm = New frmForm
             CAS.AddObject txtName, tmpForm
-            Set tmpForm.CodeObject = CAS.AddModule(curRunMF, txtForm)
+            Set tmpForm.CodeObject = CAS.AddModule(mf_Counter, txtForm)
             Set tmpForm = Nothing
         Next
     End If
@@ -331,11 +331,8 @@ Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
     End If
 
     If Not mf_IsEnd Then
-        '---------------------------- Add DLL Code ---------------------------
-        CAS.AddCode txtDLL
-    
-        '---------------------------- Add Lib Code ---------------------------
-        Call Parse_AddLib(txtLib)
+        CAS.AddCode txtDLL                  ' Add DLL Code
+        Call Parse_AddLib(txtLib)           ' Add Lib Code
     End If
 
     Err.Clear
@@ -390,9 +387,7 @@ Sub Parse_Resource(txtCode As String)
     
     If Not Parse_Custom(PCD, txtCode, "<#res ", "#>", "<#res#>", vbBinaryCompare) Then Exit Sub
 
-    Set REG1 = New RegExp
-    REG1.Global = True
-    REG1.IgnoreCase = True
+    Set REG1 = New RegExp:      REG1.Global = True:      REG1.IgnoreCase = True
     REG1.Pattern = "^id=""([^""]+)""( +mode=([^ ]+))?"
 
     For a = 0 To UBound(PCD)
@@ -420,9 +415,7 @@ Sub Parse_VBNET(txtCode As String)
     
     If Not Parse_Custom(PCD, txtCode, "<#vbnet", "#>", "<#vbnet#>") Then Exit Sub
     
-    Set REG1 = New RegExp
-    REG1.Global = True
-    REG1.IgnoreCase = True
+    Set REG1 = New RegExp:      REG1.Global = True:      REG1.IgnoreCase = True
     REG1.Pattern = "^(=([a-z0-9_]*))?( +noerror)?( +instance=""([^""]+)"")?( +start=""([^""]+)"")?( +lang=([a-z0-9_]+))?( +mode=([^ ]+))?"
 
     For a = 0 To UBound(PCD)
@@ -469,9 +462,7 @@ Function Parse_CScript(txtCode As String) As Collection
     
     If frmScript.CScript.Count = 0 Then cntCScript = 0
 
-    Set REG1 = New RegExp
-    REG1.Global = True
-    REG1.IgnoreCase = True
+    Set REG1 = New RegExp:      REG1.Global = True:      REG1.IgnoreCase = True
     REG1.Pattern = "^=? *([a-z0-9_]*) *,? *([a-z0-9_]*) *,? *([a-z0-9_]*)"
     
     For a = 0 To UBound(PCD)
@@ -779,10 +770,7 @@ Sub Parse_RegExp(txtCode As String)
     
         If Mts.Count Then
             With Mts(0)
-                p0 = .SubMatches(0)
-                p1 = LCase$(.SubMatches(1))
-                p2 = .SubMatches(2)
-                p3 = .SubMatches(4)
+                p0 = .SubMatches(0):    p1 = LCase$(.SubMatches(1)):    p2 = .SubMatches(2):    p3 = .SubMatches(4)
                 
                 fr = CBool(Len(p3))
                 fi = CBool(InStr(p1, "i"))
@@ -790,12 +778,7 @@ Sub Parse_RegExp(txtCode As String)
                 fe = CBool(InStr(p1, "e"))
                 fm = CBool(InStr(p1, "m"))
                 
-                If fm Then
-                   pm = ""
-                Else
-                   pm = """"
-                   If p3 = vbTab Then p3 = ""
-                End If
+                If fm Then pm = "" Else pm = """":  If p3 = vbTab Then p3 = ""
     
                 If fr Then
                     txtCode = Replace$(txtCode, .value, p0 + " = sys.rxp.replace(" + p0 + ", " + pm + p2 + pm + ", " + pm + p3 + pm + ", " + CStr(fi) + ", " + CStr(fg) + ")")
@@ -903,7 +886,7 @@ Sub Parse_Directiv(txtCode As String)
             Select Case LCase$(Mts(a).SubMatches(0))
                 Case "addrus":          Call Parse_Modify(txtCode)
                 Case "develop":         EMailDevelop = Mts(0).SubMatches(2)
-                Case "noshowerror":     NotShowError = True
+                Case "noshowerror":     mf_NoShowError = True
                 Case "asyncload":       mf_AsyncLoad = CLng(Mts(0).SubMatches(2))
             End Select
         Next
@@ -1043,10 +1026,7 @@ Function Parse_MPath(ByVal MPath As String) As String
     Dim clsReg As New clsRegistry, REG1 As RegExp, Mts As MatchCollection, isFind As Boolean
     Dim txt As String, Arg As String, tmp As String, a As Long, idx As Long
     
-    Set REG1 = New RegExp
-    REG1.Global = True
-    REG1.IgnoreCase = True
-    REG1.Pattern = "%((\w+?_)?([^%]+))%"
+    Set REG1 = New RegExp:    REG1.Global = True:    REG1.IgnoreCase = True:    REG1.Pattern = "%((\w+?_)?([^%]+))%"
     Set Mts = REG1.Execute(MPath)
     
     For a = 0 To Mts.Count - 1
@@ -1163,7 +1143,7 @@ Sub Script_End()
         Set Frm = Nothing
     Next
                 
-    Erase MDL:    curRunMF = 0:     mf_AsyncLoad = 0:     NotShowError = False
+    Erase MDL:    mf_Counter = 0:     mf_AsyncLoad = 0:     mf_NoShowError = False
 
     If Not CAS Is Nothing Then CAS.Reset
     Set CAS = Nothing
@@ -1174,26 +1154,15 @@ End Sub
 Sub Script_EXE()
     Dim f As New clsFileAPI, ofs As Long, sz As Long, lh As Long, txt As String
 
-    lh = Len(mf_Hdr)
-    txt = String$(lh, 0)
-    Info.IsExe = False
+    lh = Len(mf_Hdr):      txt = String$(lh, 0):      Info.IsExe = False
       
     If f.FOpen(GetAppPath(True), OPEN_EXISTING, GENERIC_READ) = INVALID_HANDLE Then Exit Sub
     
-    ofs = f.LOF
-    
-    f.GetMem VarPtr(sz), 4, ofs - 3
-    
-    ofs = ofs - sz - 3
+    ofs = f.LOF:        f.GetMem VarPtr(sz), 4, ofs - 3:        ofs = ofs - sz - 3
 
     If (ofs > 0) And (ofs < (f.LOF - lh)) Then
         f.GetStr txt, ofs
-    
-        If txt = mf_Hdr Then
-            Info.StartExe = f.Pos
-            Info.SizeExe = f.LOF - Info.StartExe - 3
-            Info.IsExe = True
-        End If
+        If txt = mf_Hdr Then Info.IsExe = True:    Info.StartExe = f.Pos:    Info.SizeExe = f.LOF - Info.StartExe - 3
     End If
     
     f.FClose

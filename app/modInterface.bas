@@ -144,24 +144,6 @@ Function Create_Interface(Wrapper As Object) As stdole.IUnknown
 End Function
 
 
-Function AddrOf(ByVal value As Long) As Long
-    AddrOf = value
-End Function
-
-Private Function IsEqualGUID(i1 As UUID, i2 As UUID) As Boolean
-    Dim Tmp1 As Currency, Tmp2 As Currency
-
-   If i1.Data1 = i2.Data1 Then
-      If i1.Data2 = i2.Data2 Then
-         If i1.Data3 = i2.Data3 Then
-            CopyMemory Tmp1, i1.Data4(0), 8
-            CopyMemory Tmp2, i2.Data4(0), 8
-            If Tmp1 = Tmp2 Then IsEqualGUID = True
-         End If
-      End If
-   End If
-End Function
-
 Private Sub COM_Custom(This As COMTable)
     Dim a As Long, uds As Long, mbr() As Variant, Param As Variant
     
@@ -170,8 +152,7 @@ Private Sub COM_Custom(This As COMTable)
     With This
         Param = .Wrapper.COM_Custom(VarPtr(This))
         
-        uds = -1
-        uds = UBound(Param)
+        uds = -1:      uds = UBound(Param)
         
         If uds >= 2 Then
             mbr = Param(2)
@@ -194,3 +175,17 @@ Private Sub COM_Custom(This As COMTable)
     End With
 err1:
 End Sub
+
+Private Function IsEqualGUID(i1 As UUID, i2 As UUID) As Boolean
+    Dim Tmp1 As Currency, Tmp2 As Currency
+    If i1.Data1 <> i2.Data1 Then Exit Function
+    If i1.Data2 <> i2.Data2 Then Exit Function
+    If i1.Data3 <> i2.Data3 Then Exit Function
+    CopyMemory Tmp1, i1.Data4(0), 8
+    CopyMemory Tmp2, i2.Data4(0), 8
+    If Tmp1 = Tmp2 Then IsEqualGUID = True
+End Function
+
+Private Function AddrOf(ByVal value As Long) As Long
+    AddrOf = value
+End Function

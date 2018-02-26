@@ -149,7 +149,6 @@ Public Function Enums(ByVal value As Variant, Optional ByVal Flags As Long = -1)
                             .Add Names(j + 1), "Name"
                             .Add Params(j).PARAMDESC.wParamFlags, "Flags"
                             .Add Params(j).tdesc.vt, "Type"
-                            If (Flags And 4) Then .Add m_PrintType(TI, Params(j).tdesc), "Alias"
                 
                             If (Params(j).PARAMDESC.pPARAMDESCEX <> 0) And ((Flags And 8) > 0) Then
                                 CopyMemory pdx, ByVal Params(j).PARAMDESC.pPARAMDESCEX, LenB(pdx)
@@ -182,7 +181,6 @@ Public Function Enums(ByVal value As Variant, Optional ByVal Flags As Long = -1)
                 .Add VD.VARKIND, "Kind"
                 .Add VD.wVarFlags, "Flags"
                 .Add VD.elemdescVar.tdesc.vt, "Type"
-                If (Flags And 32) Then .Add m_PrintType(TI, VD.elemdescVar.tdesc), "Alias"
                 
                 If (VD.elemdescVar.PARAMDESC.pPARAMDESCEX <> 0) And ((Flags And 64) > 0) Then
                     CopyMemory pdx, ByVal VD.elemdescVar.PARAMDESC.pPARAMDESCEX, LenB(pdx)

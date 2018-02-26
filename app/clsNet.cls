@@ -13,14 +13,14 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 Option Explicit
 
-Private Declare Function WSACleanup Lib "wsock32" () As Long
-Private Declare Function WSAStartup Lib "wsock32" (ByVal wVersionRequired As Long, lpWSADATA As WSADATA) As Long
-Private Declare Function gethostbyname Lib "wsock32" (ByVal Hostname As String) As Long
+Private Declare Function WSACleanup Lib "ws2_32" () As Long
+Private Declare Function WSAStartup Lib "ws2_32" (ByVal wVersionRequired As Long, lpWSADATA As WSADATA) As Long
+Private Declare Function inet_addr Lib "ws2_32" (ByVal s As String) As Long
+Private Declare Function inet_ntoa Lib "ws2_32" (ByVal addr As Long) As Long
+Private Declare Function gethostbyname Lib "ws2_32" (ByVal Hostname As String) As Long
+Private Declare Function IcmpSendEcho Lib "icmp" (ByVal IcmpHandle As Long, ByVal DestinationAddress As Long, ByVal RequestData As String, ByVal RequestSize As Long, ByVal RequestOptions As Long, ReplyBuffer As ICMP_ECHO_REPLY, ByVal ReplySize As Long, ByVal Timeout As Long) As Long
 Private Declare Function IcmpCreateFile Lib "icmp" () As Long
 Private Declare Function IcmpCloseHandle Lib "icmp" (ByVal IcmpHandle As Long) As Long
-Private Declare Function IcmpSendEcho Lib "icmp" (ByVal IcmpHandle As Long, ByVal DestinationAddress As Long, ByVal RequestData As String, ByVal RequestSize As Long, ByVal RequestOptions As Long, ReplyBuffer As ICMP_ECHO_REPLY, ByVal ReplySize As Long, ByVal Timeout As Long) As Long
-Private Declare Function inet_addr Lib "wsock32" (ByVal s As String) As Long
-Private Declare Function inet_ntoa Lib "wsock32" (ByVal addr As Long) As Long
 
 Const INADDR_NONE As Long = &HFFFFFFFF, WS_VERSION_REQD As Long = &H101, IP_SUCCESS As Long = 0, PING_TIMEOUT As Long = 500
 
@@ -201,8 +201,7 @@ Public Function WINHTTP(Optional ByVal Host As String = "https://api.ipify.org",
 
     m_ParamArray Param, 10, Empty, Empty, Empty, Empty
 
-    Set WINHTTP = CreateObject("WinHttp.WinHttpRequest.5.1")
-    If WINHTTP Is Nothing Then Set WINHTTP = CreateObject("WinHttp.WinHttpRequest")
+    Set WINHTTP = CreateObject("WinHttp.WinHttpRequest.5.1"):   If WINHTTP Is Nothing Then Set WINHTTP = CreateObject("WinHttp.WinHttpRequest")
     If LenB(Host) = 0 Then Exit Function
     
     WINHTTP.Open IIF(VarType(Param(1)) = vbString, "POST", "GET"), Host, CBool(Param(0)), Param(2), Param(3)

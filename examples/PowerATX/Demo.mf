@@ -33,13 +33,13 @@ Const EWX_FORCE = 4
 
 '-----------------------------------------
 Sub Command1_Click()
-  if form.opt(1) then sys.power.logoff
-  if form.opt(2) then sys.power.reboot
-  if form.opt(3) then sys.power.control(EWX_SHUTDOWN or EWX_FORCE)
-  if form.opt(4) then sys.power.poweroff
-  if form.opt(5) then sys.power.suspend
-  if form.opt(6) then sys.power.suspend ,,1
-  if form.opt(7) then sys.power.monitor(2)
+  if form.opt(1) then call sys.power("logoff")
+  if form.opt(2) then call sys.power("reboot")
+  if form.opt(3) then call sys.power("", EWX_SHUTDOWN or EWX_FORCE)
+  if form.opt(4) then call sys.power
+  if form.opt(5) then call sys.power("suspend")
+  if form.opt(6) then call sys.power("suspend", 1)
+  if form.opt(7) then call sys.power("monitor", 2)
   endmf
 End Sub
 
