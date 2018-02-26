@@ -96,7 +96,7 @@ End Sub
 
 
 Private Sub Class_Initialize()
-    If curRunMF Then isFail = True:   Exit Sub
+    If mf_Counter Then isFail = True:   Exit Sub
     If LMF Is Nothing Then Set LMF = Me
 End Sub
 

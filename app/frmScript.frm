@@ -36,7 +36,7 @@ Public CScript As New Collection
 
 Public Sub ActiveScript_Error(ByVal Obj As clsActiveScript)
     If Not frmError.Visible And Not tmrEnd.Enabled Then
-        If Not NotShowError Then frmError.Display Obj
+        If Not mf_NoShowError Then frmError.Display Obj
         m_EndMF
     End If
 End Sub

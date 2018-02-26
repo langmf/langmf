@@ -15,8 +15,34 @@ Attribute VB_Ext_KEY = "SavedWithClassBuilder6" ,"Yes"
 Attribute VB_Ext_KEY = "Top_Level" ,"Yes"
 Option Explicit
 
-Public E As Object, App As Object, Forms As Object, Screen As Object, Printers As Object, Licenses As Object, Clipboard As Object
-Public API As Object, CGI As Object, GDI As Object, SHD As Object, COM As Object, RXP As Object, Net As Object, Var As Object, Ext As Object, Str As Object, Conv As Object, File As Object, CDlg As Object, Cron As Object, Power As Object, Bytes As Object, NatRes As Object, Process As Object, Registry As Object, Resource As Object, Timers As Object
+Public E As Object
+Public App As Object
+Public Forms As Object
+Public Screen As Object
+Public Printers As Object
+Public Licenses As Object
+Public Clipboard As Object
+
+Public API As Object
+Public CGI As Object
+Public GDI As Object
+Public SHD As Object
+Public COM As Object
+Public RXP As Object
+Public Net As Object
+Public Var As Object
+Public Ext As Object
+Public Str As Object
+Public Conv As Object
+Public File As Object
+Public CDlg As Object
+Public Cron As Object
+Public Bytes As Object
+Public NatRes As Object
+Public Process As Object
+Public Registry As Object
+Public Resource As Object
+Public Timers As Object
 
 
 Private Sub Class_Initialize()
@@ -41,7 +67,6 @@ Private Sub Class_Initialize()
     Set File = New clsFile
     Set CDlg = New clsCDlg
     Set Cron = New clsCron
-    Set Power = New clsPowerATX
     Set Bytes = New clsBytes
     Set NatRes = New clsNativeRes
     Set Process = New clsProcess
@@ -62,32 +87,6 @@ Public Function AddFileMF(ByVal nameScript As String, Optional ByVal nameLib As 
     If Not IsFileExt(nameScript, , Array(".mf")) Then Exit Function
     m_File2Buf Buf, nameScript
     AddFileMF = Code_Parse(Buf, IIF(LenB(nameLib), nameLib, nameScript))
-End Function
-
-Public Function Path(Optional ByVal value As Variant = False, Optional ByVal backSlash As Boolean = True) As String
-    Dim vt As Long, Buf As String
-    
-    vt = VarType(value)
-    
-    If vt = 11 Then
-        If value Then Path = Info.File Else Path = CPath(GetDirectory(Info.File), backSlash)
-        
-    ElseIf vt = 8 Then
-        Buf = String$(MAX_PATH_X2, 0):      vt = Len(Buf)
-        
-        Select Case LCase$(value)
-            Case "script":          Path = CPath(Path(False), backSlash)
-            Case "script_full":     Path = Path(True)
-            Case "engine":          Path = CPath(GetAppPath(False), backSlash)
-            Case "engine_full":     Path = GetAppPath(True)
-            Case "system":          Path = CPath(GetSystemPath, backSlash)
-            Case "windows":         Path = CPath(GetWindowsPath, backSlash)
-            Case "temp":            Path = CPath(GetTmpPath, backSlash)
-            Case "tmp":             Path = mf_Tmp
-            Case "user":            Call GetUserNameW(StrPtr(Buf), vt):       Path = Left$(Buf, vt - 1)
-            Case "computer":        Call GetComputerNameW(StrPtr(Buf), vt):   Path = Left$(Buf, vt)
-        End Select
-    End If
 End Function
 
 Public Function Env(Optional ByVal ID As Variant) As Variant
@@ -158,18 +157,57 @@ Public Function NewFAP(Optional ByVal Obj As Object, Optional Buf As Variant, Op
     m_DoParams NewFAP, Param
 End Function
 
-Public Function Host(Optional ByVal value As String, Optional ByVal ID As Long = 1) As Variant
-    If Not VerifyLongRange(ID, 0, UBound(MDL)) Then Exit Function
+Public Function Path(Optional ByVal value As Variant = False, Optional ByVal backSlash As Boolean = True) As String
+    Dim vt As Long, Buf As String
     
-    If LenB(value) = 0 Then value = "host"
+    vt = VarType(value)
+    
+    If vt = 11 Then
+        If value Then Path = Info.File Else Path = CPath(GetDirectory(Info.File), backSlash)
+        
+    ElseIf vt = 8 Then
+        Buf = String$(MAX_PATH_X2, 0):      vt = Len(Buf)
+        
+        Select Case LCase$(value)
+            Case "script":          Path = CPath(Path(False), backSlash)
+            Case "script_full":     Path = Path(True)
+            Case "engine":          Path = CPath(GetAppPath(False), backSlash)
+            Case "engine_full":     Path = GetAppPath(True)
+            Case "system":          Path = CPath(GetSystemPath, backSlash)
+            Case "windows":         Path = CPath(GetWindowsPath, backSlash)
+            Case "temp":            Path = CPath(GetTmpPath, backSlash)
+            Case "tmp":             Path = mf_Tmp
+            Case "user":            Call GetUserNameW(StrPtr(Buf), vt):       Path = Left$(Buf, vt - 1)
+            Case "computer":        Call GetComputerNameW(StrPtr(Buf), vt):   Path = Left$(Buf, vt)
+        End Select
+    End If
+End Function
+
+Public Function Host(Optional ByVal value As String, Optional ByVal ID As Long = 1) As Variant
+    On Error Resume Next
     
     Select Case LCase$(value)
-        Case "host":            Set Host = LMF
+        Case "host", "":        Set Host = LMF
         Case "arg":             Host = Info.Arg
+        Case "time_lmf":        Host = mf_TimeLMF
+        Case "time_parse":      Host = mf_TimeParse
         Case "mdl_name":        Host = MDL(ID).Name
         Case "mdl_type":        Host = MDL(ID).Type
-        Case "time_parse":      Host = mf_TimeParse
-        Case "time_lmf":        Host = mf_TimeLMF
+    End Select
+End Function
+
+Public Function Power(Optional ByVal value As String = "off", Optional ByVal Flags As Long) As Long
+    On Error Resume Next
+    
+    AdjustToken "SeShutdownPrivilege"
+    
+    Select Case LCase$(value)
+        Case "":                Power = ExitWindowsEx(Flags, &HFFFF&)
+        Case "off":             Power = ExitWindowsEx(Flags Or EWX_POWEROFF, &HFFFF&)
+        Case "reboot":          Power = ExitWindowsEx(Flags Or EWX_REBOOT, &HFFFF&)
+        Case "logoff":          Power = ExitWindowsEx(Flags Or EWX_LOGOFF, &HFFFF&)
+        Case "suspend":         Power = SetSuspendState((Flags And 1&), 0, (Flags And 2&))
+        Case "monitor":         Power = SendMessageW(frmScript.hWnd, WM_SYSCOMMAND, SC_MONITORPOWER, ByVal Flags)
     End Select
 End Function
 

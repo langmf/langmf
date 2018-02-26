@@ -32,10 +32,10 @@ Sub InitGlobal()
     For a = 256 To 2100:    GT_Mix(a) = 255:    Next
     
     '-------------------------------------
-    For a = 0 To 255:       For b = -200 To 200:     GT_Tran(a, b) = (a / 100) * b:         Next:    Next
+    For a = 0 To 255:       For b = -200 To 200:     GT_Tran(a, b) = (a / 100) * b:         Next:   Next
 
     '-------------------------------------
-    For a = 0 To 255:       For b = 0 To 255:        GT_Grad(a, b) = (a / 255) * b:         Next:    Next
+    For a = 0 To 255:       For b = 0 To 255:        GT_Grad(a, b) = (a / 255) * b:         Next:   Next
     
     '-------------------------------------
     For a = 0 To 9:     GT_BHex(a) = 48 + a:   Next:     For a = 10 To 15:   GT_BHex(a) = 55 + a:   Next
@@ -83,17 +83,6 @@ End Function
 
 Function IsWine() As Boolean
     If GetProcAddress(GetModuleHandleW(StrPtr("ntdll")), "wine_get_version") > 0 Then IsWine = True
-End Function
-
-Function IsRus() As Boolean
-    IsRus = (GetSystemDefaultLangID = 1049)
-End Function
-
-Function IsJS(ByVal Obj As Object) As Boolean
-    Dim tmp As String
-    On Error Resume Next
-    tmp = Obj
-    IsJS = (tmp = "[object Object]")
 End Function
 
 Function IsIDE() As Boolean
@@ -407,20 +396,15 @@ End Function
 
 Public Function FileShortName(ByVal fName As String) As String
     Dim rc As Long, txt As String
-    
     txt = String$(MAX_PATH_UNI, 0)
     rc = GetShortPathNameW(StrPtr(LongPath(fName)), StrPtr(txt), Len(txt))
-    
     If rc > 0 Then FileShortName = Left$(txt, rc)
     If InStr(FileShortName, "\\?\") = 1 Then FileShortName = Mid$(FileShortName, 5)
 End Function
 
 Public Function FileLongName(ByVal fName As String) As String
     Dim rc As Long, txt As String
-    
-    txt = String$(MAX_PATH_UNI, 0)
-    rc = GetLongPathNameW(StrPtr(fName), StrPtr(txt), Len(txt))
-    
+    txt = String$(MAX_PATH_UNI, 0):    rc = GetLongPathNameW(StrPtr(fName), StrPtr(txt), Len(txt))
     If rc > 0 Then FileLongName = Left$(txt, rc)
 End Function
 
@@ -440,11 +424,7 @@ Function m_File2Str(Buf As String, nameFile As String) As Boolean
     Buf = ""
     
     If f.FOpen(nameFile, OPEN_EXISTING, GENERIC_READ) = INVALID_HANDLE Then Exit Function
-    sz = f.LOF
-    If sz Then
-        Buf = String$(sz, 0)
-        f.GetStr Buf
-    End If
+    sz = f.LOF:    If sz Then Buf = String$(sz, 0):   f.GetStr Buf
     f.FClose
     
     m_File2Str = sz
@@ -456,11 +436,7 @@ Function m_File2Buf(Buf() As Byte, nameFile As String) As Boolean
     Erase Buf
     
     If f.FOpen(nameFile, OPEN_EXISTING, GENERIC_READ) = INVALID_HANDLE Then Exit Function
-    sz = f.LOF
-    If sz Then
-        ReDim Buf(sz - 1)
-        f.GetBuf Buf
-    End If
+    sz = f.LOF:    If sz Then ReDim Buf(sz - 1):   f.GetBuf Buf
     f.FClose
     
     m_File2Buf = sz
@@ -531,8 +507,7 @@ End Function
 
 Function EnumNResCBK(ByVal hModule As Long, ByVal lpszType As Long, ByVal lpszName As Long, ByVal lParam As Long) As Long
     Dim uds As Long
-    uds = UBound(ArrNRes)
-    ReDim Preserve ArrNRes(uds + 1)
+    uds = UBound(ArrNRes):      ReDim Preserve ArrNRes(uds + 1)
     If (lpszName > &HFFFF&) Or (lpszName < 0) Then ArrNRes(uds) = GetStringPtrA(lpszName) Else ArrNRes(uds) = lpszName
     EnumNResCBK = 1
 End Function
@@ -638,9 +613,7 @@ End Function
 Function LoadPictureFromByte(value As Variant) As IPicture
     Dim IID_IPicture As UUID, istm As stdole.IUnknown, tmpBuf() As Byte
     
-    ConvToBufferByte value, tmpBuf
-    
-    If m_ArraySize(tmpBuf) = 0 Then Exit Function
+    ConvToBufferByte value, tmpBuf:     If m_ArraySize(tmpBuf) = 0 Then Exit Function
     
     If CreateStreamOnHGlobal(tmpBuf(0), 0, istm) = 0 Then
         If CLSIDFromString(StrPtr("{7BF80980-BF32-101A-8BBB-00AA00300CAB}"), IID_IPicture) = 0 Then
@@ -652,12 +625,9 @@ End Function
 Function BigLongToDouble(ByVal low_part As Long, ByVal high_part As Long) As Double
     Dim Result As Double
 
-    Result = high_part
-    If high_part < 0 Then Result = Result + 2 ^ 32
+    Result = high_part:             If high_part < 0 Then Result = Result + 2 ^ 32
     Result = Result * 2 ^ 32
-
-    Result = Result + low_part
-    If low_part < 0 Then Result = Result + 2 ^ 32
+    Result = Result + low_part:     If low_part < 0 Then Result = Result + 2 ^ 32
 
     BigLongToDouble = Result
 End Function
@@ -759,10 +729,9 @@ End Function
 
 Function SpecialFolderPath(ByVal lngFolderType As Long) As String
     Dim strPath As String, IDL As ITEMIDLIST
-    If SHGetSpecialFolderLocation(0&, lngFolderType, IDL) = 0& Then         ' Example - ATL.CSIDLs.CSIDL_APPDATA
-        strPath = String$(MAX_PATH_UNI, 0)
-        If SHGetPathFromIDListW(ByVal IDL.mkid.cb, StrPtr(strPath)) Then SpecialFolderPath = TrimNull(strPath)
-    End If
+    If SHGetSpecialFolderLocation(0&, lngFolderType, IDL) Then Exit Function
+    strPath = String$(MAX_PATH_UNI, 0)
+    If SHGetPathFromIDListW(ByVal IDL.mkid.cb, StrPtr(strPath)) Then SpecialFolderPath = TrimNull(strPath)
 End Function
 
 Function ConvToBufferByte(bufVar As Variant, bufByte() As Byte) As Boolean
@@ -897,10 +866,6 @@ Function m_Hex2Buf(value As String) As Byte()
     m_Hex2Buf = tmpOut
 End Function
 
-Function IsMask(ByVal value As Long, ByVal maskValue As Long) As Boolean
-    IsMask = (value And maskValue) = maskValue
-End Function
-
 Sub SetTopMost(ByVal hWnd As Long, Optional ByVal value As Boolean = True)
     SetWindowPos hWnd, IIF(value, hWnd_TOPMOST, hWnd_NOTOPMOST), 0, 0, 0, 0, SWP_NOACTIVATE Or SWP_NOMOVE Or SWP_NOSIZE
 End Sub
@@ -980,12 +945,9 @@ End Function
 
 Sub CreateDir(ByVal nameDir As String)
     Dim tmpDir() As String, a As Long, txt As String
-    
     tmpDir = Split(nameDir, "\")
-    
     For a = 0 To UBound(tmpDir) - 1
-        txt = txt & tmpDir(a) & "\"
-        If IsFile(txt, -1, vbDirectory) = False Then MkDir txt
+        txt = txt & tmpDir(a) & "\":    If IsFile(txt, -1, vbDirectory) = False Then MkDir txt
     Next
 End Sub
 
@@ -1028,8 +990,11 @@ End Function
 
 Function WindowLong(ByVal hWnd As Long, Optional ByVal value As Variant, Optional ByVal mStyle As Long, Optional ByVal nIndex As Long = GWL_STYLE) As Long
     Dim v As Long
+    
     If hWnd = 0 Then Exit Function
+    
     v = GetWindowLongW(hWnd, nIndex)
+    
     If IsMissing(value) Then
         WindowLong = (v And mStyle) = mStyle
     Else
@@ -1042,6 +1007,7 @@ Property Get VariantType(vrtValue As Variant, Optional ByVal isBYREF As Boolean)
     Dim Ptr As Long, tmp As Integer, vt As Integer
     
     Ptr = VarPtr(vrtValue)
+    
     Do
         GetMem2 Ptr, vt
         If Not isBYREF Then Exit Do
@@ -1065,7 +1031,6 @@ End Function
 
 Function GEV(Optional ByVal ID As Variant) As Variant
     Dim cnt As Integer, txt() As String, Col As New clsHash
-    
     If IsMissing(ID) Or IsEmpty(ID) Then
         While LenB(Environ$(cnt + 1))
             txt = Split(Environ$(cnt + 1), "=")
@@ -1081,9 +1046,7 @@ End Function
 
 Function StdFontToLogFont(fnt As StdFont) As LOGFONT
     Dim s As String, i As Long, hDC As Long, b() As Byte
-    
     If fnt Is Nothing Then Set fnt = New StdFont
-    
     With StdFontToLogFont
         s = fnt.Name:    b = s:    For i = 0 To Len(s) * 2 - 1:   .lfFaceName(i) = b(i):      Next
         hDC = GetDC(0):     .lfHeight = -MulDiv(fnt.Size, GetDeviceCaps(hDC, LOGPIXELSY), 72):      ReleaseDC 0, hDC
@@ -1117,9 +1080,7 @@ End Function
 Function LoadResDataWNull(ByVal ID As Variant, VType As Variant) As Byte()
     Dim a As Long, Buf() As Byte
     
-    Buf = LoadResData(ID, VType)
-    
-    If m_ArraySize(Buf) = 0 Then Exit Function
+    Buf = LoadResData(ID, VType):    If m_ArraySize(Buf) = 0 Then Exit Function
     
     For a = UBound(Buf) To 0 Step -1
         If Buf(a) <> 0 Then ReDim Preserve Buf(a):   Exit For
@@ -1153,9 +1114,7 @@ Function GetQV(ByVal value As String, txtFile As String) As clsHash
     Set GetQV = New clsHash
     
     If LenB(value) = 0 Then Exit Function
-    tmp = Split(value, "?")
-    txtFile = tmp(0)
-    If UBound(tmp) = 0 Then Exit Function
+    tmp = Split(value, "?"):    txtFile = tmp(0):    If UBound(tmp) = 0 Then Exit Function
             
     For Each v In Split(tmp(1), "&")
         txt = Split(v, "=")
@@ -1167,9 +1126,9 @@ Function ObjFromPtr(ByVal vPtr As Long, Optional isIUnknown As Boolean = False) 
     Dim VD As Object, IUnk As ATL.IUnknown
     
     If isIUnknown Then
-        CopyMem4 vPtr, IUnk: Set ObjFromPtr = IUnk: CopyMem4 0&, IUnk
+        CopyMem4 vPtr, IUnk:   Set ObjFromPtr = IUnk:   CopyMem4 0&, IUnk
     Else
-        CopyMem4 vPtr, VD:   Set ObjFromPtr = VD:   CopyMem4 0&, VD
+        CopyMem4 vPtr, VD:     Set ObjFromPtr = VD:     CopyMem4 0&, VD
     End If
 End Function
 
@@ -1194,8 +1153,7 @@ End Function
 Function ShellSync(ByVal CommandLine As String, Optional ByVal Timeout As Long = -1, Optional ByVal Hide As Boolean = False) As Long
     Dim Proc As PROCESS_INFORMATION, Start As STARTUPINFO
     
-    Start.cb = Len(Start)
-    If Hide Then Start.dwFlags = STARTF_USESHOWWINDOW:   Start.wShowWindow = SW_HIDE
+    Start.cb = Len(Start):    If Hide Then Start.dwFlags = STARTF_USESHOWWINDOW:   Start.wShowWindow = SW_HIDE
     
     CreateProcessW 0, StrPtr(CommandLine), 0, 0, 1, NORMAL_PRIORITY_CLASS, 0, 0, Start, Proc
     Call WaitForSingleObject(Proc.hProcess, Timeout)
@@ -1226,57 +1184,33 @@ Function RegisterDLL(ByVal FileName As String, Optional ByVal isReg As Boolean =
     
     If LenB(FileName) = 0 Then Exit Function
     
-    hLib = LoadLibrary(StrPtr(FileName))
-    If hLib = 0 Then Exit Function
+    hLib = LoadLibrary(StrPtr(FileName)):    If hLib = 0 Then Exit Function
     
     If isReg Then hProc = GetProcAddress(hLib, "DllRegisterServer") Else hProc = GetProcAddress(hLib, "DllUnregisterServer")
     If hProc <> 0 Then If f.PCall(hProc) = 0 Then RegisterDLL = True
-    
     If hLib Then Call FreeLibrary(hLib)
 End Function
 
 Function VersionDLL(ByVal FileName As String, Optional ByVal verCmp As Variant) As Variant
-    Dim a As Long, nBufferLen As Long, lplpBuffer As Long, puLen As Long, sBuffer() As Byte
-    Dim ver As VS_FIXEDFILEINFO, txt As String, v1() As String, v2() As String
-    
-    If VarType(verCmp) = vbString Then If Len(verCmp) = 0 Then VersionDLL = True:   Exit Function
-    
-    nBufferLen = GetFileVersionInfoSizeW(StrPtr(LongPath(FileName)), a)
-    If nBufferLen = 0 Then Exit Function
+    Dim nLen As Long, pBuffer As Long, pLen As Long, txt As String, sBuffer() As Byte, ver As VS_FIXEDFILEINFO
 
-    ReDim sBuffer(nBufferLen) As Byte
-    Call GetFileVersionInfoW(StrPtr(LongPath(FileName)), 0&, nBufferLen, sBuffer(0))
-    Call VerQueryValueW(sBuffer(0), StrPtr("\"), lplpBuffer, puLen)
-    Call CopyMemory(ver, ByVal lplpBuffer, Len(ver))
+    nLen = GetFileVersionInfoSizeW(StrPtr(LongPath(FileName)), ByVal 0&):     If nLen = 0 Then Exit Function
+
+    ReDim sBuffer(nLen) As Byte
+    Call GetFileVersionInfoW(StrPtr(LongPath(FileName)), 0&, nLen, sBuffer(0))
+    Call VerQueryValueW(sBuffer(0), StrPtr("\"), pBuffer, pLen)
+    Call CopyMemory(ver, ByVal pBuffer, Len(ver))
 
     txt = ver.dwProductVersionMSh & "." & ver.dwProductVersionMSl & "." & ver.dwProductVersionLSh & "." & ver.dwProductVersionLSl
     
-    If IsMissing(verCmp) Then
-        VersionDLL = txt
-    Else
-        v1 = Split(txt, ".")
-        VersionDLL = True
-        Select Case Left$(verCmp, 1)
-            Case ">"
-                v2 = Split(Mid$(verCmp, 2), ".")
-                For a = 0 To UBound(v2)
-                    If Val(v1(a)) < Val(v2(a)) Then VersionDLL = False: Exit Function
-                Next
-                
-            Case Else
-                v2 = Split(verCmp, ".")
-                For a = 0 To UBound(v2)
-                    If Val(v1(a)) <> Val(v2(a)) Then VersionDLL = False: Exit Function
-                Next
-        End Select
-    End If
+    If IsMissing(verCmp) Then VersionDLL = txt:    Exit Function
+    If Left$(verCmp, 1) = ">" Then VersionDLL = (txt >= Right$(verCmp, Len(verCmp) - 1)) Else VersionDLL = (txt = verCmp)
 End Function
 
 Function CallInterface(ByVal pInterface As Long, ByVal Member As Long, Optional ByVal ParamsCount As Long = 0, Optional ByVal p1 As Long = 0, Optional ByVal p2 As Long = 0, Optional ByVal p3 As Long = 0, Optional ByVal p4 As Long = 0, Optional ByVal p5 As Long = 0, Optional ByVal p6 As Long = 0, Optional ByVal p7 As Long = 0, Optional ByVal p8 As Long = 0, Optional ByVal p9 As Long = 0, Optional ByVal p10 As Long = 0) As Long
     Dim i As Long, t As Long, hGlobal As Long, hGlobalSize As Long, hGlobalOffset As Long
     
-    If ParamsCount < 0 Then Exit Function
-    If pInterface = 0 Then Exit Function
+    If (ParamsCount < 0) Or (pInterface = 0) Then Exit Function
     
     '5 байт для запихивания каждого параметра в стек
     '5 байт - PUSH this
@@ -1373,56 +1307,6 @@ Function CBN(Obj As Variant, ProcName As Variant, ByVal CallType As VbCallType, 
     End If
 End Function
 
-Function m_PrintType(ByVal Info As ITypeInfo, tdesc As TYPEDESC) As String
-    Dim info2 As ITypeInfo, tdesc2 As TYPEDESC, Name As String, Descr As String
-    
-    Select Case tdesc.vt And VT_TYPEMASK
-        Case vbEmpty:       m_PrintType = "<Empty>"
-        Case vbNull:        m_PrintType = "<Null>"
-        Case vbInteger:     m_PrintType = "Integer"
-        Case vbLong:        m_PrintType = "Long"
-        Case vbSingle:      m_PrintType = "Single"
-        Case vbDouble:      m_PrintType = "Double"
-        Case vbCurrency:    m_PrintType = "Currency"
-        Case vbDate:        m_PrintType = "Date"
-        Case vbString:      m_PrintType = "String"
-        Case vbObject:      m_PrintType = "Object"
-        Case vbError:       m_PrintType = "<Error>"
-        Case vbBoolean:     m_PrintType = "Boolean"
-        Case vbVariant:     m_PrintType = "Variant"
-        Case vbDataObject:  m_PrintType = "DataObject"
-        Case vbDecimal:     m_PrintType = "Decimal"
-        Case vbByte:        m_PrintType = "Byte"
-        Case VT_I1:         m_PrintType = "<CHAR>"
-        Case VT_I8:         m_PrintType = "<INT64>"
-        Case VT_INT:        m_PrintType = "<INT>"
-        Case VT_UI2:        m_PrintType = "<USHORT>"
-        Case VT_UI4:        m_PrintType = "<ULONG>"
-        Case VT_UI8:        m_PrintType = "<UINT64>"
-        Case VT_UINT:       m_PrintType = "<UINT>"
-        Case VT_HRESULT:    m_PrintType = "<HRESULT>"
-        Case VT_VOID:       m_PrintType = "Any"
-        
-        Case vbUserDefinedType
-            m_PrintType = "UDT"
-        
-        Case VT_PTR:
-            CopyMemory tdesc2, ByVal tdesc.pTypeDesc, LenB(tdesc2)
-            m_PrintType = m_PrintType(Info, tdesc2)
-            
-        Case VT_SAFEARRAY:
-            CopyMemory tdesc2, ByVal tdesc.pTypeDesc, LenB(tdesc2)
-            m_PrintType = m_PrintType(Info, tdesc2) & "()"
-            
-        Case VT_USERDEFINED:
-            Set info2 = Info.GetRefTypeInfo(tdesc.pTypeDesc)
-            info2.GetDocumentation DISPID_UNKNOWN, Name, Descr, 0, vbNullString
-            m_PrintType = Name
-    End Select
-    
-    If tdesc.vt And vbArray Then m_PrintType = m_PrintType & "()"
-End Function
-
 Function m_DoParams(ByVal Obj As Object, Arg As Variant) As Object
     Dim a As Long, b As Long, uds As Long, txt As String, nMod As String
     Static Preset(32) As String
@@ -1454,29 +1338,24 @@ Function m_DoParams(ByVal Obj As Object, Arg As Variant) As Object
     
     Preset(0) = "ObjFromPtr(" & ObjPtr(Obj) & ")"
     
-    If LenB(txt) Then
-        For a = 0 To UBound(Preset)
-            If Len(Preset(a)) Then txt = Replace$(txt, "$" & a, Preset(a))
-        Next
-        CAS.ExecuteStatement "With " & Preset(0) & vbCrLf & txt & vbCrLf & "End With", nMod
-    End If
+    If LenB(txt) = 0 Then Exit Function
+    
+    For a = 0 To UBound(Preset)
+        If Len(Preset(a)) Then txt = Replace$(txt, "$" & a, Preset(a))
+    Next
+    
+    CAS.ExecuteStatement "With " & Preset(0) & vbCrLf & txt & vbCrLf & "End With", nMod
 End Function
 
 Sub m_ArrayReverse(arr As Variant)
     Dim SA As SafeArray, a As Long, uds As Long, newArr() As Variant
     
-    SA = m_GetSafeArray(arr)
-    
-    uds = SA.rgSABound(0).cElements - 1
-    
-    If uds <= 0 Or SA.cDims <> 1 Then
-        Exit Sub
-    Else
-        ReDim newArr(uds)
-        For a = 0 To uds
-            VariantCopy newArr(a), arr(uds - a)
-        Next
-    End If
+    SA = m_GetSafeArray(arr):    uds = SA.rgSABound(0).cElements - 1:    If uds <= 0 Or SA.cDims <> 1 Then Exit Sub
+
+    ReDim newArr(uds)
+    For a = 0 To uds
+        VariantCopy newArr(a), arr(uds - a)
+    Next
         
     arr = newArr
 End Sub
@@ -1484,21 +1363,14 @@ End Sub
 Function m_GetSafeArray(arr As Variant, Optional vt As Integer) As SafeArray
     Dim Ptr As Long, cDims As Integer
     
-    Ptr = VarPtr(arr)
-    GetMem2 Ptr, vt
+    Ptr = VarPtr(arr):    GetMem2 Ptr, vt
     
-    If vt = VT_BYREF + VT_VARIANT Then
-        GetMem4 Ptr + 8, Ptr
-        GetMem2 Ptr, vt
-    End If
+    If vt = VT_BYREF + VT_VARIANT Then GetMem4 Ptr + 8, Ptr:   GetMem2 Ptr, vt
 
     If (vt And VT_ARRAY) Then
         GetMem4 Ptr + 8, Ptr
         If Ptr <> 0 Then If (vt And VT_BYREF) Then GetMem4 Ptr, Ptr
-        If Ptr <> 0 Then
-            GetMem2 Ptr, cDims
-            CopyMemory m_GetSafeArray, ByVal Ptr, 16 + cDims * 8
-        End If
+        If Ptr <> 0 Then GetMem2 Ptr, cDims:   CopyMemory m_GetSafeArray, ByVal Ptr, 16 + cDims * 8
     End If
 End Function
 
@@ -1533,7 +1405,7 @@ End Function
 Function VerifyLongValues(ByVal value As Long, ParamArray Args() As Variant) As Boolean
     Dim a As Long
     For a = 0 To UBound(Args)
-        If value = Args(a) Then VerifyLongValues = True: Exit Function
+        If value = Args(a) Then VerifyLongValues = True:  Exit Function
     Next
 End Function
 
@@ -1542,14 +1414,9 @@ End Function
 '======================== String Sort ================================
 Sub InsertSortStringsStart(ListArray() As String, Optional ByVal bAscending As Boolean = True, Optional ByVal bCaseSensitive As Boolean = False)
     Dim lMin As Long, lMax As Long, lOrder As Long, lCompareType As Long
-
-    lMin = LBound(ListArray)
-    lMax = UBound(ListArray)
     
-    If lMin = lMax Then Exit Sub
-    
-    lOrder = IIF(bAscending, -1, 1)
-    lCompareType = IIF(bCaseSensitive, vbBinaryCompare, vbTextCompare)
+    lMin = LBound(ListArray):           lMax = UBound(ListArray):       If lMin = lMax Then Exit Sub
+    lOrder = IIF(bAscending, -1, 1):    lCompareType = IIF(bCaseSensitive, vbBinaryCompare, vbTextCompare)
     
     InsertSortStrings ListArray, lMin, lMax, lOrder, lCompareType
 End Sub
@@ -1573,13 +1440,8 @@ End Sub
 Sub QuickSortStringsStart(ListArray() As String, Optional ByVal bAscending As Boolean = True, Optional ByVal bCaseSensitive As Boolean = False)
     Dim lMin As Long, lMax As Long, lOrder As Long, lCompareType As Long
 
-    lMin = LBound(ListArray)
-    lMax = UBound(ListArray)
-    
-    If lMin = lMax Then Exit Sub
-
-    lOrder = IIF(bAscending, 1, -1)
-    lCompareType = IIF(bCaseSensitive, vbBinaryCompare, vbTextCompare)
+    lMin = LBound(ListArray):           lMax = UBound(ListArray):       If lMin = lMax Then Exit Sub
+    lOrder = IIF(bAscending, 1, -1):    lCompareType = IIF(bCaseSensitive, vbBinaryCompare, vbTextCompare)
     
     QuickSortStrings ListArray, lMin, lMax, lOrder, lCompareType
 End Sub
@@ -1610,43 +1472,31 @@ Private Function QuickSortStringsPartition(ListArray() As String, ByVal lLow As 
     Dim lPivot As Long, sPivot As String, lLowCount As Long, lHighCount As Long, sTemp As String
 
     ' Select pivot point and exchange with first element
-    lPivot = lLow + (lHigh - lLow) \ 2
-    sPivot = ListArray(lPivot)
-    ListArray(lPivot) = ListArray(lLow)
+    lPivot = lLow + (lHigh - lLow) \ 2:     sPivot = ListArray(lPivot):     ListArray(lPivot) = ListArray(lLow)
     
-    lLowCount = lLow + 1
-    lHighCount = lHigh
+    lLowCount = lLow + 1:       lHighCount = lHigh
     
     ' Continually loop moving entries smaller than pivot to One side and
     ' larger than pivot to other side
     Do
         Do While lLowCount < lHighCount
-            If StrComp(sPivot, ListArray(lLowCount), lCompareType) <> lOrder Then
-                Exit Do
-            Else
-                lLowCount = lLowCount + 1
-            End If
+            If StrComp(sPivot, ListArray(lLowCount), lCompareType) <> lOrder Then Exit Do
+            lLowCount = lLowCount + 1
         Loop
         
         Do While lHighCount >= lLowCount
-            If StrComp(ListArray(lHighCount), sPivot, lCompareType) <> lOrder Then
-                Exit Do
-            Else
-                lHighCount = lHighCount - 1
-            End If
+            If StrComp(ListArray(lHighCount), sPivot, lCompareType) <> lOrder Then Exit Do
+            lHighCount = lHighCount - 1
         Loop
         
-        If lLowCount >= lHighCount Then
-            Exit Do
-        End If
+        If lLowCount >= lHighCount Then Exit Do
         
         ' Swap the items
         sTemp = ListArray(lLowCount)
         ListArray(lLowCount) = ListArray(lHighCount)
         ListArray(lHighCount) = sTemp
         
-        lHighCount = lHighCount - 1
-        lLowCount = lLowCount + 1
+        lHighCount = lHighCount - 1:      lLowCount = lLowCount + 1
     Loop
     
     ListArray(lLow) = ListArray(lHighCount)

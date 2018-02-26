@@ -1322,6 +1322,12 @@ Public Property Set CodeObject(ByVal value As Object)
     Set m_CodeObject = value
 End Property
 
+Private Function IsJS(ByVal Obj As Object) As Boolean
+    Dim tmp As String
+    On Error Resume Next
+    tmp = Obj:    IsJS = (tmp = "[object Object]")
+End Function
+
 
 '====================================================================================
 Public Property Get onEvent() As Object

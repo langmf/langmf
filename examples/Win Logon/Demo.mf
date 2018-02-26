@@ -126,7 +126,7 @@ End Sub
 
 '-----------------------------------------
 Sub Label1_Click()
-  sys.power.poweroff
+  sys.power
 End Sub
 
 '-----------------------------------------

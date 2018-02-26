@@ -276,6 +276,7 @@ Public Sub Initialize(ByVal objPrt As Object, ByVal objSrv As Object)
     SrvMenu("ref") = SrvMenu("ref") + 1
 End Sub
 
+
 Private Sub Class_Terminate()
     If hWnd Then DestroyMenu hWnd
     hWnd = 0
@@ -288,3 +289,7 @@ Private Sub Class_Terminate()
     Set SrvMenu = Nothing
     Set SubMenu = Nothing
 End Sub
+
+Private Function IsMask(ByVal value As Long, ByVal maskValue As Long) As Boolean
+    IsMask = (value And maskValue) = maskValue
+End Function
