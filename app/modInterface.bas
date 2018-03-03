@@ -5,18 +5,21 @@ Global Const COM_Mask_QueryInterface As Long = 1
 Global Const COM_Mask_GetIDsOfNames As Long = 2
 Global Const COM_Mask_Terminate As Long = &H100&
 
-Type COMTable
-    pVTable As Long
-    cRefs As Long
-    Mask As Long
-    Wrapper As Object
-    iName As Variant
-    IID_User As UUID
-    VTable(19) As Long
+Const COM_VTable_Ofs = 64&
+
+Type COM_Table
+    pVTable     As Long
+    cRefs       As Long
+    Mask        As Long
+    Wrapper     As Object
+    iName       As Variant
+    iArgs       As Variant
+    IID_User    As UUID
+    VTable(47)  As Long
 End Type
 
 
-Private Function COM_QueryInterface(This As COMTable, riid As UUID, pvObj As Long) As Long
+Private Function COM_QueryInterface(This As COM_Table, riid As UUID, pvObj As Long) As Long
     Dim isOK As Boolean
     
     With This
@@ -40,35 +43,36 @@ Private Function COM_QueryInterface(This As COMTable, riid As UUID, pvObj As Lon
     End With
 End Function
 
-Private Function COM_AddRef(This As COMTable) As Long
+Private Function COM_AddRef(This As COM_Table) As Long
     With This
         .cRefs = .cRefs + 1
         COM_AddRef = .cRefs
     End With
 End Function
 
-Private Function COM_Release(This As COMTable) As Long
+Private Function COM_Release(This As COM_Table) As Long
     With This
         .cRefs = .cRefs - 1
         COM_Release = .cRefs
         If .cRefs = 0 Then
             If (.Mask And COM_Mask_Terminate) Then Call .Wrapper.COM_Terminate(VarPtr(This))
             .iName = Empty
+            .iArgs = Empty
             Set .Wrapper = Nothing
             CoTaskMemFree VarPtr(.pVTable)
         End If
     End With
 End Function
 
-Private Function COM_GetTypeInfoCount(This As COMTable, pctinfo As Long) As Long
+Private Function COM_GetTypeInfoCount(This As COM_Table, pctinfo As Long) As Long
     COM_GetTypeInfoCount = E_NOTIMPL
 End Function
 
-Private Function COM_GetTypeInfo(This As COMTable, ByVal iTInfo As Long, ByVal LCID As Long, ppTInfo As Long) As Long
+Private Function COM_GetTypeInfo(This As COM_Table, ByVal iTInfo As Long, ByVal LCID As Long, ppTInfo As Long) As Long
     COM_GetTypeInfo = E_NOTIMPL
 End Function
 
-Private Function COM_GetIDsOfNames(This As COMTable, riid As UUID, rgszNames As Long, ByVal cNames As Long, ByVal LCID As Long, rgDispId As Long) As Long
+Private Function COM_GetIDsOfNames(This As COM_Table, riid As UUID, rgszNames As Long, ByVal cNames As Long, ByVal LCID As Long, rgDispId As Long) As Long
     Dim sName As String, sz As Long
     
     With This
@@ -88,7 +92,7 @@ Private Function COM_GetIDsOfNames(This As COMTable, riid As UUID, rgszNames As 
     End With
 End Function
 
-Private Function COM_Invoke(This As COMTable, ByVal idMember As Long, riid As UUID, ByVal LCID As Long, ByVal wFlags As InvokeFlags, pDispParams As ATL.DISPPARAMS, ByVal pvarResult As Long, pexcepinfo As ATL.EXCEPINFO, puArgErr As Long) As Long
+Private Function COM_Invoke(This As COM_Table, ByVal idMember As Long, riid As UUID, ByVal LCID As Long, ByVal wFlags As InvokeFlags, pDispParams As ATL.DISPPARAMS, ByVal pvarResult As Long, pexcepinfo As ATL.EXCEPINFO, puArgErr As Long) As Long
     Dim SA As SafeArray, Arg() As Variant, Result As Variant
     
     On Error Resume Next
@@ -112,11 +116,11 @@ Private Function COM_Invoke(This As COMTable, ByVal idMember As Long, riid As UU
 End Function
 
 
-Function Create_Interface(Wrapper As Object) As stdole.IUnknown
-    Dim Ptr As Long, Cts As COMTable
+Function Create_Interface(Wrapper As Object, Optional Args As Variant) As stdole.IUnknown
+    Dim Ptr As Long, Cts As COM_Table
     
     If Wrapper Is Nothing Then Exit Function
-    
+
     Ptr = CoTaskMemAlloc(LenB(Cts))
     If Ptr = 0 Then Exit Function
         
@@ -131,49 +135,39 @@ Function Create_Interface(Wrapper As Object) As stdole.IUnknown
         .VTable(5) = AddrOf(AddressOf COM_GetIDsOfNames)
         .VTable(6) = AddrOf(AddressOf COM_Invoke)
         
-        .pVTable = (Ptr Xor &H80000000) + 48 Xor &H80000000
+        .pVTable = (Ptr Xor &H80000000) + COM_VTable_Ofs Xor &H80000000
         .cRefs = 1
-        
-        COM_Custom Cts
-                
-        CopyMemory ByVal Ptr, Cts, LenB(Cts)
-        CopyMemory Create_Interface, Ptr, 4
-        
-        ZeroMemory Cts, LenB(Cts)
     End With
+    
+    COM_Custom Cts, Args
+    If ExistsMember(Wrapper, "COM_Custom") Then COM_Custom Cts, Wrapper.COM_Custom(VarPtr(Cts))
+                
+    CopyMemory ByVal Ptr, Cts, LenB(Cts)
+    CopyMemory Create_Interface, Ptr, 4
+    ZeroMemory Cts, LenB(Cts)
 End Function
 
 
-Private Sub COM_Custom(This As COMTable)
-    Dim a As Long, uds As Long, mbr() As Variant, Param As Variant
+Private Sub COM_Custom(This As COM_Table, Optional Args As Variant)
+    Dim a As Long, uds As Long, mbr() As Variant
     
-    On Error GoTo err1
-    
+    uds = m_ArraySize(Args):      If uds = 0 Then Exit Sub
+
     With This
-        Param = .Wrapper.COM_Custom(VarPtr(This))
-        
-        uds = -1:      uds = UBound(Param)
-        
-        If uds >= 2 Then
-            mbr = Param(2)
-            If VerifyArrayRange(mbr, , , , 17) Then
+        .iArgs = Args
+        If uds > 2 Then
+            mbr = Args(2)
+            If VerifyArrayRange(mbr, , , , 45) Then
                 For a = 0 To UBound(mbr)
                     If IsNumeric(mbr(a)) Then .VTable(a + 3) = CLng(mbr(a))
                 Next
             End If
         End If
             
-        If uds >= 1 Then
-            If VarType(Param(1)) = vbString Then
-                If Len(Param(1)) Then CLSIDFromString StrPtr(Param(1)), .IID_User
-            Else
-                CopyMemory .IID_User, ByVal CLng(Param(1)), 16
-            End If
-        End If
-            
-        If uds >= 0 Then .Mask = Param(0)
+        If uds > 1 Then If Not IsMissing(Args(1)) Then .IID_User = GetGuid(Args(1))
+
+        If uds > 0 Then If IsNumeric(Args(0)) Then .Mask = Args(0)
     End With
-err1:
 End Sub
 
 Private Function IsEqualGUID(i1 As UUID, i2 As UUID) As Boolean

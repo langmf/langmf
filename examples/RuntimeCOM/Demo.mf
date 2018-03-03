@@ -1,0 +1,52 @@
+Declare Function CoRegisterClassObject Lib "ole32" (clsid As UUID, ByVal pUnk As IUnknown, ByVal dwClsContext As Long, ByVal Flags As Long, lpdwRegister As Long) As Long
+Declare Function CoRevokeClassObject Lib "ole32" (ByVal lpdwRegister As Long) As Long
+
+<#Module=mdlMain>
+Dim cookieObj
+
+Type UUID
+    Data1 As Long
+    Data2 As Integer
+    Data3 As Integer
+    Data4(7) As Byte
+End Type
+
+'---------------------------------------
+Sub Load(cmdLine)
+  Set obj = sys.com.create(new ICreateInstance)
+  rc = CoRegisterClassObject(sys.com.ToGUID("Atomix.Test"), ObjPtr(obj), 4, 1, cookieObj)     '"{228DFA5A-70C2-402D-8A9E-445C9407F314}"
+End Sub
+
+'---------------------------------------
+Sub Term()
+  rc = CoRevokeClassObject(cookieObj)
+  endmf 0
+End Sub
+
+'---------------------------------------
+Class Test
+  Function ok()
+    ok = "my test"
+  End Function
+  
+  Private Sub Class_Terminate()
+   Term
+  End Sub
+End Class
+
+'---------------------------------------
+Class ICreateInstance
+  Function CreateInstance(This, pUnkOuter, riid, ppvObject)
+    VType(ppvObject, True) = 3
+    CreateInstance = sys.com.QueryInterface(new Test,,ppvObject)
+  End Function
+  
+  Function LockServer(This, fLock)
+    'msgbox "lock"
+  End Function
+  
+  Function COM_Custom(This)    
+	COM_Custom = Array(, "{00000001-0000-0000-C000-000000000046}", Array(sys.callback("CreateInstance", Me, 4), sys.callback("LockServer", Me, 2)))
+  End Function
+End Class
+<#Module>

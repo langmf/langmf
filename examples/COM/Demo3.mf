@@ -18,9 +18,9 @@ Class IDispatch
   Function COM_Invoke(This, idMember, IDName, wFlags, Params, Result)    
 	msgbox "Member - " & IDName
 
-	sys.bytes.arrayredim buf, Array(127)
+	sys.bytes.arrayredim buf, Array(255)
 	pvData = Struct(VarPtr(buf) + 8, 12)
-	rc = Struct(This, Array(,,128,pvData,0))
+	rc = Struct(This, Array(,,256,pvData,0))
 	
 	with sys.file.api
 	  .fopen "test.txt"

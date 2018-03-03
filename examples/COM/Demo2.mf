@@ -3,7 +3,7 @@ Dim obj
 
 '---------------------------------------
 Sub Load(cmdLine)
-  Set obj = sys.com.create(new IDispatch)
+  Set obj = sys.com.create(new IDispatch, Array(mask_QueryInterface or mask_GetIDsOfNames))
   
   txt = "original text"
   msgbox txt
@@ -44,12 +44,8 @@ Class IDispatch
     File = "c:\example.txt"
   End Sub
   
-  Function COM_Custom(This)
-    COM_Custom = Array(mask_QueryInterface or mask_GetIDsOfNames)
-  End Function
-  
   Function COM_QueryInterface(This, riid, pvObj)
-    Select Case sys.com.GetStrIID(riid)
+    Select Case sys.com.FromGUID(riid)
       Case "{00020400-0000-0000-C000-000000000046}"       'IDispatch
         Struct(pvObj) = This
 		Struct(This, 4.0) = Struct(This, 4.0) + 1

@@ -1003,32 +1003,6 @@ Function WindowLong(ByVal hWnd As Long, Optional ByVal value As Variant, Optiona
     End If
 End Function
 
-Property Get VariantType(vrtValue As Variant, Optional ByVal isBYREF As Boolean) As Integer
-    Dim Ptr As Long, tmp As Integer, vt As Integer
-    
-    Ptr = VarPtr(vrtValue)
-    
-    Do
-        GetMem2 Ptr, vt
-        If Not isBYREF Then Exit Do
-        tmp = vt And (VT_BYREF - 1)
-        If tmp <> VT_VARIANT Then vt = tmp: Exit Do
-        If (vt And VT_BYREF) = 0 Then Exit Do
-        GetMem4 Ptr + 8, Ptr
-    Loop
-    
-    VariantType = vt
-End Property
-
-Property Let VariantType(vrtValue As Variant, Optional ByVal isBYREF As Boolean, ByVal VrtType As Integer)
-    If isBYREF Then VrtType = VrtType Or VT_BYREF
-    PutMem2 VarPtr(vrtValue), VrtType
-End Property
-
-Function AllowExecuteCode(ByVal addrCode As Long, ByVal sizeCode As Long, Optional ByVal Flag As Long = PAGE_EXECUTE_READWRITE) As Long
-    VirtualProtect addrCode, sizeCode, Flag, AllowExecuteCode
-End Function
-
 Function GEV(Optional ByVal ID As Variant) As Variant
     Dim cnt As Integer, txt() As String, Col As New clsHash
     If IsMissing(ID) Or IsEmpty(ID) Then
@@ -1070,13 +1044,6 @@ Sub PrintText(ByVal hWnd As Long, ByVal hDC As Long, Text As String, Optional By
     DeleteObject SelectObject(hDC, hTmp)
 End Sub
 
-Function MapArray(ByVal arrPtr As Long, ByVal pvData As Long) As Long
-    Dim ap As Long
-    GetMem4 arrPtr, ap
-    GetMem4 ap + 12, MapArray
-    PutMem4 ap + 12, pvData
-End Function
-
 Function LoadResDataWNull(ByVal ID As Variant, VType As Variant) As Byte()
     Dim a As Long, Buf() As Byte
     
@@ -1087,10 +1054,6 @@ Function LoadResDataWNull(ByVal ID As Variant, VType As Variant) As Byte()
     Next
     
     LoadResDataWNull = Buf
-End Function
-
-Function Deref(ByVal Ptr As Long) As Long
-    GetMem4 Ptr, Deref
 End Function
 
 Sub FileMove(fScr As String, fDest As String)
@@ -1122,6 +1085,47 @@ Function GetQV(ByVal value As String, txtFile As String) As clsHash
     Next
 End Function
 
+Property Get VariantType(vrtValue As Variant, Optional ByVal isBYREF As Boolean) As Integer
+    Dim Ptr As Long, tmp As Integer, vt As Integer
+    
+    Ptr = VarPtr(vrtValue)
+    
+    Do
+        GetMem2 Ptr, vt
+        If Not isBYREF Then Exit Do
+        tmp = vt And (VT_BYREF - 1)
+        If tmp <> VT_VARIANT Then vt = tmp: Exit Do
+        If (vt And VT_BYREF) = 0 Then Exit Do
+        GetMem4 Ptr + 8, Ptr
+    Loop
+    
+    VariantType = vt
+End Property
+
+Property Let VariantType(vrtValue As Variant, Optional ByVal isBYREF As Boolean, ByVal VrtType As Integer)
+    If isBYREF Then VrtType = VrtType Or VT_BYREF
+    PutMem2 VarPtr(vrtValue), VrtType
+End Property
+
+Function AllowExecuteCode(ByVal addrCode As Long, ByVal sizeCode As Long, Optional ByVal Flag As Long = PAGE_EXECUTE_READWRITE) As Long
+    VirtualProtect addrCode, sizeCode, Flag, AllowExecuteCode
+End Function
+
+Function MapArray(ByVal arrPtr As Long, ByVal pvData As Long) As Long
+    Dim ap As Long
+    GetMem4 arrPtr, ap
+    GetMem4 ap + 12, MapArray
+    PutMem4 ap + 12, pvData
+End Function
+
+Function Deref(ByVal Ptr As Long) As Long
+    GetMem4 Ptr, Deref
+End Function
+
+Function ObjFromIUnk(vIUnk As Variant) As ATL.IUnknown
+    If IsObject(vIUnk) Then Set ObjFromIUnk = vIUnk Else Set ObjFromIUnk = ObjFromPtr(vIUnk, True)
+End Function
+
 Function ObjFromPtr(ByVal vPtr As Long, Optional isIUnknown As Boolean = False) As Variant
     Dim VD As Object, IUnk As ATL.IUnknown
     
@@ -1129,6 +1133,16 @@ Function ObjFromPtr(ByVal vPtr As Long, Optional isIUnknown As Boolean = False) 
         CopyMem4 vPtr, IUnk:   Set ObjFromPtr = IUnk:   CopyMem4 0&, IUnk
     Else
         CopyMem4 vPtr, VD:     Set ObjFromPtr = VD:     CopyMem4 0&, VD
+    End If
+End Function
+
+Function GetGuid(value As Variant) As UUID
+    If IsMissing(value) Or IsEmpty(value) Then
+        GetGuid = IID_IUnknown
+    ElseIf VarType(value) = vbString Then
+        If Left$(value, 1) = "{" Then CLSIDFromString StrPtr(value), GetGuid Else CLSIDFromProgID StrPtr(value), GetGuid
+    ElseIf IsNumeric(value) Then
+        CopyMemory GetGuid, ByVal CLng(value), 16
     End If
 End Function
 

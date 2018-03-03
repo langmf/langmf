@@ -11,41 +11,40 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
-Option Explicit
+ Option Explicit
 
 
-Public Function Create(ByVal Wrapper As Object) As Object
-    Set Create = Create_Interface(Wrapper)
+Public Function Create(ByVal Wrapper As Object, Optional Args As Variant) As Object
+    Set Create = Create_Interface(Wrapper, Args)
+End Function
+
+Public Function QueryInterface(ByVal pIUnk As Variant, Optional ByVal vRIID As Variant, Optional pObj As Variant) As Long
+    Dim nIfc As Long
+    QueryInterface = ObjFromIUnk(pIUnk).QueryInterface(GetGuid(vRIID), nIfc)
+    pObj = nIfc
+End Function
+
+Public Function AddRef(ByVal pIUnk As Variant) As Long
+    AddRef = ObjFromIUnk(pIUnk).AddRef
+End Function
+
+Public Function Release(ByVal pIUnk As Variant) As Long
+    Release = ObjFromIUnk(pIUnk).Release
+End Function
+
+Public Function FromGUID(ByVal ptrGUID As Long) As String
+    FromGUID = String$(38, 0)
+    StringFromGUID2 ptrGUID, StrPtr(FromGUID)
+End Function
+
+Public Function ToGUID(Optional ByVal vGUID As Variant) As Long
+    Static v As UUID
+    v = GetGuid(vGUID):      ToGUID = VarPtr(v)
 End Function
 
 Public Function AddHandler(Optional ByVal Object As Object, Optional ByVal Prefix As String, Optional ByVal CallType As Long, Optional ByVal Handler As Object) As Object               'As clsAddHandler
     Set AddHandler = New clsAddHandler
     AddHandler.Init Object, Prefix, CallType, Handler
-End Function
-
-Public Function GetStrIID(ByVal ptrIID As Long) As String
-    GetStrIID = String$(38, 0)
-    StringFromGUID2 ptrIID, StrPtr(GetStrIID)
-End Function
-
-Public Function QueryInterface(ByVal pIUnk As Long, ByVal str_IID As String, ppvObject As Variant) As Long
-    Dim IUnk As ATL.IUnknown, riid As UUID, nIfc As Long
-    Set IUnk = ObjFromPtr(pIUnk, True)
-    CLSIDFromString StrPtr(str_IID), riid
-    QueryInterface = IUnk.QueryInterface(riid, nIfc)
-    ppvObject = nIfc
-End Function
-
-Public Function AddRef(ByVal pIUnk As Long) As Long
-    Dim IUnk As ATL.IUnknown
-    Set IUnk = ObjFromPtr(pIUnk, True)
-    AddRef = IUnk.AddRef
-End Function
-
-Public Function Release(ByVal pIUnk As Long) As Long
-    Dim IUnk As ATL.IUnknown
-    Set IUnk = ObjFromPtr(pIUnk, True)
-    Release = IUnk.Release
 End Function
 
 Public Function CreateInstance(ByVal txtCLSID As String, ByVal txtIID As String, Optional ByVal dwClsContext As Long = 1) As Long
@@ -91,7 +90,7 @@ Public Function Enums(ByVal value As Variant, Optional ByVal Flags As Long = -1)
     CopyMemory TA, ByVal pTA, LenB(TA)
     TI.ReleaseTypeAttr pTA
     
-    CLSID = GetStrIID(VarPtr(TA.IID))
+    CLSID = FromGUID(VarPtr(TA.IID))
     
     '-------------------------- Interface -------------------------
     With Col.Child("Interface")

@@ -118,9 +118,9 @@ End Property
 Public Function ObjFromPtr(ByVal vPtr As Long, Optional ByVal isIUnknown As Boolean = False) As Variant
     Dim VD As Object, IUnk As ATL.IUnknown
     If isIUnknown Then
-        CopyMem4 vPtr, IUnk: Set ObjFromPtr = IUnk: CopyMem4 0&, IUnk
+        CopyMem4 vPtr, IUnk:  Set ObjFromPtr = IUnk:  CopyMem4 0&, IUnk
     Else
-        CopyMem4 vPtr, VD: Set ObjFromPtr = VD: CopyMem4 0&, VD
+        CopyMem4 vPtr, VD:    Set ObjFromPtr = VD:    CopyMem4 0&, VD
     End If
 End Function
 

@@ -49,7 +49,7 @@ Public Enum type_MDL
     tpForm = 1
 End Enum
 
-Global Const mf_Sign = &H2043464D, mf_Setup = "/regsetup", mf_New = "/regnew"
+Global Const mf_Sign = &H2043464D, mf_Setup = "/regsetup", mf_New = "/regnew", mf_Embed = "-Embedding"
 Global Const mf_Hdr = vbNullChar + "-=~lmfhdr~=-" + vbNullChar
 Global Const mf_EMailDevelop = "support@langmf.ru"
 
@@ -69,7 +69,7 @@ Global mf_Counter As Integer, mf_IsEnd As Boolean, mf_Tmp As String
 
 
 Sub Main()
-    Dim stp As Boolean
+    Dim stp As Boolean, cmd As String
     
     mf_TimeLMF = timeGetTime
 
@@ -78,10 +78,12 @@ Sub Main()
 
     mf_TimeLMF = timeGetTime - mf_TimeLMF
     
-    If App.StartMode = vbSModeStandalone And Command <> mf_Setup Then
+    cmd = Command
+
+    If cmd <> mf_Embed And cmd <> mf_Setup Then
         If Not stp Then ShellSyncEx GetAppPath(True), mf_Setup, , , "runas"
         Set LMF = New LangMF
-        If Command = mf_New Then LMF.ROT Else Script_EXE:  LMF.Command Command
+        If cmd = mf_New Then LMF.ROT Else Script_EXE:  LMF.Command cmd
     End If
 End Sub
 
