@@ -5,8 +5,9 @@ Type This                  'len=128
   maskFnc As Long          'offset = 8   len=4
   objWrap As Object        'offset = 12  len=4
   idName As Variant        'offset = 16  len=16
-  IID_User As UUID         'offset = 32  len=16
-  VTable(19) As Long       'offset = 48  len=80  
+  iArgs As Variant         'offset = 32  len=16
+  IID_User As UUID         'offset = 48  len=16
+  VTable(47) As Long       'offset = 64  len=192  
 End Type
 
 Type SafeArray_1d          'len=24

@@ -42,7 +42,7 @@ Public Function Attach() As Boolean
     hr = oCP.GetConnectionInterface(IID_Event)
     If hr Then Exit Function
     
-    Set Sink = Create_Interface(Me)
+    Set Sink = Create_Interface(Me, Array(, VarPtr(IID_Event)))
 
     hr = oCP.Advise(Sink, dwCookie)
     If hr Then Exit Function
@@ -60,10 +60,6 @@ Public Sub Detach()
     Set Sink = Nothing
     bAttach = False
 End Sub
-
-Public Function COM_Custom(ByVal pThis As Long) As Variant              'no_check
-    COM_Custom = Array(, VarPtr(IID_Event))
-End Function
 
 Public Function COM_Invoke(ByVal pThis As Long, ByVal idMember As Long, ByVal IDName As String, ByVal wFlags As Long, Params() As Variant, Result As Variant) As Long              'no_check
     IDName = GetMemberName(idMember)

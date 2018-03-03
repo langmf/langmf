@@ -31,20 +31,7 @@ Class IDispatch
   End Function
   
   Function COM_Invoke(This, idMember, IDName, wFlags, Params, Result)    
-	If idMember = -4 Then Set Result = (New IEnumVARIANT)(Me)
-  End Function
-End Class
-
-Class IEnumVARIANT
-  Private cbk
-  
-  Public Default Function Create(obj)
-    Set cbk = sys.callback("IEnumVARIANT_Next", obj, 4)
-    Set Create = sys.com.Create(Me)
-  End Function
-  
-  Function COM_Custom(This)
-	COM_Custom = Array(, "{00020404-0000-0000-C000-000000000046}", Array(cbk))
+	If idMember = -4 Then Set Result = sys.com.Create(Me, Array(, "{00020404-0000-0000-C000-000000000046}", Array(sys.callback("IEnumVARIANT_Next", Me, 4))))
   End Function
 End Class
 <#Module>

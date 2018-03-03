@@ -20,7 +20,7 @@ Private oleInstance As Long, isFail As Boolean
 
 Public Sub Command(ByVal cmdLine As String)
     Dim RX As New clsRXP
-    
+
     If isFail Then Exit Sub
     
     With Info
@@ -68,7 +68,7 @@ Public Property Get Instance() As Object
         a = a + 1
         m_Wait
         Set Instance = GetObject(, "Atomix.LangMF")
-    Loop Until a > 300 Or (Not Instance Is Nothing)
+    Loop Until a > 500 Or (Not Instance Is Nothing)
     
     Instance.ROT False
 End Property

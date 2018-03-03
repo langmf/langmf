@@ -65,6 +65,7 @@ Public Sub Init(vObj As Variant, Optional ByVal vMethod As Variant = 0, Optional
     Count = vCount
 End Sub
 
+
 Private Sub Class_Terminate()
     If hMem Then CoTaskMemFree hMem
 End Sub
