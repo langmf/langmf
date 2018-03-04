@@ -169,7 +169,7 @@ Private Sub GetNamePath(ByVal hProcess As Long, txtName As String, txtPath As St
 
     If rc > 0 Then
         txtPath = Left$(txtNamePath, rc)
-        txtPath = Replace(txtPath, "\??\", "")
+        txtPath = Replace$(txtPath, "\??\", "")
         For a = 0 To 25
             If Len(txtDos(a)) Then
                 If InStr(1, txtPath, txtDos(a), vbTextCompare) = 1 Then

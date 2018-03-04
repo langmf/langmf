@@ -6,7 +6,7 @@ Sub Load(cmdLine)
     
     Set d = CreateObject("atomix.test")
 
-    MsgBox d.ok
+    MsgBox d.MyFunc
     
     endmf
 End Sub

@@ -1150,9 +1150,9 @@ Function StructFunc(ByVal This As Long, Optional vsp As Variant) As Long
     Dim a As Long, ofs As Long, dsp As Long
 
     Select Case VarType(vsp)
-        Case vbInteger, vbLong:    ofs = vsp: ReDim vsp(4): vsp(0) = ofs
-        Case vbError:              ReDim vsp(4): vsp(4) = 0
-        Case vbSingle, vbDouble:   ofs = Fix(vsp): dsp = Fix((vsp - ofs) * 10): ReDim vsp(4): vsp(0) = ofs: vsp(4) = dsp
+        Case vbInteger, vbLong:    ofs = vsp:   ReDim vsp(4):   vsp(0) = ofs
+        Case vbError:              ReDim vsp(4):   vsp(4) = 0
+        Case vbSingle, vbDouble:   ofs = Fix(vsp):  dsp = Fix((vsp - ofs) * 10):  ReDim vsp(4):  vsp(0) = ofs:  vsp(4) = dsp
     End Select
     
     'vsp(0)-offset      vsp(1)-inc offset   vsp(2)-length   vsp(3)-dst Ptr  vsp(4)-deference Ptr

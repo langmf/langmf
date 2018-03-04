@@ -1,11 +1,11 @@
 Attribute VB_Name = "modInterface"
 Option Explicit
 
-Global Const COM_Mask_QueryInterface As Long = 1
-Global Const COM_Mask_GetIDsOfNames As Long = 2
-Global Const COM_Mask_Terminate As Long = &H100&
-
-Const COM_VTable_Ofs = 64&
+Global Const COM_Mask_QueryInterface    As Long = 1
+Global Const COM_Mask_GetIDsOfNames     As Long = 2
+Global Const COM_Mask_CreateInstance    As Long = &H80
+Global Const COM_Mask_Terminate         As Long = &H100&
+Global Const COM_VTable_Offset          As Long = 64
 
 Type COM_Table
     pVTable     As Long
@@ -26,19 +26,12 @@ Private Function COM_QueryInterface(This As COM_Table, riid As UUID, pvObj As Lo
         If (.Mask And COM_Mask_QueryInterface) Then
             COM_QueryInterface = .Wrapper.COM_QueryInterface(VarPtr(This), VarPtr(riid), VarPtr(pvObj))
         Else
-            Select Case riid.Data1
-                Case IID_IDispatch.Data1:       isOK = IsEqualGUID(riid, IID_IDispatch)
-                Case IID_IUnknown.Data1:        isOK = IsEqualGUID(riid, IID_IUnknown)
-                Case .IID_User.Data1:           isOK = IsEqualGUID(riid, .IID_User)
-            End Select
-            
-            If isOK Then
-                pvObj = VarPtr(.pVTable)
-                .cRefs = .cRefs + 1
-                COM_QueryInterface = S_OK
-            Else
-                COM_QueryInterface = E_NOINTERFACE
-            End If
+            If isOK = False Then isOK = IsEqualGUID(riid, .IID_User)
+            If isOK = False Then isOK = IsEqualGUID(riid, IID_IUnknown)
+            If isOK = False Then isOK = IsEqualGUID(riid, IID_IDispatch)
+            If isOK = False Then isOK = IsEqualGUID(riid, IID_IClassFactory) And (.Mask And COM_Mask_CreateInstance)
+            If isOK = False Then COM_QueryInterface = E_NOINTERFACE:    Exit Function
+            pvObj = VarPtr(.pVTable):      .cRefs = .cRefs + 1:      COM_QueryInterface = S_OK
         End If
     End With
 End Function
@@ -63,6 +56,18 @@ Private Function COM_Release(This As COM_Table) As Long
         End If
     End With
 End Function
+
+
+Private Function COM_CreateInstance(This As COM_Table, pUnkOuter As ATL.IUnknown, riid As UUID, pObj As ATL.IUnknown) As Long
+    On Error Resume Next
+    Set pObj = This.Wrapper.COM_CreateInstance(VarPtr(This))
+End Function
+
+Private Function COM_LockServer(This As COM_Table, ByVal fLock As Long) As Long
+    On Error Resume Next
+    COM_LockServer = This.Wrapper.COM_LockServer(VarPtr(This), fLock)
+End Function
+
 
 Private Function COM_GetTypeInfoCount(This As COM_Table, pctinfo As Long) As Long
     COM_GetTypeInfoCount = E_NOTIMPL
@@ -116,10 +121,10 @@ Private Function COM_Invoke(This As COM_Table, ByVal idMember As Long, riid As U
 End Function
 
 
-Function Create_Interface(Wrapper As Object, Optional Args As Variant) As stdole.IUnknown
+Function Create_Interface(Optional Wrapper As Object, Optional Args As Variant) As stdole.IUnknown
     Dim Ptr As Long, Cts As COM_Table
     
-    If Wrapper Is Nothing Then Exit Function
+    If Wrapper Is Nothing Then Set Wrapper = CAS.CodeObject
 
     Ptr = CoTaskMemAlloc(LenB(Cts))
     If Ptr = 0 Then Exit Function
@@ -135,13 +140,12 @@ Function Create_Interface(Wrapper As Object, Optional Args As Variant) As stdole
         .VTable(5) = AddrOf(AddressOf COM_GetIDsOfNames)
         .VTable(6) = AddrOf(AddressOf COM_Invoke)
         
-        .pVTable = (Ptr Xor &H80000000) + COM_VTable_Ofs Xor &H80000000
+        .pVTable = (Ptr Xor &H80000000) + COM_VTable_Offset Xor &H80000000
         .cRefs = 1
     End With
     
     COM_Custom Cts, Args
-    If ExistsMember(Wrapper, "COM_Custom") Then COM_Custom Cts, Wrapper.COM_Custom(VarPtr(Cts))
-                
+          
     CopyMemory ByVal Ptr, Cts, LenB(Cts)
     CopyMemory Create_Interface, Ptr, 4
     ZeroMemory Cts, LenB(Cts)
@@ -149,25 +153,38 @@ End Function
 
 
 Private Sub COM_Custom(This As COM_Table, Optional Args As Variant)
-    Dim a As Long, uds As Long, mbr() As Variant
+    Dim a As Long, c As Long, uds As Long, mbr() As Variant
     
-    uds = m_ArraySize(Args):      If uds = 0 Then Exit Sub
-
-    With This
-        .iArgs = Args
-        If uds > 2 Then
-            mbr = Args(2)
-            If VerifyArrayRange(mbr, , , , 45) Then
-                For a = 0 To UBound(mbr)
-                    If IsNumeric(mbr(a)) Then .VTable(a + 3) = CLng(mbr(a))
-                Next
-            End If
+    For c = 0 To 1
+        uds = m_ArraySize(Args)
+        
+        If uds Then
+            With This
+                .iArgs = Args
+                If uds > 2 Then
+                    If IsMissing(Args(2)) Then Erase mbr Else mbr = Args(2)
+                    If VerifyArrayRange(mbr, , , , 45) Then
+                        For a = 0 To UBound(mbr)
+                            If IsNumeric(mbr(a)) Then .VTable(a + 3) = CLng(mbr(a))
+                        Next
+                    End If
+                End If
+                    
+                If uds > 1 Then If Not IsMissing(Args(1)) Then .IID_User = GetGuid(Args(1))
+        
+                If uds > 0 Then If IsNumeric(Args(0)) Then .Mask = Args(0)
+                
+                If (.Mask And COM_Mask_CreateInstance) Then
+                    .VTable(3) = AddrOf(AddressOf COM_CreateInstance)
+                    .VTable(4) = AddrOf(AddressOf COM_LockServer)
+                End If
+            End With
         End If
-            
-        If uds > 1 Then If Not IsMissing(Args(1)) Then .IID_User = GetGuid(Args(1))
-
-        If uds > 0 Then If IsNumeric(Args(0)) Then .Mask = Args(0)
-    End With
+        
+        Args = Empty
+        
+        If c = 0 Then If ExistsMember(This.Wrapper, "COM_Custom") Then Args = This.Wrapper.COM_Custom(VarPtr(This))
+    Next
 End Sub
 
 Private Function IsEqualGUID(i1 As UUID, i2 As UUID) As Boolean
