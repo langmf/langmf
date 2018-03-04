@@ -11,10 +11,10 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
- Option Explicit
+Option Explicit
 
 
-Public Function Create(ByVal Wrapper As Object, Optional Args As Variant) As Object
+Public Function Create(Optional ByVal Wrapper As Object, Optional Args As Variant) As Object
     Set Create = Create_Interface(Wrapper, Args)
 End Function
 

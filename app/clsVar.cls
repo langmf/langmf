@@ -46,12 +46,8 @@ Public Property Let MemByte(ByVal addr As Long, ByVal value As Byte)
     PutMem1 addr, value
 End Property
 
-Public Function VarByVal(ByVal ptrDst As Long, ByVal ptrSrc As Long) As Long
-    VarByVal = VariantCopyInd(ptrDst, ptrSrc)
-End Function
-
-Public Sub VarZero(vrtSrc As Variant)
-    ZeroMemory vrtSrc, 16
+Public Sub MemFill(ByVal addr As Long, Optional ByVal Size As Long = 16, Optional ByVal value As Byte)
+    FillMemory ByVal addr, Size, value
 End Sub
 
 Public Function CopyVar(srcVar As Variant, Optional dstVar As Variant, Optional ByVal Size As Long = 4, Optional ByVal srcOffset As Long = 8, Optional ByVal dstOffset As Long = 8) As Variant
@@ -59,6 +55,14 @@ Public Function CopyVar(srcVar As Variant, Optional dstVar As Variant, Optional 
     CopyMemory ByVal VBA.VarPtr(dstVar) + dstOffset, ByVal VBA.VarPtr(srcVar) + srcOffset, Size
     CopyVar = dstVar
 End Function
+
+Public Function VarByVal(ByVal addr As Long) As Variant
+    VariantCopyInd VarPtr(VarByVal), addr
+End Function
+
+Public Sub VarZero(vrtSrc As Variant)
+    ZeroMemory vrtSrc, 16
+End Sub
 
 Public Function Val(Var As Variant) As Double
     Val = VBA.Val(Var)
