@@ -30,22 +30,14 @@ Public Function Attach() As Boolean
 
     If bAttach Then Detach
 
-    Set oCPC = Object
-    If oCPC Is Nothing Then Exit Function
-
-    hr = oCPC.EnumConnectionPoints(oECP)
-    If hr Then Exit Function
-
-    hr = CallInterface(ObjPtr(oECP), 3, 3, 1, VarPtr(oCP))
-    If hr Then Exit Function
-
-    hr = oCP.GetConnectionInterface(IID_Event)
-    If hr Then Exit Function
+    Set oCPC = Object:                              If oCPC Is Nothing Then Exit Function
+    hr = oCPC.EnumConnectionPoints(oECP):           If hr Then Exit Function
+    hr = oECP.Next(1, oCP):                         If hr Then Exit Function
+    hr = oCP.GetConnectionInterface(IID_Event):     If hr Then Exit Function
     
     Set Sink = Create_Interface(Me, Array(, VarPtr(IID_Event)))
 
-    hr = oCP.Advise(Sink, dwCookie)
-    If hr Then Exit Function
+    hr = oCP.Advise(Sink, dwCookie):                If hr Then Exit Function
 
     Set oECP = Nothing
     Set oCPC = Nothing

@@ -230,7 +230,7 @@ Public Function DllGetClassObject(ByVal objPath As String, Optional ByVal objCla
             End If
             
             If f.PCall(VarPtr(CLSID), VarPtr(IID_IClassFactory), VarPtr(ICF)) = 0 Then
-                If ICF.CreateInstance(INull, IID_IUnknown, IUnk) = 0 Then Set DllGetClassObject = IUnk:     f.hLib = 0
+                If ICF.CreateInstance(INull, IID_IUnknown, IUnk) = 0 Then Set DllGetClassObject = IUnk:      f.hLib = 0
                 Set ICF = Nothing
                 Set IUnk = Nothing
             End If

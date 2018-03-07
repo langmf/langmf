@@ -13,7 +13,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 Option Explicit
 
-Private Declare Function PrintDlgA Lib "comdlg32" (pPrintdlg As def_PRINTDLG) As Long
+Private Declare Function PrintDlgW Lib "comdlg32" (pPrintdlg As def_PRINTDLG) As Long
 Private Declare Function ChooseColorW Lib "comdlg32" (pChooseColor As ChooseColor) As Long
 Private Declare Function ChooseFontW Lib "comdlg32" (pChooseFont As ChooseFont) As Long
 Private Declare Function GetSaveFileNameW Lib "comdlg32" (pOpenfilename As OPENFILENAME) As Long
@@ -26,15 +26,15 @@ Const BASIC_SHGFI_FLAGS = SHGFI_TYPENAME Or SHGFI_SHELLICONSIZE Or SHGFI_DISPLAY
 Const CF_ENABLETEMPLATE = &H10&, CF_ENABLEHOOK = &H8&, CF_APPLY = &H200&, CF_SCREENFONTS = &H1&
 Const CF_INITTOLOGFONTSTRUCT = &H40&, CF_EFFECTS = &H100&, CF_PALETTE = 9&
 
-Const PD_ALLPAGES = &H0&, PD_COLLATE = &H10&, PD_HIDEPRINTTOFILE = &H100000, PD_NOPAGENUMS = &H8&, PD_NOSELECTION = &H4&
-Const PD_PAGENUMS = &H2&, PD_PRINTSETUP = &H40&, PD_PRINTTOFILE = &H20&, PD_SELECTION = &H1&, PD_CURRENTPAGE = &H400000
+Const PD_ALLPAGES = &H0&, PD_SELECTION = &H1&, PD_PAGENUMS = &H2&, PD_NOSELECTION = &H4&, PD_NOPAGENUMS = &H8&
+Const PD_COLLATE = &H10&, PD_PRINTTOFILE = &H20&, PD_PRINTSETUP = &H40&, PD_NOWARNING = &H80&, PD_RETURNDC = &H100&
+Const PD_RETURNIC = &H200&, PD_RETURNDEFAULT = &H400&, PD_USEDEVMODECOPIES = &H40000, PD_USEDEVMODECOPIESANDCOLLATE = &H40000
+Const PD_DISABLEPRINTTOFILE = &H80000, PD_HIDEPRINTTOFILE = &H100000, PD_NONETWORKBUTTON = &H200000, PD_CURRENTPAGE = &H400000
 
-Const CCHDEVICENAME = 32&, CCHFORMNAME = 32&    'PrintDialog
-Const DM_DUPLEX = &H1000&, DM_ORIENTATION = &H1&
-
+Const CCHDEVICENAME = 64&, CCHFORMNAME = 32&, DM_DUPLEX = &H1000&, DM_ORIENTATION = &H1&
 Const GMEM_MOVEABLE = &H2&, GMEM_ZEROINIT = &H40&
 
-Private Type def_PRINTDLG 'PrintDialog
+Private Type def_PRINTDLG
     lStructSize As Long
     hwndOwner As Long
     hDevMode As Long
@@ -169,7 +169,7 @@ Private Type OPENFILENAME
     FlagsEx As Long
 End Type
 
-Public hwndOwner As Long, FromPage As Long, ToPage As Long, PrnFlag As Long
+Public hwndOwner As Long, PrnFromPage As Long, PrnToPage As Long, PrnCopies As Long, PrnFlag As Long
 
 
 Public Function ShowFont(Optional ByVal defFont As StdFont, Optional nColor As Variant = 0, Optional ByVal Flags As Long = 321) As StdFont
@@ -297,105 +297,109 @@ End Function
 Public Function ShowPrinter(Optional ByVal bNewStyle As Boolean = True, Optional ByVal Flags As Long) As Long
     Dim PD As def_PRINTDLG, dm As DEVMODE, DN As DEVNAMES, lpDevMode As Long, lpDevName As Long
     Dim RetValue As Long, objPrinter As Printer, NewPrinterName As String
-
+    
     With PD
-      .lStructSize = Len(PD)
-      .hwndOwner = IIF(bNewStyle, frmScript.hWnd, hwndOwner)
-      .hDC = GetDC(.hwndOwner)
-      .nMinPage = 1
-      .nMaxPage = 1000
-      .Flags = Flags
+        .lStructSize = Len(PD)
+        .hwndOwner = IIF(bNewStyle, frmScript.hWnd, hwndOwner)
+        .hDC = GetDC(.hwndOwner)
+        .nMinPage = 1
+        .nMaxPage = 1000
+        .Flags = Flags
     End With
-
-  ' Set the current orientation and duplex setting
+    
+    ' Set the current orientation and duplex setting
     On Error GoTo ExitSub
-
+    
     With dm
         .dmDeviceName = Printer.DeviceName
         .dmSize = Len(dm)
         .dmFields = DM_ORIENTATION Or DM_DUPLEX
-        .dmOrientation = Printer.Orientation
-         On Error Resume Next
-        .dmDuplex = Printer.Duplex
+        On Error Resume Next
+        '.dmOrientation = Printer.Orientation
+        '.dmPaperWidth = Printer.Width
+        '.dmPaperSize = Printer.PaperSize
+        '.dmDuplex = Printer.Duplex
          On Error GoTo 0
     End With
-
-  ' Allocate memory for the initialization hDevMode structure
-  ' and copy the settings gathered above into this memory
+    
+    ' Allocate memory for the initialization hDevMode structure
+    ' and copy the settings gathered above into this memory
     PD.hDevMode = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, Len(dm))
     lpDevMode = GlobalLock(PD.hDevMode)
     If lpDevMode > 0 Then
-       CopyMemory ByVal lpDevMode, dm, Len(dm)
-       RetValue = GlobalUnlock(lpDevMode)
+        CopyMemory ByVal lpDevMode, dm, Len(dm)
+        RetValue = GlobalUnlock(lpDevMode)
     End If
-
-  ' Set the current driver, device, and port Name strings
+    
+    ' Set the current driver, device, and port Name strings
     With DN
         .wDriverOffset = 8
         .wDeviceOffset = .wDriverOffset + 1 + Len(Printer.DriverName)
         .wOutputOffset = .wDeviceOffset + 1 + Len(Printer.Port)
         .wDefault = 0
     End With
-
+    
     With Printer
          DN.Extra = .DriverName & vbNullChar & .DeviceName & vbNullChar & .Port & vbNullChar
     End With
-
-  ' Allocate memory for the initial hDevName structure
-  ' and copy the settings gathered above into this memory
+    
+    ' Allocate memory for the initial hDevName structure
+    ' and copy the settings gathered above into this memory
     PD.hDevNames = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, Len(DN))
     lpDevName = GlobalLock(PD.hDevNames)
     If lpDevName > 0 Then
-       CopyMemory ByVal lpDevName, DN, Len(DN)
-       RetValue = GlobalUnlock(lpDevName)
+        CopyMemory ByVal lpDevName, DN, Len(DN)
+        RetValue = GlobalUnlock(lpDevName)
     End If
-
-  ' Call the print dialog up and let the user make changes
-    RetValue = PrintDlgA(PD)
-
+    
+    ' Call the print dialog up and let the user make changes
+    RetValue = PrintDlgW(PD)
+    
     ShowPrinter = RetValue
     
     ReleaseDC PD.hwndOwner, PD.hDC
-
+    
     If RetValue <> 0 Then
-      'mhOwner = PD.hDC
+        'mhOwner = PD.hDC
+        
+        lpDevName = GlobalLock(PD.hDevNames)
+        CopyMemory DN, ByVal lpDevName, 45
+        RetValue = GlobalUnlock(lpDevName)
+        GlobalFree PD.hDevNames
+        
+        lpDevMode = GlobalLock(PD.hDevMode)
+        CopyMemory dm, ByVal lpDevMode, Len(dm)
+        RetValue = GlobalUnlock(PD.hDevMode)
+        GlobalFree PD.hDevMode
+        
+        NewPrinterName = StrConv(dm.dmDeviceName, vbFromUnicode)
+        NewPrinterName = UCase$(Left$(NewPrinterName, InStr(NewPrinterName, vbNullChar) - 1))
+        
+        If Printer.DeviceName <> NewPrinterName Then
+            For Each objPrinter In Printers
+                If UCase$(objPrinter.DeviceName) = NewPrinterName Then Set Printer = objPrinter:   Exit For
+            Next
+        End If
+        
+        On Error Resume Next
+        
+        ' Set printer object properties according to selections made by user
+        PrnFromPage = PD.nFromPage
+        PrnToPage = PD.nToPage
+        PrnCopies = PD.nCopies
+        PrnFlag = PD.Flags
 
-      lpDevName = GlobalLock(PD.hDevNames)
-      CopyMemory DN, ByVal lpDevName, 45
-      RetValue = GlobalUnlock(lpDevName)
-      GlobalFree PD.hDevNames
-
-      lpDevMode = GlobalLock(PD.hDevMode)
-      CopyMemory dm, ByVal lpDevMode, Len(dm)
-      RetValue = GlobalUnlock(PD.hDevMode)
-      GlobalFree PD.hDevMode
-
-      NewPrinterName = UCase$(Left$(dm.dmDeviceName, InStr(dm.dmDeviceName, vbNullChar) - 1))
-
-      If Printer.DeviceName <> NewPrinterName Then
-         For Each objPrinter In Printers
-             If UCase$(objPrinter.DeviceName) = NewPrinterName Then
-                Set Printer = objPrinter
-              End If
-         Next
-      End If
-
-      On Error Resume Next
-
-    ' Set printer object properties according to selections made by user
-      FromPage = PD.nFromPage
-      ToPage = PD.nToPage
-      PrnFlag = PD.Flags
-      
-      With Printer
-          .Copies = dm.dmCopies
-          .Duplex = dm.dmDuplex
-          .Orientation = dm.dmOrientation
-          .PaperSize = dm.dmPaperSize
-          .PrintQuality = dm.dmPrintQuality
-      End With
-
-      On Error GoTo 0
+        With Printer
+            .Copies = dm.dmCopies
+            .Duplex = dm.dmDuplex
+            .Orientation = dm.dmOrientation
+            .PaperSize = dm.dmPaperSize
+            .PrintQuality = dm.dmPrintQuality
+            .ColorMode = dm.dmColor
+            .PaperBin = dm.dmDefaultSource
+        End With
+        
+        On Error GoTo 0
     End If
 
 ExitSub:
