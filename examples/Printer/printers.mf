@@ -12,9 +12,10 @@ dim prn
   Next
 
   if sys.cdlg.showprinter then
-  	  'a = sys.cdlg.FromPage
-  	  'a = sys.cdlg.ToPage
+  	  'a = sys.cdlg.PrnFromPage
+  	  'a = sys.cdlg.PrnToPage
       'a = sys.cdlg.PrnFlag
+      'a = sys.cdlg.PrnCopies
 		  	  
 	  set prn = sys.ext.printer
     	  

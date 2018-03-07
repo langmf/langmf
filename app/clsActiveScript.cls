@@ -25,7 +25,7 @@ Public Name As String, Tag As String, Language As String, SitehWnd As Long
 
 
 Private Function Init() As Long
-    Dim oUnk As ATL.IUnknown, CLSID As UUID, IID As UUID
+    Dim oUnk As IUnknown, CLSID As UUID, IID As UUID
 
     If Not IScript Is Nothing Then Exit Function
 
