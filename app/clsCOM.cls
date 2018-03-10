@@ -104,6 +104,7 @@ Public Function Enums(ByVal value As Variant, Optional ByVal Flags As Long = -1)
         .Add TA.cVars, "Vars"
         .Add TA.TYPEKIND, "Kind"
         .Add TA.wTypeFlags, "Flags"
+        .Add TA.wMajorVerNum & "." & TA.wMinorVerNum, "Ver"
     End With
     
     '-------------------------- Functions -------------------------

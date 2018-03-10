@@ -78,7 +78,7 @@ Public Function Add(ParamArray vsp() As Variant) As IObject
     If uds < 1 Then Exit Function
     
     For a = 0 To uds Step 2
-        If IsMissing(vsp(a)) Then vsp(a) = Empty
+        If Not IsObject(vsp(a)) Then If IsMissing(vsp(a)) Then vsp(a) = Empty
         Hash.Add vsp(a + 1), vsp(a)
     Next
 End Function
