@@ -140,7 +140,7 @@ Function Create_Interface(Optional Wrapper As Object, Optional Args As Variant) 
         .VTable(5) = AddrOf(AddressOf COM_GetIDsOfNames)
         .VTable(6) = AddrOf(AddressOf COM_Invoke)
         
-        .pVTable = (Ptr Xor &H80000000) + COM_VTable_Offset Xor &H80000000
+        .pVTable = ((Ptr Xor &H80000000) + COM_VTable_Offset) Xor &H80000000
         .cRefs = 1
     End With
     

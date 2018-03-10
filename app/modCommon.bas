@@ -468,8 +468,10 @@ Sub m_ParamArray(Param As Variant, ParamArray vsp() As Variant)
     End If
     
     For a = 0 To uds
-        If IsEmpty(Param(a)) Or IsMissing(Param(a)) Then
-            If IsObject(vsp(a)) Then Set Param(a) = vsp(a) Else Param(a) = vsp(a)
+        If Not IsObject(Param(a)) Then
+            If IsEmpty(Param(a)) Or IsMissing(Param(a)) Then
+                If IsObject(vsp(a)) Then Set Param(a) = vsp(a) Else Param(a) = vsp(a)
+            End If
         End If
     Next
 End Sub

@@ -101,14 +101,17 @@ Attribute PCall.VB_UserMemId = 0
     End If
 End Function
 
-Public Function VTable(Optional ByVal Entry As Long = 0, Optional ByVal Obj As Long = 0) As Long
-    Dim ptrVTable As Long
-    
-    If Obj <> 0 Then ptrVTable = Obj Else ptrVTable = ptrIfc
-    
-    GetMem4 ptrVTable, ptrVTable
-    GetMem4 ptrVTable + Entry * 4, VTable
-End Function
+Public Property Get VTable(Optional ByVal Entry As Long, Optional ByVal Obj As Variant) As Long
+    Dim Ptr As Long
+    If IsObject(Obj) Then Ptr = ObjPtr(Obj) Else If IsMissing(Obj) Then Ptr = ptrIfc Else Ptr = Obj
+    GetMem4 Ptr, Ptr:    Ptr = Ptr + Entry * 4:    GetMem4 Ptr, VTable
+End Property
+
+Public Property Let VTable(Optional ByVal Entry As Long, Optional ByVal Obj As Variant, ByVal value As Long)
+    Dim Ptr As Long
+    If IsObject(Obj) Then Ptr = ObjPtr(Obj) Else If IsMissing(Obj) Then Ptr = ptrIfc Else Ptr = Obj
+    GetMem4 Ptr, Ptr:    Ptr = Ptr + Entry * 4:    AllowExecuteCode Ptr, 4:    PutMem4 Ptr, value
+End Property
 
 Public Function GetBuffer() As Byte()
     GetBuffer = btFnc
@@ -116,7 +119,6 @@ End Function
 
 Public Sub SetBuffer(Buf As Variant)
     Dim tmpBuf() As Byte
-    
     If ConvToBufferByte(Buf, tmpBuf) Then
         ReDim Preserve tmpBuf(UBound(btFnc))
         CopyMemory btFnc(0), tmpBuf(0), UBound(btFnc) + 1
