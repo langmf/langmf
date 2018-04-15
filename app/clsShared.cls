@@ -56,6 +56,10 @@ Public Sub GCircle(ByVal Obj As Object, ByVal x1 As Single, ByVal y1 As Single, 
     If cStart = -10 And cEnd = -10 And cAspect = -10 Then Obj.Circle (x1, y1), radius, Color Else Obj.Circle (x1, y1), radius, Color, cStart, cEnd, cAspect
 End Sub
 
+Public Function QBColor(ByVal value As Integer) As Long
+    If value >= 0 Then QBColor = VBA.QBColor(value) Else QBColor = GetSysColor(Abs(value) And 255)
+End Function
+
 Public Property Get vbPX() As Single
     vbPX = Screen.TwipsPerPixelX
 End Property
@@ -73,24 +77,16 @@ Public Property Get vbDC(ByVal nIndex As Long, Optional ByVal hDC As Long) As Lo
     vbDC = GetDeviceCaps(hDC, nIndex)
 End Property
 
-Public Function QBColor(ByVal value As Integer) As Long
-    If value >= 0 Then QBColor = VBA.QBColor(value) Else QBColor = GetSysColor(Abs(value) And 255)
-End Function
-
-Public Function IIF(varIF As Variant, var1 As Variant, var2 As Variant) As Variant
-    If varIF Then
-        If IsObject(var1) Then Set IIF = var1 Else IIF = var1
-    Else
-        If IsObject(var2) Then Set IIF = var2 Else IIF = var2
-    End If
-End Function
-
 Public Function StrConv(ByVal txt As String, ByVal typeStr As Integer, Optional ByVal LocaleID As Long = -1) As String
     If LocaleID = -1 Then StrConv = VBA.StrConv(txt, typeStr) Else StrConv = VBA.StrConv(txt, typeStr, LocaleID)
 End Function
 
 Public Function Format(ByVal txt As String, ByVal fmt As String) As String
     Format = VBA.Format$(txt, fmt)
+End Function
+
+Public Function Val(Var As Variant) As Double
+    Val = VBA.Val(Var)
 End Function
 
 Public Function StrPtr(Var As Variant, Optional ByVal bEmptyToAlloc As Boolean = False) As Long
@@ -219,6 +215,14 @@ End Function
 Public Function ArrayParam(ByVal dummy As Long, ParamArray Args() As Variant) As Variant()
     Dim p As Long
     GetMem4 VBA.VarPtr(dummy) + 4, p:   GetMem4 p, dummy:   PutMem4 VarPtrArray(ArrayParam), dummy:   PutMem4 p, 0&
+End Function
+
+Public Function IIF(varIF As Variant, var1 As Variant, var2 As Variant) As Variant
+    If varIF Then
+        If IsObject(var1) Then Set IIF = var1 Else IIF = var1
+    Else
+        If IsObject(var2) Then Set IIF = var2 Else IIF = var2
+    End If
 End Function
 
 Public Property Get ResToPic(ByVal Key As String) As IPictureDisp

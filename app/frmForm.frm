@@ -448,14 +448,6 @@ Private Sub Check_KeyPress(Index As Integer, KeyAscii As Integer)
     Events "Check" & Index & "_KeyPress", KeyAscii
 End Sub
 
-Private Sub Check_MouseDown(Index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
-    Events "Check" & Index & "_MouseDown", Button, Shift, x, y
-End Sub
-
-Private Sub Check_MouseUp(Index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
-    Events "Check" & Index & "_MouseUp", Button, Shift, x, y
-End Sub
-
 
 '========================= Opt ===========================
 Private Sub Opt_Click(Index As Integer)
@@ -472,14 +464,6 @@ End Sub
 
 Private Sub Opt_KeyPress(Index As Integer, KeyAscii As Integer)
     Events "Opt" & Index & "_KeyPress", KeyAscii
-End Sub
-
-Private Sub Opt_MouseDown(Index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
-    Events "Opt" & Index & "_MouseDown", Button, Shift, x, y
-End Sub
-
-Private Sub Opt_MouseUp(Index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
-    Events "Opt" & Index & "_MouseUp", Button, Shift, x, y
 End Sub
 
 
@@ -522,6 +506,14 @@ End Sub
 
 Private Sub Combo_Scroll(Index As Integer)
     Events "Combo" & Index & "_Scroll"
+End Sub
+
+Private Sub Combo_GotFocus(Index As Integer)
+    Events "Combo" & Index & "_GotFocus"
+End Sub
+
+Private Sub Combo_LostFocus(Index As Integer)
+    Events "Combo" & Index & "_LostFocus"
 End Sub
 
 Private Sub Combo_Validate(Index As Integer, Cancel As Boolean)
@@ -996,6 +988,14 @@ Private Sub Text_OLEDragOver(Index As Integer, Data As DataObject, Effect As Lon
     Events "Text" & Index & "_OLEDragOver", Data, Effect, Button, Shift, x, y, State
 End Sub
 
+Private Sub Text_GotFocus(Index As Integer)
+    Events "Text" & Index & "_GotFocus"
+End Sub
+
+Private Sub Text_LostFocus(Index As Integer)
+    Events "Text" & Index & "_LostFocus"
+End Sub
+
 Private Sub Text_Validate(Index As Integer, Cancel As Boolean)
     Cancel = Events("Text" & Index & "_Validate")
 End Sub
@@ -1050,6 +1050,14 @@ Private Sub MText_OLEDragOver(Index As Integer, Data As DataObject, Effect As Lo
     Events "MText" & Index & "_OLEDragOver", Data, Effect, Button, Shift, x, y, State
 End Sub
 
+Private Sub MText_GotFocus(Index As Integer)
+    Events "MText" & Index & "_GotFocus"
+End Sub
+
+Private Sub MText_LostFocus(Index As Integer)
+    Events "MText" & Index & "_LostFocus"
+End Sub
+
 Private Sub MText_Validate(Index As Integer, Cancel As Boolean)
     Cancel = Events("MText" & Index & "_Validate")
 End Sub
@@ -1102,6 +1110,14 @@ End Sub
 
 Private Sub TextBox_OLEDragOver(Index As Integer, Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, y As Single, State As Integer)
     Events "TextBox" & Index & "_OLEDragOver", Data, Effect, Button, Shift, x, y, State
+End Sub
+
+Private Sub TextBox_GotFocus(Index As Integer)
+    Events "TextBox" & Index & "_GotFocus"
+End Sub
+
+Private Sub TextBox_LostFocus(Index As Integer)
+    Events "TextBox" & Index & "_LostFocus"
 End Sub
 
 Private Sub TextBox_Validate(Index As Integer, Cancel As Boolean)
@@ -1300,8 +1316,8 @@ End Function
 '====================================================================================
 Public Function Events(nEvent As String, ParamArray Args() As Variant) As Variant
     On Error Resume Next
+    If Not m_onEvent Is Nothing Then nEvent = m_onEvent(Me, nEvent, CVar(Args))
     If m_CodeObject Is Nothing Then Exit Function
-    If Not m_onEvent Is Nothing Then nEvent = m_onEvent(Me, nEvent)
     If ExistsMember(m_CodeObject, nEvent) = False Then Exit Function
     Events = CBN(m_CodeObject, nEvent, m_CT, Args)
 End Function

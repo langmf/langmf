@@ -6,7 +6,7 @@ Private Type tagInitCommonControlsEx
     lngICC As Long
 End Type
 
-Private Declare Function InitCommonControlsEx Lib "comctl32.dll" (iccex As tagInitCommonControlsEx) As Boolean
+Private Declare Function InitCommonControlsEx Lib "comctl32" (iccex As tagInitCommonControlsEx) As Boolean
 
 Sub InitCommonControlsXP()
     Dim iccex As tagInitCommonControlsEx

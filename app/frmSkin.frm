@@ -45,9 +45,6 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
-Private Declare Function GetWindowRect Lib "user32" (ByVal hWnd As Long, lpRect As RECT) As Long
-Private Declare Function WindowFromPoint Lib "user32" (ByVal xPoint As Long, ByVal yPoint As Long) As Long
-
 Private m_Child As Boolean, m_Hover As Integer
 
 Public Parent As frmForm, Bag As Variant, OverOutX As Long, OverOutY As Long

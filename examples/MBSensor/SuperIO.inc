@@ -91,14 +91,14 @@ Class SIO_CommonFunc
             case "D" : PortIO(sioDataRW) = lxm(1)
             case "W"
                 lxm2 = split(lxm(1), ",")
-                lxm2(0) = sys.var.val(trim(lxm2(0)))
-                lxm2(1) = sys.var.val(trim(lxm2(1)))
+                lxm2(0) = val(trim(lxm2(0)))
+                lxm2(1) = val(trim(lxm2(1)))
                 Call SIO_Write(lxm2(0), lxm2(1))
             case "IF"
                 lxm2 = split(lxm(1), ",")
-                lxm2(0) = sys.var.val(trim(lxm2(0)))
-                lxm2(1) = sys.var.val(trim(lxm2(1)))
-                lxm2(2) = sys.var.val(trim(lxm2(2)))
+                lxm2(0) = val(trim(lxm2(0)))
+                lxm2(1) = val(trim(lxm2(1)))
+                lxm2(2) = val(trim(lxm2(2)))
                 If sioRegRW = lxm2(0) Then PortIO(sioRegRW) = lxm2(1) else PortIO(sioRegRW) = lxm2(2)
         end select
         next

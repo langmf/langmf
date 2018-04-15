@@ -57,6 +57,7 @@ Declare Function SetWindowPos Lib "user32" (ByVal hWnd As Long, ByVal hWndInsert
 Declare Function SetWindowRgn Lib "user32" (ByVal hWnd As Long, ByVal hRgn As Long, ByVal bRedraw As Boolean) As Long
 Declare Function GetClassNameW Lib "user32" (ByVal hWnd As Long, ByVal ClassName As Long, ByVal classlength As Long) As Long
 Declare Function GetClientRect Lib "user32" (ByVal hWnd As Long, lpRect As RECT) As Long
+Declare Function GetWindowRect Lib "user32" (ByVal hWnd As Long, lpRect As RECT) As Long
 Declare Function DestroyWindow Lib "user32" (ByVal hWnd As Long) As Long
 Declare Function GetMenuItemID Lib "user32" (ByVal hMenu As Long, ByVal nPos As Long) As Long
 Declare Function GetSystemMenu Lib "user32" (ByVal hWnd As Long, ByVal bRevert As Long) As Long
@@ -72,6 +73,7 @@ Declare Function EnableMenuItem Lib "user32" (ByVal hMenu As Long, ByVal wIDEnab
 Declare Function ReleaseCapture Lib "user32" () As Long
 Declare Function CreatePopupMenu Lib "user32" () As Long
 Declare Function IsWindowVisible Lib "user32" (ByVal hWnd As Long) As Long
+Declare Function WindowFromPoint Lib "user32" (ByVal xPoint As Long, ByVal yPoint As Long) As Long
 Declare Function CreateWindowExW Lib "user32" (ByVal dwExStyle As Long, ByVal lpClassName As Long, ByVal lpWindowName As Long, ByVal dwStyle As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hWndParent As Long, ByVal hMenu As Long, ByVal hInstance As Long, ByVal lpParam As Long) As Long
 Declare Function CallWindowProcA Lib "user32" (ByVal lpPrevWndFunc As Long, ByVal hWnd As Long, ByVal Msg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
 Declare Function DispatchMessageA Lib "user32" (lpMsg As WNDMsg) As Long
@@ -310,10 +312,13 @@ Global Const WM_SETICON             As Long = &H80
 Global Const WM_MOUSEMOVE           As Long = &H200&
 Global Const WM_LBUTTONDOWN         As Long = &H201&
 Global Const WM_LBUTTONUP           As Long = &H202&
+Global Const WM_LBUTTONDBLCLK       As Long = &H203&
+Global Const WM_RBUTTONDOWN         As Long = &H204&
+Global Const WM_RBUTTONUP           As Long = &H205&
+Global Const WM_RBUTTONDBLCLK       As Long = &H206&
 Global Const WM_MBUTTONDOWN         As Long = &H207&
 Global Const WM_MBUTTONUP           As Long = &H208&
-Global Const WM_RBUTTONDOWN         As Long = &H2047
-Global Const WM_RBUTTONUP           As Long = &H2057
+Global Const WM_MBUTTONDBLCLK       As Long = &H209&
 Global Const WM_SETFONT             As Long = &H30
 Global Const WM_GETTEXT             As Long = &HD
 Global Const WM_GETTEXTLENGTH       As Long = &HE

@@ -26,7 +26,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
-Private Declare Function Shell_NotifyIcon Lib "Shell32.dll" Alias "Shell_NotifyIconA" (ByVal dwMessage As Long, lpData As NOTIFYICONDATA) As Long
+Private Declare Function Shell_NotifyIcon Lib "shell32" Alias "Shell_NotifyIconA" (ByVal dwMessage As Long, lpData As NOTIFYICONDATA) As Long
 
 Private Type NOTIFYICONDATA
     cbSize As Long
@@ -44,61 +44,21 @@ Private Type NOTIFYICONDATA
     dwInfoFlags As Long
 End Type
 
+Private Const NIB_SHOW = (WM_USER + 2), NIB_HIDE = (WM_USER + 3), NIB_TIMEOUT = (WM_USER + 4), NIB_USERCLICK = (WM_USER + 5)
+Private Const NIIF_NONE = 0&, NIIF_INFO = 1&, NIIF_WARNING = 2&, NIIF_ERROR = 3&, NIIF_NOSOUND = &H10&
+Private Const NIM_ADD = 0&, NIM_MODIFY = 1&, NIM_DELETE = 2&, NIM_SETFOCUS = 3&, NIM_SETVERSION = 4&
+Private Const NIF_MESSAGE = 1&, NIF_ICON = 2&, NIF_TIP = 4&, NIF_INFO = &H10&
 
-Private Const NIM_ADD = 0&
-Private Const NIM_MODIFY = 1&
-Private Const NIM_DELETE = 2&
-Private Const NIM_SETFOCUS = 3&
-Private Const NIM_SETVERSION = 4&
+Private m_Show As Boolean, m_Tip As String, m_Visible As Boolean, m_Balloon As Boolean
+Private m_Icon As StdPicture, m_IconDef As StdPicture
 
-Private Const NIF_MESSAGE = 1&
-Private Const NIF_ICON = 2&
-Private Const NIF_TIP = 4&
-Private Const NIF_INFO = &H10&
-
-Private Const WM_USER = &H400&
-
-Private Const WM_MOUSEMOVE = &H200&
-Private Const WM_LBUTTONDBLCLK = &H203&
-Private Const WM_LBUTTONDOWN = &H201&
-Private Const WM_LBUTTONUP = &H202&
-Private Const WM_RBUTTONDBLCLK = &H206&
-Private Const WM_RBUTTONDOWN = &H204&
-Private Const WM_RBUTTONUP = &H205&
-Private Const WM_MBUTTONDBLCLK = &H209&
-Private Const WM_MBUTTONDOWN = &H207&
-Private Const WM_MBUTTONUP = &H208&
-
-Private Const NIN_BALLOONSHOW = (WM_USER + 2)
-Private Const NIN_BALLOONHIDE = (WM_USER + 3)
-Private Const NIN_BALLOONTIMEOUT = (WM_USER + 4)
-Private Const NIN_BALLOONUSERCLICK = (WM_USER + 5)
-
-Private Enum EBalloonIconTypes
-   NIIF_NONE = 0&
-   NIIF_INFO = 1&
-   NIIF_WARNING = 2&
-   NIIF_ERROR = 3&
-   NIIF_NOSOUND = &H10&
-End Enum
-
-Private gInTray As Boolean
-Private gTrayTip As String
-Private gTrayIcon As StdPicture
-Private gAddedToTray As Boolean
-Private gBalloon As Boolean
-
-Private def_TrayIcon As StdPicture
-
-Public Parent As frmForm
-Public Anim As New Collection
-Public Counter As Long
+Public Parent As frmForm, Anim As New Collection, Counter As Long
 
 
-Public Sub Balloon(Optional ByVal strMessage As String, Optional ByVal strTitle As String = "Info", Optional ByVal typeIcon As Integer = 1)
+Public Sub Balloon(Optional ByVal strMessage As String, Optional ByVal strTitle As String = "Info", Optional ByVal typeIcon As Long = 1)
     Dim Tray As NOTIFYICONDATA
 
-    If LenB(strMessage) > 0 And gBalloon = True Then Exit Sub
+    If LenB(strMessage) > 0 And m_Balloon = True Then Exit Sub
     
     With Tray
         .uFlags = NIF_INFO
@@ -108,81 +68,89 @@ Public Sub Balloon(Optional ByVal strMessage As String, Optional ByVal strTitle 
         .dwInfoFlags = typeIcon
     End With
 
-    Call Send(NIM_MODIFY, Tray)
+    Call Send(Tray)
 End Sub
 
 Public Sub TrayPlay()
     If Timer.Enabled Or Anim.Count = 0 Then Exit Sub
-    If def_TrayIcon Is Nothing Then Set def_TrayIcon = gTrayIcon
+    If m_IconDef Is Nothing Then Set m_IconDef = m_Icon
     Set TrayIcon = Anim.Item(1)
     Timer.Enabled = True
 End Sub
 
 Public Sub TrayStop()
     Timer.Enabled = False
-    If Not def_TrayIcon Is Nothing Then Set TrayIcon = def_TrayIcon: Set def_TrayIcon = Nothing
+    If Not m_IconDef Is Nothing Then Set TrayIcon = m_IconDef:  Set m_IconDef = Nothing
     Counter = 1
 End Sub
 
-Public Property Set TrayIcon(Ico As StdPicture)
+Public Property Set TrayIcon(vIcon As StdPicture)
     Dim Tray As NOTIFYICONDATA
-
-    If Not (Ico Is Nothing) Then
-        If (Ico.Type = vbPicTypeIcon) Then
-            If gAddedToTray Then
-                Tray.hIcon = Ico
-                Tray.uFlags = NIF_ICON
-                Call Send(NIM_MODIFY, Tray)
-            End If
-    
-            Set gTrayIcon = Ico
+    If Not (vIcon Is Nothing) Then
+        If (vIcon.Type = vbPicTypeIcon) Then
+            If m_Visible Then Tray.hIcon = vIcon:       Tray.uFlags = NIF_ICON:      Call Send(Tray)
+            Set m_Icon = vIcon
         End If
     End If
 End Property
 
 Public Property Get TrayIcon() As StdPicture
-    Set TrayIcon = gTrayIcon
+    Set TrayIcon = m_Icon
 End Property
 
-Public Property Let TrayTip(ByVal Tip As String)
+Public Property Let TrayTip(ByVal vTip As String)
     Dim Tray As NOTIFYICONDATA
-
-    If gAddedToTray Then
-        Tray.szTip = Tip & vbNullChar
-        Tray.uFlags = NIF_TIP
-        Call Send(NIM_MODIFY, Tray)
-    End If
-    
-    gTrayTip = Tip
+    If m_Visible Then Tray.szTip = vTip & vbNullChar:    Tray.uFlags = NIF_TIP:     Call Send(Tray)
+    m_Tip = vTip
 End Property
 
 Public Property Get TrayTip() As String
-    TrayTip = gTrayTip
+    TrayTip = m_Tip
 End Property
 
-Public Property Let InTray(ByVal Show As Boolean)
-    If (Show <> gInTray) Then
-        If Show Then
-                AddIcon TrayTip, TrayIcon
-                gAddedToTray = True
+Public Property Let InTray(ByVal vShow As Boolean)
+    If (vShow <> m_Show) Then
+        If vShow Then
+            AddIcon TrayTip, TrayIcon
+            m_Visible = True
         Else
-            If gAddedToTray Then
+            If m_Visible Then
                 DeleteIcon
-                gAddedToTray = False
+                m_Visible = False
             End If
         End If
         
-        gInTray = Show
+        m_Show = vShow
     End If
 End Property
 
 Public Property Get InTray() As Boolean
-    InTray = gInTray
+    InTray = m_Show
 End Property
+
+Private Sub AddIcon(vTip As String, vIcon As StdPicture)
+    Dim Tray As NOTIFYICONDATA
+    With Tray
+        .uFlags = NIF_MESSAGE
+        If Not (vIcon Is Nothing) Then .hIcon = vIcon:      .uFlags = .uFlags Or NIF_ICON:      Set m_Icon = vIcon
+        If LenB(vTip) Then .szTip = vTip & vbNullChar:      .uFlags = .uFlags Or NIF_TIP:       m_Tip = vTip
+    End With
+    Call Send(Tray, NIM_ADD)
+End Sub
+
+Private Sub DeleteIcon()
+    Dim Tray As NOTIFYICONDATA
+    Call Send(Tray, NIM_DELETE)
+End Sub
+
+Private Function Send(Tray As NOTIFYICONDATA, Optional ByVal dwMsg As Long = NIM_MODIFY) As Long
+    With Tray:      .cbSize = Len(Tray):    .hWnd = Me.hWnd:    .uCallbackMessage = WM_MOUSEMOVE:       End With
+    Send = Shell_NotifyIcon(dwMsg, Tray)
+End Function
 
 Private Sub Timer_Timer()
     On Error Resume Next
-    If def_TrayIcon Is Nothing Then Set def_TrayIcon = gTrayIcon
+    If m_IconDef Is Nothing Then Set m_IconDef = m_Icon
     Parent.Events "Tray_Anim"
     If Counter < 1 Then Counter = 1
     If Counter > Anim.Count - 1 Then Counter = 1
@@ -190,47 +158,9 @@ Private Sub Timer_Timer()
     Counter = Counter + 1
 End Sub
 
-Private Sub AddIcon(Tip As String, Ico As StdPicture)
-    Dim Tray As NOTIFYICONDATA
-
-    With Tray
-        .uFlags = NIF_MESSAGE
-    
-        If Not (Ico Is Nothing) Then
-            .hIcon = Ico
-            .uFlags = .uFlags Or NIF_ICON
-            Set gTrayIcon = Ico
-        End If
-        
-        If LenB(Tip) Then
-            .szTip = Tip & vbNullChar
-            .uFlags = .uFlags Or NIF_TIP
-            gTrayTip = Tip
-        End If
-    End With
-
-    Call Send(NIM_ADD, Tray)
-End Sub
-
-Private Sub DeleteIcon()
-    Dim Tray As NOTIFYICONDATA
-    Call Send(NIM_DELETE, Tray)
-End Sub
-
-Private Function Send(dwMsg As Long, Tray As NOTIFYICONDATA) As Long
-    With Tray
-        .hWnd = Me.hWnd
-        .uCallbackMessage = WM_MOUSEMOVE
-        .cbSize = Len(Tray)
-    End With
-    Send = Shell_NotifyIcon(dwMsg, Tray)
-End Function
-
 Private Sub Form_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
     Dim lX As Long
-    
     lX = ScaleX(x, Me.ScaleMode, vbPixels)
-    
     Select Case lX
         Case WM_MOUSEMOVE:          Parent.Events "Tray_MouseMove"
         
@@ -246,10 +176,10 @@ Private Sub Form_MouseMove(Button As Integer, Shift As Integer, x As Single, y A
         Case WM_MBUTTONUP:          Parent.Events "Tray_MouseUp", vbMiddleButton
         Case WM_MBUTTONDBLCLK:      Parent.Events "Tray_DblClick", vbMiddleButton
          
-        Case NIN_BALLOONSHOW:       Parent.Events "Tray_BalloonShow": gBalloon = True
-        Case NIN_BALLOONHIDE:       Parent.Events "Tray_BalloonHide": gBalloon = False
-        Case NIN_BALLOONTIMEOUT:    Parent.Events "Tray_BalloonTimeout": gBalloon = False
-        Case NIN_BALLOONUSERCLICK:  Parent.Events "Tray_BalloonClick": gBalloon = False
+        Case NIB_SHOW:              Parent.Events "Tray_BalloonShow":     m_Balloon = True
+        Case NIB_HIDE:              Parent.Events "Tray_BalloonHide":     m_Balloon = False
+        Case NIB_TIMEOUT:           Parent.Events "Tray_BalloonTimeout":  m_Balloon = False
+        Case NIB_USERCLICK:         Parent.Events "Tray_BalloonClick":    m_Balloon = False
     End Select
 End Sub
 
