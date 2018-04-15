@@ -1,0 +1,48 @@
+<#Module=mdlCompare>
+Sub Load(cmdLine)
+    With form
+        .width = 6000
+        .height = 4500
+
+        .add "label",1, ".move 1716, 0, 1768, 376"
+        .add "command",1, ".move 1716, 3200, 1768, 376"
+        
+        .add "text",1, ".move 1716, 432, 1768, 376"
+        .add "text",2, ".move 1716, 1140, 1768, 376"
+        .add "text",3, ".move 1716, 1800, 1768, 376"
+        .add "text",4, ".move 1716, 2400, 1768, 376"
+
+        .Center
+        .show
+    End With
+End Sub
+<#Module>
+
+<#Form=form>
+Function onEvent(frm, events, args)
+    onEvent = events
+
+    'If (vbSM(94) And &H81) <> &H81 Then Exit Function
+    If Not events =~ i/(text)(\d+)_(click|keyup)// Then Exit Function
+
+    If $$3 = "KeyUp" Then
+        If args(0) = 13 Then
+            const WM_SYSCOMMAND = 274, SC_CLOSE = 61536
+            hwnd = DllCall("user32", "FindWindowA", "IPTip_Main_Window", vbNullString)
+            DllCall "user32", "PostMessageA", hwnd, WM_SYSCOMMAND, SC_CLOSE, 0
+        End If
+    ElseIf $$3 = "Click" Then
+        'DllCall "kernel32", "Wow64EnableWow64FsRedirection", False
+        sys.ext.shell_syncex "C:\Program Files\Common Files\microsoft shared\ink\TabTip.exe"
+        'DllCall "kernel32", "Wow64EnableWow64FsRedirection", True
+    End If
+End Function
+
+Sub Form_Load()
+    set this.onevent = GetRef("onEvent")
+End Sub
+
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

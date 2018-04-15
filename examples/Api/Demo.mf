@@ -24,7 +24,7 @@ Sub Form_Load()
 End Sub
 
 '---------------------------------
-Function Test(frm, evt)
+Function Test(frm, evt, arg)
   Test = Replace(evt, "Command1_", "C1_")
 End Function
 

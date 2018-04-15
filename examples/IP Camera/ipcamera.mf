@@ -37,7 +37,7 @@ Sub ScanImages(txt)
 	isLastImages = False
 	
 	for each m in mts
-		sz = sys.var.val(m.Submatches(0))
+		sz = val(m.Submatches(0))
 		
 		if sz > 80 then
 			lnk = path & m.submatches(2)

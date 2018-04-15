@@ -64,10 +64,6 @@ Public Sub VarZero(vrtSrc As Variant)
     ZeroMemory vrtSrc, 16
 End Sub
 
-Public Function Val(Var As Variant) As Double
-    Val = VBA.Val(Var)
-End Function
-
 Public Function CVar2(Var As Variant) As Variant
     CVar2 = CVar(Var)
 End Function
