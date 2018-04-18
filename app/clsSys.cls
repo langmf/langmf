@@ -301,7 +301,7 @@ Public Function Content(ByVal value As String, Optional ByVal bString As Boolean
             With Net.XMLHTTP(value)
                 If m_ArraySize(.responseBody) = 0 Then Exit Function
                 Buf = .responseBody
-                If bString Then Content = Int_A2W_Buf(Buf) Else Content = Buf
+                If bString Then Content = Conv_A2W_Buf(Buf) Else Content = Buf
             End With
     
         Case "res://"
@@ -309,7 +309,7 @@ Public Function Content(ByVal value As String, Optional ByVal bString As Boolean
         
         Case "file://", ""
             If m_File2Buf(Buf, tmp) Then
-                If bString Then Content = Int_A2W_Buf(Buf) Else Content = Buf
+                If bString Then Content = Conv_A2W_Buf(Buf) Else Content = Buf
             End If
     End Select
 End Function

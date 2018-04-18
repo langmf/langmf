@@ -64,7 +64,7 @@ Attribute PCall.VB_UserMemId = 0
                 cnt = cnt + 1
             Next
         ElseIf t(a) = vbString Then
-            If Not Unicode Then Params(a) = StrConv(Params(a), vbFromUnicode)
+            If Not Unicode Then Params(a) = Conv_W2A_Str(CStr(Params(a)))
             AddPush StrPtr(Params(a))             ' PUSH dword
             cnt = cnt + 1
         Else
@@ -96,7 +96,7 @@ Attribute PCall.VB_UserMemId = 0
     
     If Not Unicode Then
         For a = uds To cntEnd Step -1
-            If t(a) = vbString Then Params(a) = StrConv(Params(a), vbUnicode)
+            If t(a) = vbString Then Params(a) = Conv_A2W_Str(CStr(Params(a)))
         Next
     End If
 End Function

@@ -98,7 +98,7 @@ Function SetupLMF() As Boolean
 
     For Each v In clsNR.EnumResource(GetAppPath(True), 10)
         If VarType(v) = vbString Then
-        
+
             Set Prm = GetQV(v, fName)
             fName = GetSystemPath + "\" + LCase$(fName)
             
@@ -353,7 +353,7 @@ Function Parse_Data_Mode(PCD As def_ParseCustom, Mode As String, Optional cd As 
     
     If InStr(Mode, "base64") Then
         If Len(PCD.Data) Then
-            If Not isBuf Then tmpBuf = Int_W2A_Buf(PCD.Data)
+            If Not isBuf Then tmpBuf = Conv_W2A_Buf(PCD.Data)
             tmpBuf = Base64.Decode(tmpBuf, vExtra)
             If Not cd Is Nothing Then cd.Extra = vExtra
         End If
@@ -362,14 +362,14 @@ Function Parse_Data_Mode(PCD As def_ParseCustom, Mode As String, Optional cd As 
     
     If InStr(Mode, "zlib") Then
         If Len(PCD.Data) Then
-            If Not isBuf Then tmpBuf = Int_W2A_Buf(PCD.Data)
+            If Not isBuf Then tmpBuf = Conv_W2A_Buf(PCD.Data)
             DecompressData tmpBuf
         End If
         isBuf = True
     End If
     
     If InStr(Mode, "bin") Then
-        If Len(PCD.Data) > 0 And isBuf = False Then tmpBuf = Int_W2A_Buf(PCD.Data)
+        If Len(PCD.Data) > 0 And isBuf = False Then tmpBuf = Conv_W2A_Buf(PCD.Data)
         isBuf = True
     End If
     
@@ -378,7 +378,7 @@ Function Parse_Data_Mode(PCD As def_ParseCustom, Mode As String, Optional cd As 
     End If
     
     If isBuf Then
-        If bString Then Parse_Data_Mode = Int_A2W_Buf(tmpBuf) Else Parse_Data_Mode = tmpBuf
+        If bString Then Parse_Data_Mode = Conv_A2W_Buf(tmpBuf) Else Parse_Data_Mode = tmpBuf
     Else
         Parse_Data_Mode = PCD.Data
     End If
@@ -1225,7 +1225,7 @@ Function CompressMF(ByVal fName As String, Optional VExt As Variant, Optional By
                 n = a * 2 + 1
                 HExt(a).HeaderID = CLng(VExt(n - 1))
                 HExt(a).DataOffset = ofs
-                If VarType(VExt(n)) = vbString Then VExt(n) = Int_W2A_Buf(CStr(VExt(n)))
+                If VarType(VExt(n)) = vbString Then VExt(n) = Conv_W2A_Buf(CStr(VExt(n)))
                 If IsArray(VExt(n)) Then HExt(a).DataSize = m_ArraySize(VExt(n))
                 ofs = ofs + HExt(a).DataSize
             Next
@@ -1263,7 +1263,7 @@ Function DeCompressMF(tmpBuf() As Byte, Optional VExt As Variant, Optional ByVal
                 If HExt(a).DataSize Then
                     ReDim Buf(HExt(a).DataSize - 1)
                     CopyMemory Buf(0), tmpBuf(HExt(a).DataOffset), HExt(a).DataSize
-                    If bString Then VExt(a * 2 + 1) = Int_A2W_Buf(Buf) Else VExt(a * 2 + 1) = Buf
+                    If bString Then VExt(a * 2 + 1) = Conv_A2W_Buf(Buf) Else VExt(a * 2 + 1) = Buf
                 End If
             Next
         End If
