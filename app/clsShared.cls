@@ -235,14 +235,14 @@ Public Property Get ResToStr(ByVal Key As String) As String
     If Not SYS.Resource.Exists(Key) Then Exit Property
     Set cd = SYS.Resource(Key):     vt = VarType(cd.Data)
     If vt = vbString Then ResToStr = cd.Data
-    If vt = vbArray + vbByte Then tmpBuf = cd.Data: If ArraySize(tmpBuf) Then ResToStr = Int_A2W_Buf(tmpBuf)
+    If vt = vbArray + vbByte Then tmpBuf = cd.Data: If ArraySize(tmpBuf) Then ResToStr = Conv_A2W_Buf(tmpBuf)
 End Property
 
 Public Property Get ResToBuf(ByVal Key As String) As Byte()
     Dim vt As Integer, cd As clsDim
     If Not SYS.Resource.Exists(Key) Then Exit Property
     Set cd = SYS.Resource(Key):     vt = VarType(cd.Data)
-    If vt = vbString Then ResToBuf = Int_W2A_Buf(cd.Data)
+    If vt = vbString Then ResToBuf = Conv_W2A_Buf(cd.Data)
     If vt = vbArray + vbByte Then ResToBuf = cd.Data
 End Property
 
@@ -298,7 +298,7 @@ Public Function DllCall(ByVal lData As String, ByVal sData As Variant, ParamArra
                 End Select
                             
             Case vbString
-                If Not isUnicode Then Params(i) = VBA.StrConv(Params(i), vbFromUnicode)
+                If Not isUnicode Then Params(i) = Conv_W2A_Str(CStr(Params(i)))
                 v(a) = VBA.StrPtr(Params(i))
                 
             Case Else
@@ -313,7 +313,7 @@ Public Function DllCall(ByVal lData As String, ByVal sData As Variant, ParamArra
     'После-обработка параметров
     If Not isUnicode Then
         For i = 0 To uds
-            If t(i) = vbString Then Params(i) = VBA.StrConv(Params(i), vbUnicode)
+            If t(i) = vbString Then Params(i) = Conv_A2W_Str(CStr(Params(i)))
         Next
     End If
 End Function

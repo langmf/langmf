@@ -25,21 +25,21 @@ Public Function DecodeUTF8(ByVal value As String, Optional ByVal Cpg As Long = 6
 End Function
 
 Public Function A2W(ByVal value As String, Optional ByVal Cpg As Long = -1) As String
-    A2W = Int_A2W_Str(value, Cpg)
+    A2W = Conv_A2W_Str(value, Cpg)
 End Function
 
 Public Function W2A(ByVal value As String, Optional ByVal Cpg As Long = -1) As String
-    W2A = Int_W2A_Str(value, Cpg)
+    W2A = Conv_W2A_Str(value, Cpg)
 End Function
 
 Public Function EncodeBase64(value As Variant) As String
     Dim tmpBuf() As Byte
-    If ConvToBufferByte(value, tmpBuf) Then EncodeBase64 = Int_A2W_Buf(Base64.Encode(tmpBuf, False))
+    If ConvToBufferByte(value, tmpBuf) Then EncodeBase64 = Conv_A2W_Buf(Base64.Encode(tmpBuf, False))
 End Function
 
 Public Function DecodeBase64(value As Variant) As String
     Dim tmpBuf() As Byte
-    If ConvToBufferByte(value, tmpBuf) Then DecodeBase64 = Int_A2W_Buf(Base64.Decode(tmpBuf))
+    If ConvToBufferByte(value, tmpBuf) Then DecodeBase64 = Conv_A2W_Buf(Base64.Decode(tmpBuf))
 End Function
 
 Public Function Compress(value As Variant, Optional ByVal cmsType As Long = CMS_FORMAT_ZLIB) As Long
@@ -68,7 +68,7 @@ End Function
 Public Function EncodeUrl(ByVal value As String, Optional ByVal Cpg As Long = -1) As String
     Dim i As Long, b As Byte, tmpBuf() As Byte
     If Len(value) = 0 Then Exit Function
-    tmpBuf = Int_W2A_Buf(value, Cpg):   value = ""
+    tmpBuf = Conv_W2A_Buf(value, Cpg):   value = ""
     For i = 0 To UBound(tmpBuf)
         b = tmpBuf(i)
         If (b >= 48 And b <= 57) Or (b >= 65 And b <= 90) Or (b >= 97 And b <= 122) Then
@@ -84,7 +84,7 @@ End Function
 Public Function DecodeUrl(ByVal value As String, Optional ByVal Cpg As Long = -1) As String
     Dim i As Long, c As Long, b As Byte, srcBuf() As Byte, dstBuf() As Byte
     If Len(value) = 0 Then Exit Function
-    srcBuf = Int_W2A_Buf(value):   value = "":   ReDim dstBuf(UBound(srcBuf))
+    srcBuf = Conv_W2A_Buf(value):   value = "":   ReDim dstBuf(UBound(srcBuf))
     For i = 0 To UBound(srcBuf)
         b = srcBuf(i)
         If b = 37 Then
@@ -94,7 +94,7 @@ Public Function DecodeUrl(ByVal value As String, Optional ByVal Cpg As Long = -1
         End If
         dstBuf(c) = b:   c = c + 1
     Next
-    Erase srcBuf:   ReDim Preserve dstBuf(c - 1):   DecodeUrl = Int_A2W_Buf(dstBuf, Cpg)
+    Erase srcBuf:   ReDim Preserve dstBuf(c - 1):   DecodeUrl = Conv_A2W_Buf(dstBuf, Cpg)
 End Function
 
 Public Function ArrayJS(ByVal Disp As ATL.IDispatchEx, Optional ByVal VType As Long) As Variant()
@@ -114,7 +114,7 @@ Public Function ArrayJS(ByVal Disp As ATL.IDispatchEx, Optional ByVal VType As L
                 Next
                 
             Case -1
-                tmpBuf = Int_W2A_Buf(CStr(Disp)):   uds = UBound(tmpBuf) + 1:   ReDim Preserve tmpBuf(uds):   tmpBuf(uds) = 44
+                tmpBuf = Conv_W2A_Buf(CStr(Disp)):   uds = UBound(tmpBuf) + 1:   ReDim Preserve tmpBuf(uds):   tmpBuf(uds) = 44
                 For b = 0 To 9:       m(b + 1) = 10 ^ b:     Next
                 
                 Do

@@ -325,11 +325,11 @@ Function GenTempStr(Optional ByVal lenGen As Integer = 8, Optional pat As String
 End Function
 
 Function EncodeUTF8(value As String, Optional ByVal Cpg As Long = 65001) As String
-    If LenB(value) Then EncodeUTF8 = Int_A2W_Str(Int_W2A_Str(value, Cpg))
+    If LenB(value) Then EncodeUTF8 = Conv_A2W_Str(Conv_W2A_Str(value, Cpg))
 End Function
 
 Function DecodeUTF8(value As String, Optional ByVal Cpg As Long = 65001) As String
-    If LenB(value) Then DecodeUTF8 = Int_A2W_Str(Int_W2A_Str(value, 0), Cpg)
+    If LenB(value) Then DecodeUTF8 = Conv_A2W_Str(Conv_W2A_Str(value, 0), Cpg)
 End Function
 
 Function Command() As String
@@ -514,8 +514,8 @@ Function EnumNResCBK(ByVal hModule As Long, ByVal lpszType As Long, ByVal lpszNa
     EnumNResCBK = 1
 End Function
 
-Function Int_A2W_Buf(Buf() As Byte, Optional ByVal Cpg As Long = -1, Optional ByVal vPos As Long = 0) As String
-    Dim sz As Long, ptrSrc As Long, ptrDst As Long
+Function Conv_A2W_Buf(Buf() As Byte, Optional ByVal Cpg As Long = -1, Optional ByVal vPos As Long = 0) As String
+    Dim sz As Long, ptrSrc As Long
     
     With m_GetSafeArray(Buf)
         sz = .rgSABound(0).cElements - vPos
@@ -523,63 +523,31 @@ Function Int_A2W_Buf(Buf() As Byte, Optional ByVal Cpg As Long = -1, Optional By
     End With
     
     If ptrSrc = 0 Then Exit Function
-
     If Cpg = -1 Then Cpg = GetACP()
-    
-    Int_A2W_Buf = String$(sz + 1, vbNullChar)
-    ptrDst = StrPtr(Int_A2W_Buf)
-    
-    sz = MultiByteToWideChar(Cpg, 0, ptrSrc, sz, ptrDst, sz + 1)
-    
-    Int_A2W_Buf = Left$(Int_A2W_Buf, sz)
+    Conv_A2W_Buf = String$(sz + 1, vbNullChar)
+    sz = MultiByteToWideChar(Cpg, 0, ptrSrc, sz, StrPtr(Conv_A2W_Buf), sz + 1)
+    Conv_A2W_Buf = Left$(Conv_A2W_Buf, sz)
 End Function
 
-Function Int_A2W_Str(Buf As String, Optional ByVal Cpg As Long = -1) As String
-    Dim sz As Long, ptrSrc As Long, ptrDst As Long
-        
-    If Cpg = -1 Then Cpg = GetACP()
-    
-    ptrSrc = StrPtr(Buf)
-    sz = Len(Buf)
-    Int_A2W_Str = String$(sz + 1, vbNullChar)
-    ptrDst = StrPtr(Int_A2W_Str)
-    
-    sz = MultiByteToWideChar(Cpg, 0, ptrSrc, sz, ptrDst, sz + 1)
-    
-    Int_A2W_Str = Left$(Int_A2W_Str, sz)
+Function Conv_A2W_Str(txt As String, Optional ByVal Cpg As Long = -1) As String
+    Dim sz As Long
+    sz = Len(txt):    Conv_A2W_Str = String$(sz + 1, vbNullChar):    If Cpg = -1 Then Cpg = GetACP()
+    sz = MultiByteToWideChar(Cpg, 0, StrPtr(txt), sz, StrPtr(Conv_A2W_Str), sz + 1)
+    Conv_A2W_Str = Left$(Conv_A2W_Str, sz)
 End Function
 
-Function Int_W2A_Buf(Buf As String, Optional ByVal Cpg As Long = -1) As Byte()
-    Dim stBuffer() As Byte, sz As Long, ptrSrc As Long, ptrDst As Long
-       
-    If Cpg = -1 Then Cpg = GetACP()
-    
-    ptrSrc = StrPtr(Buf)
-    sz = Len(Buf)
-    ReDim stBuffer(sz * 2)
-    ptrDst = VarPtr(stBuffer(0))
-    
-    sz = WideCharToMultiByte(Cpg, 0, ptrSrc, sz, ptrDst, sz * 2 + 1, 0, ByVal 0&)
-    
-    If sz > 0 Then
-        ReDim Preserve stBuffer(sz - 1)
-        Int_W2A_Buf = stBuffer
-    End If
+Function Conv_W2A_Buf(txt As String, Optional ByVal Cpg As Long = -1) As Byte()
+    Dim Buf() As Byte, sz As Long
+    sz = Len(txt):     ReDim Buf(sz * 2):     If Cpg = -1 Then Cpg = GetACP()
+    sz = WideCharToMultiByte(Cpg, 0, StrPtr(txt), sz, VarPtr(Buf(0)), sz * 2 + 1, 0, ByVal 0&)
+    If sz > 0 Then ReDim Preserve Buf(sz - 1):    Conv_W2A_Buf = Buf
 End Function
 
-Function Int_W2A_Str(Buf As String, Optional ByVal Cpg As Long = -1) As String
-    Dim sz As Long, ptrSrc As Long, ptrDst As Long
-    
-    If Cpg = -1 Then Cpg = GetACP()
-    
-    ptrSrc = StrPtr(Buf)
-    sz = Len(Buf)
-    Int_W2A_Str = String$(sz * 2 + 1, vbNullChar)
-    ptrDst = StrPtr(Int_W2A_Str)
-    
-    sz = WideCharToMultiByte(Cpg, 0, ptrSrc, sz, ptrDst, sz * 2 + 1, 0, ByVal 0&)
-    
-    Int_W2A_Str = Left$(Int_W2A_Str, sz)
+Function Conv_W2A_Str(txt As String, Optional ByVal Cpg As Long = -1) As String
+    Dim sz As Long
+    sz = Len(txt):    Conv_W2A_Str = String$(sz * 2 + 1, vbNullChar):    If Cpg = -1 Then Cpg = GetACP()
+    sz = WideCharToMultiByte(Cpg, 0, StrPtr(txt), sz, StrPtr(Conv_W2A_Str), sz * 2 + 1, 0, ByVal 0&)
+    Conv_W2A_Str = Left$(Conv_W2A_Str, sz)
 End Function
 
 Function ToUnicode(Buf() As Byte) As String
@@ -604,12 +572,12 @@ Function ToUnicode(Buf() As Byte) As String
     
     If sz > 2 Then
         If Buf(0) = 239 And Buf(1) = 187 And Buf(2) = 191 Then               'UTF-8
-            ToUnicode = Int_A2W_Buf(Buf, 65001, 3)
+            ToUnicode = Conv_A2W_Buf(Buf, 65001, 3)
             Exit Function
         End If
     End If
     
-    If sz > 0 Then ToUnicode = Int_A2W_Buf(Buf)                              'ANSI
+    If sz > 0 Then ToUnicode = Conv_A2W_Buf(Buf)                              'ANSI
 End Function
 
 Function LoadPictureFromByte(value As Variant) As IPicture
@@ -641,10 +609,7 @@ Function m_CmdOut(ByVal sCommandLine As String, Optional ByVal nShowWindow As Bo
     
     Const BUFSIZE = 4096&
     
-    baOutput = String$(BUFSIZE, 0)
-    
-    SA.nLength = Len(SA)
-    SA.bInheritHandle = 1
+    baOutput = String$(BUFSIZE, 0):     SA.nLength = Len(SA):      SA.bInheritHandle = 1
         
     If CreatePipe(hPipeRead, hPipeWrite1, SA, BUFSIZE) = 0 Then Exit Function
     hCurProcess = GetCurrentProcess()
@@ -661,27 +626,19 @@ Function m_CmdOut(ByVal sCommandLine As String, Optional ByVal nShowWindow As Bo
     
     If CreateProcessW(0, StrPtr(sCommandLine), 0, 0, 1, 0, 0, 0, si, pi) Then
         Call CloseHandle(pi.hThread)
-        
         Call CloseHandle(hPipeWrite1)
-        hPipeWrite1 = 0
-        If hPipeWrite2 Then
-            Call CloseHandle(hPipeWrite2)
-            hPipeWrite2 = 0
-        End If
+
+        hPipeWrite1 = 0:      If hPipeWrite2 Then Call CloseHandle(hPipeWrite2):    hPipeWrite2 = 0
         
         Do
-            m_Wait
-            
-            GetExitCodeProcess pi.hProcess, lpExitCode
-            
-            sNewOutput = ""
-            
+            sNewOutput = "":      m_Wait:      GetExitCodeProcess pi.hProcess, lpExitCode
+
             If ReadFileStr(hPipeRead, baOutput, BUFSIZE, lBytesRead, 0) <> 0 Then
                 If fOEMConvert Then
                     sNewOutput = String$(lBytesRead, 0)
                     Call OemToCharBuffA(baOutput, sNewOutput, lBytesRead)
                 Else
-                    sNewOutput = Left$(StrConv(baOutput, vbUnicode), lBytesRead)
+                    sNewOutput = Left$(baOutput, lBytesRead)
                 End If
                 
                 m_CmdOut = m_CmdOut & sNewOutput
@@ -693,10 +650,8 @@ Function m_CmdOut(ByVal sCommandLine As String, Optional ByVal nShowWindow As Bo
             End If
             
             If tp <> 1 Then If Not CmdOut_Event Is Nothing Then Call CmdOut_Event(Array(lpExitCode, sNewOutput, pi.hProcess, pi.dwProcessID))
-        Loop Until lpExitCode <= 0
+        Loop Until lpExitCode <= 1
         
-        ' When the process terminates successfully, Err.LastDllError will be
-        ' ERROR_BROKEN_PIPE (109). Other values indicates an error.
         Call CloseHandle(pi.hProcess)
     End If
     
@@ -742,7 +697,7 @@ Function ConvToBufferByte(bufVar As Variant, bufByte() As Byte) As Boolean
     vt = VariantType(bufVar, True)
     
     If vt = vbString Then
-        bufByte = Int_W2A_Buf(CStr(bufVar))
+        bufByte = Conv_W2A_Buf(CStr(bufVar))
         
     ElseIf vt = vbArray + vbVariant Then
     
@@ -778,7 +733,7 @@ Function ConvFromBufferByte(bufVar As Variant, bufByte() As Byte) As Boolean
     vt = VariantType(bufVar, True)
 
     If vt = vbString Then
-        bufVar = Int_A2W_Buf(bufByte)
+        bufVar = Conv_A2W_Buf(bufByte)
         
     ElseIf vt = vbArray + vbVariant Then
     
@@ -838,14 +793,14 @@ Function m_Buf2Hex(Buf As Variant) As String
     
     Erase tmpBuf
     
-    m_Buf2Hex = StrConv(tmpOut, vbUnicode)
+    m_Buf2Hex = Conv_A2W_Buf(tmpOut)
 End Function
 
 Function m_Hex2Buf(value As String) As Byte()
     Dim i As Long, p As Long, cnt As Long, n1 As Byte, n2 As Byte, Pos As Long
     Dim tmpBuf() As Byte, tmpOut() As Byte
     
-    tmpBuf = Int_W2A_Buf(value)
+    tmpBuf = Conv_W2A_Buf(value)
     
     cnt = m_ArraySize(tmpBuf)
     If cnt < 2 Then Exit Function
@@ -874,9 +829,9 @@ End Sub
 
 Sub SetIconWindow(ByVal hWnd As Long, ByVal varName As Variant, Optional ByVal nameLib As String)
     Dim a As Long, cx As Long, hIconL As Long, hIconS As Long, lpName As Long, typeRes As Long, hInst As Long
-   
+
     If VarType(varName) = vbString Then
-        lpName = StrPtr(StrConv(varName, vbFromUnicode))
+        lpName = StrPtr(varName)
         typeRes = LR_LOADFROMFILE
     Else
         lpName = CLng(varName)
@@ -1208,19 +1163,35 @@ Function RegisterDLL(ByVal FileName As String, Optional ByVal isReg As Boolean =
 End Function
 
 Function VersionDLL(ByVal FileName As String, Optional ByVal verCmp As Variant) As Variant
-    Dim nLen As Long, pBuffer As Long, pLen As Long, txt As String, sBuffer() As Byte, ver As VS_FIXEDFILEINFO
+    Dim sz As Long, p As Long, txt As String, v1() As String, v2() As String, b() As Byte, ver As VS_FIXEDFILEINFO
 
-    nLen = GetFileVersionInfoSizeW(StrPtr(LongPath(FileName)), ByVal 0&):     If nLen = 0 Then Exit Function
+    sz = GetFileVersionInfoSizeW(StrPtr(LongPath(FileName)), ByVal 0&):     If sz = 0 Then Exit Function
 
-    ReDim sBuffer(nLen) As Byte
-    Call GetFileVersionInfoW(StrPtr(LongPath(FileName)), 0&, nLen, sBuffer(0))
-    Call VerQueryValueW(sBuffer(0), StrPtr("\"), pBuffer, pLen)
-    Call CopyMemory(ver, ByVal pBuffer, Len(ver))
+    ReDim b(sz) As Byte
+    Call GetFileVersionInfoW(StrPtr(LongPath(FileName)), 0&, sz, b(0))
+    Call VerQueryValueW(b(0), StrPtr("\"), p, sz)
+    Call CopyMemory(ver, ByVal p, Len(ver))
 
     txt = ver.dwProductVersionMSh & "." & ver.dwProductVersionMSl & "." & ver.dwProductVersionLSh & "." & ver.dwProductVersionLSl
     
     If IsMissing(verCmp) Then VersionDLL = txt:    Exit Function
-    If Left$(verCmp, 1) = ">" Then VersionDLL = (txt >= Right$(verCmp, Len(verCmp) - 1)) Else VersionDLL = (txt = verCmp)
+    
+    v1 = Split(txt, "."):    VersionDLL = True
+    Select Case Left$(verCmp, 1)
+        Case ">"
+            v2 = Split(Mid$(verCmp, 2), ".")
+            For p = 0 To UBound(v2)
+                sz = Val(v1(p)) - Val(v2(p))
+                If sz < 0 Then VersionDLL = False:  Exit Function
+                If sz > 0 Then Exit Function
+            Next
+            
+        Case Else
+            v2 = Split(verCmp, ".")
+            For p = 0 To UBound(v2)
+                If Val(v1(p)) <> Val(v2(p)) Then VersionDLL = False:     Exit Function
+            Next
+    End Select
 End Function
 
 Function CallInterface(ByVal pInterface As Long, ByVal Member As Long, Optional ByVal ParamsCount As Long = 0, Optional ByVal p1 As Long = 0, Optional ByVal p2 As Long = 0, Optional ByVal p3 As Long = 0, Optional ByVal p4 As Long = 0, Optional ByVal p5 As Long = 0, Optional ByVal p6 As Long = 0, Optional ByVal p7 As Long = 0, Optional ByVal p8 As Long = 0, Optional ByVal p9 As Long = 0, Optional ByVal p10 As Long = 0) As Long

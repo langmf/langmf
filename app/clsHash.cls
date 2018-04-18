@@ -208,6 +208,17 @@ Public Function Child(Optional ByVal Key As String) As Object           'As clsH
     Add Child, Key
 End Function
 
+Public Function Fill(ParamArray vsp() As Variant) As Object             'As clsHash
+    Dim a As Long, uds As Long
+
+    Set Fill = Me:    uds = UBound(vsp):     If m_Locked = True Or uds < 1 Then Exit Function
+    
+    For a = 0 To uds Step 2
+        If Not IsObject(vsp(a)) Then If IsMissing(vsp(a)) Then vsp(a) = Empty
+        Add vsp(a + 1), vsp(a)
+    Next
+End Function
+
 Public Function Init(Optional ByVal HashSize As Long, Optional ByVal ListSize As Long, Optional ByVal ChunkSize As Long) As Boolean
     If m_Locked Then Exit Function
     

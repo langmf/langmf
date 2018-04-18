@@ -372,10 +372,10 @@ Public Function ShowPrinter(Optional ByVal bNewStyle As Boolean = True, Optional
         RetValue = GlobalUnlock(PD.hDevMode)
         GlobalFree PD.hDevMode
         
-        NewPrinterName = StrConv(dm.dmDeviceName, vbFromUnicode)
+        NewPrinterName = Conv_W2A_Str(dm.dmDeviceName)
         NewPrinterName = UCase$(Left$(NewPrinterName, InStr(NewPrinterName, vbNullChar) - 1))
         
-        If Printer.DeviceName <> NewPrinterName Then
+        If UCase$(Printer.DeviceName) <> NewPrinterName Then
             For Each objPrinter In Printers
                 If UCase$(objPrinter.DeviceName) = NewPrinterName Then Set Printer = objPrinter:   Exit For
             Next
