@@ -767,7 +767,7 @@ Function ConvFromBufferByte(bufVar As Variant, bufByte() As Byte) As Boolean
     ConvFromBufferByte = True
 End Function
 
-Function CreateInstance(ByVal txtCLSID As String, ByVal txtIID As String, Optional ByVal dwClsContext As Long = 1) As Long
+Function CreateInstance(txtCLSID As String, txtIID As String, Optional ByVal dwClsContext As Long = 1) As Long
     Dim CLSID As UUID, IID As UUID
     CLSIDFromString StrPtr(txtCLSID), CLSID
     CLSIDFromString StrPtr(txtIID), IID
@@ -1245,6 +1245,7 @@ Function CallInterface(ByVal pInterface As Long, ByVal Member As Long, Optional 
 End Function
 
 Function ExistsMember(ByVal Disp As ATL.IDispatch, ProcName As String) As Boolean
+    If Disp Is Nothing Then Exit Function
     ExistsMember = (Disp.GetIDsOfNames(IID_Null, ProcName, 1, LOCALE_USER_DEFAULT, 0&) = S_OK)
 End Function
 

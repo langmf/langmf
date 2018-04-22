@@ -68,9 +68,10 @@ Public Sub MY()
     MsgBox "Call MY is complete!"
 End Sub
 
-Public Sub ActiveScript_Error(ByVal Obj As Object)
+Public Function ActiveScript_Error(ByVal Obj As Object) As Variant
     MsgBox vbCrLf & "Error = " & Hex$(Obj.Error.Item("Number")) & "    |    Line = " & Obj.Error.Item("Line") & _
            "    |    Pos = " & Obj.Error.Item("Pos") & "    |    " & Obj.Name & " => " & Obj.Tag & vbCrLf & _
            "Type -> " & Obj.Error.Item("Descr") & vbCrLf & "Code -> " & Obj.Error.Item("Code") & vbCrLf, , "Error"
-End Sub
+    ActiveScript_Error = True
+End Function
 

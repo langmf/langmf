@@ -58,6 +58,10 @@ Private Sub Class_Terminate()
     Call Reset
 End Sub
 
+Public Property Get Ptr() As Long
+    Ptr = ObjPtr(IScript)
+End Property
+
 Public Sub Reset()
     Dim v As Variant
     
@@ -171,23 +175,19 @@ Private Sub IActiveScriptSite_OnScriptError(ByVal pscripterror As IActiveScriptE
         .Add lineNo, "Line":    .Add charPos, "Pos":    .Add tmp, "Code":    .Add cnx, "Context"
     End With
 
-    If Not Parent Is Nothing Then Call Parent.ActiveScript_Error(Me)
+    Parent_Event "ActiveScript_Error"
 End Sub
 
 Private Sub IActiveScriptSite_OnEnterScript()
-'
+    Parent_Event "ActiveScript_Enter"
 End Sub
 
 Private Sub IActiveScriptSite_OnLeaveScript()
-'
-End Sub
-
-Private Sub IActiveScriptSite_OnScriptTerminate(pvarResult As Variant, pexcepinfo As ATL.EXCEPINFO)
-'
+    Parent_Event "ActiveScript_Leave"
 End Sub
 
 Private Sub IActiveScriptSite_OnStateChange(ByVal ssScriptState As SCRIPTSTATE)
-'
+    Parent_Event "ActiveScript_State"
 End Sub
 
 Private Function IActiveScriptSite_GetLCID() As Long
@@ -195,8 +195,12 @@ Private Function IActiveScriptSite_GetLCID() As Long
 End Function
 
 Private Function IActiveScriptSite_GetDocVersionString() As String
-    IActiveScriptSite_GetDocVersionString = "Atomix Script Host"
+    IActiveScriptSite_GetDocVersionString = "LangMF Script Host"
 End Function
+
+Private Sub IActiveScriptSite_OnScriptTerminate(pvarResult As Variant, pexcepinfo As ATL.EXCEPINFO)
+'
+End Sub
 
 Private Sub IActiveScriptSiteWindow_EnableModeless(ByVal fEnable As Long)
 '
@@ -204,4 +208,12 @@ End Sub
 
 Private Function IActiveScriptSiteWindow_GetWindow() As Long
     IActiveScriptSiteWindow_GetWindow = SitehWnd
+End Function
+
+
+'---------------------------------------------------------------------
+Private Function Parent_Event(ProcName As String) As Variant
+    Dim v As Variant
+    On Error Resume Next
+    If ExistsMember(Parent, ProcName) Then Set v = Me:   Parent_Event = CallByName(Parent, ProcName, VbMethod, v)
 End Function

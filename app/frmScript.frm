@@ -34,12 +34,13 @@ Private SubClass As New clsSubClass
 Public CScript As New Collection
 
 
-Public Sub ActiveScript_Error(ByVal Obj As clsActiveScript)
+Public Function ActiveScript_Error(ByVal Obj As clsActiveScript) As Variant
     If Not frmError.Visible And Not tmrEnd.Enabled Then
         If Not mf_NoShowError Then frmError.Display Obj
         m_EndMF
     End If
-End Sub
+    ActiveScript_Error = True
+End Function
 
 Private Sub tmrEnd_Timer()
     Script_End
