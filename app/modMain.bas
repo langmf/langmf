@@ -713,7 +713,7 @@ Sub Parse_Interface(txtCode As String)
             Set mts1 = REG.Execute(.SubMatches(4))
             
             txt = txt + "Class " + .SubMatches(0) + vbCrLf + vbCrLf
-            txt = txt + "Dim ifc_FCP, ifc_Obj" + vbCrLf + vbCrLf
+            txt = txt + "Dim ifc_FCP, ifc_Obj, ifc_Arg" + vbCrLf + vbCrLf
 
             For a = 0 To mts1.Count - 1
                 With mts1(a)
@@ -737,10 +737,12 @@ Sub Parse_Interface(txtCode As String)
             Next
             
             txt = txt + "Private Sub Class_Initialize" + vbCrLf
+            txtVars = """" + .SubMatches(1) + """, """ + .SubMatches(2) + """, " + CStr(.SubMatches(3))
+            txt = txt + "ifc_Arg = Array(" + txtVars + ")" + vbCrLf
             If .SubMatches(3) = 0 Then
                 txt = txt + "Set ifc_FCP = Sys.NewFCP" + vbCrLf
             Else
-                txt = txt + "ifc_Obj = Sys.Com.CreateInstance(""" + .SubMatches(1) + """, """ + .SubMatches(2) + """, " + CStr(.SubMatches(3)) + ")" + vbCrLf
+                txt = txt + "ifc_Obj = Sys.Com.CreateInstance(" + txtVars + ")" + vbCrLf
                 txt = txt + "If ifc_Obj <> 0 Then Set ifc_FCP = Sys.NewFCP(ifc_Obj)" + vbCrLf
             End If
             txt = txt + "End Sub" + vbCrLf + vbCrLf
