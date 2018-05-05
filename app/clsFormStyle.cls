@@ -54,7 +54,7 @@ End Property
 
 Public Property Let ToolWindow(ByVal vData As Boolean)
     m_ToolWin = vData
-    SetWindowStyle True, WS_EX_TOOLWINDOW, vData, False
+    WindowStyle(WS_EX_TOOLWINDOW, True) = vData
 End Property
 
 Public Property Get TitleBar() As Boolean
@@ -63,7 +63,7 @@ End Property
 
 Public Property Let TitleBar(ByVal vData As Boolean)
     m_TitleBar = vData
-    SetWindowStyle False, WS_CAPTION, vData, False
+    WindowStyle(WS_CAPTION) = vData
 End Property
 
 Public Property Get TaskBar() As Boolean
@@ -72,7 +72,7 @@ End Property
 
 Public Property Let TaskBar(ByVal vData As Boolean)
     m_TaskBar = vData
-    SetWindowStyle True, WS_EX_APPWINDOW, vData, False
+    WindowStyle(WS_EX_APPWINDOW, True) = vData
 End Property
 
 Public Property Get SizeBorder() As Boolean
@@ -81,7 +81,7 @@ End Property
 
 Public Property Let SizeBorder(ByVal vData As Boolean)
     m_SizeBrd = vData
-    SetWindowStyle False, WS_THICKFRAME, vData, False
+    WindowStyle(WS_THICKFRAME) = vData
 End Property
 
 Public Property Get ControlBox() As Boolean
@@ -90,7 +90,7 @@ End Property
 
 Public Property Let ControlBox(ByVal vData As Boolean)
     m_CtrlBox = vData
-    SetWindowStyle False, WS_SYSMENU, vData, False
+    WindowStyle(WS_SYSMENU) = vData
 End Property
 
 Public Property Get MinButton() As Boolean
@@ -99,7 +99,7 @@ End Property
 
 Public Property Let MinButton(ByVal vData As Boolean)
     m_MinButt = vData
-    SetWindowStyle False, WS_MINIMIZEBOX, vData, False
+    WindowStyle(WS_MINIMIZEBOX) = vData
 End Property
 
 Public Property Get MaxButton() As Boolean
@@ -108,27 +108,27 @@ End Property
 
 Public Property Let MaxButton(ByVal vData As Boolean)
     m_MaxButt = vData
-    SetWindowStyle False, WS_MAXIMIZEBOX, vData, False
+    WindowStyle(WS_MAXIMIZEBOX) = vData
 End Property
 
 
 'Default Member
-Public Sub SetWindowStyle(ByVal extended_Style As Boolean, ByVal style_Value As Long, ByVal new_Value As Boolean, ByVal bRefresh As Boolean)
-Attribute SetWindowStyle.VB_UserMemId = 0
-   Dim style_Type As Long, Style As Long
-   
-   If extended_Style Then style_Type = GWL_EXSTYLE Else style_Type = GWL_STYLE
-   
-   Style = GetWindowLongW(hWnd, style_Type)
-   
-   If new_Value Then Style = Style Or style_Value Else Style = Style And Not style_Value
-   
+Public Property Let WindowStyle(ByVal vStyle As Long, Optional ByVal bExtended As Boolean, Optional ByVal bRefresh As Boolean, ByVal bAdd As Boolean)       'no_check
+Attribute WindowStyle.VB_UserMemId = 0
+   Dim tStyle As Long, Style As Long
+
+   If bExtended Then tStyle = GWL_EXSTYLE Else tStyle = GWL_STYLE
+
+   Style = GetWindowLongW(hWnd, tStyle)
+
+   If bAdd Then Style = Style Or vStyle Else Style = Style And Not vStyle
+
    If bRefresh Then ShowWindow hWnd, SW_HIDE
-   SetWindowLongW hWnd, style_Type, Style
-   
+   SetWindowLongW hWnd, tStyle, Style
    If bRefresh Then ShowWindow hWnd, SW_SHOW
+
    SetWindowPos hWnd, 0, 0, 0, 0, 0, SWP_FRAMECHANGED Or SWP_NOMOVE Or SWP_NOSIZE Or SWP_NOZORDER
-End Sub
+End Property
 
 
 '---------------------------------------------------------------------------------

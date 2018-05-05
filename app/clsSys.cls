@@ -75,10 +75,10 @@ Private Sub Class_Initialize()
     Set Timers = New clsHash
 End Sub
 
-Public Function AddCodeMF(ByVal txtCode As String, ByVal nameLib As String) As String
+Public Function AddCodeMF(ByVal txtCode As String, Optional ByVal nameLib As String) As String
     Dim Buf() As Byte
     Buf = ChrW$(65279) + txtCode
-    AddCodeMF = Code_Parse(Buf, nameLib)
+    AddCodeMF = Code_Parse(Buf, IIF(LenB(nameLib), nameLib, "AddCodeMF_" & mf_Counter))
 End Function
 
 Public Function AddFileMF(ByVal nameScript As String, Optional ByVal nameLib As String = "") As String

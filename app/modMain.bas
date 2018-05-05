@@ -493,6 +493,40 @@ Function Parse_CScript(txtCode As String) As Collection
     Next
 End Function
 
+Function Parse_Template(txtCode As String, Optional fnPrint As String, Optional dmStart As String, Optional dmStop As String) As String
+    Dim a As Long, out As String, tmp() As String, txt() As String
+
+    If Len(dmStart) = 0 Then dmStart = "<?="
+    If Len(dmStop) = 0 Then dmStop = "?>"
+    If Len(fnPrint) = 0 Then CAS.AddCode "Dim PrnBuf" & vbCrLf & "Function Print(txt) : PrnBuf = PrnBuf & txt : Print = PrnBuf : End Function"
+
+    txt = Split(txtCode, dmStart):     out = Parse_Template_Sub(txt(0), fnPrint)
+
+    For a = 1 To UBound(txt)
+        tmp = Split(txt(a), dmStop)
+        If Len(fnPrint) = 0 Then
+            CAS.ExecuteStatement "PrnBuf = """"" + vbCrLf + tmp(0)
+            out = out & CAS.Eval("PrnBuf")
+        Else
+            out = out + tmp(0) + vbCrLf
+        End If
+        If UBound(tmp) > 0 Then out = out + Parse_Template_Sub(tmp(1), fnPrint)
+    Next
+
+    Parse_Template = out
+End Function
+
+Function Parse_Template_Sub(txtCode As String, ByVal fnPrint As String) As String
+    Dim a As Long, uds As Long, tmp As String, txt() As String
+    If Len(fnPrint) = 0 Then Parse_Template_Sub = txtCode:    Exit Function
+    txt = Split(txtCode, vbCrLf):    uds = UBound(txt)
+    For a = 0 To uds
+        If Len(txt(a)) Then tmp = fnPrint + "(""" + Replace$(txt(a), """", """""") + """)" + vbCrLf Else tmp = ""
+        If a < uds Then tmp = tmp + fnPrint + "(vbCrLf)" + vbCrLf
+        Parse_Template_Sub = Parse_Template_Sub + tmp
+    Next
+End Function
+
 Function Parse_Types_Sub(ByVal Mts As MatchCollection, wrapProp As String, ByVal sz As Long, vOffset As Long) As String
     Dim txt As String, pArg As String, pProp As String, nameVar As String, cntBound As Long, isBound As Boolean, sz2 As Long
     
@@ -964,12 +998,10 @@ Sub Parse_Include(txtCode As String, Optional ByVal noFind As String)
     REG.Global = True
 End Sub
 
-Sub Parse_Modify(txtCode As String, Optional txtConv As Variant, Optional ByVal Flags As Long)
+Function Parse_Modify(txtCode As String, Optional txtConv As Variant, Optional ByVal Flags As Long) As String
     Dim a As Long, b As Long, st As Long, Fnd As String, Rep As String, txt() As String, REG1 As RegExp
     
-    Set REG1 = New RegExp
-    REG1.Global = True
-    REG1.IgnoreCase = True
+    Set REG1 = New RegExp:      REG1.Global = True:      REG1.IgnoreCase = True
     
     If IsMissing(txtConv) Then
         txtConv = Array("Функци(я|и)", "Function", "Процедур(а|ы)", "Sub", "Вызвать", "Call", "Константа", "Const", _
@@ -986,45 +1018,47 @@ Sub Parse_Modify(txtCode As String, Optional txtConv As Variant, Optional ByVal 
         "х", "x", "ц", "c", "ч", "ch", "ш", "sh", "щ", "sch", "ъ", "qi", "ы", "y", "ь", "qu", "э", "e", "ю", "yu", "я", "ya")
     End If
     
-    If Not IsArray(txtConv) Then Exit Sub
-    
-    If Flags = -1 Then
-        For a = 0 To UBound(txtConv) - 1 Step 2
-           REG1.Pattern = txtConv(a)
-           txtCode = REG1.Replace(txtCode, txtConv(a + 1))
-        Next
-    ElseIf Flags < -1 Then
-        Flags = Abs(Flags) - 2
-        For a = 0 To UBound(txtConv) - 1 Step 2
-           txtCode = Replace$(txtCode, txtConv(a), txtConv(a + 1), , , Flags)
-        Next
-    Else
-        st = Flags And 1
-        Flags = (Flags And &HFE) / 2 - 1
-        
-        txt = Split(txtCode, """")
-        
+    If IsArray(txtConv) Then
         If Flags = -1 Then
-            For b = 0 To UBound(txtConv) - 1 Step 2
-                REG1.Pattern = txtConv(b)
-                Rep = txtConv(b + 1)
-                For a = st To UBound(txt) Step 2
-                    If Len(txt(a)) Then txt(a) = REG1.Replace(txt(a), Rep)
-                Next
+            For a = 0 To UBound(txtConv) - 1 Step 2
+               REG1.Pattern = txtConv(a)
+               txtCode = REG1.Replace(txtCode, txtConv(a + 1))
+            Next
+        ElseIf Flags < -1 Then
+            Flags = Abs(Flags) - 2
+            For a = 0 To UBound(txtConv) - 1 Step 2
+               txtCode = Replace$(txtCode, txtConv(a), txtConv(a + 1), , , Flags)
             Next
         Else
-            For b = 0 To UBound(txtConv) - 1 Step 2
-                Fnd = txtConv(b)
-                Rep = txtConv(b + 1)
-                For a = st To UBound(txt) Step 2
-                    If Len(txt(a)) Then txt(a) = Replace$(txt(a), Fnd, Rep, , , Flags)
+            st = Flags And 1
+            Flags = (Flags And &HFE) / 2 - 1
+
+            txt = Split(txtCode, """")
+
+            If Flags = -1 Then
+                For b = 0 To UBound(txtConv) - 1 Step 2
+                    REG1.Pattern = txtConv(b)
+                    Rep = txtConv(b + 1)
+                    For a = st To UBound(txt) Step 2
+                        If Len(txt(a)) Then txt(a) = REG1.Replace(txt(a), Rep)
+                    Next
                 Next
-            Next
+            Else
+                For b = 0 To UBound(txtConv) - 1 Step 2
+                    Fnd = txtConv(b)
+                    Rep = txtConv(b + 1)
+                    For a = st To UBound(txt) Step 2
+                        If Len(txt(a)) Then txt(a) = Replace$(txt(a), Fnd, Rep, , , Flags)
+                    Next
+                Next
+            End If
+
+            txtCode = Join(txt, """")
         End If
-        
-        txtCode = Join(txt, """")
     End If
-End Sub
+
+    Parse_Modify = txtCode
+End Function
 
 Function Parse_MPath(ByVal MPath As String) As String
     Dim clsReg As New clsRegistry, REG1 As RegExp, Mts As MatchCollection, isFind As Boolean

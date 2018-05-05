@@ -208,20 +208,22 @@ Public Function Ptr2Str(ByVal pStr As Long, Optional ByVal ptrType As Long = 0, 
     End If
 End Function
 
-Public Function XLT(srcTxt As Variant, Optional ByVal codepage As String, Optional curXLT As Variant, Optional ByVal inverse As Boolean = False) As Variant
+Public Function XLT(srcTxt As Variant, curTBL As Variant, Optional ByVal bInvert As Boolean = False) As Variant
     Dim a As Long, uds As Long, Buffer() As Byte, TBL(255) As Byte
     
     For a = 0 To 255:    TBL(a) = a:    Next
     
-    If LenB(codepage) = 0 Then ConvToBufferByte curXLT, Buffer Else Buffer = LoadResDataWNull(codepage, "xlt")
-
-    uds = m_ArraySize(Buffer) - 1
-    If inverse = True Then For a = 0 To uds Step 2:     TBL(Buffer(a + 1)) = Buffer(a):    Next
-    If inverse = False Then For a = 0 To uds Step 2:    TBL(Buffer(a)) = Buffer(a + 1):    Next
+    ConvToBufferByte curTBL, Buffer:    uds = m_ArraySize(Buffer) - 1
     
-    ConvToBufferByte srcTxt, Buffer
+    If bInvert Then
+        For a = 0 To uds Step 2:    TBL(Buffer(a + 1)) = Buffer(a):    Next
+    Else
+        For a = 0 To uds Step 2:    TBL(Buffer(a)) = Buffer(a + 1):    Next
+    End If
     
-    uds = m_ArraySize(Buffer) - 1:    For a = 0 To uds:    Buffer(a) = TBL(Buffer(a)):    Next
+    ConvToBufferByte srcTxt, Buffer:    uds = m_ArraySize(Buffer) - 1
+    
+    For a = 0 To uds:    Buffer(a) = TBL(Buffer(a)):    Next
     
     XLT = Buf(Buffer, VarType(srcTxt))
 End Function
