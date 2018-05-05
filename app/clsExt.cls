@@ -50,8 +50,11 @@ Public Function Link(ByVal nameLink As String, Optional ByVal strOper As String 
 End Function
 
 Public Function Modify(ByVal txtCode As String, Optional txtConv As Variant, Optional ByVal Flags As Long) As String
-    Call Parse_Modify(txtCode, txtConv, Flags)
-    Modify = txtCode
+    Modify = Parse_Modify(txtCode, txtConv, Flags)
+End Function
+
+Public Function Template(ByVal txtCode As String, Optional ByVal fnPrint As String, Optional ByVal dmStart As String, Optional ByVal dmStop As String) As String
+    Template = Parse_Template(txtCode, fnPrint, dmStart, dmStop)
 End Function
 
 Public Function CreateStdFont(Optional ByVal fName As String = "Arial", Optional ByVal fSize As Currency = 8, Optional ByVal fBold As Boolean, Optional ByVal fItalic As Boolean, Optional ByVal fUnderline As Boolean, Optional ByVal fStrikethrough As Boolean, Optional ByVal fCharset As Integer = 204) As StdFont

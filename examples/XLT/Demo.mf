@@ -9,7 +9,6 @@ Sub Load(cmdLine)
   form.add "textbox",1, ".Parent.Move2 $0, ,,,,1,1"
   
   With form.menu.add(10,"Convert","Popup1")
-  	.add 10, "from ISO-8859 (table from file)"
   	.add 11, "from ISO-8859"
   	.add 12, "from KOI8-r"
   	.add 13, "from CP866"
@@ -35,18 +34,20 @@ End Sub
 
 '-----------------------------------------
 Sub Convert_from(codepage)
+  XLT = sys.conv.file2str(codepage + ".xlt")
   txt = sys.conv.file2str(codepage + ".txt")
   display txt
-  txt = sys.conv.xlt(txt, codepage)
+  txt = sys.conv.xlt(txt, XLT)
   form.textbox(1).text=txt
 End Sub
 
 '-----------------------------------------
 Sub Convert_to(codepage)
+  XLT = sys.conv.file2str(codepage + ".xlt")
   txt = sys.conv.file2str(codepage + ".txt")
-  txt = sys.conv.xlt(txt, codepage)
+  txt = sys.conv.xlt(txt, XLT)
   display txt
-  txt = sys.conv.xlt(txt, codepage, , true)
+  txt = sys.conv.xlt(txt, XLT, true)
   form.textbox(1).text=txt
 End Sub
 
@@ -61,17 +62,6 @@ Sub Menu_Click(id)
     case 17 : Convert_to("cp866")                 
   end select
 End Sub
-
-'-----------------------------------------
-Function Menu10_Click
-  XLT = sys.conv.file2str("iso.xlt")
-  txt = sys.conv.file2str("iso.txt")
-  
-  display txt
-  txt = sys.conv.xlt(txt,,XLT)
-  
-  form.textbox(1).text=txt
-End Function
 
 '-----------------------------------------
 Function Menu14_Click
