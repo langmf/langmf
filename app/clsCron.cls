@@ -141,7 +141,7 @@ Private Sub DoFunc(ByVal value As String)
     
     Select Case Left$(value, 2)
         Case "R!":    Remove Mid$(value, 3)
-        Case "E!":    CAS.ExecuteStatement Mid$(value, 3)
+        Case "E!":    CAS.Execute Mid$(value, 3)
         Case Else:    CAS.Eval value
     End Select
 End Sub

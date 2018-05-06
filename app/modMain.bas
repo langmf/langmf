@@ -64,7 +64,7 @@ Global CAS As clsActiveScript
 Global REG As New RegExp
 Global Types As clsHash
 
-Global mf_TimeLMF As Long, mf_TimeParse As Long, mf_AsyncLoad As Long, mf_NoShowError As Boolean
+Global mf_TimeLMF As Long, mf_TimeParse As Long, mf_AsyncLoad As Long, mf_NoError As Boolean
 Global mf_Counter As Integer, mf_IsEnd As Boolean, mf_Tmp As String
 
 
@@ -493,38 +493,51 @@ Function Parse_CScript(txtCode As String) As Collection
     Next
 End Function
 
-Function Parse_Template(txtCode As String, Optional fnPrint As String, Optional dmStart As String, Optional dmStop As String) As String
-    Dim a As Long, out As String, tmp() As String, txt() As String
+Function Parse_Template(txtCode As String, Optional ByVal fnPrint As String, Optional dmStart As String, Optional dmStop As String) As String
+    Dim a As Long, isEval As Boolean, isInt As Boolean, fnBuffer As String, fnExec As String, out As String, tmp() As String, txt() As String
 
     If Len(dmStart) = 0 Then dmStart = "<?="
     If Len(dmStop) = 0 Then dmStop = "?>"
-    If Len(fnPrint) = 0 Then CAS.AddCode "Dim PrnBuf" & vbCrLf & "Function Print(txt) : PrnBuf = PrnBuf & txt : Print = PrnBuf : End Function"
+    If Len(fnPrint) = 0 Then fnPrint = "*Print*"
+    
+    If Left$(fnPrint, 1) = "*" Then isEval = True:   fnPrint = Mid$(fnPrint, 2)
+    If Right$(fnPrint, 1) = "*" Then isInt = True:   fnPrint = Mid$(fnPrint, 1, Len(fnPrint) - 1)
+    
+    fnBuffer = fnPrint + "_Buffer":    fnExec = fnPrint + "_Execute"
+    
+    If isInt Then
+        CAS.AddCode "Dim " + fnBuffer + vbCrLf + _
+        "Sub " + fnPrint + "(mf_v1) : " + fnBuffer + " = " + fnBuffer + " & mf_v1 : End Sub" + vbCrLf + _
+        "Function " + fnExec + "(mf_v1) : On Error Resume Next : " + fnBuffer + " = """" : Execute mf_v1 : " + fnExec + " = " + fnBuffer + " : End Function"
+    End If
 
-    txt = Split(txtCode, dmStart):     out = Parse_Template_Sub(txt(0), fnPrint)
+    txt = Split(txtCode, dmStart):    If isEval Then out = txt(0) Else out = Parse_Template_Sub(txt(0), fnPrint)
 
     For a = 1 To UBound(txt)
         tmp = Split(txt(a), dmStop)
-        If Len(fnPrint) = 0 Then
-            CAS.ExecuteStatement "PrnBuf = """"" + vbCrLf + tmp(0)
-            out = out & CAS.Eval("PrnBuf")
+        If isEval Then
+            On Error Resume Next
+            out = out & CallByName(CAS.CodeObject, fnExec, VbMethod, tmp(0))
+            On Error GoTo 0
         Else
             out = out + tmp(0) + vbCrLf
         End If
-        If UBound(tmp) > 0 Then out = out + Parse_Template_Sub(tmp(1), fnPrint)
+        If UBound(tmp) > 0 Then If isEval Then out = out + tmp(1) Else out = out + Parse_Template_Sub(tmp(1), fnPrint)
     Next
 
     Parse_Template = out
 End Function
 
-Function Parse_Template_Sub(txtCode As String, ByVal fnPrint As String) As String
-    Dim a As Long, uds As Long, tmp As String, txt() As String
-    If Len(fnPrint) = 0 Then Parse_Template_Sub = txtCode:    Exit Function
+Function Parse_Template_Sub(txtCode As String, fnPrint As String) As String
+    Dim a As Long, uds As Long, t1 As String, t2 As String, t3 As String, txt() As String
+    t1 = fnPrint + "(""":    t2 = """ + vbCrLf)":    t3 = fnPrint + "(vbCrLf)"
     txt = Split(txtCode, vbCrLf):    uds = UBound(txt)
     For a = 0 To uds
-        If Len(txt(a)) Then tmp = fnPrint + "(""" + Replace$(txt(a), """", """""") + """)" + vbCrLf Else tmp = ""
-        If a < uds Then tmp = tmp + fnPrint + "(vbCrLf)" + vbCrLf
-        Parse_Template_Sub = Parse_Template_Sub + tmp
+        If a = uds Then t2 = """)":    t3 = ""
+        If Len(txt(a)) Then txt(a) = t1 + Replace$(txt(a), """", """""") + t2 Else txt(a) = t3
     Next
+    If Len(txt(uds)) Then txt(uds) = txt(uds) & vbCrLf
+    Parse_Template_Sub = Join(txt, vbCrLf)
 End Function
 
 Function Parse_Types_Sub(ByVal Mts As MatchCollection, wrapProp As String, ByVal sz As Long, vOffset As Long) As String
@@ -924,7 +937,6 @@ Sub Parse_Directiv(txtCode As String)
             Select Case LCase$(Mts(a).SubMatches(0))
                 Case "addrus":          Call Parse_Modify(txtCode)
                 Case "develop":         EMailDevelop = Mts(0).SubMatches(2)
-                Case "noshowerror":     mf_NoShowError = True
                 Case "asyncload":       mf_AsyncLoad = CLng(Mts(0).SubMatches(2))
             End Select
         Next
@@ -1181,7 +1193,7 @@ Sub Script_End()
         Set Frm = Nothing
     Next
                 
-    Erase MDL:    mf_Counter = 0:     mf_AsyncLoad = 0:     mf_NoShowError = False
+    Erase MDL:    mf_Counter = 0:     mf_AsyncLoad = 0:     mf_NoError = False
 
     If Not CAS Is Nothing Then CAS.Reset
     Set CAS = Nothing

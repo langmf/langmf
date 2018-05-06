@@ -222,7 +222,7 @@ Class Scintilla
 						Case "$"	:	v = "SCI_SetStyle " & hWnd & ", " & Mid(v, 2)
 						Case "@"	:	v = "SCI_Send " & hWnd & ", " & Mid(v, 2)
 					End Select
-					If bMulti = False Then .ExecuteStatement old : old = ""
+					If bMulti = False Then .Execute old : old = ""
 					old = old + v
 				Next
 			Next
