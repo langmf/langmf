@@ -183,16 +183,21 @@ Public Function Path(Optional ByVal value As Variant = False, Optional ByVal bac
     End If
 End Function
 
-Public Function Host(Optional ByVal value As String, Optional ByVal ID As Long = 1) As Variant
+Public Function Host(ParamArray Args() As Variant) As Variant
+    Dim uds As Long, Param As String
+    
     On Error Resume Next
     
-    Select Case LCase$(value)
+    uds = UBound(Args):    If uds >= 0 Then Param = Args(0)
+    
+    Select Case LCase$(Param)
         Case "host", "":        Set Host = LMF
         Case "arg":             Host = Info.Arg
         Case "time_lmf":        Host = mf_TimeLMF
         Case "time_parse":      Host = mf_TimeParse
-        Case "mdl_name":        Host = MDL(ID).Name
-        Case "mdl_type":        Host = MDL(ID).Type
+        Case "mdl_name":        Host = MDL(Args(1)).Name
+        Case "mdl_type":        Host = MDL(Args(1)).Type
+        Case "noerror":         If uds < 1 Then Host = mf_NoError Else mf_NoError = Args(1)
     End Select
 End Function
 

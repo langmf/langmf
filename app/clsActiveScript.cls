@@ -95,7 +95,7 @@ Public Function Eval(ByVal value As String, Optional ByVal nMod As String) As Va
     Parse value, nMod, SCRIPTTEXT_ISEXPRESSION, Eval
 End Function
 
-Public Sub ExecuteStatement(ByVal value As String, Optional ByVal nMod As String)
+Public Sub Execute(ByVal value As String, Optional ByVal nMod As String)
     Parse value, nMod
 End Sub
 
@@ -139,7 +139,6 @@ Public Property Let State(ByVal value As Long)
     Init
     IScript.SetScriptState value
 End Property
-
 
 
 

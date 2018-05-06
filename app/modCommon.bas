@@ -1332,7 +1332,7 @@ Function m_DoParams(ByVal Obj As Object, Arg As Variant) As Object
         If Len(Preset(a)) Then txt = Replace$(txt, "$" & a, Preset(a))
     Next
     
-    CAS.ExecuteStatement "With " & Preset(0) & vbCrLf & txt & vbCrLf & "End With", nMod
+    CAS.Execute "With " & Preset(0) & vbCrLf & txt & vbCrLf & "End With", nMod
 End Function
 
 Sub m_ArrayReverse(arr As Variant)

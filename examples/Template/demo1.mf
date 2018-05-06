@@ -1,18 +1,25 @@
 ﻿<#Module=Demo>
-Dim PrnBuf
+Dim PrnBuf, h
 
 '---------------------------------------
 Function Print(txt)
     PrnBuf = PrnBuf & txt  :  Print = PrnBuf
 End Function
 
+Sub Exec(txt)
+    On Error Resume Next
+    Execute txt
+End Sub
 
 '---------------------------------------
 Sub Load(cmdLine)
     txt = sys.ext.template(sys.conv.file2str("example1.tpl"), "Print")
-    Execute txt
-    sys.conv.str2file PrnBuf, "result1.txt"
     msgbox txt
+    
+    Exec txt
+    
+    sys.conv.str2file PrnBuf, "result1.txt"
+    
     EndMF
 End Sub
 <#Module>

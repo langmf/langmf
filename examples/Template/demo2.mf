@@ -2,8 +2,10 @@
 '---------------------------------------
 Sub Load(cmdLine)
     txt = sys.ext.template(sys.conv.file2str("example2.tpl"))
-    sys.conv.str2file txt, "result2.txt"
+
     msgbox txt
+
+    sys.conv.str2file txt, "result2.txt"
     
     EndMF
 End Sub

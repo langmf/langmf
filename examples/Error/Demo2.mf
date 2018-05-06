@@ -1,0 +1,16 @@
+﻿<#Module=Demo>
+Dim a
+
+'---------------------------------------
+Sub Load(cmdLine)
+    sys.host "noerror", true
+    sys.host.script.addcode " a == 5"
+    sys.host "noerror", false
+    
+    msgbox a,,"1"
+    sys.host.script.addcode " a = 8"
+    msgbox a,,"2"
+
+    EndMF
+End Sub
+<#Module>
