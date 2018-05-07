@@ -1,5 +1,5 @@
 ﻿<#Module=Demo>
-Dim PrnBuf, h
+Dim PrnBuf
 
 '---------------------------------------
 Function Print(txt)

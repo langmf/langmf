@@ -511,6 +511,8 @@ Function Parse_Template(txtCode As String, Optional ByVal fnPrint As String, Opt
         "Function " + fnExec + "(mf_v1) : On Error Resume Next : " + fnBuffer + " = """" : Execute mf_v1 : " + fnExec + " = " + fnBuffer + " : End Function"
     End If
 
+    If Len(txtCode) = 0 Then Exit Function
+
     txt = Split(txtCode, dmStart):    If isEval Then out = txt(0) Else out = Parse_Template_Sub(txt(0), fnPrint)
 
     For a = 1 To UBound(txt)
@@ -530,6 +532,7 @@ End Function
 
 Function Parse_Template_Sub(txtCode As String, fnPrint As String) As String
     Dim a As Long, uds As Long, t1 As String, t2 As String, t3 As String, txt() As String
+    If Len(txtCode) = 0 Then Exit Function
     t1 = fnPrint + "(""":    t2 = """ + vbCrLf)":    t3 = fnPrint + "(vbCrLf)"
     txt = Split(txtCode, vbCrLf):    uds = UBound(txt)
     For a = 0 To uds
