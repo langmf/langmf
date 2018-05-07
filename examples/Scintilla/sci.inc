@@ -226,7 +226,7 @@ Class Scintilla
 					old = old + v
 				Next
 			Next
-			.ExecuteStatement old
+			.Execute old
 		End With
 	End Property
 	
