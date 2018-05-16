@@ -201,9 +201,7 @@ End Function
 
 Private Sub Class_Initialize()
     Set Jobs = New clsHash
-    Set RXP = New RegExp
-    RXP.Global = True
-    RXP.IgnoreCase = True
+    Set RXP = New RegExp:      RXP.Global = True:      RXP.IgnoreCase = True
     hWnd = frmScript.hWnd
     StartTimer
 End Sub

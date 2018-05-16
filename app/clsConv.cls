@@ -57,12 +57,9 @@ Public Function Decompress(value As Variant, Optional ByVal cmsType As Long = CM
 End Function
 
 Public Function Buf(value As Variant, Optional ByVal typeVar As Integer = vbArray + vbVariant) As Variant
-    Dim tmpBuf() As Byte, dummy() As Byte
+    Dim tmpBuf() As Byte
     ConvToBufferByte value, tmpBuf
-    If typeVar = -vbString Then Buf = ToUnicode(tmpBuf):    Exit Function
-    If typeVar = vbString Then Buf = ""
-    If typeVar = vbArray + vbByte Then Buf = dummy
-    ConvFromBufferByte Buf, tmpBuf
+    ConvFromBufferByte Buf, tmpBuf, typeVar
 End Function
 
 Public Function EncodeUrl(ByVal value As String, Optional ByVal Cpg As Long = -1) As String

@@ -295,18 +295,18 @@ Public Function ShowSave(Optional ByVal Filter As String = "All files (*.*)|*.*"
 End Function
 
 Public Function ShowPrinter(Optional ByVal bNewStyle As Boolean = True, Optional ByVal Flags As Long) As Long
-    Dim PD As def_PRINTDLG, dm As DEVMODE, DN As DEVNAMES, lpDevMode As Long, lpDevName As Long
+    Dim pd As def_PRINTDLG, dm As DEVMODE, dn As DEVNAMES, lpDevMode As Long, lpDevName As Long
     Dim RetValue As Long, objPrinter As Printer, NewPrinterName As String
-    
-    With PD
-        .lStructSize = Len(PD)
+
+    With pd
+        .lStructSize = Len(pd)
         .hwndOwner = IIF(bNewStyle, frmScript.hWnd, hwndOwner)
         .hDC = GetDC(.hwndOwner)
         .nMinPage = 1
         .nMaxPage = 1000
         .Flags = Flags
     End With
-    
+
     ' Set the current orientation and duplex setting
     On Error GoTo ExitSub
     
@@ -324,15 +324,15 @@ Public Function ShowPrinter(Optional ByVal bNewStyle As Boolean = True, Optional
     
     ' Allocate memory for the initialization hDevMode structure
     ' and copy the settings gathered above into this memory
-    PD.hDevMode = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, Len(dm))
-    lpDevMode = GlobalLock(PD.hDevMode)
+    pd.hDevMode = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, LenB(dm))
+    lpDevMode = GlobalLock(pd.hDevMode)
     If lpDevMode > 0 Then
-        CopyMemory ByVal lpDevMode, dm, Len(dm)
+        CopyMemory ByVal lpDevMode, dm, LenB(dm)
         RetValue = GlobalUnlock(lpDevMode)
     End If
     
     ' Set the current driver, device, and port Name strings
-    With DN
+    With dn
         .wDriverOffset = 8
         .wDeviceOffset = .wDriverOffset + 1 + Len(Printer.DriverName)
         .wOutputOffset = .wDeviceOffset + 1 + Len(Printer.Port)
@@ -340,37 +340,37 @@ Public Function ShowPrinter(Optional ByVal bNewStyle As Boolean = True, Optional
     End With
     
     With Printer
-         DN.Extra = .DriverName & vbNullChar & .DeviceName & vbNullChar & .Port & vbNullChar
+         dn.Extra = .DriverName & vbNullChar & .DeviceName & vbNullChar & .Port & vbNullChar
     End With
     
     ' Allocate memory for the initial hDevName structure
     ' and copy the settings gathered above into this memory
-    PD.hDevNames = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, Len(DN))
-    lpDevName = GlobalLock(PD.hDevNames)
+    pd.hDevNames = GlobalAlloc(GMEM_MOVEABLE Or GMEM_ZEROINIT, LenB(dn))
+    lpDevName = GlobalLock(pd.hDevNames)
     If lpDevName > 0 Then
-        CopyMemory ByVal lpDevName, DN, Len(DN)
+        CopyMemory ByVal lpDevName, dn, LenB(dn)
         RetValue = GlobalUnlock(lpDevName)
     End If
     
     ' Call the print dialog up and let the user make changes
-    RetValue = PrintDlgW(PD)
+    RetValue = PrintDlgW(pd)
     
     ShowPrinter = RetValue
     
-    ReleaseDC PD.hwndOwner, PD.hDC
+    ReleaseDC pd.hwndOwner, pd.hDC
     
     If RetValue <> 0 Then
         'mhOwner = PD.hDC
         
-        lpDevName = GlobalLock(PD.hDevNames)
-        CopyMemory DN, ByVal lpDevName, 45
+        lpDevName = GlobalLock(pd.hDevNames)
+        CopyMemory dn, ByVal lpDevName, 45
         RetValue = GlobalUnlock(lpDevName)
-        GlobalFree PD.hDevNames
-        
-        lpDevMode = GlobalLock(PD.hDevMode)
-        CopyMemory dm, ByVal lpDevMode, Len(dm)
-        RetValue = GlobalUnlock(PD.hDevMode)
-        GlobalFree PD.hDevMode
+        GlobalFree pd.hDevNames
+
+        lpDevMode = GlobalLock(pd.hDevMode)
+        CopyMemory dm, ByVal lpDevMode, LenB(dm)
+        RetValue = GlobalUnlock(pd.hDevMode)
+        GlobalFree pd.hDevMode
         
         NewPrinterName = Conv_W2A_Str(dm.dmDeviceName)
         NewPrinterName = UCase$(Left$(NewPrinterName, InStr(NewPrinterName, vbNullChar) - 1))
@@ -384,10 +384,10 @@ Public Function ShowPrinter(Optional ByVal bNewStyle As Boolean = True, Optional
         On Error Resume Next
         
         ' Set printer object properties according to selections made by user
-        PrnFromPage = PD.nFromPage
-        PrnToPage = PD.nToPage
-        PrnCopies = PD.nCopies
-        PrnFlag = PD.Flags
+        PrnFromPage = pd.nFromPage
+        PrnToPage = pd.nToPage
+        PrnCopies = pd.nCopies
+        PrnFlag = pd.Flags
 
         With Printer
             .Copies = dm.dmCopies

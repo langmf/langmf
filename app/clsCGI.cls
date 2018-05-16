@@ -103,10 +103,7 @@ Private Sub Upload(txt As String)
     Dim txtData As String, txtName As String, txtFile As String, txtType As String
     Dim a As Long, arrValue() As String, REG1 As RegExp, Mts As MatchCollection
     
-    Set REG1 = New RegExp
-    
-    REG1.Global = True
-    REG1.IgnoreCase = True
+    Set REG1 = New RegExp:      REG1.Global = True:      REG1.IgnoreCase = True
     
     Boundary = GEV("CONTENT_TYPE")
     
@@ -129,11 +126,11 @@ Private Sub Upload(txt As String)
         hdr2 = Mts(0).SubMatches(1)
         hdr3 = Mts(0).SubMatches(2)
         
-        REG1.Pattern = "name=\""([^\""]+)\"""
+        REG1.Pattern = "name=""([^""]+)"""
         Set Mts = REG1.Execute(hdr1)
         If Mts.Count > 0 Then txtName = Mts(0).SubMatches(0) Else txtName = ""
         
-        REG1.Pattern = "filename=\""([^\""]+)\"""
+        REG1.Pattern = "filename=""([^""]+)"""
         Set Mts = REG1.Execute(hdr1)
         If Mts.Count > 0 Then txtFile = Mts(0).SubMatches(0) Else txtFile = ""
         

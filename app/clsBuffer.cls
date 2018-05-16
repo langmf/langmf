@@ -20,8 +20,8 @@ Public Sub SetData(Buf As Variant)
     ConvToBufferByte Buf, Buffer:    m_Ptr = Ptr
 End Sub
 
-Public Function GetData(Optional Buf As Variant) As Byte()
-    If IsMissing(Buf) Then GetData = Buffer Else ConvFromBufferByte Buf, Buffer
+Public Function GetData(Optional ByVal typeVar As Integer = vbArray + vbByte) As Variant
+    ConvFromBufferByte GetData, Buffer, typeVar
 End Function
 
 Public Property Get Ptr(Optional ByVal allowExec As Boolean) As Long

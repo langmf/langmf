@@ -376,11 +376,9 @@ Global Const STD_OUTPUT_HANDLE      As Long = -11
 Global Const STD_ERROR_HANDLE       As Long = -12
 Global Const COLOR_WINDOWTEXT       As Long = 8
 Global Const THBN_CLICKED           As Long = &H1800&
-Global Const TRANSPARENT            As Long = 1
-Global Const OPAQUE                 As Long = 2
+Global Const MD_TRANSPARENT         As Long = 1
+Global Const MD_OPAQUE              As Long = 2
 Global Const RGN_OR                 As Long = 2
-Global Const LOGPIXELSX             As Long = 88
-Global Const LOGPIXELSY             As Long = 90
 Global Const FW_NORMAL              As Long = 400
 Global Const FW_BOLD                As Long = 700
 Global Const DT_WORDBREAK           As Long = &H10
@@ -397,6 +395,28 @@ Global Const MAX_PATH_UNI           As Long = 4096
 Global Const API_StdCall            As Long = 0
 Global Const API_CDecl              As Long = 1
 Global Const VbFunc                 As Long = VbMethod Or VbGet
+
+'--------------------------------------------
+Global Const DC_HORZRES             As Long = 8
+Global Const DC_VERTRES             As Long = 10
+Global Const DC_BITSPIXEL           As Long = 12
+Global Const DC_PLANES              As Long = 14
+Global Const DC_LOGPIXELSX          As Long = 88
+Global Const DC_LOGPIXELSY          As Long = 90
+Global Const DC_VREFRESH            As Long = 116
+Global Const DC_DESKTOPVERTRES      As Long = 117
+Global Const DC_DESKTOPHORZRES      As Long = 118
+
+'--------------------------------------------
+Global Const DD_ATTACH_TO_DESKTOP   As Long = 1
+Global Const DD_MULTI_DRIVER        As Long = 2
+Global Const DD_PRIMARY_DEVICE      As Long = 4
+Global Const DD_MIRRORING_DRIVER    As Long = 8
+Global Const DD_VGA_COMPATIBLE      As Long = &H10
+Global Const DD_REMOVABLE           As Long = &H20
+Global Const DD_DISCONNECT          As Long = &H2000000
+Global Const DD_REMOTE              As Long = &H4000000
+Global Const DD_MODESPRUNED         As Long = &H8000000
 
 '--------------------------------------------
 Global Const MF_BYCOMMAND           As Long = 0
@@ -830,6 +850,15 @@ Type DEVMODE
     dmReserved2 As Long
     dmPanningWidth As Long
     dmPanningHeight As Long
+End Type
+
+Type DEVDISPLAY
+   cbSize As Long
+   DeviceName As String * 32
+   DeviceString As String * 128
+   StateFlags As Long
+   DeviceID As String * 128
+   DeviceKey As String * 128
 End Type
 
 Type TRIVERTEX

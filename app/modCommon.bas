@@ -99,19 +99,19 @@ Sub m_EndMF(Optional ByVal Interval As Long = 1)
 End Sub
 
 Function m_HPX(ByVal value As Long) As Long
-    m_HPX = (value * GetDeviceCaps(frmScript.hDC, 88)) / 2540
+    m_HPX = (value * GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSX)) / 2540
 End Function
 
 Function m_HPY(ByVal value As Long) As Long
-    m_HPY = (value * GetDeviceCaps(frmScript.hDC, 90)) / 2540
+    m_HPY = (value * GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSY)) / 2540
 End Function
 
 Function m_PHX(ByVal value As Long) As Long
-    m_PHX = (value * 2540) / GetDeviceCaps(frmScript.hDC, 88)
+    m_PHX = (value * 2540) / GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSX)
 End Function
 
 Function m_PHY(ByVal value As Long) As Long
-    m_PHY = (value * 2540) / GetDeviceCaps(frmScript.hDC, 90)
+    m_PHY = (value * 2540) / GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSY)
 End Function
 
 Sub FlexMove(ByVal Obj As Object, Optional x As Variant = "Left", Optional y As Variant = "Top", Optional Width As Variant = "Width", Optional Height As Variant = "Height", Optional ByVal PrtWidth As Single, Optional ByVal PrtHeight As Single, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal offsetX As Single, Optional ByVal offsetY As Single, Optional ByVal typeW As Single, Optional ByVal typeH As Single)
@@ -725,14 +725,16 @@ Function ConvToBufferByte(bufVar As Variant, bufByte() As Byte) As Boolean
     ConvToBufferByte = True
 End Function
 
-Function ConvFromBufferByte(bufVar As Variant, bufByte() As Byte) As Boolean
-    Dim a As Long, vt As Integer, uds As Long, SA As SafeArray, v() As Variant
+Function ConvFromBufferByte(bufVar As Variant, bufByte() As Byte, Optional ByVal vt As Variant) As Boolean
+    Dim a As Long, uds As Long, SA As SafeArray, v() As Variant
     
     If VarType(bufVar) = vbEmpty Then bufVar = Array()
+    If IsMissing(vt) Then vt = VariantType(bufVar, True)
     
-    vt = VariantType(bufVar, True)
+    If vt = -vbString Then
+        bufVar = ToUnicode(bufByte)
 
-    If vt = vbString Then
+    ElseIf vt = vbString Then
         bufVar = Conv_A2W_Buf(bufByte)
         
     ElseIf vt = vbArray + vbVariant Then
@@ -760,6 +762,7 @@ Function ConvFromBufferByte(bufVar As Variant, bufByte() As Byte) As Boolean
         
     ElseIf vt = vbArray + vbByte Then
         bufVar = bufByte
+
     Else
         Exit Function
     End If
@@ -980,7 +983,7 @@ Function StdFontToLogFont(fnt As StdFont) As LOGFONT
     If fnt Is Nothing Then Set fnt = New StdFont
     With StdFontToLogFont
         s = fnt.Name:    b = s:    For i = 0 To Len(s) * 2 - 1:   .lfFaceName(i) = b(i):      Next
-        hDC = GetDC(0):     .lfHeight = -MulDiv(fnt.Size, GetDeviceCaps(hDC, LOGPIXELSY), 72):      ReleaseDC 0, hDC
+        hDC = GetDC(0):     .lfHeight = -MulDiv(fnt.Size, GetDeviceCaps(hDC, DC_LOGPIXELSY), 72):      ReleaseDC 0, hDC
         'If fnt.Bold Then .lfWeight = FW_BOLD Else .lfWeight = FW_NORMAL
         .lfWeight = fnt.Weight
         .lfItalic = fnt.Italic
@@ -996,7 +999,7 @@ Sub PrintText(ByVal hWnd As Long, ByVal hDC As Long, Text As String, Optional By
     SetTextColor hDC, Color
     hFont = CreateFontIndirectW(StdFontToLogFont(Font))
     hTmp = SelectObject(hDC, hFont)
-    SetBkMode hDC, TRANSPARENT
+    SetBkMode hDC, MD_TRANSPARENT
     DrawTextW hDC, StrPtr(Text), -1, rc, Flag
     DeleteObject SelectObject(hDC, hTmp)
 End Sub
