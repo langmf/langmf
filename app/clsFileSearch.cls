@@ -72,7 +72,5 @@ Private Sub AddItem(value As String)
 End Sub
 
 Private Sub Class_Initialize()
-    Set REG1 = New RegExp
-    REG1.IgnoreCase = True
-    REG1.Global = False
+    Set REG1 = New RegExp:      REG1.IgnoreCase = True:      REG1.Global = False
 End Sub

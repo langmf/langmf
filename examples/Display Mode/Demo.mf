@@ -1,35 +1,28 @@
-<#Module=mdlMain>
-Dim All_Disp
+Ôªø<#Module=mdlMain>
+Dim Disp
 
 '---------------------------------------
 Sub Load(cmdLine)
-  Dim Disp, tmp, pos
+  form.move 0,0,8000, 3000
+  form.add "command", 1, ".move 3000, 1500, 2000, 400", ".caption = ""–£—Å—Ç–∞–Ω–æ–≤–∏—Ç—å"""
+  form.add "lcombo", 1,  ".move 400, 480, 7000", ".FontName = ""Arial""", ".FontSize = 10"
 
-  form.add "command",1
-  form.command(1).move 1440, 960, 1200, 300
-  form.command(1).caption = "”ÒÚ‡ÌÓ‚ËÚ¸"
+  Set Disp = sys.gdi.EnumDisplay
 
-  form.add "lcombo",1
-  form.lcombo(1).move 960, 480, 2500
+  For Each v In Disp("Devices")
+    x = v("Display")  :  form.lcombo(1).additem "Device  = " & x(0) & "      " & x(1) & "      " & HEX(x(2))  :  d = x(0)
+    x = v("Monitor")  :  form.lcombo(1).additem "Monitor = " & x(0) & "      " & x(1) & "      " & HEX(x(2))
 
-  Set Disp = sys.gdi.GetDisplayMode
+    form.lcombo(1).additem "Param = " & v("width") & " x " & v("height") & "   (" & v("bpp") & " bit   " & v("freq") & " Hz )    Angle = " & v("Angle")
 
-  Set All_Disp = sys.gdi.EnumDisplay
+    For Each s In v("Settings")
+        form.lcombo(1).additem d & " = " & s("width") & " x " & s("height") & "   (" & s("bpp") & " bit   " & s("freq") & " Hz )    Fixed = " & s("Fixed")
+    Next
 
-  pos = 0
-  cnt = 0
-
-  for each m in All_Disp
-    form.lcombo(1).additem m("width") & " x " & m("height") & " (" & m("bpp") & " bit " & m("freq") & " Hz)"
-
-    if m("width") = Disp("width") and m("height") = Disp("height") and m("bpp") = Disp("bpp") and m("freq") = Disp("freq") then
-        pos = cnt
-    end if
-
-    cnt = cnt + 1
+    form.lcombo(1).additem ""
   next
 
-  form.lcombo(1).listindex = pos
+  form.lcombo(1).listindex = 0
   form.Center
   form.show
 End Sub
@@ -38,11 +31,11 @@ End Sub
 <#Form=form>
 '---------------------------------
 Sub Command1_Click()
-  Dim num
-
-  num = form.lcombo(1).listindex + 1
-
-  sys.gdi.SetDisplayMode All_Disp(num)("width"), All_Disp(num)("height"), All_Disp(num)("bpp"), All_Disp(num)("freq"), 1
+  txt = form.lcombo(1).list(form.lcombo(1).listindex)
+  Set mts = txt =~ ie/(\\\\\.\\[^ ]+) = (\d+) x (\d+) *\((\d+) bit *(\d+)//
+  if mts.count = 0 then msgbox "Select another record!"  :  exit sub
+  set v = mts(0).submatches
+  sys.gdi.SetDisplay Array(v(1), v(2), v(3), v(4)), v(0)
 End Sub
 
 '---------------------------------

@@ -15,12 +15,13 @@ Attribute VB_Ext_KEY = "SavedWithClassBuilder6" ,"Yes"
 Attribute VB_Ext_KEY = "Top_Level" ,"Yes"
 Option Explicit
 
-Private Declare Function SetLayeredWindowAttributes Lib "user32" (ByVal hWnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
 Private Declare Function AlphaBlend Lib "msimg32" (ByVal hDestDC As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal XSrc As Long, ByVal YSrc As Long, ByVal widthSrc As Long, ByVal heightSrc As Long, blendFunct As BLENDFUNCTION) As Long
 Private Declare Function GradientFill Lib "msimg32" (ByVal hDC As Long, pVertex As TRIVERTEX, ByVal dwNumVertex As Long, pMesh As Gradient_Triangle, ByVal dwNumMesh As Long, ByVal dwMode As Long) As Long
 Private Declare Function func_Polygon Lib "gdi32" Alias "Polygon" (ByVal hDC As Long, lpPoint As POINTAPI, ByVal nCount As Long) As Long
-Private Declare Function EnumDisplaySettings Lib "user32" Alias "EnumDisplaySettingsA" (ByVal lpszDeviceName As Long, ByVal iModeNum As Long, ByRef lpDevMode As DEVMODE) As Long
-Private Declare Function ChangeDisplaySettingsEx Lib "user32" Alias "ChangeDisplaySettingsExA" (lpszDeviceName As Any, lpDevMode As Any, ByVal hWnd As Long, ByVal dwFlags As Long, lParam As Any) As Long
+Private Declare Function EnumDisplayDevicesA Lib "user32" (ByVal lpDevice As Any, ByVal iDevNum As Long, lpDisplayDevice As DEVDISPLAY, ByVal dwFlags As Long) As Long
+Private Declare Function EnumDisplaySettingsA Lib "user32" (ByVal lpszDeviceName As Any, ByVal iModeNum As Long, ByRef lpDevMode As DEVMODE) As Long
+Private Declare Function ChangeDisplaySettingsExA Lib "user32" (ByVal lpszDeviceName As String, lpDevMode As Any, ByVal hWnd As Long, ByVal dwFlags As Long, ByVal lParam As Any) As Long
+Private Declare Function SetLayeredWindowAttributes Lib "user32" (ByVal hWnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
 
 Private Const DM_BITSPERPEL = &H40000, DM_PELSHEIGHT = &H100000, DM_PELSWIDTH = &H80000, DM_DISPLAYFREQUENCY = &H400000
 
@@ -132,63 +133,80 @@ Public Function GetGrad(ByVal Level As Long, ByVal color1 As Long, ByVal color2 
     GetGrad = b * 65536 + g * 256 + r
 End Function
 
-Public Function LoadPicture(Optional ByVal FileName As String, Optional Size As Variant, Optional ColorDepth As Variant, Optional x As Variant, Optional y As Variant) As IPictureDisp
-    Set LoadPicture = VB.LoadPicture(FileName, Size, ColorDepth, x, y)
-End Function
+Public Function SetDisplay(ByVal value As Variant, Optional ByVal devName As String = vbNullString, Optional ByVal Flags As Long = 1) As Long
+    Dim dev As DEVMODE
 
-Public Function SetDisplayMode(ByVal Width As Long, ByVal Height As Long, ByVal BPP As Long, ByVal Freq As Long, ByVal change_flags As Long) As Long
-    Dim dev_mode As DEVMODE
+    On Error Resume Next
 
-    ' Set the desired mode.
-    With dev_mode
-        .dmSize = Len(dev_mode)
+    With dev
+        .dmSize = Len(dev)
         .dmDriverExtra = 0
         .dmFields = DM_PELSWIDTH Or DM_PELSHEIGHT Or DM_BITSPERPEL Or DM_DISPLAYFREQUENCY
-        .dmPelsWidth = Width
-        .dmPelsHeight = Height
-        .dmBitsPerPel = BPP
-        .dmDisplayFrequency = Freq
+        .dmPelsWidth = value(0)
+        .dmPelsHeight = value(1)
+        .dmBitsPerPel = value(2)
+        .dmDisplayFrequency = value(3)
     End With
 
-    ' Make the change.
-    SetDisplayMode = ChangeDisplaySettingsEx(ByVal 0&, dev_mode, 0, change_flags, ByVal 0&)
+    SetDisplay = ChangeDisplaySettingsExA(devName, dev, 0, Flags, 0&)
 End Function
 
-Public Function EnumDisplay() As Collection
-    Dim tmpCollect As New Collection, tmpCl As Collection, dev_mode As DEVMODE, mode_num As Long
+Public Function EnumDisplay(Optional ByVal patName As String) As Collection
+    Dim a As Long, b As Long, d As Long, i As Long, ma As Variant, mb As Variant, devName As String
+    Dim c As Collection, ddi As DEVDISPLAY, dev As DEVMODE, REG1 As RegExp
 
-    ' List the display modes.
-    dev_mode.dmSize = Len(dev_mode)
-    dev_mode.dmDriverExtra = 0
-    
-    Do While EnumDisplaySettings(0, mode_num, dev_mode) <> 0
-        
-        Set tmpCl = New Collection
-        
-        tmpCl.Add dev_mode.dmPelsWidth, "Width"
-        tmpCl.Add dev_mode.dmPelsHeight, "Height"
-        tmpCl.Add dev_mode.dmBitsPerPel, "Bpp"
-        tmpCl.Add dev_mode.dmDisplayFrequency, "Freq"
-        
-        tmpCollect.Add tmpCl
+    Set REG1 = New RegExp:      REG1.IgnoreCase = True:      REG1.Pattern = patName
 
-        Set tmpCl = Nothing
+    ma = Array():      ddi.cbSize = Len(ddi)
+
+    Do While EnumDisplayDevicesA(0&, i, ddi, 0)
+
+        devName = TrimNull(ddi.DeviceName)
+
+        If REG1.Test(devName) Then
+            mb = Array():      b = 0:      dev.dmSize = Len(dev):      dev.dmDriverExtra = 0:
             
-        mode_num = mode_num + 1
-    Loop
-    
-    Set EnumDisplay = tmpCollect
-End Function
+            Do While EnumDisplaySettingsA(devName, b, dev) <> 0
 
-Public Function GetDisplayMode() As Collection
-    Dim tmpCl As New Collection
-    
-    tmpCl.Add GetDeviceCaps(frmScript.hDC, 8), "Width"
-    tmpCl.Add GetDeviceCaps(frmScript.hDC, 10), "Height"
-    tmpCl.Add GetDeviceCaps(frmScript.hDC, 12), "Bpp"
-    tmpCl.Add GetDeviceCaps(frmScript.hDC, 116), "Freq"
-    
-    Set GetDisplayMode = tmpCl
+                Set c = New Collection
+
+                c.Add dev.dmPelsWidth, "Width"
+                c.Add dev.dmPelsHeight, "Height"
+                c.Add dev.dmBitsPerPel, "Bpp"
+                c.Add dev.dmDisplayFrequency, "Freq"
+                c.Add dev.dmDefaultSource, "Fixed"
+
+                If UBound(mb) < b Then ReDim Preserve mb(b)
+                Set mb(b) = c:      Set c = Nothing:      b = b + 1
+            Loop
+
+            Set c = New Collection
+
+            If EnumDisplaySettingsA(devName, -1, dev) = 0 Then FillMemory dev, LenB(dev), 0
+
+            c.Add mb, "Settings"
+            c.Add dev.dmScale, "Angle"
+            c.Add dev.dmPelsWidth, "Width"
+            c.Add dev.dmPelsHeight, "Height"
+            c.Add dev.dmBitsPerPel, "Bpp"
+            c.Add dev.dmDisplayFrequency, "Freq"
+
+            c.Add Array(devName, TrimNull(ddi.DeviceString), ddi.StateFlags), "Display"
+            If ddi.StateFlags And DD_PRIMARY_DEVICE Then d = a
+
+            If EnumDisplayDevicesA(devName, 0, ddi, 0) = 0 Then FillMemory ddi, LenB(ddi), 0
+            c.Add Array(TrimNull(ddi.DeviceName), TrimNull(ddi.DeviceString), ddi.StateFlags), "Monitor"
+
+            If UBound(ma) < a Then ReDim Preserve ma(a)
+            Set ma(a) = c:      Set c = Nothing:      a = a + 1
+        End If
+
+        ddi.cbSize = Len(ddi):      i = i + 1
+    Loop
+
+    Set EnumDisplay = New Collection
+    EnumDisplay.Add ma, "Devices"
+    EnumDisplay.Add d, "Primary"
 End Function
 
 Public Function PicToIco(ByVal hSrcDC As Long, ByVal nWidth As Long, ByVal nHeight As Long, Optional ByVal lMaskColor As Long = -1) As Long
@@ -281,6 +299,11 @@ End Function
 Public Sub SaveBMP(src As Variant, ByVal saveFile As String)
     If VarType(src) = vbString Then SavePicture VB.LoadPicture(src), saveFile Else SavePicture src, saveFile
 End Sub
+
+Public Function LoadPicture(Optional ByVal FileName As String, Optional Size As Variant, Optional ColorDepth As Variant, Optional x As Variant, Optional y As Variant) As IPictureDisp
+    Set LoadPicture = VB.LoadPicture(FileName, Size, ColorDepth, x, y)
+End Function
+
 
 Private Function LongToUShort(ByVal ULong As Long) As Integer
     GetMem2 VarPtr(ULong), LongToUShort

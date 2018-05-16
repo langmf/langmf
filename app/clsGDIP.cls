@@ -65,8 +65,8 @@ End Type
 
 Const PF_24RGB As Long = 137224, PF_32RGB As Long = 139273, PF_32ARGB As Long = 2498570, PF_32PARGB As Long = 925707
 Const PICTYPE_BITMAP As Long = 1, InterpolationMode As Long = 7, UnitPixel As Long = 2, DIB_RGB_COLORS As Long = 0
-Const PLANES As Long = 14, BITSPIXEL As Long = 12, PATCOPY As Long = &HF00021, AC_SRC_ALPHA As Long = 1
 Const AC_SRC_OVER As Long = 0, ULW_OPAQUE As Long = 4, ULW_COLORKEY As Long = 1, ULW_ALPHA As Long = 2
+Const PATCOPY As Long = &HF00021, AC_SRC_ALPHA As Long = 1
  
 Public Token As Long
 
@@ -208,7 +208,7 @@ Private Sub InitDC(hDC As Long, hBitmap As Long, BackColor As Long, Width As Lon
         
     ' Create a memory DC and select a bitmap into it, fill it in with the backcolor
     hDC = CreateCompatibleDC(0)
-    hBitmap = CreateBitmap(Width, Height, GetDeviceCaps(hDC, PLANES), GetDeviceCaps(hDC, BITSPIXEL), ByVal 0&)
+    hBitmap = CreateBitmap(Width, Height, GetDeviceCaps(hDC, DC_PLANES), GetDeviceCaps(hDC, DC_BITSPIXEL), ByVal 0&)
     hBitmap = SelectObject(hDC, hBitmap)
     If BackColor >= 0 Then
         hBrush = CreateSolidBrush(BackColor)

@@ -860,9 +860,7 @@ Function Parse_DLL(txtCode As String) As String
     Set Mts = REG.Execute(txtCode)
 
     If Mts.Count > 0 Then
-        Set REG1 = New RegExp
-        REG1.Global = True
-        REG1.IgnoreCase = True
+        Set REG1 = New RegExp:      REG1.Global = True:      REG1.IgnoreCase = True
         REG1.Pattern = " *(byval|byref)? *([a-z0-9_]+) *(as)? *([a-z0-9_]*) *,?"
     End If
 
@@ -919,7 +917,7 @@ End Function
 Function Parse_Lib(txtCode As String) As String
     Dim a As Long, txt As String, Mts As MatchCollection
     
-    REG.Pattern = "\n[ \t\v]*#Lib +""([^\""]+)"""
+    REG.Pattern = "\n[ \t\v]*#Lib +""([^""]+)"""
     Set Mts = REG.Execute(txtCode)
     For a = 0 To Mts.Count - 1
         txt = txt + Parse_MPath(Mts(a).SubMatches(0)) + vbCr
@@ -982,36 +980,37 @@ Sub Parse_AddLib(txtLib As String)
     Next
 End Sub
 
-Sub Parse_Include(txtCode As String, Optional ByVal noFind As String)
-    Dim txt As String, tmpBuf() As Byte, dat As Variant, RX As New clsRXP, Mts As MatchCollection
+Function Parse_Include(txtCode As String, Optional ByVal noFind As String, Optional ByVal bCompile As Boolean) As Boolean
+    Dim txt As String, RX As New clsRXP, Mts As MatchCollection, tmpBuf() As Byte
     
-    REG.Global = False
-    REG.Pattern = "\n[ \t\v]*#Include +""" + noFind + "([^""]+)"""
+    txt = "\n[ \t\v]*#Include +[<""]" + noFind + "([^"">]+)["">]"
+
+    REG.Global = False:      REG.Pattern = IIF(bCompile, Replace$(txt, """", ""), txt)
     
     Do
         Set Mts = REG.Execute(txtCode)
         
         If Mts.Count <> 0 Then
             With Mts(0)
-                txt = "":    dat = Empty
-                
+                txt = "":      Parse_Include = True
+
                 If RX.Test(.SubMatches(0), "^([a-z]+:\/\/)?(.+)") Then
                     tmpBuf = SYS.Content(.SubMatches(0), False)
-                    DeCompressMF tmpBuf
-                    dat = ToUnicode(tmpBuf)
+
+                    If bCompile = False Then DeCompressMF tmpBuf
                     
-                    If Not IsEmpty(dat) Then
-                        txt = vbCrLf + dat + vbCrLf
-                        Call Parse_Data(txt)
-                    End If
+                    txt = ToUnicode(tmpBuf)
+
+                    If bCompile = False And Len(txt) <> 0 Then txt = vbCrLf + txt + vbCrLf:    Call Parse_Data(txt)
                 End If
+
                 txtCode = Left$(txtCode, .FirstIndex + 1) + txt + Right$(txtCode, Len(txtCode) - .FirstIndex - .Length)
             End With
         End If
     Loop Until Mts.Count = 0
     
     REG.Global = True
-End Sub
+End Function
 
 Function Parse_Modify(txtCode As String, Optional txtConv As Variant, Optional ByVal Flags As Long) As String
     Dim a As Long, b As Long, st As Long, Fnd As String, Rep As String, txt() As String, REG1 As RegExp
@@ -1365,7 +1364,17 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
         Else
             BackupMF nameMF
         End If
-        
+
+
+        If m_File2Buf(Buf, nameMF) Then
+            txt = ToUnicode(Buf):    Erase Buf
+            If Parse_Include(txt, , True) Then
+                Call m_Str2File(Chr$(239) + Chr$(187) + Chr$(191) + EncodeUTF8(txt), nameMF)
+                txt = ""
+            End If
+        End If
+
+
         If f.FOpen(nameMF) = INVALID_HANDLE Then Exit Sub
             f.Pos = f.LOF + 1
             
@@ -1390,6 +1399,7 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
             Next
         f.FClose
 
+
         nameIcon = Parse_MPath(RX.Eval(txtOpt, "\nicon[ \t]*=[ \t]*([^\r]+)"))
 
         mf_Tmp = nameMF
@@ -1405,6 +1415,7 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
                     CompressMF nameMF, , Packer
             End Select
         End If
+
 
         If RX.Test(txtOpt, "\nshell(\-hide)*[ \t]*=[ \t]*([^\r]+)") Then
             ShellSync Parse_MPath(RX.Mts(0).SubMatches(1)), , Len(RX.Mts(0).SubMatches(0))
