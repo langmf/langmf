@@ -4,10 +4,11 @@ Dim Disp
 '---------------------------------------
 Sub Load(cmdLine)
   form.move 0,0,8000, 3000
-  form.add "command", 1, ".move 3000, 1500, 2000, 400", ".caption = ""Установить"""
+  form.add "command", 1, ".move 1000, 1500, 2500, 400", ".caption = ""Установить (VBScript)"""
+  form.add "command", 2, ".move 4500, 1500, 2500, 400", ".caption = ""Установить (JavaScript)"""
   form.add "lcombo", 1,  ".move 400, 480, 7000", ".FontName = ""Arial""", ".FontSize = 10"
 
-  Set Disp = sys.gdi.EnumDisplay
+  Set Disp = sys.gdi.EnumDisplay(,24,0)
 
   For Each v In Disp("Devices")
     x = v("Display")  :  form.lcombo(1).additem "Device  = " & x(0) & "      " & x(1) & "      " & HEX(x(2))  :  d = x(0)
@@ -23,6 +24,7 @@ Sub Load(cmdLine)
   next
 
   form.lcombo(1).listindex = 0
+  form.caption = "Primary display = " & (Disp("Primary") + 1)
   form.Center
   form.show
 End Sub
@@ -30,12 +32,21 @@ End Sub
 
 <#Form=form>
 '---------------------------------
-Sub Command1_Click()
+Function GetParam(v)
   txt = form.lcombo(1).list(form.lcombo(1).listindex)
   Set mts = txt =~ ie/(\\\\\.\\[^ ]+) = (\d+) x (\d+) *\((\d+) bit *(\d+)//
-  if mts.count = 0 then msgbox "Select another record!"  :  exit sub
-  set v = mts(0).submatches
-  sys.gdi.SetDisplay Array(v(1), v(2), v(3), v(4)), v(0)
+  if mts.count = 0 then msgbox "Select another record!"  :  Exit Function
+  set v = mts(0).submatches  :  GetParam = True
+End Function
+
+'---------------------------------
+Sub Command1_Click()
+  If GetParam(v) Then msgbox "Result = " & sys.gdi.SetDisplay(Array(v(1), v(2), v(3), v(4)), v(0))
+End Sub
+
+'---------------------------------
+Sub Command2_Click()
+  If GetParam(v) Then msgbox "Result = " & Parser1.Change( v(1), v(2), v(3), v(4), v(0))
 End Sub
 
 '---------------------------------
@@ -43,3 +54,10 @@ Sub Form_Unload()
   endmf
 End Sub
 <#Form>
+
+<#Script=Parser1#>
+function Change(xres, yres, bpp, freq, disp) {
+//disp = Parser1.Sys.SHD.vbNull;
+return Parser1.sys.gdi.SetDisplay(Parser1.Sys.Conv.ArrayJS([xres, yres, bpp, freq]), disp);
+}
+<#Script#>

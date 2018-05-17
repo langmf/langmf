@@ -151,33 +151,35 @@ Public Function SetDisplay(ByVal value As Variant, Optional ByVal devName As Str
     SetDisplay = ChangeDisplaySettingsExA(devName, dev, 0, Flags, 0&)
 End Function
 
-Public Function EnumDisplay(Optional ByVal patName As String) As Collection
-    Dim a As Long, b As Long, d As Long, i As Long, ma As Variant, mb As Variant, devName As String
+Public Function EnumDisplay(Optional ByVal patName As String, Optional ByVal mBits As Long, Optional ByVal mFixed As Long = -1) As Collection
+    Dim a As Long, b As Long, d As Long, ia As Long, ib As Long, ma As Variant, mb As Variant, devName As String
     Dim c As Collection, ddi As DEVDISPLAY, dev As DEVMODE, REG1 As RegExp
 
     Set REG1 = New RegExp:      REG1.IgnoreCase = True:      REG1.Pattern = patName
 
     ma = Array():      ddi.cbSize = Len(ddi)
 
-    Do While EnumDisplayDevicesA(0&, i, ddi, 0)
+    Do While EnumDisplayDevicesA(0&, ia, ddi, 0)
 
         devName = TrimNull(ddi.DeviceName)
 
         If REG1.Test(devName) Then
-            mb = Array():      b = 0:      dev.dmSize = Len(dev):      dev.dmDriverExtra = 0:
+            mb = Array():      b = 0:      ib = 0:      dev.dmSize = Len(dev):      dev.dmDriverExtra = 0:
             
-            Do While EnumDisplaySettingsA(devName, b, dev) <> 0
+            Do While EnumDisplaySettingsA(devName, ib, dev) <> 0
+                If (dev.dmDefaultSource <= mFixed) And (dev.dmBitsPerPel >= mBits) Then
+                    Set c = New Collection
 
-                Set c = New Collection
+                    c.Add dev.dmPelsWidth, "Width"
+                    c.Add dev.dmPelsHeight, "Height"
+                    c.Add dev.dmBitsPerPel, "Bpp"
+                    c.Add dev.dmDisplayFrequency, "Freq"
+                    c.Add dev.dmDefaultSource, "Fixed"
 
-                c.Add dev.dmPelsWidth, "Width"
-                c.Add dev.dmPelsHeight, "Height"
-                c.Add dev.dmBitsPerPel, "Bpp"
-                c.Add dev.dmDisplayFrequency, "Freq"
-                c.Add dev.dmDefaultSource, "Fixed"
-
-                If UBound(mb) < b Then ReDim Preserve mb(b)
-                Set mb(b) = c:      Set c = Nothing:      b = b + 1
+                    If UBound(mb) < b Then ReDim Preserve mb(b)
+                    Set mb(b) = c:      Set c = Nothing:      b = b + 1
+                End If
+                ib = ib + 1
             Loop
 
             Set c = New Collection
@@ -201,7 +203,7 @@ Public Function EnumDisplay(Optional ByVal patName As String) As Collection
             Set ma(a) = c:      Set c = Nothing:      a = a + 1
         End If
 
-        ddi.cbSize = Len(ddi):      i = i + 1
+        ddi.cbSize = Len(ddi):      ia = ia + 1
     Loop
 
     Set EnumDisplay = New Collection
