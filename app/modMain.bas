@@ -239,11 +239,6 @@ Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
 
     '---------------------- RegExp Perl Style Parse ---------------------
     Call Parse_RegExp(txtCode)
-    
-    '--------------------------- LMF_Parser_Code ------------------------
-    For Each v In cs
-        If ExistsMember(v.CodeObject, "LMF_Parser_Code") Then txtCode = v.CodeObject.LMF_Parser_Code(txtCode)
-    Next
 
 
     '----------------------------- DEBUG MODE ---------------------------
@@ -336,6 +331,11 @@ Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
         CAS.AddCode txtDLL                  ' Add DLL Code
         Call Parse_AddLib(txtLib)           ' Add Lib Code
     End If
+
+    '--------------------------- LMF_Parser_Code ------------------------
+    For Each v In cs
+        If ExistsMember(v.CodeObject, "LMF_Parser_Code") Then txtCode = v.CodeObject.LMF_Parser_Code(txtCode)
+    Next
 
     Err.Clear
     

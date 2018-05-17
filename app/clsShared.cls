@@ -77,6 +77,10 @@ Public Property Get vbDC(ByVal nIndex As Long, Optional ByVal hDC As Long) As Lo
     vbDC = GetDeviceCaps(hDC, nIndex)
 End Property
 
+Public Property Get vbNull() As Variant
+    vbNull = vbNullString
+End Property
+
 Public Function StrConv(ByVal txt As String, ByVal typeStr As Integer, Optional ByVal LocaleID As Long = -1) As String
     If LocaleID = -1 Then StrConv = VBA.StrConv(txt, typeStr) Else StrConv = VBA.StrConv(txt, typeStr, LocaleID)
 End Function
