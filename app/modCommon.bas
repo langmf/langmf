@@ -877,12 +877,19 @@ End Sub
 
 Sub API_DoEvents()
     Dim wMsg As WNDMsg
-
     While PeekMessageA(wMsg, 0, 0, 0, PM_REMOVE)
         Call TranslateMessage(wMsg)
         Call DispatchMessageA(wMsg)
     Wend
 End Sub
+
+Function Api_Error(ByVal vLastDllError As Long, Optional ByVal nFile As String, Optional ByVal clrChar As Boolean = True) As String
+    Dim Flags As Long, hModule As Long
+    Flags = &H1000&:      If Len(nFile) Then Flags = &H800&:   hModule = GetModuleHandleW(StrPtr(nFile))
+    Api_Error = Space$(65535)
+    Api_Error = Left$(Api_Error, FormatMessageW(Flags, hModule, vLastDllError, 0&, StrPtr(Api_Error), Len(Api_Error)))
+    If clrChar Then Api_Error = Replace$(Api_Error, vbCrLf, "")
+End Function
 
 Sub RmDir(ByVal nameDir As String)
     RemoveDirectoryW StrPtr(LongPath(nameDir))

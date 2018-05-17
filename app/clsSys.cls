@@ -292,29 +292,44 @@ Public Function CallBack(Optional ByVal vMethod As Variant = 0, Optional Obj As 
     End If
 End Function
 
-Public Function Content(ByVal value As String, Optional ByVal bString As Boolean = True) As Variant
-    Dim Buf() As Byte, tmp As String, RX As New clsRXP
+Public Function Content(ByVal value As String, Optional ByVal bString As Boolean = True, Optional vStatus As Variant) As Variant
+    Dim tmp As String, Buf() As Byte, RX As New clsRXP
     
-    If bString Then Content = "" Else Content = Buf
+    vStatus = False:      If bString Then Content = "" Else Content = Buf
     
-    If RX.Test(value, "^([a-z]+:\/\/)?(.+)") = False Then Exit Function
+    If Not RX.Test(value, "^([a-z]+:\/\/)?(.+)") Then Exit Function
     
     tmp = RX.Mts(0).SubMatches(1)
     
     Select Case LCase$(RX.Mts(0).SubMatches(0))
         Case "http://", "https://"
             With Net.XMLHTTP(value)
-                If m_ArraySize(.responseBody) = 0 Then Exit Function
-                Buf = .responseBody
-                If bString Then Content = Conv_A2W_Buf(Buf) Else Content = Buf
+                If .readyState = 4 And .Status = 200 Then
+                    If m_ArraySize(.responseBody) Then
+                        Buf = .responseBody
+                        If bString Then Content = Conv_A2W_Buf(Buf) Else Content = Buf
+                    End If
+                    vStatus = True
+                Else
+                    Err.Number = .Status:      Err.Description = .statusText
+                    If .Status >= 12000 Then Err.Description = Api_Error(.Status, "wininet.dll")
+                End If
             End With
     
         Case "res://"
-            If bString Then Content = SHD.ResToStr(tmp) Else Content = SHD.ResToBuf(tmp)
+            If SYS.Resource.Exists(tmp) Then
+                If bString Then Content = SHD.ResToStr(tmp) Else Content = SHD.ResToBuf(tmp)
+                vStatus = True
+            Else
+                Err.Number = 3:      Err.Description = "Not found resource '" & tmp & "'"
+            End If
         
         Case "file://", ""
             If m_File2Buf(Buf, tmp) Then
                 If bString Then Content = Conv_A2W_Buf(Buf) Else Content = Buf
+                vStatus = True
+            Else
+                Err.Number = Err.LastDllError:      Err.Description = Api_Error(Err.LastDllError)
             End If
     End Select
 End Function
