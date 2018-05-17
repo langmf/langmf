@@ -189,9 +189,9 @@ Public Function XMLHTTP(Optional ByVal Host As String = "https://api.ipify.org",
     Do
         m_Wait
         t2 = timeGetTime
-    Loop Until XMLHTTP.ReadyState = 4 Or (t1 + Param(0) < t2) Or (t1 > t2) Or mf_IsEnd
+    Loop Until XMLHTTP.readyState = 4 Or (t1 + Param(0) < t2) Or (t1 > t2) Or mf_IsEnd
 
-    If XMLHTTP.ReadyState <> 4 Then XMLHTTP.Abort
+    If XMLHTTP.readyState <> 4 Then XMLHTTP.Abort
 End Function
 
 Public Function WINHTTP(Optional ByVal Host As String = "https://api.ipify.org", Optional ByVal Param As Variant) As Object

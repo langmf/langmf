@@ -29,7 +29,7 @@ End Type
 
 Type def_MDL
     MFC   As Boolean
-    Type  As type_MDL
+    Type  As Integer
     Name  As String
     Code  As String
     Path  As String
@@ -44,11 +44,7 @@ Type def_Info
     Arg       As String
 End Type
 
-Public Enum type_MDL
-    tpModule = 0
-    tpForm = 1
-End Enum
-
+Global Const mf_typeModule = 0, mf_typeForm = 1
 Global Const mf_Sign = &H2043464D, mf_Setup = "/regsetup", mf_New = "/regnew", mf_Embed = "-Embedding"
 Global Const mf_Hdr = vbNullChar + "-=~lmfhdr~=-" + vbNullChar
 Global Const mf_EMailDevelop = "support@langmf.ru"
@@ -301,7 +297,7 @@ Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
                 .Path = ""
                 .Code = txtForm
                 .MFC = isMFC
-                .Type = tpForm
+                .Type = mf_typeForm
             End With
 
             '------------------------------------
@@ -316,7 +312,7 @@ Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
     With MDL(mainRunMF)
         .Code = txtMain
         .MFC = isMFC
-        .Type = tpModule
+        .Type = mf_typeModule
     End With
     
     '-------------------------------------------------------------------------
@@ -980,10 +976,21 @@ Sub Parse_AddLib(txtLib As String)
     Next
 End Sub
 
+Sub Parse_Include_Get(tmpBuf() As Byte, ByVal sm As SubMatches)
+    Dim txt As String, vStatus As Boolean
+    
+    tmpBuf = SYS.Content(sm(0), False, vStatus):      If vStatus Then Exit Sub
+    
+    txt = Trim$(sm(1)):      If Left$(txt, 1) <> "*" Then Exit Sub
+    
+    CAS.Execute "Dim mf_Err" & vbCrLf & "mf_Err = Array(" & Err.Number & ", """ & Err.Description & """, """ & _
+                sm(0) & """, " & mf_Counter & ")" & vbCrLf & Mid$(txt, 2)
+End Sub
+
 Function Parse_Include(txtCode As String, Optional ByVal noFind As String, Optional ByVal bCompile As Boolean) As Boolean
     Dim txt As String, RX As New clsRXP, Mts As MatchCollection, tmpBuf() As Byte
     
-    txt = "\n[ \t\v]*#Include +[<""]" + noFind + "([^"">]+)["">]"
+    txt = "\n[ \t\v]*#Include +[<""]" + noFind + "([^"">]+)["">]([^\r]*)"
 
     REG.Global = False:      REG.Pattern = IIF(bCompile, Replace$(txt, """", ""), txt)
     
@@ -995,7 +1002,7 @@ Function Parse_Include(txtCode As String, Optional ByVal noFind As String, Optio
                 txt = "":      Parse_Include = True
 
                 If RX.Test(.SubMatches(0), "^([a-z]+:\/\/)?(.+)") Then
-                    tmpBuf = SYS.Content(.SubMatches(0), False)
+                    Parse_Include_Get tmpBuf, .SubMatches
 
                     If bCompile = False Then DeCompressMF tmpBuf
                     

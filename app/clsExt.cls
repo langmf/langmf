@@ -305,7 +305,7 @@ Public Function WaitIE(ByVal Obj As Variant, Optional ByVal Flags As Long) As Bo
     Do
         WaitIE = True
         m_Wait
-        If Len(Obj.Document.ReadyState) = 0 Then
+        If Len(Obj.Document.readyState) = 0 Then
 err1:
             WaitIE = False
             Err.Clear
@@ -317,8 +317,8 @@ err1:
 End Function
 
 Public Function Setup(ByVal value As String, Optional ByVal sActiveX As String, Optional ByVal bRegister As Boolean = False, Optional ByVal sDir As String, Optional ByVal bKillTemp As Boolean = True, Optional ByVal vShell As Variant) As Boolean
-    Dim pathTemp As String, pathSystem As String, nameFile As String, fnShell As String, txt As String, dat As Variant
-    Dim isTemp As Boolean, Obj As Object, RX As New clsRXP, shItem As Object, shFolder As Object
+    Dim pathTemp As String, pathSystem As String, nameFile As String, fnShell As String, txt As String, Buf() As Byte
+    Dim isTemp As Boolean, Obj As Object, RX As New clsRXP, shItem As Object, shFolder As Object, isBuf As Boolean
     
     On Error Resume Next
     
@@ -334,9 +334,9 @@ Public Function Setup(ByVal value As String, Optional ByVal sActiveX As String, 
     
     mf_Tmp = ""
     
-    dat = SYS.Content(value, False)
+    Buf = SYS.Content(value, False, isBuf)
     
-    If Not IsEmpty(dat) Then
+    If isBuf Then
     
         pathSystem = GetSystemPath + "\"
         If Len(sDir) = 0 Then pathTemp = GetTmpPath + "lmf_" + GenTempStr(12) + "\":       isTemp = True
@@ -345,7 +345,7 @@ Public Function Setup(ByVal value As String, Optional ByVal sActiveX As String, 
         CreateDir pathTemp
         
         nameFile = pathTemp + RX.Eval(value, "([^\\\/\?]+)$")
-        SYS.Conv.Buf2File dat, nameFile
+        m_Buf2File Buf, nameFile
         
         Select Case LCase$(GetExtension(nameFile))
             Case "cab", "zip"
