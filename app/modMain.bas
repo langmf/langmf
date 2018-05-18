@@ -61,7 +61,7 @@ Global REG As New RegExp
 Global Types As clsHash
 
 Global mf_TimeLMF As Long, mf_TimeParse As Long, mf_AsyncLoad As Long, mf_NoError As Boolean
-Global mf_Counter As Integer, mf_IsEnd As Boolean, mf_Tmp As String
+Global mf_Counter As Integer, mf_IsEnd As Boolean, mf_Debug As Long, mf_Tmp As String
 
 
 Sub Main()
@@ -238,8 +238,10 @@ Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
 
 
     '----------------------------- DEBUG MODE ---------------------------
-    'm_Str2File txtCode, "script" & mf_Counter & ".txt"
-    'm_Str2File txtDLL, "dll" & mf_Counter & ".txt"
+    If (mf_Debug And 1) Then
+        m_Str2File txtCode, "script" & mf_Counter & ".txt"
+        m_Str2File txtDLL, "dll" & mf_Counter & ".txt"
+    End If
     '--------------------------------------------------------------------
     
     
@@ -551,12 +553,12 @@ Function Parse_Types_Sub(ByVal Mts As MatchCollection, wrapProp As String, ByVal
     End With
     
                         
-    If isBound Then pArg = "Class___index" & IIF(sz > 1, " * " & sz, "") & " + "
+    If isBound Then pArg = "mf_v0" & IIF(sz > 1, " * " & sz, "") & " + "
     pArg = pArg & "Class___Offset + " & vOffset & IIF(wrapProp = "PString", ", " & sz2, "")
     pProp = "Class___Wrapper." & wrapProp & "(" & pArg & ")"
     
-    txt = txt & "  Property Get " & nameVar & "(" & IIF(isBound, "Class___index", "") & ") : " & nameVar & " = " & pProp & " : End Property" & vbCrLf
-    txt = txt & "  Property Let " & nameVar & "(" & IIF(isBound, "Class___index, ", "") & "Class___value) : " & pProp & " = Class___value : End Property" & vbCrLf
+    txt = txt & "  Property Get " & nameVar & "(" & IIF(isBound, "mf_v0", "") & ") : " & nameVar & " = " & pProp & " : End Property" & vbCrLf
+    txt = txt & "  Property Let " & nameVar & "(" & IIF(isBound, "mf_v0, ", "") & "mf_v1) : " & pProp & " = mf_v1 : End Property" & vbCrLf
     
     vOffset = vOffset + sz * (cntBound + 1)
     
@@ -689,14 +691,22 @@ Sub Parse_Types(txtCode As String)
             oTxt = oTxt + "  Private Sub Class_Initialize()" + vbCrLf
             oTxt = oTxt + "    Set Class___Enum = Sys.NewCollection" + vbCrLf
             oTxt = oTxt + iTxt
-            oTxt = oTxt + "  End Sub" + vbCrLf + vbCrLf
-            oTxt = oTxt + "  Public Property Get Class___Size() : Class___Size = " + CStr(vOffset) + " : End Property" + vbCrLf + vbCrLf
+            oTxt = oTxt + "  End Sub" + vbCrLf
+            oTxt = oTxt + "  Public Property Get Class___Size()" + vbCrLf
+            oTxt = oTxt + "    Class___Size = " + CStr(vOffset) + vbCrLf
+            oTxt = oTxt + "  End Property" + vbCrLf
             oTxt = oTxt + "  Public Default Property Get Class___Ptr()" + vbCrLf
             oTxt = oTxt + "    Class___Ptr = Class___Wrapper.Ptr(True) + Class___Offset" + vbCrLf
             oTxt = oTxt + aPtr
             oTxt = oTxt + "  End Property" + vbCrLf
-            oTxt = oTxt + "  Public Property Let Class___Ptr(Class___value)" + vbCrLf
-            oTxt = oTxt + "    Class___Wrapper.Ptr = Class___value" + vbCrLf
+            oTxt = oTxt + "  Public Property Let Class___Ptr(mf_v1)" + vbCrLf
+            oTxt = oTxt + "    Class___Wrapper.Ptr = mf_v1" + vbCrLf
+            oTxt = oTxt + "  End Property" + vbCrLf
+            oTxt = oTxt + "  Public Property Get Class___Data()" + vbCrLf
+            oTxt = oTxt + "    Class___Data = Class___Wrapper.PArray(Class___Offset, " + CStr(vOffset) + ")" + vbCrLf
+            oTxt = oTxt + "  End Property" + vbCrLf
+            oTxt = oTxt + "  Public Property Let Class___Data(mf_v1)" + vbCrLf
+            oTxt = oTxt + "    Class___Wrapper.PArray(Class___Offset, " + CStr(vOffset) + ") = mf_v1" + vbCrLf
             oTxt = oTxt + "  End Property" + vbCrLf
             oTxt = oTxt + "End Class" + vbCrLf
 
@@ -935,6 +945,7 @@ Sub Parse_Directiv(txtCode As String)
                 Case "addrus":          Call Parse_Modify(txtCode)
                 Case "develop":         EMailDevelop = Mts(0).SubMatches(2)
                 Case "asyncload":       mf_AsyncLoad = CLng(Mts(0).SubMatches(2))
+                Case "debug":           mf_Debug = CLng(Mts(0).SubMatches(2))
             End Select
         Next
     End With

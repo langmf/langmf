@@ -16,9 +16,9 @@ Option Explicit
 Private m_Ptr As Long, m_Offset As Long, m_Size As Long, m_Overflow As Boolean, Buffer() As Byte
 
 
-Public Sub SetData(Buf As Variant)
-    ConvToBufferByte Buf, Buffer:    m_Ptr = Ptr
-End Sub
+Public Function SetData(Buf As Variant) As Boolean
+    SetData = ConvToBufferByte(Buf, Buffer):    m_Ptr = Ptr
+End Function
 
 Public Function GetData(Optional ByVal typeVar As Integer = vbArray + vbByte) As Variant
     ConvFromBufferByte GetData, Buffer, typeVar
@@ -197,17 +197,21 @@ Public Property Let PString(Optional ByVal vOffset As Long = -1, Optional ByVal 
     m_Offset = m_Offset + lenStr
 End Property
 
-Public Property Get PArray(Optional ByVal vOffset As Long = -1, Optional ByVal lenArr As Long) As Byte()
+Public Property Get PArray(Optional ByVal vOffset As Long = -1, Optional ByVal lenArr As Long) As Variant
+    Dim tmpBuf() As Byte
     If vOffset <> -1 Then m_Offset = vOffset
     If (Overflow = False And m_Offset > (m_Size - lenArr)) Or (lenArr <= 0) Then Exit Property
-    ReDim value(lenArr - 1) As Byte
-    CopyMemory value(0), Buffer(m_Offset), lenArr
+    ReDim tmpBuf(lenArr - 1) As Byte
+    CopyMemory tmpBuf(0), Buffer(m_Offset), lenArr
+    PArray = tmpBuf
     m_Offset = m_Offset + lenArr
 End Property
 
-Public Property Let PArray(Optional ByVal vOffset As Long = -1, Optional ByVal lenArr As Long, value() As Byte)
+Public Property Let PArray(Optional ByVal vOffset As Long = -1, Optional ByVal lenArr As Long, value As Variant)
+    Dim tmpBuf() As Byte
     If vOffset <> -1 Then m_Offset = vOffset
     If (Overflow = False And m_Offset > (m_Size - lenArr)) Or (lenArr <= 0) Then Exit Property
-    CopyMemory Buffer(m_Offset), value(0), lenArr
+    If Not ConvToBufferByte(value, tmpBuf) Then Exit Property
+    CopyMemory Buffer(m_Offset), tmpBuf(0), lenArr
     m_Offset = m_Offset + lenArr
 End Property
