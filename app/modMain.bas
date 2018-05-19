@@ -998,10 +998,10 @@ Sub Parse_AddLib(txtLib As String)
 End Sub
 
 Function Parse_Include(txtCode As String, Optional ByVal noFind As String, Optional ByVal bCompile As Boolean) As Boolean
-    Dim a As Long, txt As String, tmp As String, nm As String, vStatus As Variant, tmpBuf() As Byte
-    Dim Mts As MatchCollection, clsFS As New clsFileSearch
+    Dim a As Long, txt As String, tmp As String, nm As String, oth As String, vStatus As Variant
+    Dim Mts As MatchCollection, clsFS As New clsFileSearch, tmpBuf() As Byte
     
-    tmp = "\n[ \t\v]*#Include +([<""])" + noFind + "([^"">]+)(["">])([^\r]*)"
+    tmp = "[ \t\v]*#Include +([<""])" + noFind + "([^"">]+)(["">])([^\r]*)"
 
     REG.Global = False:      REG.Pattern = IIF(bCompile, Replace$(tmp, """", ""), tmp)
     
@@ -1010,38 +1010,35 @@ Function Parse_Include(txtCode As String, Optional ByVal noFind As String, Optio
         
         If Mts.Count <> 0 Then
             With Mts(0)
-                Parse_Include = True:      nm = Trim$(.SubMatches(1)):      tmp = Trim$(.SubMatches(3)):      txt = ""
+                Parse_Include = True:      nm = Trim$(.SubMatches(1)):      oth = Trim$(.SubMatches(3)):      txt = ""
 
                 If nm = "*" Then
-                    CAS.Execute "Dim mf_Data" + vbCrLf + tmp:      vStatus = CAS.CodeObject.mf_Data
+                    CAS.Execute "Dim mf_Data" + vbCrLf + oth:      vStatus = CAS.CodeObject.mf_Data
                     For a = 1 To m_ArraySize(vStatus)
                         txt = txt + "#Include " + .SubMatches(0) + vStatus(a - 1) + .SubMatches(2) + vbCrLf
                     Next
                 Else
                     tmpBuf = SYS.Content(nm, False, vStatus)
 
-                    If vStatus(0) = False And Left$(tmp, 1) = "*" Then
-                        CAS.Execute "Dim mf_Data":      CAS.CodeObject.mf_Data = vStatus:      CAS.Execute Mid$(tmp, 2)
-                    End If
+                    If vStatus(0) Then
+                        DeCompressMF tmpBuf:      txt = ToUnicode(tmpBuf)
 
-                    If bCompile Then
-                        txt = ToUnicode(tmpBuf)
+                        If Len(txt) Then
+                            If bCompile = False Then Call Parse_Data(txt)
+                            If vStatus(1) = 1 Then tmp = CurDir:     ChDir GetDirectory(vStatus(3))
+                            Call Parse_Include(txt, noFind, bCompile)
+                            If vStatus(1) = 1 Then ChDir tmp
+                        End If
                     Else
-                        DeCompressMF tmpBuf
-                        txt = ToUnicode(tmpBuf)
-                        If Len(txt) Then txt = vbCrLf + txt + vbCrLf:    Call Parse_Data(txt)
+                        If Left$(oth, 2) = "'*" Then
+                            CAS.Execute "Dim mf_Data":     CAS.CodeObject.mf_Data = vStatus:     CAS.Execute Mid$(oth, 3)
+                        End If
                     End If
-
-                    If (vStatus(0) = True) And (vStatus(1) = 1) Then
-                        tmp = CurDir:     ChDir GetDirectory(vStatus(3))
-                        Call Parse_Include(txt, noFind, bCompile)
-                        ChDir tmp
-                    Else
-                        Call Parse_Include(txt, noFind, bCompile)
-                    End If
+                    
+                    txt = txt + oth
                 End If
 
-                txtCode = Left$(txtCode, .FirstIndex + 1) + txt + Right$(txtCode, Len(txtCode) - .FirstIndex - .Length)
+                txtCode = Left$(txtCode, .FirstIndex) + txt + Right$(txtCode, Len(txtCode) - .FirstIndex - .Length)
             End With
         End If
     Loop Until Mts.Count = 0
