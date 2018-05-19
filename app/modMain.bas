@@ -131,7 +131,7 @@ Function SetupLMF() As Boolean
 End Function
 
 
-Sub Code_Run(Optional ByVal nameScript As String)
+Function Code_Run(Optional ByVal nameScript As String) As String
     Dim f As New clsFileAPI, Buf() As Byte
     
     mf_TimeParse = timeGetTime
@@ -145,7 +145,7 @@ Sub Code_Run(Optional ByVal nameScript As String)
             Info.IsCmd = True
         Else
             frmAbout.Show
-            Exit Sub
+            Exit Function
         End If
     End If
     
@@ -170,7 +170,7 @@ Sub Code_Run(Optional ByVal nameScript As String)
         nameScript = ""
     End If
     
-    Code_Parse Buf, nameScript
+    Code_Run = Code_Parse(Buf, nameScript)
     
     mf_TimeParse = timeGetTime - mf_TimeParse
     
@@ -179,18 +179,21 @@ Sub Code_Run(Optional ByVal nameScript As String)
     Else
         Timer_Func
     End If
-End Sub
+End Function
 
 
-Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
+Function Code_Parse(Buf() As Byte, Optional ByVal nameScript As String, Optional ByVal forceRunMF As Long) As String
     Dim txtMain As String, txtForm As String, txtName As String, txtCode As String, txtLib As String, txtDLL As String
     Dim txtTmp As String, tmpForm As frmForm, PCD() As def_ParseCustom, cs As Collection, v As clsActiveScript
-    Dim a As Long, mainRunMF As Integer, isMFC As Boolean
+    Dim a As Long, mainRunMF As Long, isMFC As Boolean
     
     On Error Resume Next
     
     If m_ArraySize(Buf) = 0 Then Exit Function
     
+    '--------------------------------------------------------------------
+    If LenB(nameScript) = 0 Then nameScript = "Code_Parse_" & mf_Counter
+
     '------------------------- Decompress Code --------------------------
     isMFC = DeCompressMF(Buf)
     
@@ -239,8 +242,8 @@ Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
 
     '----------------------------- DEBUG MODE ---------------------------
     If (mf_Debug And 1) Then
-        m_Str2File txtCode, "script" & mf_Counter & ".txt"
-        m_Str2File txtDLL, "dll" & mf_Counter & ".txt"
+        m_Str2File txtCode, "script_" & mf_Counter & ".log"
+        m_Str2File txtDLL, "dll_" & mf_Counter & ".log"
     End If
     '--------------------------------------------------------------------
     
@@ -252,22 +255,22 @@ Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
         Next
     End If
     
-    '------------------------------ Modules Count -----------------------
-    mf_Counter = mf_Counter + 1
-    mainRunMF = mf_Counter
-    
-    '--------------------- Add Const to Main Module ---------------------
-    If mainRunMF = 1 Then AddBaseMF txtMain
-    
-    '------------------------------ Name Parse --------------------------
-    MDL(mainRunMF).Name = GetFileTitle(nameScript)
-    MDL(mainRunMF).Path = GetDirectory(nameScript)
-    
-    '------------------------------ Form Parse --------------------------
-    txtMain = "Private Const mf_IDM = " + CStr(mainRunMF) + vbCrLf + vbCrLf + txtMain
-    txtMain = "Const mf_NameMod = """ + MDL(mainRunMF).Name + """" + vbCrLf + txtMain
-
     '--------------------------------------------------------------------
+    If forceRunMF <= 0 Then
+        mf_Counter = mf_Counter + 1:      mainRunMF = mf_Counter
+
+        If mainRunMF = 1 Then AddBaseMF txtMain
+
+        MDL(mainRunMF).Name = GetFileTitle(nameScript)
+        MDL(mainRunMF).Path = GetDirectory(nameScript)
+    
+        txtMain = "Private Const mf_IDM = " + CStr(mainRunMF) + vbCrLf + vbCrLf + txtMain
+        txtMain = "Const mf_NameMod = """ + MDL(mainRunMF).Name + """" + vbCrLf + txtMain
+    Else
+        mainRunMF = forceRunMF
+    End If
+
+    '------------------------------ Form Parse --------------------------
     If Parse_Custom(PCD, txtCode, "<#form=", ">", "<#form>") Then
         For a = 0 To UBound(PCD)
             mf_Counter = mf_Counter + 1
@@ -309,24 +312,27 @@ Function Code_Parse(Buf() As Byte, ByVal nameScript As String) As String
             Set tmpForm = Nothing
         Next
     End If
-    '-------------------------------------------------------------------------
-
-    With MDL(mainRunMF)
-        .Code = txtMain
-        .MFC = isMFC
-        .Type = mf_typeModule
-    End With
     
     '-------------------------------------------------------------------------
-    If mainRunMF = 1 Then
-        CAS.Objects.Add 1, ""
-        CAS.AddCode txtMain
+    If forceRunMF <= 0 Then
+        With MDL(mainRunMF)
+            .Code = txtMain
+            .MFC = isMFC
+            .Type = mf_typeModule
+        End With
+        
+        If mainRunMF = 1 Then
+            CAS.Objects.Add 1, ""
+            CAS.AddCode txtMain
+        Else
+            CAS.AddObject MDL(mainRunMF).Name, CAS.AddModule(mainRunMF, txtMain)
+        End If
     Else
-        CAS.AddObject MDL(mainRunMF).Name, CAS.AddModule(mainRunMF, txtMain)
+        CAS.AddCode txtMain, IIF(mainRunMF = 1, "", mainRunMF)
     End If
 
     If Not mf_IsEnd Then
-        CAS.AddCode txtDLL                  ' Add DLL Code
+        Call CAS.AddCode(txtDLL)            ' Add DLL Code
         Call Parse_AddLib(txtLib)           ' Add Lib Code
     End If
 
@@ -925,9 +931,11 @@ Function Parse_Lib(txtCode As String) As String
     
     REG.Pattern = "\n[ \t\v]*#Lib +""([^""]+)"""
     Set Mts = REG.Execute(txtCode)
+
     For a = 0 To Mts.Count - 1
         txt = txt + Parse_MPath(Mts(a).SubMatches(0)) + vbCr
     Next
+
     txtCode = REG.Replace(txtCode, vbLf)
     
     Parse_Lib = txt
@@ -948,6 +956,8 @@ Sub Parse_Directiv(txtCode As String)
                 Case "debug":           mf_Debug = CLng(Mts(0).SubMatches(2))
             End Select
         Next
+
+        txtCode = .Replace(txtCode, vbLf)
     End With
 End Sub
 
@@ -987,39 +997,48 @@ Sub Parse_AddLib(txtLib As String)
     Next
 End Sub
 
-Sub Parse_Include_Get(tmpBuf() As Byte, ByVal sm As SubMatches)
-    Dim txt As String, vStatus As Boolean
-    
-    tmpBuf = SYS.Content(sm(0), False, vStatus):      If vStatus Then Exit Sub
-    
-    txt = Trim$(sm(1)):      If Left$(txt, 1) <> "*" Then Exit Sub
-    
-    CAS.Execute "Dim mf_Err" & vbCrLf & "mf_Err = Array(" & Err.Number & ", """ & Err.Description & """, """ & _
-                sm(0) & """, " & mf_Counter & ")" & vbCrLf & Mid$(txt, 2)
-End Sub
-
 Function Parse_Include(txtCode As String, Optional ByVal noFind As String, Optional ByVal bCompile As Boolean) As Boolean
-    Dim txt As String, RX As New clsRXP, Mts As MatchCollection, tmpBuf() As Byte
+    Dim a As Long, txt As String, tmp As String, nm As String, vStatus As Variant, tmpBuf() As Byte
+    Dim Mts As MatchCollection, clsFS As New clsFileSearch
     
-    txt = "\n[ \t\v]*#Include +[<""]" + noFind + "([^"">]+)["">]([^\r]*)"
+    tmp = "\n[ \t\v]*#Include +([<""])" + noFind + "([^"">]+)(["">])([^\r]*)"
 
-    REG.Global = False:      REG.Pattern = IIF(bCompile, Replace$(txt, """", ""), txt)
+    REG.Global = False:      REG.Pattern = IIF(bCompile, Replace$(tmp, """", ""), tmp)
     
     Do
         Set Mts = REG.Execute(txtCode)
         
         If Mts.Count <> 0 Then
             With Mts(0)
-                txt = "":      Parse_Include = True
+                Parse_Include = True:      nm = Trim$(.SubMatches(1)):      tmp = Trim$(.SubMatches(3)):      txt = ""
 
-                If RX.Test(.SubMatches(0), "^([a-z]+:\/\/)?(.+)") Then
-                    Parse_Include_Get tmpBuf, .SubMatches
+                If nm = "*" Then
+                    CAS.Execute "Dim mf_Data" + vbCrLf + tmp:      vStatus = CAS.CodeObject.mf_Data
+                    For a = 1 To m_ArraySize(vStatus)
+                        txt = txt + "#Include " + .SubMatches(0) + vStatus(a - 1) + .SubMatches(2) + vbCrLf
+                    Next
+                Else
+                    tmpBuf = SYS.Content(nm, False, vStatus)
 
-                    If bCompile = False Then DeCompressMF tmpBuf
-                    
-                    txt = ToUnicode(tmpBuf)
+                    If vStatus(0) = False And Left$(tmp, 1) = "*" Then
+                        CAS.Execute "Dim mf_Data":      CAS.CodeObject.mf_Data = vStatus:      CAS.Execute Mid$(tmp, 2)
+                    End If
 
-                    If bCompile = False And Len(txt) <> 0 Then txt = vbCrLf + txt + vbCrLf:    Call Parse_Data(txt)
+                    If bCompile Then
+                        txt = ToUnicode(tmpBuf)
+                    Else
+                        DeCompressMF tmpBuf
+                        txt = ToUnicode(tmpBuf)
+                        If Len(txt) Then txt = vbCrLf + txt + vbCrLf:    Call Parse_Data(txt)
+                    End If
+
+                    If (vStatus(0) = True) And (vStatus(1) = 1) Then
+                        tmp = CurDir:     ChDir GetDirectory(vStatus(3))
+                        Call Parse_Include(txt, noFind, bCompile)
+                        ChDir tmp
+                    Else
+                        Call Parse_Include(txt, noFind, bCompile)
+                    End If
                 End If
 
                 txtCode = Left$(txtCode, .FirstIndex + 1) + txt + Right$(txtCode, Len(txtCode) - .FirstIndex - .Length)
@@ -1109,8 +1128,7 @@ Function Parse_MPath(ByVal MPath As String) As String
             Case "mf_"
                 Arg = LCase$(Mts(a).SubMatches(2))
                 If LCase$(Left$(Arg, 3)) = "rnd" Then
-                    idx = Val(Mid$(Arg, 4))
-                    MPath = Replace$(MPath, txt, IIF(idx, GenTempStr(idx), GenTempStr))
+                    MPath = Replace$(MPath, txt, GenTempStr(Val(Mid$(Arg, 4))))
                 Else
                     MPath = Replace$(MPath, txt, SYS.Path(Arg, False))
                 End If
@@ -1399,7 +1417,7 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
             Set Mts = RX.Execute(txtFls, "\n""([^""]+?)""(\.([a-z0-9_\-]+))?[ \t]*=[ \t]*([^\r]+)")
             
             For a = 0 To Mts.Count - 1
-                txtMode = IIF(Len(Mts(a).SubMatches(2)), " mode=" & Parse_MPath(Mts(a).SubMatches(2)), "")
+                txtMode = "":      If Len(Mts(a).SubMatches(2)) Then txtMode = " mode=" & Parse_MPath(Mts(a).SubMatches(2))
                         
                 f.PutStr vbCrLf & vbCrLf
                 

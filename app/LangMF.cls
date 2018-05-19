@@ -18,10 +18,10 @@ Option Explicit
 Private oleInstance As Long, isFail As Boolean
 
 
-Public Sub Command(ByVal cmdLine As String)
+Public Function Command(ByVal cmdLine As String) As String
     Dim RX As New clsRXP
 
-    If isFail Then Exit Sub
+    If isFail Then Exit Function
     
     With Info
         .IsCmd = Len(cmdLine)
@@ -38,12 +38,12 @@ Public Sub Command(ByVal cmdLine As String)
                 .File = cmdLine
             End If
         
-            If LCase$(.Arg) = "/make" Then Script_Init:   MakeMF .File:   Script_End:   Exit Sub
+            If LCase$(.Arg) = "/make" Then Script_Init:   MakeMF .File:   Script_End:   Exit Function
         End If
         
-        Call Code_Run(.File)
+        Command = Code_Run(.File)
     End With
-End Sub
+End Function
 
 Public Property Get Script(Optional ByVal Index As Long = -1) As Object
     If isFail Then Exit Property

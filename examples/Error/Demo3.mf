@@ -1,13 +1,13 @@
 ﻿<#Module=Demo>
 
 '---------------------------------------
-#Include " " * function Debug() : msgbox "Include = " & mf_Err(2) & vbcrlf & "Number = " & mf_Err(0) & vbcrlf & "Text = " & mf_Err(1),,"Error" : end function
+#Include " " * function Debug() : msgbox "Include = " & mf_Data(2) & mf_Data(3) & vbcrlf & "Number = " & mf_Data(4) & vbcrlf & "Text = " & mf_Data(5),,"Error" : end function
 
 '---------------------------------------
 #Include <..\Type\Dev_1_1.mf> * Debug
 #Include <http://asdfjagfkafn.ru> * Debug
 #Include <http://google.ru> * Debug
-#Include <res://test> * msgbox mf_Err(0) & " - " & mf_Err(1)
+#Include <res://test> * msgbox mf_Data(4) & " - " & mf_Data(5)
 #Include <http://langmf.ru/ftp/other/demo.mf> * Debug
 
 '---------------------------------------
