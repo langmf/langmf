@@ -75,25 +75,25 @@ Private Sub Class_Initialize()
     Set Timers = New clsHash
 End Sub
 
-Public Function AddCodeMF(ByVal txtCode As String, Optional ByVal nameLib As String) As String
+Public Function AddCodeMF(ByVal txtCode As String, Optional ByVal nameLib As String, Optional ByVal forceRunMF As Long) As String
     Dim Buf() As Byte
     Buf = ChrW$(65279) + txtCode
-    AddCodeMF = Code_Parse(Buf, IIF(LenB(nameLib), nameLib, "AddCodeMF_" & mf_Counter))
+    AddCodeMF = Code_Parse(Buf, nameLib, forceRunMF)
 End Function
 
-Public Function AddFileMF(ByVal nameScript As String, Optional ByVal nameLib As String = "") As String
+Public Function AddFileMF(ByVal nameScript As String, Optional ByVal nameLib As String, Optional ByVal forceRunMF As Long) As String
     Dim Buf() As Byte
     nameScript = Parse_MPath(nameScript)
     If Not IsFileExt(nameScript, , Array(".mf")) Then Exit Function
     m_File2Buf Buf, nameScript
-    AddFileMF = Code_Parse(Buf, IIF(LenB(nameLib), nameLib, nameScript))
+    AddFileMF = Code_Parse(Buf, IIF(LenB(nameLib), nameLib, nameScript), forceRunMF)
 End Function
 
 Public Function Env(Optional ByVal ID As Variant) As Variant
     If IsMissing(ID) Or IsEmpty(ID) Then Set Env = GEV Else Env = GEV(ID)
 End Function
 
-Public Function GenStr(Optional ByVal lenGen As Integer = 8, Optional ByVal txtPat As String) As String
+Public Function GenStr(Optional ByVal lenGen As Long, Optional ByVal txtPat As String) As String
     GenStr = GenTempStr(lenGen, txtPat)
 End Function
 
@@ -293,43 +293,47 @@ Public Function CallBack(Optional ByVal vMethod As Variant = 0, Optional Obj As 
 End Function
 
 Public Function Content(ByVal value As String, Optional ByVal bString As Boolean = True, Optional vStatus As Variant) As Variant
-    Dim tmp As String, Buf() As Byte, RX As New clsRXP
+    Dim vProt As String, vName As String, Buf() As Byte, RX As New clsRXP
     
-    vStatus = False:      If bString Then Content = "" Else Content = Buf
+    vStatus = Array(False, 0, "", "", 0, ""):      If bString Then Content = "" Else Content = Buf
     
     If Not RX.Test(value, "^([a-z]+:\/\/)?(.+)") Then Exit Function
     
-    tmp = RX.Mts(0).SubMatches(1)
+    vProt = LCase$(RX.Mts(0).SubMatches(0)):      vStatus(2) = vProt
+    vName = RX.Mts(0).SubMatches(1):              vStatus(3) = vName
     
-    Select Case LCase$(RX.Mts(0).SubMatches(0))
+    Select Case vProt
         Case "http://", "https://"
+            vStatus(1) = 3
             With Net.XMLHTTP(value)
                 If .readyState = 4 And .Status = 200 Then
                     If m_ArraySize(.responseBody) Then
                         Buf = .responseBody
                         If bString Then Content = Conv_A2W_Buf(Buf) Else Content = Buf
                     End If
-                    vStatus = True
+                    vStatus(0) = True
                 Else
-                    Err.Number = .Status:      Err.Description = .statusText
-                    If .Status >= 12000 Then Err.Description = Api_Error(.Status, "wininet.dll")
+                    vStatus(4) = .Status:    vStatus(5) = .StatusText
+                    If vStatus(4) >= 12000 Then vStatus(5) = Api_Error(vStatus(4), "wininet.dll")
                 End If
             End With
     
         Case "res://"
-            If SYS.Resource.Exists(tmp) Then
-                If bString Then Content = SHD.ResToStr(tmp) Else Content = SHD.ResToBuf(tmp)
-                vStatus = True
+            vStatus(1) = 2
+            If SYS.Resource.Exists(vName) Then
+                If bString Then Content = SHD.ResToStr(vName) Else Content = SHD.ResToBuf(vName)
+                vStatus(0) = True
             Else
-                Err.Number = 3:      Err.Description = "Not found resource '" & tmp & "'"
+                vStatus(4) = 3:      vStatus(5) = "Not found resource '" & vName & "'"
             End If
         
         Case "file://", ""
-            If m_File2Buf(Buf, tmp) Then
+            vStatus(1) = 1
+            If m_File2Buf(Buf, vName) Then
                 If bString Then Content = Conv_A2W_Buf(Buf) Else Content = Buf
-                vStatus = True
+                vStatus(0) = True
             Else
-                Err.Number = Err.LastDllError:      Err.Description = Api_Error(Err.LastDllError)
+                vStatus(4) = Err.LastDllError:      vStatus(5) = Api_Error(vStatus(4))
             End If
     End Select
 End Function

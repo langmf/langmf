@@ -318,7 +318,7 @@ End Function
 
 Public Function Setup(ByVal value As String, Optional ByVal sActiveX As String, Optional ByVal bRegister As Boolean = False, Optional ByVal sDir As String, Optional ByVal bKillTemp As Boolean = True, Optional ByVal vShell As Variant) As Boolean
     Dim pathTemp As String, pathSystem As String, nameFile As String, fnShell As String, txt As String, Buf() As Byte
-    Dim isTemp As Boolean, Obj As Object, RX As New clsRXP, shItem As Object, shFolder As Object, isBuf As Boolean
+    Dim isTemp As Boolean, Obj As Object, RX As New clsRXP, shItem As Object, shFolder As Object, vStatus As Variant
     
     On Error Resume Next
     
@@ -334,12 +334,12 @@ Public Function Setup(ByVal value As String, Optional ByVal sActiveX As String, 
     
     mf_Tmp = ""
     
-    Buf = SYS.Content(value, False, isBuf)
+    Buf = SYS.Content(value, False, vStatus)
     
-    If isBuf Then
+    If vStatus(0) Then
     
         pathSystem = GetSystemPath + "\"
-        If Len(sDir) = 0 Then pathTemp = GetTmpPath + "lmf_" + GenTempStr(12) + "\":       isTemp = True
+        If Len(sDir) = 0 Then pathTemp = GetTmpPath + "lmf_" + GenTempStr + "\":       isTemp = True
         If Len(sDir) <> 0 Then pathTemp = CPath(Parse_MPath(sDir))
         mf_Tmp = pathTemp
         CreateDir pathTemp

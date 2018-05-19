@@ -13,7 +13,7 @@ Sub Load(cmdLine)
     'Dat.IgnoreCase = false
     Dat.Init 19334
     
-    sys.genstr 0
+    sys.genstr
     
     t1 = timegettime
     For a = 0 To 9000

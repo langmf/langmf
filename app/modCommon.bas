@@ -303,12 +303,11 @@ Function IsFileExt(value As String, Optional ByVal vPath As Variant, Optional By
     Next
 End Function
 
-Function GenTempStr(Optional ByVal lenGen As Integer = 8, Optional pat As String) As String
+Function GenTempStr(Optional ByVal lenGen As Long, Optional pat As String) As String
     Dim a As Long, b As Long, out() As Byte, p() As Byte
 
+    If lenGen = 0 Then lenGen = 12
     If lenGen > -1 Then Randomize Timer Else lenGen = -lenGen
-    If lenGen = 0 Then Exit Function
-    
     If LenB(pat) = 0 Then pat = "abcdefghijklmnopqrstuvwxyz0123456789"
     
     p = pat
