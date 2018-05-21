@@ -183,9 +183,10 @@ End Function
 
 
 Function Code_Parse(Buf() As Byte, Optional ByVal nameScript As String, Optional ByVal forceRunMF As Long) As String
-    Dim txtMain As String, txtForm As String, txtName As String, txtCode As String, txtLib As String, txtDLL As String
-    Dim txtTmp As String, tmpForm As frmForm, PCD() As def_ParseCustom, cs As Collection, v As clsActiveScript
-    Dim a As Long, mainRunMF As Long, isMFC As Boolean
+    Dim txtCode As String, txtMain As String, txtForm As String, txtName As String, txtLib As String, txtDLL As String
+    Dim txtAddCode As String, txtTmp As String, a As Long, mainRunMF As Long, isMFC As Boolean
+    Dim tmpForm As frmForm, PCD() As def_ParseCustom, cs As Collection, v As clsActiveScript
+
     
     On Error Resume Next
     
@@ -259,13 +260,13 @@ Function Code_Parse(Buf() As Byte, Optional ByVal nameScript As String, Optional
     If forceRunMF <= 0 Then
         mf_Counter = mf_Counter + 1:      mainRunMF = mf_Counter
 
-        If mainRunMF = 1 Then AddBaseMF txtMain
+        If mainRunMF = 1 Then AddBaseMF txtAddCode
 
         MDL(mainRunMF).Name = GetFileTitle(nameScript)
         MDL(mainRunMF).Path = GetDirectory(nameScript)
     
-        txtMain = "Private Const mf_IDM = " + CStr(mainRunMF) + vbCrLf + vbCrLf + txtMain
-        txtMain = "Const mf_NameMod = """ + MDL(mainRunMF).Name + """" + vbCrLf + txtMain
+        txtAddCode = "Private Const mf_IDM = " + CStr(mainRunMF) + vbCrLf + vbCrLf + txtAddCode
+        txtAddCode = "Const mf_NameMod = """ + MDL(mainRunMF).Name + """" + vbCrLf + txtAddCode
     Else
         mainRunMF = forceRunMF
     End If
@@ -281,7 +282,7 @@ Function Code_Parse(Buf() As Byte, Optional ByVal nameScript As String, Optional
             '-----------------------------------
             If mainRunMF > 1 Then
                 txtTmp = "Dim " + txtName + vbCrLf + "Set " + txtName + " = " + "mf_forms_" + CStr(mf_Counter) + vbCrLf
-                txtMain = txtTmp + txtMain
+                txtAddCode = txtTmp + txtAddCode
                 txtForm = txtTmp + txtForm
             End If
             
@@ -321,15 +322,12 @@ Function Code_Parse(Buf() As Byte, Optional ByVal nameScript As String, Optional
             .Type = mf_typeModule
         End With
         
-        If mainRunMF = 1 Then
-            CAS.Objects.Add 1, ""
-            CAS.AddCode txtMain
-        Else
-            CAS.AddObject MDL(mainRunMF).Name, CAS.AddModule(mainRunMF, txtMain)
-        End If
-    Else
-        CAS.AddCode txtMain, IIF(mainRunMF = 1, "", mainRunMF)
+        If mainRunMF = 1 Then CAS.Objects.Add 1, "" Else CAS.AddObject MDL(mainRunMF).Name, CAS.AddModule(mainRunMF)
     End If
+
+    txtTmp = IIF(mainRunMF = 1, "", mainRunMF)
+    CAS.AddCode txtAddCode, txtTmp
+    CAS.AddCode txtMain, txtTmp
 
     If Not mf_IsEnd Then
         Call CAS.AddCode(txtDLL)            ' Add DLL Code
@@ -1255,7 +1253,7 @@ End Sub
 
 Sub AddBaseMF(txtCode As String)
     Dim txt As String
-    
+
     txt = "Const vbSrcCopy = 13369376 : Const vbSrcAnd = 8913094 : Const vbSrcPaint = 15597702 : Const vbSrcInvert = 6684742" + vbCrLf + _
           "Const vbUnicode = 64 : Const vbFromUnicode = 128 : Const vbLowerCase = 2 : Const vbUpperCase = 1" + vbCrLf + _
           "Const vbSHA1 = 32772 : Const vbSHA256 = 32780 : Const vbSHA512 = 32782" + vbCrLf + _
