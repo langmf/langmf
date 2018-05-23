@@ -232,69 +232,102 @@ Public SubClass As clsSubClass
 Public Style As clsFormStyle
 Public Menu As clsMenu
 Public Tray As frmTray
+Public Alias As clsHash
 Public Resize As clsHash
 Public WC As clsHash
 
 Public xMin As Long, yMin As Long, xMax As Long, yMax As Long
-Public gdip_mDC As Long, gdip_MainBitmap As Long, gdip_OldBitmap As Long
+Public gdip_mDC As Long, gdip_MainBitmap As Long, gdip_OldBitmap As Long, cntAlias As Long
 Public NoMoveMouse As Boolean, NoOverOutPic As Boolean, NoOverOutFrame As Boolean, NoOverOutCommand As Boolean
 
 
-Public Function Ctrl(ByVal typeObj As String, Optional ByVal ID As Long, Optional ByVal isAdd As Boolean = True, Optional ByVal dataArg As Variant) As Object
-    Dim Obj As Object, txt() As String
+Public Function Ctrl(ByVal typeObj As String, Optional ByVal value As Variant, Optional ByVal vAdd As Boolean = True, Optional ByVal dataArg As Variant) As Variant
+    Dim isAlias As Boolean, ID As Long, v As Variant, Obj As Object
 
-    If LenB(typeObj) = 0 Or ID < 0 Then Exit Function
-    
+    If LenB(typeObj) = 0 Or (vAdd = True And IsMissing(value) = True) Then Exit Function
+
+    If IsMissing(value) Then
+        v = Alias("#" & typeObj):      If Not IsArray(v) Then Exit Function
+        value = Array(typeObj, v(1)):    typeObj = v(0)
+    Else
+        m_ParamArray value, CVar(value), 0
+    End If
+
+    If VarType(value(0)) = vbString Then
+        isAlias = True:          If Alias.Count = 0 Then cntAlias = 1000
+        ID = Val(value(1)):      If ID <= 0 Then ID = cntAlias
+    Else
+        ID = value(0)
+    End If
+
     typeObj = LCase$(typeObj)
-    
-    Select Case typeObj
-        Case Is = "check":     If isAdd Then Load Me.Check(ID):    Set Obj = Me.Check(ID) Else:    Unload Me.Check(ID)
-        Case Is = "cline":     If isAdd Then Load Me.CLine(ID):    Set Obj = Me.CLine(ID) Else:    Unload Me.CLine(ID)
-        Case Is = "combo":     If isAdd Then Load Me.Combo(ID):    Set Obj = Me.Combo(ID) Else:    Unload Me.Combo(ID)
-        Case Is = "command":   If isAdd Then Load Me.Command(ID):  Set Obj = Me.Command(ID) Else:  Unload Me.Command(ID)
-        Case Is = "cshape":    If isAdd Then Load Me.CShape(ID):   Set Obj = Me.CShape(ID) Else:   Unload Me.CShape(ID)
-        Case Is = "frame":     If isAdd Then Load Me.Frame(ID):    Set Obj = Me.Frame(ID) Else:    Unload Me.Frame(ID)
-        Case Is = "hscroll":   If isAdd Then Load Me.HScroll(ID):  Set Obj = Me.HScroll(ID) Else:  Unload Me.HScroll(ID)
-        Case Is = "img":       If isAdd Then Load Me.Img(ID):      Set Obj = Me.Img(ID) Else:      Unload Me.Img(ID)
-        Case Is = "label":     If isAdd Then Load Me.Label(ID):    Set Obj = Me.Label(ID) Else:    Unload Me.Label(ID)
-        Case Is = "lcombo":    If isAdd Then Load Me.LCombo(ID):   Set Obj = Me.LCombo(ID) Else:   Unload Me.LCombo(ID)
-        Case Is = "list":      If isAdd Then Load Me.List(ID):     Set Obj = Me.List(ID) Else:     Unload Me.List(ID)
-        Case Is = "mtext":     If isAdd Then Load Me.MText(ID):    Set Obj = Me.MText(ID) Else:    Unload Me.MText(ID)
-        Case Is = "opt":       If isAdd Then Load Me.Opt(ID):      Set Obj = Me.Opt(ID) Else:      Unload Me.Opt(ID)
-        Case Is = "pic":       If isAdd Then Load Me.Pic(ID):      Set Obj = Me.Pic(ID) Else:      Unload Me.Pic(ID)
-        Case Is = "text":      If isAdd Then Load Me.Text(ID):     Set Obj = Me.Text(ID) Else:     Unload Me.Text(ID)
-        Case Is = "textbox":   If isAdd Then Load Me.TextBox(ID):  Set Obj = Me.TextBox(ID) Else:  Unload Me.TextBox(ID)
-        Case Is = "timer":     If isAdd Then Load Me.Timer(ID):    Set Obj = Me.Timer(ID) Else:    Unload Me.Timer(ID)
-        Case Is = "vscroll":   If isAdd Then Load Me.VScroll(ID):  Set Obj = Me.VScroll(ID) Else:  Unload Me.VScroll(ID)
 
-        Case Is = "wsk":       Set Obj = WskCtrl(ID, isAdd)
-        Case Is = "skin":      Set Obj = SkinCtrl(ID, isAdd)
-        Case Is = "pbar":      Set Obj = CreateWC(typeObj & ID, IIF(isAdd, "msctls_progress32", ""), &H1)
-        
-        Case Else
-            txt = Split(typeObj, "=")
-            ReDim Preserve txt(2)
-            Set Obj = CreateOCX(Trim$(txt(0)), IIF(isAdd, Trim$(txt(1)), ""), Val(txt(2)))
+    Select Case typeObj
+        Case Is = "check":     LoadCtrl vAdd, Ctrl, Obj, Me.Check(ID)
+        Case Is = "cline":     LoadCtrl vAdd, Ctrl, Obj, Me.CLine(ID)
+        Case Is = "combo":     LoadCtrl vAdd, Ctrl, Obj, Me.Combo(ID)
+        Case Is = "command":   LoadCtrl vAdd, Ctrl, Obj, Me.Command(ID)
+        Case Is = "cshape":    LoadCtrl vAdd, Ctrl, Obj, Me.CShape(ID)
+        Case Is = "frame":     LoadCtrl vAdd, Ctrl, Obj, Me.Frame(ID)
+        Case Is = "hscroll":   LoadCtrl vAdd, Ctrl, Obj, Me.HScroll(ID)
+        Case Is = "img":       LoadCtrl vAdd, Ctrl, Obj, Me.Img(ID)
+        Case Is = "label":     LoadCtrl vAdd, Ctrl, Obj, Me.Label(ID)
+        Case Is = "lcombo":    LoadCtrl vAdd, Ctrl, Obj, Me.LCombo(ID)
+        Case Is = "list":      LoadCtrl vAdd, Ctrl, Obj, Me.List(ID)
+        Case Is = "mtext":     LoadCtrl vAdd, Ctrl, Obj, Me.MText(ID)
+        Case Is = "opt":       LoadCtrl vAdd, Ctrl, Obj, Me.Opt(ID)
+        Case Is = "pic":       LoadCtrl vAdd, Ctrl, Obj, Me.Pic(ID)
+        Case Is = "text":      LoadCtrl vAdd, Ctrl, Obj, Me.Text(ID)
+        Case Is = "textbox":   LoadCtrl vAdd, Ctrl, Obj, Me.TextBox(ID)
+        Case Is = "timer":     LoadCtrl vAdd, Ctrl, Obj, Me.Timer(ID)
+        Case Is = "vscroll":   LoadCtrl vAdd, Ctrl, Obj, Me.VScroll(ID)
+
+        Case Is = "wsk":       If vAdd Then Set Obj = WskCtrl(ID, True) Else Ctrl = WskCtrl(ID, False)
+        Case Is = "skin":      If vAdd Then Set Obj = SkinCtrl(ID, True) Else Ctrl = SkinCtrl(ID, False)
+        Case Is = "pbar":      If vAdd Then Set Obj = CreateWC(typeObj & ID, "msctls_progress32") Else Ctrl = CreateWC(typeObj & ID)
+
+        Case Else:             If vAdd Then Set Obj = CreateOCX(value(0), typeObj, value(1)) Else Ctrl = CreateOCX(value(0))
     End Select
-    
-    If isAdd Then
+
+    If vAdd Then
         If Not Obj Is Nothing Then
             CBN Obj, "Visible", VbLet, Array(True)
+
             Call m_DoParams(Obj, dataArg)
-            Set Ctrl = Obj
+
+            If isAlias Then
+                cntAlias = cntAlias + 1
+                Alias.Add Obj, value(0)
+                Alias.Add value(0), typeObj & ID
+                Alias.Add Array(typeObj, ID), "#" & value(0)
+            End If
         End If
+        Set Ctrl = Obj
     Else
+        If isAlias Then
+            Alias.Remove value(0)
+            Alias.Remove typeObj & ID
+            Alias.Remove "#" & value(0)
+        End If
+
         Resize.Remove typeObj & ID
     End If
 End Function
 
-Public Function Add(ByVal typeObj As String, ByVal ID As Long, ParamArray dataArg() As Variant) As Object
+Public Function Add(ByVal typeObj As String, ByVal ID As Variant, ParamArray dataArg() As Variant) As Object
     Set Add = Ctrl(typeObj, ID, True, dataArg)
 End Function
 
-Public Function Remove(ByVal typeObj As String, Optional ByVal ID As Long)
-    Ctrl typeObj, ID, False
+Public Function Remove(ByVal typeObj As String, Optional ByVal ID As Variant) As Boolean
+    Remove = Ctrl(typeObj, ID, False)
 End Function
+
+Private Sub LoadCtrl(ByVal vAdd As Boolean, Result As Variant, Obj As Object, vElem As Object)
+    On Error GoTo err1
+    If vAdd Then Load vElem:    Set Obj = vElem:    Exit Sub
+    Result = False:      Unload vElem:      Result = True
+err1:
+End Sub
 
 
 Public Property Get PBar(ByVal ID As Long) As clsWC
@@ -309,42 +342,50 @@ Public Property Get Wsk(ByVal ID As Long) As Winsock
     Set Wsk = m_frmWsk.Wsk(ID)
 End Property
 
-Private Function SkinCtrl(ByVal ID As Long, ByVal isAdd As Boolean) As frmSkin
+
+Private Function SkinCtrl(ByVal ID As Long, ByVal isAdd As Boolean) As Variant
     Dim Obj As New frmSkin
     If isAdd Then
         With Obj:    Set .Parent = Me:    .Tag = ID:    .Child = True:    .Move 0, 0, 0, 0:     End With
         WC.Add Obj, "skin" & ID
         Set SkinCtrl = Obj
     Else
-        WC.Remove "skin" & ID
+        SkinCtrl = WC.Remove("skin" & ID)
     End If
 End Function
 
-Private Function WskCtrl(ByVal ID As Long, ByVal isAdd As Boolean) As Winsock
+Private Function WskCtrl(ByVal ID As Long, ByVal isAdd As Boolean) As Variant
     On Error GoTo err1
     If m_frmWsk Is Nothing Then Set m_frmWsk = New frmWsk:    Set m_frmWsk.Parent = Me
-    If isAdd Then Load m_frmWsk.Wsk(ID):  Set WskCtrl = m_frmWsk.Wsk(ID) Else:  Unload m_frmWsk.Wsk(ID)
+    If isAdd Then
+        Load m_frmWsk.Wsk(ID)
+        Set WskCtrl = m_frmWsk.Wsk(ID)
+    Else
+        Unload m_frmWsk.Wsk(ID)
+        WskCtrl = True
+    End If
 err1:
 End Function
 
-Public Function CreateWC(ByVal NameControl As String, Optional ByVal NameClass As String, Optional ByVal txtCaption As String, Optional ByVal dwStyle As Long, Optional ByVal dwExStyle As Long) As clsWC
+
+Public Function CreateWC(ByVal NameControl As String, Optional ByVal NameClass As String, Optional ByVal txtCaption As String, Optional ByVal dwStyle As Long, Optional ByVal dwExStyle As Long) As Variant
     Dim Obj As New clsWC
     If LenB(NameClass) Then
         Obj.Create Me, NameClass, NameControl, txtCaption, dwStyle, dwExStyle
         WC.Add Obj, NameControl
         Set CreateWC = Obj
     Else
-        WC.Remove NameControl
+        CreateWC = WC.Remove(NameControl)
     End If
 End Function
 
-Public Function CreateOCX(ByVal NameControl As String, Optional ByVal strGUID As String, Optional ByVal NotWrapEvent As Boolean) As Object
+Public Function CreateOCX(ByVal NameControl As String, Optional ByVal strGUID As String, Optional ByVal NotWrapEvent As Boolean) As Variant
     Dim OCX As New clsOCX
     If LenB(strGUID) Then
         Set CreateOCX = OCX.Create(Me, NameControl, strGUID, NotWrapEvent)
         WC.Add OCX, NameControl
     Else
-        WC.Remove NameControl
+        CreateOCX = WC.Remove(NameControl)
     End If
 End Function
 
@@ -1129,6 +1170,7 @@ End Sub
 Private Sub Form_Initialize()
     Set WC = New clsHash
     Set Resize = New clsHash
+    Set Alias = New clsHash
     Set SubClass = New clsSubClass
     Set Style = New clsFormStyle
     Set Tray = New frmTray
@@ -1141,6 +1183,7 @@ End Sub
 Private Sub Form_Terminate()
     Set WC = Nothing
     Set Resize = Nothing
+    Set Alias = Nothing
     Set SubClass = Nothing
     Set Style = Nothing
     Set Menu = Nothing
@@ -1173,6 +1216,7 @@ Private Sub Form_Unload(Cancel As Integer)
             SubClass.HookClear Me
             WC.Init
             Resize.Init
+            Alias.Init
             
             If Not m_frmWsk Is Nothing Then
                 Set m_frmWsk.Parent = Nothing
@@ -1316,10 +1360,19 @@ End Function
 '====================================================================================
 Public Function Events(nEvent As String, ParamArray Args() As Variant) As Variant
     On Error Resume Next
+    If Alias.Count Then Events_Alias nEvent
     If Not m_onEvent Is Nothing Then nEvent = m_onEvent(Me, nEvent, CVar(Args))
     If m_CodeObject Is Nothing Then Exit Function
     If ExistsMember(m_CodeObject, nEvent) = False Then Exit Function
     Events = CBN(m_CodeObject, nEvent, m_CT, Args)
+End Function
+
+Private Function Events_Alias(nEvent As String) As Boolean
+    Dim a As Long, v As Variant, tmp As String
+    a = InStr(nEvent, "_"):         If a = 0 Then Exit Function
+    tmp = Left$(nEvent, a - 1):     If LenB(tmp) = 0 Then Exit Function
+    v = Alias(tmp):                 If IsEmpty(v) Then Exit Function
+    nEvent = Replace(nEvent, tmp, v)
 End Function
 
 

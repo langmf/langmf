@@ -11,14 +11,15 @@ End Sub
 Sub Form_Load()
   this.Center
   this.caption="Работа с WINAPI"
-  this.add "command",1
-  this.add "command",2
+  
+  this.add "command", 1
+  this.add "command", "Button"
 
-  this.command(1).caption="Верхний уровень"
+  this.command(1).caption = "Верхний уровень"
   this.command(1).move 1700, 600, 1680, 400
 
-  this.command(2).caption="Норм. уровень"
-  this.command(2).move 1700, 1400, 1680, 400
+  this.Alias("button").caption = "Норм. уровень"
+  this.Alias("button").move 1700, 1400, 1680, 400
   
   Set this.onEvent = GetRef("Test")
 End Sub
@@ -30,12 +31,14 @@ End Function
 
 '---------------------------------
 Sub C1_Click()
-  rc = SetWindowPos(form1.hwnd, -1, form1.left/vbPX, form1.top/vbPY, form1.width/vbPX, form1.height/vbPY, 0)
+  Call SetWindowPos(form1.hwnd, -1, form1.left/vbPX, form1.top/vbPY, form1.width/vbPX, form1.height/vbPY, 0)
+  this.caption = "Top Position"
 End Sub
 
 '---------------------------------
-Sub Command2_Click()
-  rc = SetWindowPos(form1.hwnd, -2, form1.left/vbPX, form1.top/vbPY, form1.width/vbPX, form1.height/vbPY, 0)
+Sub Button_Click()
+  Call SetWindowPos(form1.hwnd, -2, form1.left/vbPX, form1.top/vbPY, form1.width/vbPX, form1.height/vbPY, 0)
+  this.caption = "Normal Position"
 End Sub
 
 '---------------------------------

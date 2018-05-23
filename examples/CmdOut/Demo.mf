@@ -10,8 +10,15 @@ Sub Load(cmdLine)
 	     doevents
 	Loop
 	
-	msgbox sys.conv.xlt(oExec.StdOut.ReadALL, "cp866")
+	msgbox sys.conv.xlt(oExec.StdOut.ReadALL, ResToStr("cp866"))
 		
 	endmf
 End Sub
 <#Module>
+
+
+<#res id="cp866" mode=base64 #>
+gMCBwYLCg8OExIXFhsaHx4jIicmKyovLjMyNzY7Oj8+Q0JHRktKT05TUldWW1pfXmNiZ2Zram9uc
+3J3dnt6f36DgoeGi4qPjpOSl5abmp+eo6Knpquqr66zsre2u7q/v4PDh8eLy4/Pk9OX15vbn9+j4
+6fnq+uv77Pzt/e7+7//ws/G4
+<#res#>
