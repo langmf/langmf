@@ -67,7 +67,7 @@ Public Property Get Item(Optional ByVal Key As String) As Variant
 Attribute Item.VB_UserMemId = 0
     Dim ndx As Long
     
-    If LenB(Key) = 0 Then Item = Chr$(17) & ObjPtr(Me): Exit Property
+    If LenB(Key) = 0 Then Item = Chr$(17) & ObjPtr(Me):   Exit Property
 
     ndx = GetSlotIndex(Key)
     

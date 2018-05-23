@@ -4,8 +4,7 @@ Sub Load(cmdLine)
         .width = 6000
         .height = 4500
 
-        .add "label",1, ".move 1716, 0, 1768, 376"
-        .add "command",1, ".move 1716, 3200, 1768, 376"
+        .add "command",1, ".move 1716, 3200, 1768, 376", ".caption = ""OK"""
         
         .add "text",1, ".move 1716, 432, 1768, 376"
         .add "text",2, ".move 1716, 1140, 1768, 376"
