@@ -164,13 +164,13 @@ Public Sub Sleep(Optional ByVal msec As Long)
     modConst.Sleep msec
 End Sub
 
-Public Sub DoEvents2()
-    DoEvents
-End Sub
+Public Function DoEvents2() As Long
+    DoEvents2 = DoEvents
+End Function
 
-Public Sub DoEvents3()
-    API_DoEvents
-End Sub
+Public Function DoEvents3() As Long
+    DoEvents3 = API_DoEvents
+End Function
 
 Public Sub EndMF(Optional ByVal Interval As Long = 1)
     m_EndMF Interval
