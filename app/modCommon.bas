@@ -874,13 +874,14 @@ Sub m_Wait(Optional ByVal msec As Long)
     Loop Until (t1 + msec) < t2 Or t1 > t2
 End Sub
 
-Sub API_DoEvents()
+Function API_DoEvents() As Long
     Dim wMsg As WNDMsg
     While PeekMessageA(wMsg, 0, 0, 0, PM_REMOVE)
         Call TranslateMessage(wMsg)
         Call DispatchMessageA(wMsg)
+        API_DoEvents = True
     Wend
-End Sub
+End Function
 
 Function Api_Error(ByVal vLastDllError As Long, Optional ByVal nFile As String, Optional ByVal clrChar As Boolean = True) As String
     Dim Flags As Long, hModule As Long

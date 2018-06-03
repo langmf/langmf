@@ -1259,7 +1259,7 @@ Sub AddBaseMF(txtCode As String)
           "Const vbSHA1 = 32772 : Const vbSHA256 = 32780 : Const vbSHA512 = 32782" + vbCrLf + _
           "Const vbMethod = 1 : Const vbGet = 2 : Const vbFunc = 3 : Const vbLet = 4 : Const vbSet = 8 : Const vbModal = 1" + vbCrLf + _
           "Sub Unload(mf_v1) : Sys.Ext.VB_Unload mf_v1 : End Sub" + vbCrLf + _
-          "Sub DoEvents() : DoEvents2 : End Sub" + vbCrLf + vbCrLf
+          "Function DoEvents() : DoEvents = DoEvents2 : End Function" + vbCrLf + vbCrLf
         
     txtCode = txt + txtCode
 End Sub
