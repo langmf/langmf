@@ -187,7 +187,6 @@ Function Code_Parse(Buf() As Byte, Optional ByVal nameScript As String, Optional
     Dim txtAddCode As String, txtTmp As String, a As Long, mainRunMF As Long, isMFC As Boolean
     Dim tmpForm As frmForm, PCD() As def_ParseCustom, cs As Collection, v As clsActiveScript
 
-    
     On Error Resume Next
     
     If m_ArraySize(Buf) = 0 Then Exit Function
@@ -202,7 +201,7 @@ Function Code_Parse(Buf() As Byte, Optional ByVal nameScript As String, Optional
     txtCode = vbCrLf + ToUnicode(Buf) + vbCrLf
 
     '--------------------------------------------------------------------
-    REG.Global = True:  REG.IgnoreCase = True:  REG.MultiLine = True
+    REG.Global = True:    REG.IgnoreCase = True:    REG.MultiLine = True
     
     '-------------------------- Parse Data ------------------------------
     Call Parse_Data(txtCode)
@@ -997,14 +996,15 @@ End Sub
 
 Function Parse_Include(txtCode As String, Optional ByVal noFind As String, Optional ByVal bCompile As Boolean) As Boolean
     Dim a As Long, txt As String, tmp As String, nm As String, oth As String, vStatus As Variant
-    Dim Mts As MatchCollection, clsFS As New clsFileSearch, tmpBuf() As Byte
+    Dim REG1 As RegExp, Mts As MatchCollection, clsFS As New clsFileSearch, tmpBuf() As Byte
     
     tmp = "[ \t\v]*#Include +([<""])" + noFind + "([^"">]+)(["">])([^\r]*)"
 
-    REG.Global = False:      REG.Pattern = IIF(bCompile, Replace$(tmp, """", ""), tmp)
+    Set REG1 = New RegExp:      REG1.Global = False:      REG1.IgnoreCase = True
+    REG1.Pattern = IIF(bCompile, Replace$(tmp, """", ""), tmp)
     
     Do
-        Set Mts = REG.Execute(txtCode)
+        Set Mts = REG1.Execute(txtCode)
         
         If Mts.Count <> 0 Then
             With Mts(0)
@@ -1040,8 +1040,6 @@ Function Parse_Include(txtCode As String, Optional ByVal noFind As String, Optio
             End With
         End If
     Loop Until Mts.Count = 0
-    
-    REG.Global = True
 End Function
 
 Function Parse_Modify(txtCode As String, Optional txtConv As Variant, Optional ByVal Flags As Long) As String

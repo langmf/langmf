@@ -165,7 +165,7 @@ Public Function EnumDisplay(Optional ByVal patName As String, Optional ByVal mBi
 
         If REG1.Test(devName) Then
             mb = Array():      b = 0:      ib = 0:      dev.dmSize = Len(dev):      dev.dmDriverExtra = 0:
-            
+
             Do While EnumDisplaySettingsA(devName, ib, dev) <> 0
                 If (dev.dmDefaultSource <= mFixed) And (dev.dmBitsPerPel >= mBits) Then
                     Set c = New Collection
