@@ -131,6 +131,7 @@ End Function
 
 Public Function CreateImage() As Object
     Static cntImage As Long
+    On Error Resume Next
     cntImage = cntImage + 1
     Set CreateImage = frmScript.Controls.Add("VB.PictureBox", "dynPic_" & cntImage)
     With CreateImage

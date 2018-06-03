@@ -306,18 +306,21 @@ Public Function Content(ByVal value As String, Optional ByVal bString As Boolean
         Case "http://", "https://"
             vStatus(1) = 3
             With Net.XMLHTTP(value)
-                If .readyState = 4 And .Status = 200 Then
+                On Error Resume Next
+                vStatus(4) = .Status:    vStatus(5) = .StatusText
+                On Error GoTo 0
+                If .readyState = 4 And vStatus(4) = 200 Then
                     If m_ArraySize(.responseBody) Then
                         Buf = .responseBody
                         If bString Then Content = Conv_A2W_Buf(Buf) Else Content = Buf
                     End If
                     vStatus(0) = True
                 Else
-                    vStatus(4) = .Status:    vStatus(5) = .StatusText
+                    If .readyState = 0 Then vStatus(5) = "Timeout abort."
                     If vStatus(4) >= 12000 Then vStatus(5) = Api_Error(vStatus(4), "wininet.dll")
                 End If
             End With
-    
+
         Case "res://"
             vStatus(1) = 2
             If SYS.Resource.Exists(vName) Then
@@ -326,7 +329,7 @@ Public Function Content(ByVal value As String, Optional ByVal bString As Boolean
             Else
                 vStatus(4) = 3:      vStatus(5) = "Not found resource '" & vName & "'"
             End If
-        
+
         Case "file://", ""
             vStatus(1) = 1
             If m_File2Buf(Buf, vName) Then
