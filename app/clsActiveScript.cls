@@ -81,9 +81,10 @@ End Sub
 
 Public Sub Parse(value As String, Optional ByVal nameMod As String, Optional ByVal Flags As Long, Optional Result As Variant)
     Dim cnx As Long
-    On Error Resume Next
     Init
+    On Error Resume Next
     cnx = Objects(nameMod)
+    On Error GoTo 0
     IParse.ParseScriptText value, nameMod, Nothing, vbNullString, cnx, 0, Flags, Result, Exep
 End Sub
 
@@ -139,6 +140,22 @@ Public Property Let State(ByVal value As Long)
     Init
     IScript.SetScriptState value
 End Property
+
+Public Function Run(ByVal vName As String, ParamArray a() As Variant) As Variant
+    Select Case UBound(a)
+        Case -1:  Run = CallByName(CodeObject, vName, VbMethod)
+        Case 0:   Run = CallByName(CodeObject, vName, VbMethod, a(0))
+        Case 1:   Run = CallByName(CodeObject, vName, VbMethod, a(0), a(1))
+        Case 2:   Run = CallByName(CodeObject, vName, VbMethod, a(0), a(1), a(2))
+        Case 3:   Run = CallByName(CodeObject, vName, VbMethod, a(0), a(1), a(2), a(3))
+        Case 4:   Run = CallByName(CodeObject, vName, VbMethod, a(0), a(1), a(2), a(3), a(4))
+        Case 5:   Run = CallByName(CodeObject, vName, VbMethod, a(0), a(1), a(2), a(3), a(4), a(5))
+        Case 6:   Run = CallByName(CodeObject, vName, VbMethod, a(0), a(1), a(2), a(3), a(4), a(5), a(6))
+        Case 7:   Run = CallByName(CodeObject, vName, VbMethod, a(0), a(1), a(2), a(3), a(4), a(5), a(6), a(7))
+        Case 8:   Run = CallByName(CodeObject, vName, VbMethod, a(0), a(1), a(2), a(3), a(4), a(5), a(6), a(7), a(8))
+        Case 9:   Run = CallByName(CodeObject, vName, VbMethod, a(0), a(1), a(2), a(3), a(4), a(5), a(6), a(7), a(8), a(9))
+    End Select
+End Function
 
 
 
