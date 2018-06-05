@@ -3,6 +3,8 @@ Dim a
 
 '---------------------------------------
 Sub Load(cmdLine)
+    On Error Resume Next
+
     sys.host "noerror", true
     sys.host.script.addcode " a == 5"
     sys.host "noerror", false
