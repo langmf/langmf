@@ -94,39 +94,18 @@ Public Function DecodeUrl(ByVal value As String, Optional ByVal Cpg As Long = -1
     Erase srcBuf:   ReDim Preserve dstBuf(c - 1):   DecodeUrl = Conv_A2W_Buf(dstBuf, Cpg)
 End Function
 
-Public Function ArrayJS(ByVal Disp As ATL.IDispatchEx, Optional ByVal VType As Long) As Variant()
-    Dim a As Long, b As Long, uds As Long, sz As Long, out() As Variant, tmpBuf() As Byte, m(10) As Long
-    Dim o As Long, p As Long, pAE As Long, pDP As ATL.DISPPARAMS, pEI As ATL.EXCEPINFO
+Public Function ArrayJS(ByVal Obj As ATL.IDispatchEx) As Variant()
+    Dim a As Long, uds As Long, sz As Long, out() As Variant, pAE As Long, pDP As ATL.DISPPARAMS, pEI As ATL.EXCEPINFO
 
-    sz = CBN(Disp, "length", VbGet)
+    On Error Resume Next:    sz = CallByName(Obj, "length", VbGet):    On Error GoTo 0
+    If sz = 0 Then ArrayJS = out:   Exit Function
 
-    If sz Then
-        ReDim out(sz - 1)
-        
-        Select Case VType
-            Case 0
-                For a = 0 To sz - 1
-                    Call Disp.GetDispID(CStr(a), fdexNameCaseSensitive, uds)
-                    Call Disp.InvokeEx(uds, LOCALE_USER_DEFAULT, VbGet, pDP, out(a), pEI, pAE)
-                Next
-                
-            Case -1
-                tmpBuf = Conv_W2A_Buf(CStr(Disp)):   uds = UBound(tmpBuf) + 1:   ReDim Preserve tmpBuf(uds):   tmpBuf(uds) = 44
-                For b = 0 To 9:       m(b + 1) = 10 ^ b:     Next
-                
-                Do
-                    If tmpBuf(p) = 44 Then
-                        sz = 0
-                        Do
-                            b = tmpBuf(o) - 48
-                            If b >= 0 And b <= 9 Then sz = sz + b * m(p - o): o = o + 1 Else sz = 0: Exit Do
-                        Loop Until o >= p
-                        o = p + 1:     out(a) = sz:     a = a + 1
-                    End If
-                    p = p + 1
-                Loop Until p > uds
-        End Select
-    End If
+    ReDim out(sz - 1)
+
+    For a = 0 To sz - 1
+        Call Obj.GetDispID(a, fdexNameCaseSensitive, uds)
+        Call Obj.InvokeEx(uds, LOCALE_USER_DEFAULT, VbGet, pDP, out(a), pEI, pAE)
+    Next
 
     ArrayJS = out
 End Function

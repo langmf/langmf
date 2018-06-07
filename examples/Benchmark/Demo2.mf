@@ -1,12 +1,14 @@
 <#Module=mdlDemo>
-Dim Ver, Res, tm, fn, min
+Dim Ver, Res, tm, fn, Norm, Fast
+
+Const porog = 50
 
 Sub Load(cmdLine)
     sys.ext.setpriority &H80
  
     Form.Caption = "Benchmark Engine"
     Form.Width = 8000
-    Form.Height = 3500
+    Form.Height = 4000
     Form.AutoRedraw = True
     Form.Center
 
@@ -16,35 +18,41 @@ Sub Load(cmdLine)
       GLine Form, 0, a, Form.scaleWidth, a, RGB(0, 0, clr)
     Next
 
-    sys.gdi.savebmp "..\src\test2.jpg","test.bmp"
+    sys.gdi.savebmp "..\src\test2.jpg", "test.bmp"
     b = sys.conv.buf(sys.conv.file2buf("test.bmp"))
     
     Set Res = sys.newcollection
-    
-    
-    '-------------------------------------------------------
-    TStart  :  TStop VB.Test(b), "Native"
-    
-    '-------------------------------------------------------
-    TStart  :  TStop Sys.Conv.ArrayJS(JS2.Test(b), -1), "toString"
+
 
     '-------------------------------------------------------
-    TStart  :  TStop Sys.Conv.ArrayJS(JS1.Test(b), 0), "Invoke"
+    TStart  :  TStop Class1.Test(sys.conv.buf(b, 8209)), "Native"
+
+    '-------------------------------------------------------
+    TStart  :  TStop VB.Test(b), "Native"
+
+    '-------------------------------------------------------
+    TStart  :  TStop JS2.Test(b), "toHex"
     
     '-------------------------------------------------------
-    TStart  :  TStop Sys.Conv.ArrayJS(JS1.Test(b), -1), "toString"
+    TStart  :  TStop JS1.Test(b), "toHex"
+
+    '-------------------------------------------------------
+    TStart  :  TStop JS1.Test(b, true), "Invoke"
 
 
     '---------------------------------------------------------
     i = 0
     For Each v In Res
-        With Form.Add("label", i * 2 + 1, ".Caption = Empty", ".BackStyle = 1", ".BackColor = QBColor(2)", ".ForeColor = QBColor(15)")
-            .Move 160, 400 + i * 600, ((Form.scaleWidth - 320) * min) / (v(1)+1), 360
+        With Form.Add("label", i * 2 + 1, ".Caption = Empty", ".BackStyle = 1", ".ForeColor = QBColor(15)")
+            If v(1) > 50 Then c = QBColor(2)  :  m = Norm  : Else :  c = QBColor(5)  :  m = Fast
+            .BackColor = c
+            .Move 160, 400 + i * 600, ((Form.scaleWidth - 320) * m) / (v(1)), 360
         End With
 
         With Form.Add("label", i * 2 + 2,  ".ForeColor = QBColor(15)", ".ZOrder 0")
+            On Error Resume Next  :  .FontName = "Lucida Console"  :  .FontSize = 9  :  On Error Goto 0
             .Move 220, 480 + i * 600, 1000, 360
-            .Caption = "Time = " & v(1) & " ms." & sys.str.rpt(" ",10) & v(0)
+            .Caption = Text(18, "Time = " & v(1) & " ms.") & v(0)
         End With
         
         i = i + 1
@@ -59,13 +67,20 @@ Sub TStart()
 End Sub
 
 Sub TStop(buf, txt)
-    tm = timeGetTime - tm
-    If min = Empty Then min=tm
-    If tm < min Then min = tm
-    Res.Add Array(Ver + sys.str.rpt(" ",15) + txt, tm)
+    tm = timeGetTime - tm  :  if tm <= 0 then tm = 1
+    If tm > porog Then
+        If Norm = Empty or tm < Norm Then Norm = tm
+    Else
+        If Fast = Empty or tm < Fast Then Fast = tm
+    End If
+    Res.Add Array(Text(30, Ver) + txt, tm)
     fn = fn + 1
     sys.conv.buf2file buf, "out" & fn & ".bmp"
 End Sub
+
+Function Text(w, txt)
+    Text = txt  :  while Len(Text) < w  :  Text = Text + " "  :  wend
+End Function
 <#Module>
 
 
@@ -93,15 +108,22 @@ End Sub
 
 
 <#Script=JS1#>
-    function Test(b) {
+    function Test(b, t) {
         b = new VBArray(b).toArray();
-        s = b.length - 2
-        for (a = 54; a < s; a = a + 3) {
+        var s = b.length - 2
+        for (var a = 54; a < s; a += 3) {
             b[a + 1] = b[a]
             b[a + 2] = b[a]
         }
         JS1.Ver = ScriptEngine() + " = " + ScriptEngineMajorVersion() + "." + ScriptEngineMinorVersion() + "." + ScriptEngineBuildVersion();
-        return b;
+        if (t) return JS1.Sys.Conv.ArrayJS(b);
+        return JS1.Sys.Conv.Hex2Buf(toHex(b));
+    }
+
+    function toHex(b) {
+        var n1, n2, out = '', x = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'];
+        for (var i = 0; i < b.length; i++) { n2 = b[i];    n1 = n2 >> 4;    n2 &= 15;    out = out + x[n1] + x[n2]; }
+        return out;
     }
 <#Script#>
 
@@ -109,12 +131,43 @@ End Sub
 <#Script=JS2,chakra#>
     function Test(b) {
         b = new VBArray(b).toArray();
-        s = b.length - 2
-        for (a = 54; a < s; a = a + 3) {
+        var s = b.length - 2
+        for (var a = 54; a < s; a += 3) {
             b[a + 1] = b[a]
             b[a + 2] = b[a]
         }
         JS2.Ver = ScriptEngine() + " = " + ScriptEngineMajorVersion() + "." + ScriptEngineMinorVersion() + "." + ScriptEngineBuildVersion();
-        return b;
+        return JS2.Sys.Conv.Hex2Buf(toHex(b));
+    }
+
+    function toHex(b) {
+        var n1, n2, out = '', x = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'];
+        for (var i = 0; i < b.length; i++) { n2 = b[i];    n1 = n2 >> 4;    n2 &= 15;    out = out + x[n1] + x[n2]; }
+        return out;
     }
 <#Script#>
+
+<#VBNet instance="Class1" start="main" #>
+Imports System
+Imports Microsoft.VisualBasic
+
+public Module modMain
+    Public LMF as Object
+    Public Sub Main(Byval Obj as Object)
+        LMF = Obj
+    End Sub
+End Module
+
+Public Class Class1
+    Public Function Test(value) As Object
+        dim a as integer, b() As Byte = value
+
+        for a = 54 to ubound(b) - 2 step 3
+            b(a + 1) = b(a)
+            b(a + 2) = b(a)
+        next
+
+        Test = b  :  LMF.Script.CodeObject.Ver = "VB.NET = " + Environment.Version.ToString()
+    End Function
+End Class
+<#VBNet#>
