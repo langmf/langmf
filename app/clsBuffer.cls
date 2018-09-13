@@ -79,6 +79,21 @@ Public Property Let PByte(Optional ByVal vOffset As Long = -1, ByVal value As By
     m_Offset = m_Offset + 1
 End Property
 
+Public Property Get PChar(Optional ByVal vOffset As Long = -1) As Integer
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 1) Then Exit Property
+    Dim tmpByte As Byte
+    GetMem1 m_Ptr + m_Offset, tmpByte:    PChar = tmpByte:    If tmpByte And 128 Then PChar = PChar - 256
+    m_Offset = m_Offset + 1
+End Property
+
+Public Property Let PChar(Optional ByVal vOffset As Long = -1, ByVal value As Integer)
+    If vOffset <> -1 Then m_Offset = vOffset
+    If Overflow = False And m_Offset > (m_Size - 1) Then Exit Property
+    PutMem1 m_Ptr + m_Offset, value And &HFF&
+    m_Offset = m_Offset + 1
+End Property
+
 Public Property Get PWord(Optional ByVal vOffset As Long = -1) As Long
     If vOffset <> -1 Then m_Offset = vOffset
     If Overflow = False And m_Offset > (m_Size - 2) Then Exit Property

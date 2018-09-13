@@ -642,6 +642,9 @@ Sub Parse_Types(txtCode As String)
                             Case "byte"
                                 vTxt = vTxt & Parse_Types_Sub(mts1, "PByte", 1, vOffset)
                                 
+                            Case "char"
+                                vTxt = vTxt & Parse_Types_Sub(mts1, "PChar", 1, vOffset)
+                                
                             Case "word"
                                 vTxt = vTxt & Parse_Types_Sub(mts1, "PWord", 2, vOffset)
                                 

@@ -214,10 +214,9 @@ Function CompressData(Data() As Byte, Optional ByVal cmsType As Long = CMS_FORMA
     
     CompressData = -1
     GetBounds Data, iL, iU
+    org = iU - iL + 1
     
-    If iU > iL Then
-        org = iU - iL + 1
-        
+    If org > 0 Then
         sz = org + (org * 0.01) + 12
         ReDim Buf(0 To sz - 1)
             
@@ -250,11 +249,10 @@ Function DecompressData(Data() As Byte, Optional ByVal cmsType As Long = CMS_FOR
     
     DecompressData = -1
     GetBounds Data, iL, iU
+    org = iU - iL - 3
     
-    If iU > iL Then
-        CopyMemory sz, Data(iU - 3), 4
-        
-        org = iU - iL - 3
+    If org > 0 Then
+        CopyMemory sz, Data(iU - 3), 4:      If sz <= 0 Then Exit Function
         
         ReDim Buf(0 To sz - 1) As Byte
         
