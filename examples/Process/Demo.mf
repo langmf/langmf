@@ -1,3 +1,5 @@
+Declare Function SendMessageW Lib "user32" (ByVal hWnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+
 <#Module=mdlMain>
 Dim LV
 
@@ -72,8 +74,8 @@ Sub ListProcess()
   
   Set Proc = sys.process.list
   
-  pos = sys.api.SendMessage(LV.object.hwnd, LVM_GETTOPINDEX, 0, 0)
-  pos = pos + sys.api.SendMessage(LV.object.hwnd, LVM_GETCOUNTPERPAGE, 0, 0)
+  pos = SendMessageW(LV.object.hwnd, LVM_GETTOPINDEX, 0, 0)
+  pos = pos + SendMessageW(LV.object.hwnd, LVM_GETCOUNTPERPAGE, 0, 0)
 
   LV.object.ListItems.clear
   

@@ -1,3 +1,4 @@
+Declare Function BitBlt Lib "gdi32" (ByVal hDestDC As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal XSrc As Long, ByVal YSrc As Long, ByVal dwRop As Long) As Long
 Declare Function GetDC Lib "user32" (ByVal hwnd As Long)
 Declare Function ReleaseDC Lib "user32" (ByVal hwnd As Long, ByVal hdc as Long) As Long
 Declare Function GetDesktopWindow Lib "user32" ()
@@ -91,7 +92,7 @@ form.textbox(1).text = form.textbox(1).text + "Pass: " + w + vbcrlf
 form.textbox(1).selstart = len(form.textbox(1).text)
 
     rc = GetDC(GetDesktopWindow)
-    sys.api.bitblt form.pic(1).hdc, 0, 0, form.pic(1).width / vbPX, form.pic(1).height / vbPY, rc, 0, 0, vbsrccopy
+    bitblt form.pic(1).hdc, 0, 0, form.pic(1).width / vbPX, form.pic(1).height / vbPY, rc, 0, 0, vbsrccopy
     
     ReleaseDC form.pic(1).hwnd, form.pic(1).hdc
     ReleaseDC GetDesktopWindow, rc

@@ -1,3 +1,6 @@
+Declare Function FreeLibrary Lib "kernel32" (ByVal hLibModule As Long) As Long
+Declare Function LoadLibrary Lib "@kernel32"  Alias "LoadLibraryW" (ByVal lpLibFileName As String) As Long
+Declare Function GetProcAddress Lib "kernel32" (ByVal hModule As Long, ByVal lpProcName As String) As Long
 Declare Function GetUserName Lib "@advapi32" Alias "GetUserNameW" (ByVal lpBuffer As String, nSize As Long) As Long
 
 
@@ -28,12 +31,12 @@ Sub Load(cmdLine)
 	
 	txt = string(256,0)
 	t1 = timegettime
-	hlib = sys.api.loadlibrary("advapi32")
-	fn = sys.api.getprocaddress(hlib, "GetUserNameW")
+	hlib = LoadLibrary("advapi32")
+	fn = GetProcAddress(hlib, "GetUserNameW")
 	For a = 1 to 10000
 		rc = DllCall("@", fn, txt, p)
 	next
-	sys.api.freelibrary hlib
+	FreeLibrary hlib
 	t1 = timegettime - t1
 	out = out & "API_Pointer - " & t1 & " ms" & vbTab & " Value=" & sys.str.trimnull(txt) & vbcrlf
 

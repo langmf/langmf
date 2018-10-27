@@ -20,16 +20,6 @@ Public Function timeGetTime() As Long
     timeGetTime = modConst.timeGetTime()
 End Function
 
-Public Property Get PortIO(ByVal numPort As Integer) As Integer
-    On Error Resume Next
-    PortIO = Inp32(numPort)
-End Property
-
-Public Property Let PortIO(ByVal numPort As Integer, ByVal value As Integer)
-    On Error Resume Next
-    Out32 numPort, value
-End Property
-
 Public Function WindowLong(ByVal hWnd As Long, Optional ByVal mStyle As Long, Optional ByVal value As Variant, Optional ByVal nIndex As Long = GWL_STYLE) As Long
     WindowLong = modCommon.WindowLong(hWnd, value, mStyle, nIndex)
 End Function
@@ -276,9 +266,7 @@ Public Function DllCall(ByVal lData As String, ByVal sData As Variant, ParamArra
     Dim i As Long, a As Long, vt As Integer, l As LONG64, uds As Long, v() As Variant, t(40) As Long
     Dim isUnicode As Boolean, ID As String, clsFCP As clsFuncPointer
 
-    ID = lData & " " & sData
-
-    Set clsFCP = HashDLL(ID)
+    ID = lData & " " & sData:      Set clsFCP = HashDLL(ID)
 
     If clsFCP Is Nothing Then Set clsFCP = New clsFuncPointer:  Call clsFCP.Config(lData, sData):  HashDLL.Add clsFCP, ID
     

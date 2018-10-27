@@ -1,3 +1,7 @@
+Declare Sub Out32 Lib "inpout32" (ByVal PortAddress As Integer, ByVal value As Integer)
+Declare Function Inp32 Lib "inpout32" (ByVal PortAddress As Integer) As Integer
+
+
 <#Module=mdl_SIO>
 Const sio_CONFIG_CONTROL_REG = &H2
 Const sio_DEVICE_SELECT_REG = &H7
@@ -13,23 +17,23 @@ Dim sioRegRW, sioDataRW
 Function FindSensor()
     Dim tmpObj, i
 
-    Set FindSensOr = Nothing
+    Set FindSensor = Nothing
 
     For Each tmpObj In Array(New IT87x, New F718x, New NCT677x)
-        If tmpObj.Find Then Set FindSensOr = tmpObj : Exit For : End If
+        If tmpObj.Find Then Set FindSensor = tmpObj : Exit For : End If
     Next
 End Function
 
 
 '----------------------------------
 Function SIO_Read(reg)
-    PortIO(sioRegRW) = reg
-    SIO_Read = PortIO(sioDataRW)
+    Call Out32(sioRegRW, reg)
+    SIO_Read = Inp32(sioDataRW)
 End Function
 
 Function SIO_Write(reg, value)
-    PortIO(sioRegRW) = reg
-    PortIO(sioDataRW) = value
+    Call Out32(sioRegRW, reg)
+    Call Out32(sioDataRW, value)
 End Function
 
 Function SIO_ReadWord(reg)
@@ -37,8 +41,8 @@ Function SIO_ReadWord(reg)
 End Function
 
 Function SIO_SelectLDN(num)
-    PortIO(sioRegRW) = sio_DEVICE_SELECT_REG
-    PortIO(sioDataRW) = num
+    Call Out32(sioRegRW, sio_DEVICE_SELECT_REG)
+    Call Out32(sioDataRW, num)
 End Function
 
 Function SIO_GetLDA(reg)
@@ -87,8 +91,8 @@ Class SIO_CommonFunc
         For each tmp in value
         lxm = split(tmp, "=") : lxm(0) = trim(lxm(0)) : lxm(1) = trim(lxm(1))
         select case ucase(lxm(0))
-            case "R" : PortIO(sioRegRW) = lxm(1)
-            case "D" : PortIO(sioDataRW) = lxm(1)
+            case "R" : Call Out32(sioRegRW, val(lxm(1)))
+            case "D" : Call Out32(sioDataRW, val(lxm(1)))
             case "W"
                 lxm2 = split(lxm(1), ",")
                 lxm2(0) = val(trim(lxm2(0)))
@@ -99,7 +103,7 @@ Class SIO_CommonFunc
                 lxm2(0) = val(trim(lxm2(0)))
                 lxm2(1) = val(trim(lxm2(1)))
                 lxm2(2) = val(trim(lxm2(2)))
-                If sioRegRW = lxm2(0) Then PortIO(sioRegRW) = lxm2(1) else PortIO(sioRegRW) = lxm2(2)
+                If sioRegRW = lxm2(0) Then Call Out32(sioRegRW, lxm2(1)) else Call Out32(sioRegRW, lxm2(2))
         end select
         next
     End Function
@@ -152,22 +156,22 @@ Class SIO_CommonFunc
 
     Property Get Port(ByVal index)
         If Not IsEmpty(cf_BANK_REG) then
-            PortIO(cf_Reg) = cf_BANK_REG
-            PortIO(cf_Data) = sys.bytes.rshift(index, 8)
+            Call Out32(cf_Reg, cf_BANK_REG)
+            Call Out32(cf_Data, sys.bytes.rshift(index, 8))
             index = index And &HFF
         end if
-        PortIO(cf_Reg) = index
-        Port = PortIO(cf_Data)
+        Call Out32(cf_Reg, index)
+        Port = Inp32(cf_Data)
     End Property
 
     Property Let Port(ByVal index, value)
         If Not IsEmpty(cf_BANK_REG) then
-            PortIO(cf_Reg) = cf_BANK_REG
-            PortIO(cf_Data) = sys.bytes.rshift(index, 8)
+            Call Out32(cf_Reg, cf_BANK_REG)
+            Call Out32(cf_Data, sys.bytes.rshift(index, 8))
             index = index And &HFF
         end If    
-        PortIO(cf_Reg) = index
-        PortIO(cf_Data) = value
+        Call Out32(cf_Reg, index)
+        Call Out32(cf_Data, value)
     End Property
 
     Property Get Bit(index, num)

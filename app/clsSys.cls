@@ -23,7 +23,6 @@ Public Printers As Object
 Public Licenses As Object
 Public Clipboard As Object
 
-Public API As Object
 Public CGI As Object
 Public GDI As Object
 Public SHD As Object
@@ -53,7 +52,6 @@ Private Sub Class_Initialize()
     Set Printers = VB.Printers
     Set Licenses = VB.Licenses
     Set Clipboard = VB.Clipboard
-    Set API = New clsAPI
     Set CGI = New clsCGI
     Set GDI = New clsGDI
     Set SHD = New clsShared

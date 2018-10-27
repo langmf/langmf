@@ -1,3 +1,5 @@
+Declare Function FreeLibrary Lib "kernel32" (ByVal hLibModule As Long) As Long
+Declare Function LoadLibrary Lib "@kernel32"  Alias "LoadLibraryW" (ByVal lpLibFileName As String) As Long
 Declare Function EnumResourceTypes Lib "kernel32" Alias "EnumResourceTypesA" (ByVal hModule As Long, ByVal lpEnumFunc As Long, ByVal lParam As Long) As Long
 
 <#Module=mdlDemo>
@@ -16,9 +18,9 @@ Sub Load(cmdLine)
     form.Center
     form.show
     
-    ptr = sys.api.loadlibrary(sys.path("system") + "shell32.dll")
+    ptr = LoadLibrary(sys.path("system") + "shell32.dll")
     EnumResourceTypes ptr, sys.callback("Test"), 0
-    sys.api.freelibrary ptr
+    FreeLibrary ptr
     
     form.lcombo(1).listindex=0
 End Sub

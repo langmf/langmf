@@ -1,3 +1,7 @@
+Declare Sub Out32 Lib "..\MBSensor\inpout32" (ByVal PortAddress As Integer, ByVal value As Integer)
+Declare Function Inp32 Lib "..\MBSensor\inpout32" (ByVal PortAddress As Integer) As Integer
+
+
 <#Module=mdlDemo>
 '---------------------------------------
 Sub Load(cmdLine)
@@ -22,9 +26,9 @@ Sub Command1_Click()
   randomize timer
   
   Do
-    PortIO(&H378) = int(rnd*255)
+    Out32 &H378, int(rnd*255)
   
-    byt = PortIO(&H378)
+    byt = Inp32(&H378)
   
   
     form.label(1).caption = byt

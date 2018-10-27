@@ -4,6 +4,8 @@
 '|                                              |
 '------------------------------------------------
 
+Declare Function CallWindowProcA Lib "user32" (ByVal lpPrevWndFunc As Long, ByVal hWnd As Long, ByVal Msg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+
 <#Module=mdlDemo>
 '-------------------------------
 Sub Load(cmdLine)
@@ -50,7 +52,7 @@ Sub RunAsm
   b=100000000
 
   t1 = TimeGetTime
-  rc = sys.api.CallWindowProc(data.ptr(true), b)
+  rc = CallWindowProcA(data.ptr(true), b, 0, 0, 0)
   t2 = TimeGetTime
 
 
@@ -64,7 +66,7 @@ Sub RunAsm
 
 
   t1 = TimeGetTime
-  rc = sys.api.CallWindowProc(data.ptr(true), b)
+  rc = CallWindowProcA(data.ptr(true), b, 0, 0, 0)
   t2 = TimeGetTime
 
 

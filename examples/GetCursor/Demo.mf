@@ -1,3 +1,4 @@
+Declare Function BitBlt Lib "gdi32" (ByVal hDestDC As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal XSrc As Long, ByVal YSrc As Long, ByVal dwRop As Long) As Long
 Declare Function GetPixel Lib "gdi32" (ByVal hdc As Long, ByVal x As Long, ByVal y As Long) As Long
 Declare Function GetDC Lib "user32" (ByVal hwnd As Long) As Long
 Declare Function ReleaseDC Lib "user32" (ByVal hwnd As Long, ByVal hdc as Long) As Long
@@ -38,7 +39,7 @@ Sub Read
 
   rc = GetDC(GetDesktopWindow)
 
-  sys.api.bitblt form.hdc, 0, 0, 128, 128, rc, pos.x, pos.y, vbsrccopy
+  bitblt form.hdc, 0, 0, 128, 128, rc, pos.x, pos.y, vbsrccopy
 
   ReleaseDC GetDesktopWindow, rc
 

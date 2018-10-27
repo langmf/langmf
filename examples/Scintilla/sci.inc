@@ -1,3 +1,8 @@
+Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (hpvDest As Any, hpvSource As Any, ByVal cbCopy As Long)
+Declare Function CreateWindowExW Lib "@user32" (ByVal dwExStyle As Long, ByVal lpClassName As String, ByVal lpWindowName As String, ByVal dwStyle As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hWndParent As Long, ByVal hMenu As Long, ByVal hInstance As Long, ByVal lpParam As Long) As Long
+Declare Function SetWindowPos Lib "user32" (ByVal hWnd As Long, ByVal hWndInsertAfter As Long, ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
+Declare Function FreeLibrary Lib "kernel32" (ByVal hLibModule As Long) As Long
+Declare Function LoadLibrary Lib "@kernel32"  Alias "LoadLibraryW" (ByVal lpLibFileName As String) As Long
 Declare Function DestroyWindow Lib "user32" (ByVal hWnd As Long) As Long
 Declare Function ShowWindow Lib "user32" (ByVal hWnd As Long, ByVal nCmdShow As Long) As Long
 Declare Function SCI_Send Lib "user32" Alias "SendMessageW" (ByVal hWnd As Long, ByVal Msg As Long, ByVal wp As Any, ByVal lp As Any) As Long
@@ -134,7 +139,7 @@ Class Scintilla
 			SubClass.HookClear Me, Parent.hWnd
 			DestroyWindow hWnd
 		End If
-		If hLib Then sys.api.FreeLibrary hLib
+		If hLib Then FreeLibrary hLib
 		Set SubClass = Nothing
 		Set Parent = Nothing
 	End Sub
@@ -148,8 +153,8 @@ Class Scintilla
         
         frm.caption = "Scintilla - " + sys.ext.versiondll("SciLexer.DLL")
         
-		hLib = sys.api.LoadLibrary("SciLexer.DLL")
-		if hLib Then hWnd = sys.api.CreateWindowEx(WS_EX_CLIENTEDGE, "Scintilla", m_name, WS_CHILD Or WS_VISIBLE, lLeft, lTop, lWidth, lHeight, Parent.hWnd, 0, sys.App.hInstance, 0)
+		hLib = LoadLibrary("SciLexer.dll")
+		if hLib Then hWnd = CreateWindowExW(WS_EX_CLIENTEDGE, "Scintilla", m_name, WS_CHILD Or WS_VISIBLE, lLeft, lTop, lWidth, lHeight, Parent.hWnd, 0, sys.App.hInstance, 0)
 
 		If hWnd Then
 			SubClass.HookSet Me, Parent.hWnd	
@@ -176,7 +181,7 @@ Class Scintilla
 
 	'---------------------------------------
 	Private Sub Resize()
-		If hWnd <> 0 Then Call sys.api.SetWindowPos(hWnd, 0, lLeft, lTop, lWidth, lHeight, SWP_NOZORDER)
+		If hWnd <> 0 Then Call SetWindowPos(hWnd, 0, lLeft, lTop, lWidth, lHeight, SWP_NOZORDER)
 	End Sub
 
 	'---------------------------------------
@@ -256,7 +261,7 @@ Class Scintilla
 
 		Select Case umsg
 			Case WM_NOTIFY
-				sys.api.CopyMemory Notif, lParam, LenType(Notif)
+				CopyMemory Notif, lParam, LenType(Notif)
 				
 				if Notif.NotifyHeader.hwndFrom <> hWnd Then exit function
 
