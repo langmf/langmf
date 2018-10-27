@@ -1,3 +1,7 @@
+Declare Sub Out32 Lib "..\MBSensor\inpout32" (ByVal PortAddress As Integer, ByVal value As Integer)
+Declare Function Inp32 Lib "..\MBSensor\inpout32" (ByVal PortAddress As Integer) As Integer
+
+
 <#Module=UPS>
 Dim Comm
 
@@ -47,19 +51,19 @@ Sub Timer1_Timer()
 Dim val, txt
 
  txt = txt & "   "
- txt = txt & PortIO(&H3F8) & "  "
- txt = txt & PortIO(&H3F9) & "  "
- txt = txt & PortIO(&H3FA) & "  "
- txt = txt & PortIO(&H3FB) & "  "
- txt = txt & PortIO(&H3FC) & "  "
- txt = txt & PortIO(&H3FD) & "  "
- txt = txt & PortIO(&H3FE) & "  "
- txt = txt & PortIO(&H3FF) & "  "
+ txt = txt & Inp32(&H3F8) & "  "
+ txt = txt & Inp32(&H3F9) & "  "
+ txt = txt & Inp32(&H3FA) & "  "
+ txt = txt & Inp32(&H3FB) & "  "
+ txt = txt & Inp32(&H3FC) & "  "
+ txt = txt & Inp32(&H3FD) & "  "
+ txt = txt & Inp32(&H3FE) & "  "
+ txt = txt & Inp32(&H3FF) & "  "
 
  form.text(1).text=txt
 
 
- val = PortIO(&H3FE)
+ val = Inp32(&H3FE)
 
  Select Case val
    Case 0

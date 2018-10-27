@@ -1,3 +1,5 @@
+Declare Function SendMessageW Lib "user32" (ByVal hWnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+Declare Function SetWindowPos Lib "user32" (ByVal hWnd As Long, ByVal hWndInsertAfter As Long, ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
 Declare Function SetLayeredWindowAttributes Lib "user32.dll" (ByVal Hwnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
 Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
 Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
@@ -46,7 +48,7 @@ Sub Load(cmdLine)
   frmMain.Show ,frmBkg
   frmMain.Move -10000, -10000
 
-  sys.api.SetWindowPos frmMain.Hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
+  SetWindowPos frmMain.Hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
  
   frmBkg.style.titlebar = false
   
@@ -73,7 +75,7 @@ End Sub
 Sub Form_MouseMove(Button, Shift, X, Y)
   if button = 1 then
     ReleaseCapture
-    sys.api.SendMessage frmMain.hwnd, WM_NCLBUTTONDOWN, HTCAPTION, 0
+    SendMessageW frmMain.hwnd, WM_NCLBUTTONDOWN, HTCAPTION, 0
   end if
 End Sub
 

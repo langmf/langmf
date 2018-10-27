@@ -1,3 +1,5 @@
+Declare Function SetPixel Lib "gdi32" (ByVal hDC As Long, ByVal x As Long, ByVal y As Long, ByVal crColor As Long) As Long
+
 <#Module=mdlDemo>
 '---------------------------------------
 Sub Load(cmdLine)
@@ -33,13 +35,13 @@ dim count, img, txt, typeImg
 	for a = 1 to 400
 	   x = int(rnd*img.width)
 	   y = int(rnd*img.height)
-	   sys.api.setpixel img.hdc, x, y, qbcolor(15)
+	   setpixel img.hdc, x, y, qbcolor(15)
 	next       
 	
 	for a = 1 to 600
 	  x = int(rnd*img.width)
 	  y = int(rnd*img.height)
-	  sys.api.setpixel img.hdc, x, y, qbcolor(int(rnd*14))
+	  setpixel img.hdc, x, y, qbcolor(int(rnd*14))
 	next
     
     'Set f = sys.NewFAP(img)

@@ -26,9 +26,9 @@ Private Function Info()
             attr(v(i + sm_ID)) = array(v(i + sm_Flag), v(i + sm_Curr), v(i + sm_Worst), v.plong(i + sm_Raw), v(i + sm_Reserved))
         Next
         
-        drv = sys.rxp.eval(obj.InstanceName, "&Ven_([^&]+)&Prod_([^\\]+)",,,,-1)
+        drv = sys.rxp.eval(obj.InstanceName, "&Ven_([^&]*)&Prod_([^\\]+)",,,,-1)
         if len(drv) = 0 then drv = sys.rxp.eval(obj.InstanceName, "IDE\\Disk(.+?)___",,,,-1)
-        if len(drv) = 0 then obj.InstanceName
+        if len(drv) = 0 then drv = obj.InstanceName
                 
         txt = txt & "Drive = " & drv & vbcrlf
         

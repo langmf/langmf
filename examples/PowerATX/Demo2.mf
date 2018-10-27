@@ -1,3 +1,5 @@
+Declare Function SetWindowPos Lib "user32" (ByVal hWnd As Long, ByVal hWndInsertAfter As Long, ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
+
 <#Module=mdlDemo>
 '---------------------------------------
 Sub Load(cmdLine)
@@ -98,7 +100,7 @@ End Sub
 <#Form=form>
 '-----------------------------------------
 Sub Form_Load()
-    sys.api.SetWindowPos form.hwnd, -1, form.left/vbPX, form.top/vbPY, form.width/vbPX, form.height/vbPY, 0
+    SetWindowPos form.hwnd, -1, form.left/vbPX, form.top/vbPY, form.width/vbPX, form.height/vbPY, 0
 End Sub
 
 '-----------------------------------------

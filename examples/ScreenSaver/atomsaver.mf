@@ -1,3 +1,6 @@
+Declare Function StretchBlt Lib "gdi32" (ByVal hDC As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal XSrc As Long, ByVal YSrc As Long, ByVal nSrcWidth As Long, ByVal nSrcHeight As Long, ByVal dwRop As Long) As Long
+Declare Function BitBlt Lib "gdi32" (ByVal hDestDC As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal XSrc As Long, ByVal YSrc As Long, ByVal dwRop As Long) As Long
+Declare Function SetPixel Lib "gdi32" (ByVal hDC As Long, ByVal x As Long, ByVal y As Long, ByVal crColor As Long) As Long
 Declare Function SetParent Lib "user32" (ByVal hWndChild As Long, ByVal hWndNewParent As Long) As Long
 Declare Function ShowCursor Lib "user32" (ByVal bShow As Long) As Long
 Declare Function GetDC Lib "user32" (ByVal hwnd As Long) As Long
@@ -92,8 +95,8 @@ Sub SetupWindow
 End Sub
 
 '---------------------------------------
-Sub SetPixel(x, y, color)
-  sys.api.setpixel hdc, x, y, color
+Sub DoPixel(x, y, color)
+  setpixel hdc, x, y, color
 End Sub
 
 '---------------------------------------
@@ -182,30 +185,30 @@ Do
 
         Select Case Size
              Case 1
-               SetPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               DoPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
 
              Case 2
-               SetPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
-               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               DoPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               DoPixel Star(i).x - 1 + Star(i).AddX, Star(i).y + Star(i).AddY, col
 
              Case 3
-               SetPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
-               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y + Star(i).AddY, col
-               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
+               DoPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               DoPixel Star(i).x - 1 + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               DoPixel Star(i).x - 1 + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
 
              Case 4
-               SetPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
-               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y + Star(i).AddY, col
-               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
-               SetPixel Star(i).x + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
+               DoPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               DoPixel Star(i).x - 1 + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               DoPixel Star(i).x - 1 + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
+               DoPixel Star(i).x + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
 
              Case 5
-               SetPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
-               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y + Star(i).AddY, col
-               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
-               SetPixel Star(i).x + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
-               SetPixel Star(i).x + Star(i).AddX, Star(i).y - 2 + Star(i).AddY, col
-               SetPixel Star(i).x - 1 + Star(i).AddX, Star(i).y - 2 + Star(i).AddY, col
+               DoPixel Star(i).x + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               DoPixel Star(i).x - 1 + Star(i).AddX, Star(i).y + Star(i).AddY, col
+               DoPixel Star(i).x - 1 + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
+               DoPixel Star(i).x + Star(i).AddX, Star(i).y - 1 + Star(i).AddY, col
+               DoPixel Star(i).x + Star(i).AddX, Star(i).y - 2 + Star(i).AddY, col
+               DoPixel Star(i).x - 1 + Star(i).AddX, Star(i).y - 2 + Star(i).AddY, col
         End Select
 
 
@@ -231,7 +234,7 @@ Do
         End If
     Next
 
-    SetPixel W / 2, H / 2, 0
+    DoPixel W / 2, H / 2, 0
 
     GPrint form, "FPS - " & cfps, 0, 0
 
@@ -259,7 +262,7 @@ Dim txt(5)
       txt(4) = date
       txt(5) = time
 
-      sys.api.StretchBlt form.pic(1).hdc, 0, 0, 152, 112, form.hdc, w/2-76, h/2+50, 152, 112, vbsrccopy
+      StretchBlt form.pic(1).hdc, 0, 0, 152, 112, form.hdc, w/2-76, h/2+50, 152, 112, vbsrccopy
 
       CY = CY + 1
       if CY >= 250 then CY = 0
@@ -274,7 +277,7 @@ Dim txt(5)
       form.pic(1).fontsize = 7
       form.pic(1).forecolor = qbcolor(15)
 
-      sys.api.BitBlt handle2, 0, 0, 152, 112, form.pic(1).hdc, 0, 0, vbsrccopy
+      BitBlt handle2, 0, 0, 152, 112, form.pic(1).hdc, 0, 0, vbsrccopy
    end if
 End sub
 <#Module>

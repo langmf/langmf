@@ -119,7 +119,6 @@ Function SetupLMF() As Boolean
                             isOK = RegisterDLL(fName)
                         End If
                     Else
-                        If InStr(1, v, "INPOUT32.DLL") Then Call IsInpOutDriverOpen
                         isOK = True
                     End If
                 End If
