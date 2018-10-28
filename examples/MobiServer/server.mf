@@ -3,6 +3,8 @@ Dim reg, wsk1, wsk2
 
 '---------------------------------------
 Sub Load(cmdLine)
+    sys.ext.Setup "..\Telnet\mswinsck.cab", "#MSWinsock.Winsock"
+
     form.caption = "MobiServer v1.0"
     form.width = 5400
     form.height = 3600
@@ -16,8 +18,6 @@ Sub Load(cmdLine)
     form.mtext(1).backcolor = 0
     form.mtext(1).forecolor = QBColor(10)
     form.mtext(1).fontsize = 10
-
-    sys.Licenses.Add "MSWinsock.Winsock"
 
     Set wsk1 = form.add("MSWinsock.Winsock", "wsk1").object
     wsk1.localport = 81

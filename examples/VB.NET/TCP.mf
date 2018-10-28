@@ -1,0 +1,66 @@
+<#Module=VBNETBuilder>
+Sub Load(cmdstr)
+    msgbox Class1.Request("langmf.ru/Help/data/history.htm")
+    endmf
+End Sub
+<#Module>
+
+
+<#VBNet=objWrap instance="Class1" #>
+Imports System
+Imports System.Windows.Forms
+Imports Microsoft.VisualBasic
+Imports System.Net
+Imports System.Net.Sockets
+Imports System.Text'
+Imports System.Net.NetworkInformation
+Imports System.Text.RegularExpressions
+
+Public Class Class1
+    Public Function Request(ByVal req As String) As String
+        Dim rxp As New Regex("^([a-z]+:\/\/)?([^:\/]+):?(\d*)(.*?)$", RegexOptions.IgnoreCase Or RegexOptions.Compiled)
+        Dim prm As GroupCollection = rxp.Matches(req)(0).Groups
+        Dim host as string = prm(2).ToString
+        Dim port as integer = If(prm(3).ToString.Length, Val(prm(3).ToString), 80)
+        Dim qev as string = If(prm(4).ToString.Length, prm(4).ToString, "/")
+        Dim clientSocket = New TcpClient, iP As IPAddress = IPAddress.Any, sb As New StringBuilder, buf() As Byte
+        
+        'msgbox(host & vbcrlf & port & vbcrlf & qev)
+        
+        req = "GET " + qev + " HTTP/1.1" + vbcrlf + "Host: " + host + vbcrlf + "User-Agent: Mozilla/5.0 (Windows NT 6.1; rv:63.0)" + vbcrlf + "Connection: close" + vbcrlf + "Pragma: no-cache" + vbcrlf + "Cache-Control: no-cache" + vbcrlf + vbcrlf
+
+        With clientSocket
+            Try
+                If IPAddress.TryParse(host, iP) Then    ' ip address
+                    .Connect(IPAddress.Parse(host), port)
+                Else                                             ' DNS name
+                    .Connect(host, port)
+                End If
+
+                Dim data() As Byte = Encoding.Default.GetBytes(req)
+                .NoDelay = True
+                .ReceiveTimeout = 5000
+                .GetStream().Write(data, 0, data.Length)
+                
+                While .Available = 0  :  End While
+                While .Available <> 0
+                    buf = New Byte(.Available - 1) {}
+                    .GetStream().Read(buf, 0, buf.Length)
+                    sb.Append(Encoding.Default.GetString(buf, 0, buf.Length))
+                    System.Threading.Thread.Sleep(10)
+                    System.Windows.Forms.Application.DoEvents()
+                End While
+
+                .GetStream().Close()
+                .Close()
+                
+            Catch ex As Exception
+                MsgBox("Request: " & ex.Message, MsgBoxStyle.Exclamation)
+            End Try
+        End With
+        
+        My.Computer.FileSystem.WriteAllText("out.htm", sb.ToString, False)
+        return sb.ToString
+    End Function
+End Class
+<#VBNet#>
