@@ -224,8 +224,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
-Private m_frmWsk As frmWsk, m_MinMax As MINMAXINFO, m_CT As Long
-Private m_Child As Boolean, m_CodeObject As Object, m_onEvent As Object
+Private m_CT As Long, m_Child As Boolean, m_CodeObject As Object, m_onEvent As Object, m_MinMax As MINMAXINFO
 
 Public Parent As Object
 Public SubClass As clsSubClass
@@ -244,7 +243,7 @@ Public NoMoveMouse As Boolean, NoOverOutPic As Boolean, NoOverOutFrame As Boolea
 Public Function Ctrl(ByVal typeObj As String, Optional ByVal value As Variant, Optional ByVal vAdd As Boolean = True, Optional ByVal dataArg As Variant) As Variant
     Dim isAlias As Boolean, ID As Long, v As Variant, Obj As Object
 
-    If LenB(typeObj) = 0 Or (vAdd = True And IsMissing(value) = True) Then Exit Function
+    If LenB(typeObj) = 0 Or (vAdd And IsMissing(value)) Then Exit Function
 
     If IsMissing(value) Then
         v = Alias("#" & typeObj):      If Not IsArray(v) Then Exit Function
@@ -282,7 +281,6 @@ Public Function Ctrl(ByVal typeObj As String, Optional ByVal value As Variant, O
         Case Is = "timer":     LoadCtrl vAdd, Ctrl, Obj, Me.Timer(ID)
         Case Is = "vscroll":   LoadCtrl vAdd, Ctrl, Obj, Me.VScroll(ID)
 
-        Case Is = "wsk":       If vAdd Then Set Obj = WskCtrl(ID, True) Else Ctrl = WskCtrl(ID, False)
         Case Is = "skin":      If vAdd Then Set Obj = SkinCtrl(ID, True) Else Ctrl = SkinCtrl(ID, False)
         Case Is = "pbar":      If vAdd Then Set Obj = CreateWC(typeObj & ID, "msctls_progress32") Else Ctrl = CreateWC(typeObj & ID)
 
@@ -338,11 +336,6 @@ Public Property Get Skin(ByVal ID As Long) As frmSkin
     If WC.Exists("skin" & ID) Then Set Skin = WC("skin" & ID)
 End Property
 
-Public Property Get Wsk(ByVal ID As Long) As Winsock
-    Set Wsk = m_frmWsk.Wsk(ID)
-End Property
-
-
 Private Function SkinCtrl(ByVal ID As Long, ByVal isAdd As Boolean) As Variant
     Dim Obj As New frmSkin
     If isAdd Then
@@ -352,19 +345,6 @@ Private Function SkinCtrl(ByVal ID As Long, ByVal isAdd As Boolean) As Variant
     Else
         SkinCtrl = WC.Remove("skin" & ID)
     End If
-End Function
-
-Private Function WskCtrl(ByVal ID As Long, ByVal isAdd As Boolean) As Variant
-    On Error GoTo err1
-    If m_frmWsk Is Nothing Then Set m_frmWsk = New frmWsk:    Set m_frmWsk.Parent = Me
-    If isAdd Then
-        Load m_frmWsk.Wsk(ID)
-        Set WskCtrl = m_frmWsk.Wsk(ID)
-    Else
-        Unload m_frmWsk.Wsk(ID)
-        WskCtrl = True
-    End If
-err1:
 End Function
 
 
@@ -1217,12 +1197,6 @@ Private Sub Form_Unload(Cancel As Integer)
             WC.Init
             Resize.Init
             Alias.Init
-            
-            If Not m_frmWsk Is Nothing Then
-                Set m_frmWsk.Parent = Nothing
-                Unload m_frmWsk
-                Set m_frmWsk = Nothing
-            End If
 
             SetMenu hWnd, 0
             Set Menu = New clsMenu

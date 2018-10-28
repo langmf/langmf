@@ -4,125 +4,126 @@ Declare Function ReleaseDC Lib "user32" (ByVal hwnd As Long, ByVal hdc as Long) 
 Declare Function GetDesktopWindow Lib "user32" ()
 
 <#Module=Main>
-Dim reg
+Dim reg, wsk1, wsk2
 
 '---------------------------------------
 Sub Load(cmdLine)
-form.caption="HttpServer v1.0"
-form.width = 5400
-form.height = 3600
-form.Center
+    form.caption="HttpServer v1.0"
+    form.width = 5400
+    form.height = 3600
+    form.Center
 
-Set reg = new RegExp
-reg.global = true
-reg.ignorecase = true
+    Set reg = new RegExp
+    reg.global = true
+    reg.ignorecase = true
 
-form.add "textbox",1
-form.textbox(1).move 0, 0, form.scalewidth, form.scaleheight
-form.textbox(1).backcolor = 0
-form.textbox(1).forecolor = QBColor(10)
-form.textbox(1).fontsize = 10
+    form.add "textbox",1
+    form.textbox(1).move 0, 0, form.scalewidth, form.scaleheight
+    form.textbox(1).backcolor = 0
+    form.textbox(1).forecolor = QBColor(10)
+    form.textbox(1).fontsize = 10
 
-form.add "wsk",1
-form.wsk(1).localport = 81
-form.wsk(1).listen
+    sys.Licenses.Add "MSWinsock.Winsock"
 
-form.add "wsk",2
-form.wsk(2).protocol = 0
-form.wsk(2).localport = 81
+    Set wsk1 = form.add("MSWinsock.Winsock", "wsk1").object
+    wsk1.localport = 81
+    wsk1.listen
 
-form.add "pic",1
+    Set wsk2 = form.add("MSWinsock.Winsock", "wsk2").object
+    wsk2.protocol = 0
+    wsk2.localport = 81
 
-set img = form.pic(1)
+    form.add "pic",1
 
-W = sys.screen.width
-H = sys.screen.height
+    set img = form.pic(1)
 
-img.width = W
-img.height = H
-img.autoredraw = true
-img.borderstyle=0
-img.fontname="arial"
-img.fontsize=36
-img.forecolor=qbcolor(9)
-img.backcolor=qbcolor(15)
-img.visible=false
+    W = sys.screen.width
+    H = sys.screen.height
 
-form.show
+    img.width = W
+    img.height = H
+    img.autoredraw = true
+    img.borderstyle=0
+    img.fontname="arial"
+    img.fontsize=36
+    img.forecolor=qbcolor(9)
+    img.backcolor=qbcolor(15)
+    img.visible=false
 
+    form.show
 End Sub
 <#Module>
 
 <#Form=form>
 '-----------------------------------------
 sub wsk1_ConnectionRequest(requestID)
-Dim txt
+    Dim txt
 
-If form.Wsk(2).State = 0 Then
-   form.Wsk(2).Accept requestID
-   txt = "Connected... OK!" + vbcrlf + "IP - " + form.wsk(2).remotehostip
-else
-   txt = "Connected... Failed!"
-End If
+    If wsk2.State = 0 Then
+       wsk2.Accept requestID
+       txt = "Connected... OK!" + vbcrlf + "IP - " + wsk2.remotehostip
+    else
+       txt = "Connected... Failed!"
+    End If
 
-form.textbox(1).text = form.textbox(1).text + txt + vbcrlf
-form.textbox(1).selstart = len(form.textbox(1).text)
+    form.textbox(1).text = form.textbox(1).text + txt + vbcrlf
+    form.textbox(1).selstart = len(form.textbox(1).text)
 end sub
 
 '-----------------------------------------
 sub wsk2_dataarrival(total)
-dim txt, oTxt, w, mts
-dim count, img
+    dim txt, oTxt, w, mts
+    dim count, img
 
-on error resume next
+    on error resume next
 
-txt = cstr(txt)
+    txt = cstr(txt)
 
-form.wsk(2).getdata txt
+    wsk2.getdata txt
 
-txt = left(txt,len(txt)-2)
-txt = replace(txt,"%20"," ")
+    txt = left(txt,len(txt)-2)
+    txt = replace(txt,"%20"," ")
 
-reg.pattern = "GET\ +\/(.+)\ HTTP"
-Set mts = reg.execute(txt)
+    reg.pattern = "GET\ +\/(.+)\ HTTP"
+    Set mts = reg.execute(txt)
 
-w = mts(0).submatches(0)
+    w = mts(0).submatches(0)
 
-form.textbox(1).text = form.textbox(1).text + "Pass: " + w + vbcrlf
-form.textbox(1).selstart = len(form.textbox(1).text)
+    form.textbox(1).text = form.textbox(1).text + "Pass: " + w + vbcrlf
+    form.textbox(1).selstart = len(form.textbox(1).text)
 
-    rc = GetDC(GetDesktopWindow)
-    bitblt form.pic(1).hdc, 0, 0, form.pic(1).width / vbPX, form.pic(1).height / vbPY, rc, 0, 0, vbsrccopy
-    
-    ReleaseDC form.pic(1).hwnd, form.pic(1).hdc
-    ReleaseDC GetDesktopWindow, rc
+        rc = GetDC(GetDesktopWindow)
+        bitblt form.pic(1).hdc, 0, 0, form.pic(1).width / vbPX, form.pic(1).height / vbPY, rc, 0, 0, vbsrccopy
+        
+        ReleaseDC form.pic(1).hwnd, form.pic(1).hdc
+        ReleaseDC GetDesktopWindow, rc
 
-    t = t + "HTTP/1.1 200 OK"+vbcrlf
-    t = t + "Content-Type: image/bmp"+vbcrlf+vbcrlf
+        t = t + "HTTP/1.1 200 OK"+vbcrlf
+        t = t + "Content-Type: image/bmp"+vbcrlf+vbcrlf
 
-    form.wsk(2).senddata t
+        wsk2.senddata t
 
-    t = sys.conv.image2str(form.pic(1).image)
+        t = sys.conv.image2str(form.pic(1).image)
 
-    for a=0 to (len(t) \ 4096)-1
-         form.wsk(2).senddata mid(t, a*4096+1,4096)
-         doevents
-    next
+        for a=0 to (len(t) \ 4096)-1
+             wsk2.senddata mid(t, a*4096+1,4096)
+             doevents
+        next
 
-    form.wsk(2).senddata mid(t, a*4096+1, len(t)-a*4096)
+        wsk2.senddata mid(t, a*4096+1, len(t)-a*4096)
 
-doevents
+    doevents
 
-form.wsk(2).close
+    wsk2.close
 End Sub
 
 '-----------------------------------------
 sub wsk2_error(number,descr,flag)
-form.textbox(1).text=form.textbox(1).text+descr+vbcrlf
+    form.textbox(1).text=form.textbox(1).text+descr+vbcrlf
 end sub
 
 '-----------------------------------------
 Sub Form_unload()
-  endmf
+    endmf
 End Sub
 <#form>
