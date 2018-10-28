@@ -1,6 +1,10 @@
 <#Module=Main>
+Dim wsk
+
 '---------------------------------------
 Sub Load(cmdLine)
+  sys.ext.Setup "mswinsck.cab", "MSWinsock.Winsock"
+
   txt = sys.registry.GetSetting("LangMF Telnet", "Setup", "Host", "pop3.mail.ru:110")
   txt = inputbox("Введите параметры соединения." & vbcrlf & "Например: pop3.mail.ru:110", "Ввод" , txt)
   if not txt =~ i/.+:\d+// then
@@ -16,7 +20,12 @@ Sub Load(cmdLine)
     .height = 7200
 
     .add "mtext", 1, ".move 0, 0, form.scalewidth, form.scaleheight", ".backcolor=0", ".forecolor=QBColor(10)", ".fontname=""Courier New""", ".fontsize=12", ".font.charset = 204"
-    .add "wsk", 1, ".remotehost=""" & param(0) & """", ".remoteport=" & param(1), ".connect"
+    
+    sys.Licenses.Add "MSWinsock.Winsock"
+    Set wsk = .add("MSWinsock.Winsock", "wsk").object
+    wsk.remotehost = param(0)
+    wsk.remoteport = param(1)
+    wsk.connect
 
     .center
     .show
@@ -39,28 +48,28 @@ sub mtext1_keypress(cod)
       reg.ignorecase = true
       reg.pattern = ".+"
       set mts = reg.execute(form.mtext(1).text)
-      form.wsk(1).senddata cstr(mts(mts.count - 1).value) + vbcrlf
+      wsk.senddata cstr(mts(mts.count - 1).value) + vbcrlf
     case 27
       form.mtext(1).text = ""
   end select
 end sub
 
 '-----------------------------------------
-sub wsk1_connect
+sub wsk_connect
   form.mtext(1).text = form.mtext(1).text + "Connected... OK!" + vbcrlf
   form.mtext(1).selstart = len(form.mtext(1).text)
 end sub
 
 '-----------------------------------------
-sub wsk1_dataarrival(total)
+sub wsk_dataarrival(total)
   txt = cstr(txt)
-  form.wsk(1).getdata txt
+  wsk.getdata txt
   form.mtext(1).text = form.mtext(1).text+txt
   form.mtext(1).selstart = len(form.mtext(1).text)
 end sub
 
 '-----------------------------------------
-sub wsk1_error(number,descr,flag)
+sub wsk_error(number,descr,flag)
   form.mtext(1).text = form.mtext(1).text + descr + vbcrlf
 end sub
 

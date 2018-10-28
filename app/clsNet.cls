@@ -112,29 +112,8 @@ Public Function Name2IP(ByVal sHostname As String) As String
     End If
 End Function
 
-Public Function ScanPort(Optional ByVal RangeBegin As Long = 0, Optional ByVal RangeEnd As Long = 65535, Optional ByVal Host As String = "127.0.0.1", Optional ByVal valueState As Long = sckConnecting, Optional ByVal delay As Long = 1)
-    Dim a As Long, Obj As New frmWsk
-    
-    On Error Resume Next
-    
-    With Obj.Wsk(0)
-        For a = RangeBegin To RangeEnd
-            .Close
-            .Connect Host, a
-            m_Wait delay
-            If .State = valueState Then
-                .Close
-                ScanPort = a
-                Exit For
-            End If
-        Next
-    End With
-    
-    Unload Obj:     Set Obj = Nothing
-End Function
-
 Public Sub WOL(ByVal txtIP As String, ByVal txtMAC As String, Optional ByVal txtPasswd As String)
-    Dim txtHost() As String, a As Long, b As Long, arrMAC(5) As Byte, magicData() As Byte, Obj As New frmWsk
+    Dim txtHost() As String, a As Long, b As Long, arrMAC(5) As Byte, magicData() As Byte, Obj As Object
 
     On Error Resume Next
     
@@ -157,15 +136,15 @@ Public Sub WOL(ByVal txtIP As String, ByVal txtMAC As String, Optional ByVal txt
         Next
     End If
     
-    With Obj.Wsk(0)
+    Licenses.Add "MSWinsock.Winsock"
+    With frmScript.Controls.Add("MSWinsock.Winsock", "Wsk").Object
         .RemoteHost = txtHost(0)
         .RemotePort = Val(txtHost(1))
-        .Protocol = sckUDPProtocol
+        .Protocol = 1                       ' sckUDPProtocol
         .SendData magicData
         .Close
     End With
-    
-    Unload Obj:     Set Obj = Nothing
+    frmScript.Controls.Remove "Wsk"
 End Sub
 
 Public Function XMLHTTP(Optional ByVal Host As String = "https://api.ipify.org", Optional ByVal Param As Variant) As Object

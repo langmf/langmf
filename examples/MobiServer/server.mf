@@ -1,5 +1,5 @@
 <#Module=Main>
-Dim reg
+Dim reg, wsk1, wsk2
 
 '---------------------------------------
 Sub Load(cmdLine)
@@ -17,13 +17,15 @@ Sub Load(cmdLine)
     form.mtext(1).forecolor = QBColor(10)
     form.mtext(1).fontsize = 10
 
-    form.add "wsk",1
-    form.wsk(1).localport = 81
-    form.wsk(1).listen
+    sys.Licenses.Add "MSWinsock.Winsock"
 
-    form.add "wsk",2
-    form.wsk(2).protocol = 0
-    form.wsk(2).localport = 81
+    Set wsk1 = form.add("MSWinsock.Winsock", "wsk1").object
+    wsk1.localport = 81
+    wsk1.listen
+
+    Set wsk2 = form.add("MSWinsock.Winsock", "wsk2").object
+    wsk2.protocol = 0
+    wsk2.localport = 81
 
     form.Center
     form.show
@@ -35,9 +37,9 @@ End Sub
 sub wsk1_ConnectionRequest(requestID)
     Dim txt
 
-    If form.Wsk(2).State = 0 Then
-       form.Wsk(2).Accept requestID
-       txt = "Connected... OK!" + vbcrlf + "IP - " + form.wsk(2).remotehostip
+    If wsk2.State = 0 Then
+       wsk2.Accept requestID
+       txt = "Connected... OK!" + vbcrlf + "IP - " + wsk2.remotehostip
     else
        txt = "Connected... Failed!"
     End If
@@ -52,7 +54,7 @@ sub wsk2_dataarrival(total)
 
     txt = cstr(txt)
 
-    form.wsk(2).getdata txt
+    wsk2.getdata txt
 
     txt = left(txt,len(txt)-2)
     txt = replace(txt,"%20"," ")
@@ -71,7 +73,7 @@ sub wsk2_dataarrival(total)
     form.mtext(1).selstart = len(form.mtext(1).text)
 
     sys.file.open2 "mobiserver.log",1,"append"
-    sys.file.print2 1, form.wsk(2).remotehostip & " - " & format(date, "dd.mm.yy") & " - " & format(time, "hh:mm:ss") & " - cmd: " & w
+    sys.file.print2 1, wsk2.remotehostip & " - " & format(date, "dd.mm.yy") & " - " & format(time, "hh:mm:ss") & " - cmd: " & w
     sys.file.close2 1
 
     Hdr = ""
@@ -79,14 +81,14 @@ sub wsk2_dataarrival(total)
     Hdr = Hdr & "Content-Type: text/html" & vbCrLf
     Hdr = Hdr & vbCrLf & vbCrLf
 
-    form.wsk(2).senddata Hdr
+    wsk2.senddata Hdr
 
     oTxt = ParseUrl(w)
           
-    form.wsk(2).senddata "<html><body><center>" + oTxt + "</center></body></html>"+vbcrlf+vbcrlf
+    wsk2.senddata "<html><body><center>" + oTxt + "</center></body></html>"+vbcrlf+vbcrlf
     doevents
 
-    form.wsk(2).close
+    wsk2.close
 End Sub
 
 '-----------------------------------------
