@@ -18,32 +18,31 @@ Private arrGIV() As String
 Public Files As Object
 
 
-Public Property Get StdPipe(Optional ByVal mPipe As Long = STD_OUTPUT_HANDLE) As Long
-    StdPipe = GetStdHandle(mPipe)
+Public Property Get Handle(Optional ByVal mPipe As Long = STD_OUTPUT_HANDLE) As Long
+    Handle = GetStdHandle(mPipe)
 End Property
 
-Public Property Let StdPipe(Optional ByVal mPipe As Long = STD_OUTPUT_HANDLE, ByVal mHandle As Long)
+Public Property Let Handle(Optional ByVal mPipe As Long = STD_OUTPUT_HANDLE, ByVal mHandle As Long)
     Call SetStdHandle(mPipe, mHandle)
 End Property
 
-Public Function StdIn(txt As Variant, Optional ByVal numPipe As Long = STD_OUTPUT_HANDLE) As Long
+Public Property Get Std(Optional ByVal mHandle As Long) As String
     Dim sBuf As String, sz As Long
     
-    numPipe = GetStdHandle(STD_INPUT_HANDLE)
-    sz = GetFileSize(numPipe, ByVal 0&)
+    If mHandle = 0 Then mHandle = GetStdHandle(STD_INPUT_HANDLE)
+    sz = GetFileSize(mHandle, ByVal 0&)
     
     If sz > 0 Then
         sBuf = String$(sz, " ")
-        StdIn = ReadFile(numPipe, ByVal sBuf, sz, sz, 0)
+        Std = ReadFile(mHandle, ByVal sBuf, sz, sz, 0)
     End If
-    txt = sBuf
-End Function
+End Property
 
-Public Function StdOut(ByVal txt As String, Optional ByVal numPipe As Long = STD_OUTPUT_HANDLE) As Long
-    Dim nb As Long
-    numPipe = GetStdHandle(STD_OUTPUT_HANDLE)
-    StdOut = WriteFile(numPipe, ByVal txt, Len(txt), nb, 0)
-End Function
+Public Property Let Std(Optional ByVal mHandle As Long, ByVal value As String)
+    Dim sz As Long
+    If mHandle = 0 Then mHandle = GetStdHandle(STD_OUTPUT_HANDLE)
+    Call WriteFile(mHandle, ByVal value, Len(value), sz, 0)
+End Property
 
 Public Function Inp(Optional ByVal ID As Variant) As Variant
     Dim tmp As Variant, Col As New clsHash, txt() As String
@@ -149,5 +148,5 @@ End Sub
 
 Private Sub Class_Initialize()
     Set Files = New clsHash
-    GetInputVars
+    Call GetInputVars
 End Sub

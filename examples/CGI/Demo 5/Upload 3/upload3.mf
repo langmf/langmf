@@ -2,8 +2,8 @@
 Sub Load(d)
   dim fName, fPath, obj, a
 
-	sys.cgi.stdout "Content-Type: text/html"+vbcrlf+vbcrlf
-	sys.cgi.stdout "<HTML><BODY>"
+	sys.cgi.std = "Content-Type: text/html"+vbcrlf+vbcrlf
+	sys.cgi.std = "<HTML><BODY>"
 
 	for each obj in sys.cgi.files.items
 		fName = sys.file.getfilename(obj("name"))
@@ -14,13 +14,13 @@ Sub Load(d)
 		fPath = fPath + fName
 		fPath = replace(fPath, " ", "%20")
 
-		sys.cgi.stdout "<img src=" & fPath & " height=128>&nbsp;&nbsp;&nbsp;" + vbcrlf
+		sys.cgi.std = "<img src=" & fPath & " height=128>&nbsp;&nbsp;&nbsp;" + vbcrlf
     
     	a = a + 1
-		if a mod 3 = 0 then sys.cgi.stdout "<br><br><br>" + vbcrlf
+		if a mod 3 = 0 then sys.cgi.std = "<br><br><br>" + vbcrlf
 	next
 
-	sys.cgi.stdout "</BODY></HTML>"
+	sys.cgi.std = "</BODY></HTML>"
 
 	endmf
 End Sub

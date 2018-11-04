@@ -3,27 +3,27 @@
 Sub Load(cmdLine)
 randomize timer
 
-    sys.cgi.stdout "Content-Type: text/html" + vbcrlf + vbcrlf
+    sys.cgi.std = "Content-Type: text/html" + vbcrlf + vbcrlf
 
-    sys.cgi.stdout "<HTML><HEAD>"+vbcrlf
-    sys.cgi.stdout "<META http-equiv=Content-Type content=""text/html; charset=Windows-1251""></HEAD>"+vbcrlf
-    sys.cgi.stdout "<BODY><PRE>"+vbcrlf
+    sys.cgi.std = "<HTML><HEAD>"+vbcrlf
+    sys.cgi.std = "<META http-equiv=Content-Type content=""text/html; charset=Windows-1251""></HEAD>"+vbcrlf
+    sys.cgi.std = "<BODY><PRE>"+vbcrlf
 
-    sys.cgi.stdout "<center><b>Environ Vars</b></center>" + vbcrlf
+    sys.cgi.std = "<center><b>Environ Vars</b></center>" + vbcrlf
     
     for each var in sys.Env.Items(2)
-    	sys.cgi.stdout var(1) + "=" + var(0) + vbcrlf
+        sys.cgi.std = var(1) + "=" + var(0) + vbcrlf
     next
 
 
-    sys.cgi.stdout vbcrlf + vbcrlf + "<center><b>Input Vars</b></center>" + vbcrlf
+    sys.cgi.std = vbcrlf + vbcrlf + "<center><b>Input Vars</b></center>" + vbcrlf
     
     for each var in sys.cgi.Inp.Items(2)
-    	sys.cgi.stdout var(1) + "=" + var(0) + vbcrlf
+        sys.cgi.std = var(1) + "=" + var(0) + vbcrlf
     next
-	    
-	    
-    sys.cgi.stdout "</PRE></BODY></HTML>"
+
+
+    sys.cgi.std = "</PRE></BODY></HTML>"
 
 endmf
 End Sub

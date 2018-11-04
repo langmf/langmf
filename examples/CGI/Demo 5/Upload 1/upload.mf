@@ -2,12 +2,12 @@
 Sub Load(cmdLine)
 
   if sys.cgi.files.count > 0 then
-      sys.cgi.stdout "Content-Type: image/jpeg" + vbcrlf + vbcrlf
-      sys.cgi.stdout sys.cgi.files("1")("data")
+      sys.cgi.std = "Content-Type: image/jpeg" + vbcrlf + vbcrlf
+      sys.cgi.std = sys.cgi.files("1")("data")
   else
-      sys.cgi.stdout "Content-Type: text/html" + vbcrlf + vbcrlf
-      sys.cgi.stdout "<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>"
-      sys.cgi.stdout "<center><font color=red size=7>ACCESS DENIED</font></center>"
+      sys.cgi.std = "Content-Type: text/html" + vbcrlf + vbcrlf
+      sys.cgi.std = "<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>"
+      sys.cgi.std = "<center><font color=red size=7>ACCESS DENIED</font></center>"
   end if
   
   endmf

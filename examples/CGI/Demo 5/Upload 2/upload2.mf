@@ -2,19 +2,19 @@
 Sub Load(d)
   dim obj
   
-	sys.cgi.stdout "Content-Type: text/html"+vbcrlf+vbcrlf
-	sys.cgi.stdout "<HTML><BODY><PRE>"
+	sys.cgi.std = "Content-Type: text/html"+vbcrlf+vbcrlf
+	sys.cgi.std = "<HTML><BODY><PRE>"
 
 	for each obj in sys.cgi.files.items
-		sys.cgi.stdout "-------------------------------" + vbcrlf
-		sys.cgi.stdout "ID File - " + obj("id") + vbcrlf
-		sys.cgi.stdout "FileName - " + obj("name") + vbcrlf
-		sys.cgi.stdout "Type - " + obj("type") + vbcrlf
-		sys.cgi.stdout "Size - " & len(obj("data")) & vbcrlf
-		sys.cgi.stdout "-------------------------------" + vbcrlf	
+		sys.cgi.std = "-------------------------------" + vbcrlf
+		sys.cgi.std = "ID File - " + obj("id") + vbcrlf
+		sys.cgi.std = "FileName - " + obj("name") + vbcrlf
+		sys.cgi.std = "Type - " + obj("type") + vbcrlf
+		sys.cgi.std = "Size - " & len(obj("data")) & vbcrlf
+		sys.cgi.std = "-------------------------------" + vbcrlf
 	next
     
-	sys.cgi.stdout "</PRE></BODY></HTML>"
+	sys.cgi.std = "</PRE></BODY></HTML>"
 
 	endmf
 

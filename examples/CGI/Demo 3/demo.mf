@@ -25,8 +25,8 @@ dim count, img
     
     GPrint img, cstr(count)
     
-    sys.cgi.stdout "Content-Type: image/bmp"+vbcrlf+vbcrlf
-    sys.cgi.stdout sys.conv.image2str(img.image)
+    sys.cgi.std = "Content-Type: image/bmp"+vbcrlf+vbcrlf
+    sys.cgi.std = sys.conv.image2str(img.image)
 
 endmf
 End Sub

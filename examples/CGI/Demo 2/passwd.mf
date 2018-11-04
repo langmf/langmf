@@ -3,7 +3,7 @@
 Sub Load(cmdLine)
 dim count, num
 
-    sys.cgi.stdout "Content-Type: text/html"+vbcrlf+vbcrlf
+    sys.cgi.std = "Content-Type: text/html"+vbcrlf+vbcrlf
 
     count = clng(0)
 
@@ -22,9 +22,9 @@ dim count, num
     num = clng(num)
     
     if count = num and num <> 0 then
-       sys.cgi.stdout "<center><b>Password OK!</b></center>" 
+       sys.cgi.std = "<center><b>Password OK!</b></center>"
     else
-       sys.cgi.stdout "<center><b>Password Failed!</b></center>" 
+       sys.cgi.std = "<center><b>Password Failed!</b></center>"
     end if
 
     endmf
