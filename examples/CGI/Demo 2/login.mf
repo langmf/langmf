@@ -1,15 +1,15 @@
 <#Module=mdlDemo>
 '---------------------------------------
 Sub Load(cmdLine)
-    sys.cgi.stdout "Content-Type: text/html" + vbcrlf + vbcrlf
+    sys.cgi.std = "Content-Type: text/html" + vbcrlf + vbcrlf
 
-    sys.cgi.stdout "<center><b>Input this graphical number</b></center>" + vbcrlf
+    sys.cgi.std = "<center><b>Input this graphical number</b></center>" + vbcrlf
 
-    sys.cgi.stdout "<form name=form1 action=passwd.mf method=post>" + vbcrlf
-    sys.cgi.stdout "<img src=img_pass.mf>" + vbcrlf
-    sys.cgi.stdout "<input type=text name=pass>" + vbcrlf
-    sys.cgi.stdout "<input type=submit name=Submit value=Submit>" + vbcrlf
-    sys.cgi.stdout "</form>"
+    sys.cgi.std = "<form name=form1 action=passwd.mf method=post>" + vbcrlf
+    sys.cgi.std = "<img src=img_pass.mf>" + vbcrlf
+    sys.cgi.std = "<input type=text name=pass>" + vbcrlf
+    sys.cgi.std = "<input type=submit name=Submit value=Submit>" + vbcrlf
+    sys.cgi.std = "</form>"
 
     endmf
 End Sub

@@ -1,72 +1,72 @@
 <#Module=mdlDemo>
 '---------------------------------------
-Sub Load(cmdLine)			
-	DoNavigate
-	
-	EndMF
+Sub Load(cmdLine)
+    DoNavigate
+
+    EndMF
 End Sub
 
 '---------------------------------------
 Sub DoNavigate()
-	file = sys.cgi.inp("file")
+    file = sys.cgi.inp("file")
 
-	if len(file) then
-		sys.cgi.stdout "Content-Disposition: attachment; filename=""" + sys.file.getfilename(file) + """" + vbcrlf + vbcrlf
-		sys.cgi.stdout sys.conv.file2str(file)		
-	else
-		sys.cgi.stdout "Content-Type: text/html" + vbcrlf + vbcrlf
-		
-		sys.cgi.stdout "<style>" & _
-		"A:link {COLOR:blue;TEXT-DECORATION:none}" & _
-		"A:visited {COLOR:blue;TEXT-DECORATION:none}" & _
-		"A:active {COLOR: red}" & _
-		"A:hover {COLOR: red}" & _
-		"</style>" + vbcrlf 
-		       
-		macPath = sys.cgi.inp("path")
-		
-		if len(macPath) = 0 then 
-		  set drv = sys.file.getlogicaldrives
+    if len(file) then
+        sys.cgi.std = "Content-Disposition: attachment; filename=""" + sys.file.getfilename(file) + """" + vbcrlf + vbcrlf
+        sys.cgi.std = sys.conv.file2str(file)
+    else
+        sys.cgi.std = "Content-Type: text/html" + vbcrlf + vbcrlf
 
-		  sys.cgi.stdout "<p><font size=5>Drives</font></p><hr><br>"
-		
-  		  for each d in drv
-  		  	sys.cgi.stdout "<img src=icon\drive\" + GetIconDrive(d) + "><a href=dir.mf?path=" + d +"><font size=5> " + left(d, 2) + "</font></a><br>"
-  		  	sys.cgi.stdout "<p style=""margin: 0 0 5 0""></p>"
-  		  next
-  		  
-  		  exit sub
-		end if
-		
-		sys.cgi.stdout "<p><font size=5>" + macPath + "</font></p><hr><br>"
-		
-		if right(macPath,1) <> "\" then macPath = macPath + "\"
-		
-		macName = sys.file.GetDir(macPath, 16)
-		
-		base = sys.conv.EncodeUrl(sys.file.getdirectory(left(macPath, len(macPath) - 1)))
-		
-		sys.cgi.stdout "<img src=icon\up.ico><a href=dir.mf" + iif(len(base), "?path=" + base, "") + "> [..]</a><br>" + vbcrlf
-		sys.cgi.stdout "<p style=""margin: 0 0 5 0""></p>"
-			   	
-		Do While macName <> ""
-			If macName = "." or macName = ".." Then
-			   macName = sys.file.GetDir
-			Else
-			   If (sys.file.Attr(macPath & macName) and 16) Then
-			       sys.cgi.stdout "<img src=icon\folder.ico><a href=dir.mf?path=" + sys.conv.EncodeUrl(macPath & macName) + "> " + macName + "</a><br>" + vbcrlf
-			   else
-				   sys.cgi.stdout "<img src=" + GetIcon(macPath & macName) + " width=16 height=16><a href=dir.mf?file=" + sys.conv.EncodeUrl(macPath & macName) + "> " + macName + "</a><br>" + vbcrlf		       
-			   End If
-			   
-			   sys.cgi.stdout "<p style=""margin: 0 0 5 0""></p>"
-			
-			   macName = sys.file.GetDir
-			End If
-			
-			DoEvents
-		Loop
-	end if
+        sys.cgi.std = "<style>" & _
+        "A:link {COLOR:blue;TEXT-DECORATION:none}" & _
+        "A:visited {COLOR:blue;TEXT-DECORATION:none}" & _
+        "A:active {COLOR: red}" & _
+        "A:hover {COLOR: red}" & _
+        "</style>" + vbcrlf
+
+        macPath = sys.cgi.inp("path")
+
+        if len(macPath) = 0 then
+            set drv = sys.file.getlogicaldrives
+
+            sys.cgi.std = "<p><font size=5>Drives</font></p><hr><br>"
+
+            for each d in drv
+                sys.cgi.std = "<img src=icon\drive\" + GetIconDrive(d) + "><a href=dir.mf?path=" + d +"><font size=5> " + left(d, 2) + "</font></a><br>"
+                sys.cgi.std = "<p style=""margin: 0 0 5 0""></p>"
+            next
+
+            exit sub
+        end if
+
+        sys.cgi.std = "<p><font size=5>" + macPath + "</font></p><hr><br>"
+
+        if right(macPath,1) <> "\" then macPath = macPath + "\"
+
+        macName = sys.file.GetDir(macPath, 16)
+
+        base = sys.conv.EncodeUrl(sys.file.getdirectory(left(macPath, len(macPath) - 1)))
+
+        sys.cgi.std = "<img src=icon\up.ico><a href=dir.mf" + iif(len(base), "?path=" + base, "") + "> [..]</a><br>" + vbcrlf
+        sys.cgi.std = "<p style=""margin: 0 0 5 0""></p>"
+
+        Do While macName <> ""
+            If macName = "." or macName = ".." Then
+                macName = sys.file.GetDir
+            Else
+                If (sys.file.Attr(macPath & macName) and 16) Then
+                    sys.cgi.std = "<img src=icon\folder.ico><a href=dir.mf?path=" + sys.conv.EncodeUrl(macPath & macName) + "> " + macName + "</a><br>" + vbcrlf
+                Else
+                    sys.cgi.std = "<img src=" + GetIcon(macPath & macName) + " width=16 height=16><a href=dir.mf?file=" + sys.conv.EncodeUrl(macPath & macName) + "> " + macName + "</a><br>" + vbcrlf		       
+                End If
+
+                sys.cgi.std = "<p style=""margin: 0 0 5 0""></p>"
+
+                macName = sys.file.GetDir
+            End If
+
+            DoEvents
+        Loop
+    end if
 End Sub
 
 '---------------------------------------
@@ -77,48 +77,47 @@ Function GetIconDrive(drive)
 
      Case 4
         GetIconDrive = "network.ico"
-		        
+
      Case 5
         GetIconDrive = "cdrom.ico"
-        
+
      Case Else
-     	GetIconDrive = "hard.ico"
+        GetIconDrive = "hard.ico"
   End Select
 End Function
 
 '---------------------------------------
 Function GetIcon(fileName)
-	dim out
-	
-	Select Case LCase(sys.file.getextension(fileName))
-	      
-	   Case "mpg", "mov"
-	      out = "avi"
-	      
-	   Case "rtf"
-	      out = "doc"
-	      
-	   Case "msi"
-	      out = "exe"
-	      
-	   Case "wav", "mid", "wma"
-	      out = "mp3"
-	      
-	   Case "htm", "css", "url"
-	      out = "html"
-	      
-	   Case "bmp", "ico", "tiff", "jpg", "png"
-	      out = "gif"
-	      
-	   Case "lzh", "cab", "tz", "gz", "rar"
-	      out = "zip"
-	      
-	   Case Else
-	      if sys.file.exists(fileName) then out = sys.file.getextension(fileName)
-	End Select
-	
-	if sys.file.exists(sys.path + "icon\" + out + ".ico") = false then out = "empty"
-		  	
-	GetIcon = "icon\" + out + ".ico" 
+    dim out
+
+    Select Case LCase(sys.file.getextension(fileName))
+        Case "mpg", "mov"
+            out = "avi"
+
+        Case "rtf"
+            out = "doc"
+
+        Case "msi"
+            out = "exe"
+
+        Case "wav", "mid", "wma"
+            out = "mp3"
+
+        Case "htm", "css", "url"
+            out = "html"
+
+        Case "bmp", "ico", "tiff", "jpg", "png"
+            out = "gif"
+
+        Case "lzh", "cab", "tz", "gz", "rar"
+            out = "zip"
+
+        Case Else
+            if sys.file.exists(fileName) then out = sys.file.getextension(fileName)
+    End Select
+
+    if sys.file.exists(sys.path + "icon\" + out + ".ico") = false then out = "empty"
+
+    GetIcon = "icon\" + out + ".ico"
 End Function
 <#Module>

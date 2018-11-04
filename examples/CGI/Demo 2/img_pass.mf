@@ -50,8 +50,8 @@ dim count, img, txt, typeImg
     'f.Curves 0, array(0,255,255,1)
     'f.SetDI
     
-    sys.cgi.stdout "Content-Type: image/bmp"+vbcrlf+vbcrlf
-    sys.cgi.stdout sys.conv.image2str(img.image)
+    sys.cgi.std = "Content-Type: image/bmp"+vbcrlf+vbcrlf
+    sys.cgi.std = sys.conv.image2str(img.image)
 
 endmf
 End Sub

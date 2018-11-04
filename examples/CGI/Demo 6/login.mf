@@ -12,19 +12,19 @@ dim user, password, txt
     end if
 
     if user="root" and password="qwerty" then
-       sys.cgi.stdout "Content-Type: text/html"+vbcrlf+vbcrlf
-       sys.cgi.stdout "<HTML><BODY>"
-       sys.cgi.stdout "<p style=""height:150px"">&nbsp;</p>"
-       sys.cgi.stdout "<center><font color=green size=7>ACCESS ALLOW</font></center>"
-       sys.cgi.stdout "</BODY></HTML>"
+       sys.cgi.std = "Content-Type: text/html"+vbcrlf+vbcrlf
+       sys.cgi.std = "<HTML><BODY>"
+       sys.cgi.std = "<p style=""height:150px"">&nbsp;</p>"
+       sys.cgi.std = "<center><font color=green size=7>ACCESS ALLOW</font></center>"
+       sys.cgi.std = "</BODY></HTML>"
     else
-       sys.cgi.stdout "WWW-Authenticate: Basic realm=LangMF" + vbcrlf
-       sys.cgi.stdout "status: 401 Unauthorized" + vbcrlf + vbcrlf
+       sys.cgi.std = "WWW-Authenticate: Basic realm=LangMF" + vbcrlf
+       sys.cgi.std = "status: 401 Unauthorized" + vbcrlf + vbcrlf
 
-       sys.cgi.stdout "<HTML><BODY>"
-       sys.cgi.stdout "<p style=""height:150px"">&nbsp;</p>"
-       sys.cgi.stdout "<center><font color=red size=7>ACCESS DENIED</font></center>"
-       sys.cgi.stdout "</BODY></HTML>"
+       sys.cgi.std = "<HTML><BODY>"
+       sys.cgi.std = "<p style=""height:150px"">&nbsp;</p>"
+       sys.cgi.std = "<center><font color=red size=7>ACCESS DENIED</font></center>"
+       sys.cgi.std = "</BODY></HTML>"
     end if
 
     endmf

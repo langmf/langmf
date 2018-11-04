@@ -37,7 +37,9 @@ Public Function Command(ByVal cmdLine As String) As String
                 .Arg = vbNullString
                 .File = cmdLine
             End If
-        
+
+            .File = Replace$(.File, "/", "\")
+
             If LCase$(.Arg) = "/make" Then Script_Init:   MakeMF .File:   Script_End:   Exit Function
         End If
         
