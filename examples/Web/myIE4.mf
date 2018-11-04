@@ -9,7 +9,7 @@ Sub Load(cmdLine)
 
   Set IE = Sys.Ext.CreateIE("", test.hwnd, ".left = 0 : .top = 0 : .width = 825 : .height = 820 : .Visible = True")
   
-  set h = sys.com.addhandler(IE, "ie_")
+  set h = sys.com.handler(IE, "ie_")
   
   IE.Navigate "http://madebyevan.com/webgl-water/"
   

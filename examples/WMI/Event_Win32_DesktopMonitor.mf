@@ -3,7 +3,7 @@ Dim w
 
 '---------------------------------------
 Sub Load(cmdLine)
-    Set w = sys.com.addhandler(CreateObject("WbemScripting.SWbemSink"), "SINK_")
+    Set w = sys.com.handler(CreateObject("WbemScripting.SWbemSink"), "SINK_")
     
     GetObject("winmgmts:\\.\root\CIMV2").ExecNotificationQueryAsync w.Object, "SELECT * FROM __InstanceModificationEvent WITHIN 20 WHERE TargetInstance ISA ""Win32_DesktopMonitor"""
 End Sub

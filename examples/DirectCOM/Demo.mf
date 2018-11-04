@@ -2,13 +2,13 @@
 '---------------------------------------
 Sub Load(cmdLine)
 
-        set obj = sys.com.DllGetClassObject("Trick.dll", "clsVisual")
+        set obj = sys.com.DLL("Trick.dll", "clsVisual")
         obj.Text = "my"
         set obj.picture = sys.gdi.loadpicture("..\Src\test2.jpg")
         obj.show
         msgbox "ok"
         set obj = nothing
-        sys.com.DllGetClassObject "Trick.dll"
+        sys.com.DLL "Trick.dll"
 	endmf
 End Sub
 <#Module>

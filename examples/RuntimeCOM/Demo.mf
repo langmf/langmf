@@ -17,7 +17,7 @@ End Function
 
 '---------------------------------------
 Function COM_Stop()
-    EndMF 0
+    EndMF -1
 End Function
 
 '---------------------------------------

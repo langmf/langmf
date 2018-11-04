@@ -395,10 +395,11 @@ Public Function Setup(ByVal value As String, Optional ByVal actX As String, Opti
                 If Len(vShell(0)) Then
                     If IsFile(CStr(vShell(0))) Then
                         If LCase$(GetExtension(vShell(0))) = "inf" Then
-                            Setup = (ShellSyncEx(pathSystem + "rundll32.exe", "advpack,LaunchINFSection " & vShell(0) & ",DefaultInstall,4", vShell(2), vShell(3), vShell(4)) = 0)
-                        Else
-                            Setup = (ShellSyncEx(vShell(0), vShell(1), vShell(2), vShell(3), vShell(4)) = 0)
+                            vShell(1) = "advpack,LaunchINFSection """ & vShell(0) & """,DefaultInstall,4"
+                            vShell(0) = pathSystem & "rundll32.exe"
+                            If WinVer.dwMajorVersion >= 6 Then vShell(4) = "runas"
                         End If
+                        Setup = (ShellSyncEx(vShell(0), vShell(1), vShell(2), vShell(3), vShell(4)) = 0)
                     Else
                         Setup = False
                     End If

@@ -1,7 +1,7 @@
 <#Module=mdlMain>
 '---------------------------------------
 Sub Load(cmdLine)
-  Set Func = Sys.NewFCP(Sys.Com.CreateInstance("{75048700-EF1F-11D0-9888-006097DEACF9}", "{F490EB00-1240-11D1-9888-006097DEACF9}"))
+  Set Func = Sys.NewFCP(Sys.Com.Instance("{75048700-EF1F-11D0-9888-006097DEACF9}", "{F490EB00-1240-11D1-9888-006097DEACF9}"))
 
   Func 5, sys.file.LPath(sys.Path, -1) + "src\test.jpg", 0
   Func 3, 7

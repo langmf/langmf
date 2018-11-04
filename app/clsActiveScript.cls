@@ -69,7 +69,7 @@ Public Sub Reset()
         If IsObject(v) Then Set v = Nothing
     Next
     Set Objects = New Collection
-    
+
     If Not IScript Is Nothing Then
         IScript.SetScriptState SCRIPTSTATE_DISCONNECTED
         IScript.Close

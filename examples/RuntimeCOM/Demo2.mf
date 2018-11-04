@@ -17,7 +17,7 @@ End Function
 
 '---------------------------------------
 Function COM_Stop()
-  endmf 0
+  endmf -1
 End Function
 
 '---------------------------------------
@@ -34,7 +34,7 @@ End Class
 Class ICreateInstance
   Function CreateInstance(This, pUnkOuter, riid, ppvObject)
     VType(ppvObject, True) = 3
-    CreateInstance = sys.com.QueryInterface(new Test,,ppvObject)
+    CreateInstance = sys.com.QI(new Test,,ppvObject)
   End Function
   
   Function LockServer(This, fLock)

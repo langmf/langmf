@@ -3,7 +3,7 @@
 '---------------------------------------
 Sub Load(cmdLine)
 
-   with sys.com.DllGetClassObject("Lib\Atomix.ZIP.dll", "ZIP") 
+   with sys.com.DLL("Lib\Atomix.ZIP.dll", "ZIP") 
      .load sys.path + "test.zip"
   
      for a = 0 to .count - 1

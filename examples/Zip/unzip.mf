@@ -1,7 +1,7 @@
 <#Module=mdlDemo>
 '---------------------------------------
 Sub Load(cmdLine)
-    with sys.com.DllGetClassObject("Lib\Atomix.ZIP.dll", "ZIP")
+    with sys.com.DLL("Lib\Atomix.ZIP.dll", "ZIP")
         .load sys.path + "test.zip"
         .extract "*" + sys.path
     end with

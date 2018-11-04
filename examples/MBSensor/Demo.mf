@@ -22,7 +22,7 @@ Sub Load(cmdLine)
       exit sub
   end if
   
-  form.move 0,0,3960,4440
+  form.move 0,0,4560,4440
 
   form.add "pic",1,  ".move 0, 0, vbSM(49) * vbPX, vbSM(50) * vbPY", ".borderstyle = 0", ".autoredraw = true", ".backcolor = &H808080", ".visible = false", ".fontsize = 10"
 
