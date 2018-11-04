@@ -18,24 +18,20 @@ Private arrGIV() As String
 Public Files As Object
 
 
-Public Function IsStdOut() As Boolean
-    If GetStdHandle(-11) <> 65537 Then IsStdOut = True
-End Function
+Public Property Get StdPipe(Optional ByVal mPipe As Long = STD_OUTPUT_HANDLE) As Long
+    StdPipe = GetStdHandle(mPipe)
+End Property
 
-Public Function GetStdPipe(ByVal mPipe As Long) As Long
-    GetStdPipe = GetStdHandle(mPipe)
-End Function
+Public Property Let StdPipe(Optional ByVal mPipe As Long = STD_OUTPUT_HANDLE, ByVal mHandle As Long)
+    Call SetStdHandle(mPipe, mHandle)
+End Property
 
-Public Function SetStdPipe(ByVal mPipe As Long, ByVal mHandle As Long) As Long
-    SetStdPipe = SetStdHandle(mPipe, mHandle)
-End Function
-
-Public Function StdIn(txt As Variant, Optional ByVal numPipe As Long) As Long
+Public Function StdIn(txt As Variant, Optional ByVal numPipe As Long = STD_OUTPUT_HANDLE) As Long
     Dim sBuf As String, sz As Long
     
-    If numPipe = 0 Then numPipe = GetStdHandle(STD_INPUT_HANDLE)
-
+    numPipe = GetStdHandle(STD_INPUT_HANDLE)
     sz = GetFileSize(numPipe, ByVal 0&)
+    
     If sz > 0 Then
         sBuf = String$(sz, " ")
         StdIn = ReadFile(numPipe, ByVal sBuf, sz, sz, 0)
@@ -43,11 +39,9 @@ Public Function StdIn(txt As Variant, Optional ByVal numPipe As Long) As Long
     txt = sBuf
 End Function
 
-Public Function StdOut(ByVal txt As String, Optional ByVal numPipe As Long) As Long
+Public Function StdOut(ByVal txt As String, Optional ByVal numPipe As Long = STD_OUTPUT_HANDLE) As Long
     Dim nb As Long
-
-    If numPipe = 0 Then numPipe = GetStdHandle(STD_OUTPUT_HANDLE)
-    
+    numPipe = GetStdHandle(STD_OUTPUT_HANDLE)
     StdOut = WriteFile(numPipe, ByVal txt, Len(txt), nb, 0)
 End Function
 

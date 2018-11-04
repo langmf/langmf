@@ -119,7 +119,7 @@ Class LCard
 		pIUnknown = CreateInstance(numSLot)
 		
 		If pIUnknown Then
-			Call sys.com.QueryInterface(pIUnknown, IID_ILDEV, pLDev)
+			Call sys.com.QI(pIUnknown, IID_ILDEV, pLDev)
 			Call sys.com.Release(pIUnknown)
 			
 			if pLDev then

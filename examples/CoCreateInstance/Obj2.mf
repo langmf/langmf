@@ -64,20 +64,14 @@ Sub Load(cmdLine)
   strWallpaper = sys.file.LPath(sys.Path, -1) + "src\test.jpg"
   
   obj = Create("{75048700-EF1F-11D0-9888-006097DEACF9}", "{F490EB00-1240-11D1-9888-006097DEACF9}")
-
-
-  '---------- Вариант № 1 ------------
-  rc = sys.com.CallInterface(obj, SetWallpaper, 2, StrPtr(strWallpaper), 0)
-  rc = sys.com.CallInterface(obj, ApplyChanges, 1, 7)
-  rc = sys.com.CallInterface(obj, Release)
   
-  '---------- Вариант № 2 ------------  
-  'Set f = sys.NewFCP
-  'rc = f(f.VTable(SetWallpaper, obj), obj, strWallpaper, 0)
-  'rc = f(f.VTable(ApplyChanges, obj), obj, 7)
-  'rc = f(f.VTable(Release, obj), obj)
+  '---------- Вариант № 1 ------------  
+  Set f = sys.NewFCP
+  rc = f(f.VTable(SetWallpaper, obj), obj, strWallpaper, 0)
+  rc = f(f.VTable(ApplyChanges, obj), obj, 7)
+  rc = f(f.VTable(Release, obj), obj)
     
-  '---------- Вариант № 3 ------------  
+  '---------- Вариант № 2 ------------  
   'Set f = sys.NewFCP(obj)
   'rc = f(SetWallpaper, strWallpaper, 0)
   'rc = f(ApplyChanges, 7)

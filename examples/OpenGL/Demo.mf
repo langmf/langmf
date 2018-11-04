@@ -3,7 +3,7 @@ Const triangl_list = 1
 Dim theta
 
 Sub Load(cmdLine)
-	sys.host.script.addobject "OGL", sys.com.DllGetClassObject("Lib\Atomix.OpenGL.dll", "OpenGL"), True
+	sys.host.script.addobject "OGL", sys.com.DLL("Lib\Atomix.OpenGL.dll", "OpenGL"), True
 
 	Form.Center
 	Form.show
@@ -55,6 +55,7 @@ Sub Form_Load()
     this.Width = 6000
     this.Height = 6000
 
+	glClear 16384
     hOGL = CreateContext(this.hDC)
 
     glClearColor 0, 0, 0, 0

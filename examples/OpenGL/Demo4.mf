@@ -1,7 +1,7 @@
 <#Module=mdlDemo>
 '---------------------------------------------
 Sub Load(cmdLine)
-    sys.host.script.addobject "OGL", sys.com.DllGetClassObject("Lib\Atomix.OpenGL.dll", "OpenGL"), True
+    sys.host.script.addobject "OGL", sys.com.DLL("Lib\Atomix.OpenGL.dll", "OpenGL"), True
 	Form.Center
 	Form.Show
 End Sub
@@ -35,6 +35,7 @@ End Sub
 Sub Form_Activate()
     isLoad = true
 
+	glClear 16384
     hOGL = CreateContext(form.hDC)
 
     angleX = -20

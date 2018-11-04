@@ -23,7 +23,7 @@ dim files, txt, max, old, zip
   files = sys.file.search.find(Path)
 	      
   if ArraySize(files) then
-     Set zip = sys.com.DllGetClassObject("Lib\Atomix.ZIP.dll", "ZIP")
+     Set zip = sys.com.DLL("Lib\Atomix.ZIP.dll", "ZIP")
   
      max = ubound(files)
      for a=0 to max

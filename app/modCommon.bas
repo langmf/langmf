@@ -94,8 +94,8 @@ End Function
 
 Sub m_EndMF(Optional ByVal Interval As Long = 1)
     mf_IsEnd = True
-    If Interval < 1 Then Script_End:    End
-    If Interval > 0 Then frmScript.tmrEnd.Interval = Interval:    frmScript.tmrEnd.Enabled = True
+    If Interval = 0 Then Script_End:    End
+    Call SetTimer(frmScript.hWnd, IIF(Interval < 0, 30011, 30012), Abs(Interval), AddressOf Timer_Func)
 End Sub
 
 Function m_HPX(ByVal value As Long) As Long
@@ -117,8 +117,8 @@ End Function
 Sub FlexMove(ByVal Obj As Object, Optional x As Variant = "Left", Optional y As Variant = "Top", Optional Width As Variant = "Width", Optional Height As Variant = "Height", Optional ByVal PrtWidth As Single, Optional ByVal PrtHeight As Single, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal offsetX As Single, Optional ByVal offsetY As Single, Optional ByVal typeW As Single, Optional ByVal typeH As Single)
     Dim sx As String, sy As String, sw As String, sh As String
     
-    If VarType(Width) = vbString Then sw = Width:     Width = CBN(Obj, sw, VbGet)
-    If VarType(Height) = vbString Then sh = Height:   Height = CBN(Obj, sh, VbGet)
+    If VarType(Width) = vbString Then sw = Width:      Width = CBN(Obj, sw, VbGet)
+    If VarType(Height) = vbString Then sh = Height:    Height = CBN(Obj, sh, VbGet)
     If VarType(x) = vbString Then sx = x:   x = CBN(Obj, sx, VbGet)
     If VarType(y) = vbString Then sy = y:   y = CBN(Obj, sy, VbGet)
     If PrtWidth = 0 Then If Obj.Parent Is Nothing Then PrtWidth = Obj.ScaleWidth Else PrtWidth = Obj.Parent.ScaleWidth
@@ -767,13 +767,6 @@ Function ConvFromBufferByte(bufVar As Variant, bufByte() As Byte, Optional ByVal
     ConvFromBufferByte = True
 End Function
 
-Function CreateInstance(txtCLSID As String, txtIID As String, Optional ByVal dwClsContext As Long = 1) As Long
-    Dim CLSID As UUID, IID As UUID
-    CLSIDFromString StrPtr(txtCLSID), CLSID
-    CLSIDFromString StrPtr(txtIID), IID
-    Call CoCreateInstance(CLSID, 0, dwClsContext, IID, CreateInstance)
-End Function
-
 Function m_Buf2Hex(Buf As Variant) As String
     Dim i As Long, p As Long, cnt As Long, n1 As Byte, n2 As Byte
     Dim tmpBuf() As Byte, tmpOut() As Byte
@@ -1200,56 +1193,6 @@ Function VersionDLL(ByVal FileName As String, Optional ByVal verCmp As Variant) 
                 If Val(v1(p)) <> Val(v2(p)) Then VersionDLL = False:     Exit Function
             Next
     End Select
-End Function
-
-Function CallInterface(ByVal pInterface As Long, ByVal Member As Long, Optional ByVal ParamsCount As Long = 0, Optional ByVal p1 As Long = 0, Optional ByVal p2 As Long = 0, Optional ByVal p3 As Long = 0, Optional ByVal p4 As Long = 0, Optional ByVal p5 As Long = 0, Optional ByVal p6 As Long = 0, Optional ByVal p7 As Long = 0, Optional ByVal p8 As Long = 0, Optional ByVal p9 As Long = 0, Optional ByVal p10 As Long = 0) As Long
-    Dim i As Long, t As Long, hGlobal As Long, hGlobalSize As Long, hGlobalOffset As Long
-    
-    If (ParamsCount < 0) Or (pInterface = 0) Then Exit Function
-    
-    '5 байт для запихивания каждого параметра в стек
-    '5 байт - PUSH this
-    '5 байт - вызов мембера
-    '3 байта - ret 0x0010, выпихивая при этом и параметры CallWindowProc
-    '1 байт - выравнивание, поскольку последний PutMem4 требует 4 байта.
-    
-    hGlobalSize = 5 * ParamsCount + 5 + 5 + 3 + 1
-    hGlobal = GlobalAlloc(0, hGlobalSize)
-    If hGlobal = 0 Then Exit Function
-    hGlobalOffset = hGlobal
-    
-    If ParamsCount > 0 Then
-        t = VarPtr(p1)
-        For i = ParamsCount - 1 To 0 Step -1
-            PutMem2 hGlobalOffset, &H68
-            hGlobalOffset = hGlobalOffset + 1
-            GetMem4 t + i * 4, ByVal hGlobalOffset
-            hGlobalOffset = hGlobalOffset + 4
-        Next
-    End If
-    
-    'Первый параметр любого интерфейсного метода - this. Делаем...
-    PutMem2 hGlobalOffset, &H68
-    hGlobalOffset = hGlobalOffset + 1
-    PutMem4 hGlobalOffset, pInterface
-    hGlobalOffset = hGlobalOffset + 4
-    
-    'Вызов мембера интерфейса
-    PutMem2 hGlobalOffset, &HE8
-    hGlobalOffset = hGlobalOffset + 1
-    GetMem4 pInterface, t         'дереференс: находим положение vTable
-    GetMem4 t + Member * 4, t     'смещение по vTable, после чего дереференс оного
-    PutMem4 hGlobalOffset, t - hGlobalOffset - 4
-    hGlobalOffset = hGlobalOffset + 4
-    
-    'Интерфейсы stdcall. Поэтому не будем cdecl учитывать.
-    PutMem4 hGlobalOffset, &H10C2&        'ret 0x0010
-    
-    AllowExecuteCode hGlobal, hGlobalSize
-    
-    CallInterface = CallWindowProcA(hGlobal, 0, 0, 0, 0)
-    
-    GlobalFree hGlobal
 End Function
 
 Function ExistsMember(ByVal Disp As ATL.IDispatch, ProcName As String) As Boolean

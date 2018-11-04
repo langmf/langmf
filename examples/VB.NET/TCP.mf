@@ -47,7 +47,7 @@ Public Class Class1
                     buf = New Byte(.Available - 1) {}
                     .GetStream().Read(buf, 0, buf.Length)
                     sb.Append(Encoding.Default.GetString(buf, 0, buf.Length))
-                    System.Threading.Thread.Sleep(10)
+                    System.Threading.Thread.Sleep(100)
                     System.Windows.Forms.Application.DoEvents()
                 End While
 

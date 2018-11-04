@@ -803,7 +803,7 @@ Sub Parse_Interface(txtCode As String)
             If .SubMatches(3) = 0 Then
                 txt = txt + "Set ifc_FCP = Sys.NewFCP" + vbCrLf
             Else
-                txt = txt + "ifc_Obj = Sys.Com.CreateInstance(" + txtVars + ")" + vbCrLf
+                txt = txt + "ifc_Obj = Sys.Com.Instance(" + txtVars + ")" + vbCrLf
                 txt = txt + "If ifc_Obj <> 0 Then Set ifc_FCP = Sys.NewFCP(ifc_Obj)" + vbCrLf
             End If
             txt = txt + "End Sub" + vbCrLf + vbCrLf
@@ -1577,4 +1577,6 @@ End Sub
 Sub Timer_Func(Optional ByVal hWnd As Long, Optional ByVal uMsg As Long, Optional ByVal idEvent As Long = 30001, Optional ByVal dwTime As Long)
     If hWnd Then Call KillTimer(hWnd, idEvent)
     If idEvent = 30001 Then CBN "", "Load", VbMethod, Array(Info.Arg)
+    If idEvent = 30011 Then Script_End:    End
+    If idEvent = 30012 Then Script_End
 End Sub

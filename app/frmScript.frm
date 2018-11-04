@@ -15,12 +15,6 @@ Begin VB.Form frmScript
    ScaleWidth      =   50
    ShowInTaskbar   =   0   'False
    Visible         =   0   'False
-   Begin VB.Timer tmrEnd 
-      Enabled         =   0   'False
-      Interval        =   1
-      Left            =   120
-      Top             =   120
-   End
 End
 Attribute VB_Name = "frmScript"
 Attribute VB_GlobalNameSpace = False
@@ -35,15 +29,11 @@ Public CScript As New Collection
 
 
 Public Function ActiveScript_Error(ByVal Obj As clsActiveScript) As Variant
-    If Not frmError.Visible And Not tmrEnd.Enabled Then
+    If (Not frmError.Visible) And (Not mf_IsEnd) Then
         If Not mf_NoError Then frmError.Display Obj:    m_EndMF
     End If
     ActiveScript_Error = True
 End Function
-
-Private Sub tmrEnd_Timer()
-    Script_End
-End Sub
 
 Private Sub Form_Activate()
     Me.Visible = False

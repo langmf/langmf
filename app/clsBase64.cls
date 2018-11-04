@@ -115,21 +115,21 @@ End Function
 
 Public Function Decode(Buf() As Byte, Optional Extra As Variant) As Byte()
     Dim a As Long, Pos As Long, Size As Long, Bt1 As Byte, Bt2 As Byte, Bt3 As Byte, Bt4 As Byte
-    Dim isExtra As Boolean, posExtra As Long, udsExtra As Long, bufExtra() As Byte, temp() As Byte
+    Dim isExt As Boolean, posExt As Long, udsExt As Long, bufExt() As Byte, temp() As Byte
 
     Size = m_ArraySize(Buf)
     
     If Size < 4 Then Exit Function
 
-    posExtra = -1
-    udsExtra = posExtra
+    posExt = -1
+    udsExt = posExt
     
     ReDim temp(Size - 1)
     
     For a = 0 To Size - 4 Step 4
         Bt1 = iTB64(Buf(a))
         
-        If Bt1 < 64 And isExtra = False Then
+        If Bt1 < 64 And isExt = False Then
             Bt2 = iTB64(Buf(a + 1)):   Bt3 = iTB64(Buf(a + 2)):   Bt4 = iTB64(Buf(a + 3))
 
             temp(Pos) = ((Bt1 * 4) Or (Bt2 \ 16))
@@ -145,23 +145,23 @@ Public Function Decode(Buf() As Byte, Optional Extra As Variant) As Byte()
             End If
         Else
             If Bt1 = 254 Then
-                isExtra = Not isExtra
+                isExt = Not isExt
             Else
-                If isExtra Then
-                    posExtra = posExtra + 1
-                    If posExtra > udsExtra Then
-                        udsExtra = udsExtra + 10000
-                        ReDim Preserve bufExtra(udsExtra)
+                If isExt Then
+                    posExt = posExt + 1
+                    If posExt > udsExt Then
+                        udsExt = udsExt + 10000
+                        ReDim Preserve bufExt(udsExt)
                     End If
-                    bufExtra(posExtra) = Buf(a)
+                    bufExt(posExt) = Buf(a)
                 End If
             End If
             a = a - 3
         End If
     Next
     
-    If posExtra > -1 Then ReDim Preserve bufExtra(posExtra)
-    Extra = bufExtra
+    If posExt > -1 Then ReDim Preserve bufExt(posExt)
+    Extra = bufExt
     
     ReDim Preserve temp(Pos - 1)
     

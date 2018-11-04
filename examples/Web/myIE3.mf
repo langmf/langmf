@@ -6,7 +6,7 @@ Sub Load(cmdLine)
   form.show
 	
   t = timegettime
-  set ie = sys.com.addhandler(CreateObject("InternetExplorer.Application"), "ie_", -1)
+  set ie = sys.com.handler(CreateObject("InternetExplorer.Application"), "ie_", -1)
     
   ie.object.Visible = True
   ie.object.Navigate2 "http://langmf.ru"

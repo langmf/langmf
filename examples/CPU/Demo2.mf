@@ -26,7 +26,7 @@ Sub Load(cmdLine)
 End Sub
 
 Function GetInterface(Obj, pIUnk)
-    GetInterface = sys.com.QueryInterface(pIUnk, Obj.ifc_Arg(1), nIfc)
+    GetInterface = sys.com.QI(pIUnk, Obj.ifc_Arg(1), nIfc)
     Obj.ifc_Obj = nIfc
     Obj.ifc_FCP.ptrIfc = nIfc
 End Function

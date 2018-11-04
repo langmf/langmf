@@ -18,9 +18,9 @@ Public Function Create(Optional ByVal Wrapper As Object, Optional Args As Varian
     Set Create = Create_Interface(Wrapper, Args)
 End Function
 
-Public Function QueryInterface(ByVal pIUnk As Variant, Optional ByVal vRIID As Variant, Optional pObj As Variant) As Long
+Public Function QI(ByVal pIUnk As Variant, Optional ByVal vRIID As Variant, Optional pObj As Variant) As Long
     Dim nIfc As Long
-    QueryInterface = ObjFromIUnk(pIUnk).QueryInterface(GetGuid(vRIID), nIfc)
+    QI = ObjFromIUnk(pIUnk).QueryInterface(GetGuid(vRIID), nIfc)
     pObj = nIfc
 End Function
 
@@ -42,17 +42,16 @@ Public Function ToGUID(Optional ByVal vGUID As Variant) As Long
     v = GetGuid(vGUID):      ToGUID = VarPtr(v)
 End Function
 
-Public Function AddHandler(Optional ByVal Object As Object, Optional ByVal Prefix As String, Optional ByVal CallType As Long, Optional ByVal Handler As Object) As Object               'As clsAddHandler
-    Set AddHandler = New clsAddHandler
-    AddHandler.Init Object, Prefix, CallType, Handler
+Public Function Handler(Optional ByVal Object As Object, Optional ByVal Prefix As String, Optional ByVal CallType As Long, Optional ByVal objHandler As Object) As Object               'As clsAddHandler
+    Set Handler = New clsAddHandler
+    Handler.Init Object, Prefix, CallType, objHandler
 End Function
 
-Public Function CreateInstance(ByVal txtCLSID As String, ByVal txtIID As String, Optional ByVal dwClsContext As Long = 1) As Long
-    CreateInstance = modCommon.CreateInstance(txtCLSID, txtIID, dwClsContext)
-End Function
-
-Public Function CallInterface(ByVal pInterface As Long, ByVal Member As Long, Optional ByVal ParamsCount As Long = 0, Optional ByVal p1 As Long = 0, Optional ByVal p2 As Long = 0, Optional ByVal p3 As Long = 0, Optional ByVal p4 As Long = 0, Optional ByVal p5 As Long = 0, Optional ByVal p6 As Long = 0, Optional ByVal p7 As Long = 0, Optional ByVal p8 As Long = 0, Optional ByVal p9 As Long = 0, Optional ByVal p10 As Long = 0) As Long
-    CallInterface = modCommon.CallInterface(pInterface, Member, ParamsCount, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
+Public Function Instance(ByVal txtCLSID As String, ByVal txtIID As String, Optional ByVal dwClsContext As Long = 1) As Long
+    Dim CLSID As UUID, IID As UUID
+    CLSIDFromString StrPtr(txtCLSID), CLSID
+    CLSIDFromString StrPtr(txtIID), IID
+    Call CoCreateInstance(CLSID, 0, dwClsContext, IID, Instance)
 End Function
 
 Public Function Enums(ByVal value As Variant, Optional ByVal Flags As Long = -1) As Object               'As clsHash
@@ -213,9 +212,9 @@ err1:
     Set Enums2 = Col
 End Function
 
-Public Function DllGetClassObject(ByVal objPath As String, Optional ByVal objClass As String) As Object
-    Dim v As Variant, hr As Long, CLSID As UUID, INull As IUnknown, IUnk As IUnknown, ICF As IClassFactory
-    Dim f As New clsFuncPointer
+Public Function DLL(ByVal objPath As String, Optional ByVal objClass As String) As Object
+    Dim v As Variant, hr As Long, CLSID As UUID, INull As IUnknown, IUnk As IUnknown
+    Dim f As New clsFuncPointer, ICF As IClassFactory
     
     If LenB(objClass) Then
         If f.Config(objPath, "DllGetClassObject") Then
@@ -231,7 +230,7 @@ Public Function DllGetClassObject(ByVal objPath As String, Optional ByVal objCla
             End If
             
             If f.PCall(VarPtr(CLSID), VarPtr(IID_IClassFactory), VarPtr(ICF)) = 0 Then
-                If ICF.CreateInstance(INull, IID_IUnknown, IUnk) = 0 Then Set DllGetClassObject = IUnk:      f.hLib = 0
+                If ICF.CreateInstance(INull, IID_IUnknown, IUnk) = 0 Then Set DLL = IUnk:    f.hLib = 0
                 Set ICF = Nothing
                 Set IUnk = Nothing
             End If
