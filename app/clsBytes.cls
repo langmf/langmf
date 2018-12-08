@@ -70,11 +70,8 @@ Public Function Long2Bin(ByVal value As Long, Optional ByVal vShort As Long = -3
         If GetBit(value, a) Then Mid$(Long2Bin, 32 - a, 1) = "1"
     Next
     
-    Long2Bin = Right$(Long2Bin, Abs(vShort))
-    
-    If vShort >= 0 Then Exit Function
-    a = InStr(Long2Bin, "1"):    If a = 0 Then Long2Bin = "0"
-    If a > 1 Then Long2Bin = Right$(Long2Bin, Len(Long2Bin) - a + 1)
+    Long2Bin = Right$(Long2Bin, Abs(vShort)):      If vShort >= 0 Then Exit Function
+    a = InStr(Long2Bin, "1"):    If a = 0 Then Long2Bin = "0" Else Long2Bin = Right$(Long2Bin, Len(Long2Bin) - a + 1)
 End Function
 
 Public Function Byte2Long(ByVal num1 As Byte, ByVal num2 As Byte, ByVal num3 As Byte, ByVal num4 As Byte) As Long

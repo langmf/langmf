@@ -146,10 +146,10 @@ Public Function NewFCP(Optional value As Variant, Optional ByVal Param As Varian
     m_DoParams NewFCP, Param
 End Function
 
-Public Function NewFAP(Optional ByVal Obj As Object, Optional Buf As Variant, Optional ByVal Param As Variant) As Object             'As clsAsmPic
+Public Function NewFAP(Optional ByVal Obj As Variant, Optional Buf As Variant, Optional ByVal Param As Variant) As Object              'As clsAsmPic
     Set NewFAP = New clsAsmPic
     
-    Set NewFAP.Obj = Obj
+    If IsObject(Obj) Then Set NewFAP.Obj = Obj Else NewFAP.Obj = Obj
     If Not IsMissing(Buf) Then NewFAP.ASM.SetBuffer Buf
         
     m_DoParams NewFAP, Param
