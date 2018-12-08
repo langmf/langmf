@@ -1,0 +1,53 @@
+Declare Sub GenerateBMP Lib "@quricol32" Alias "GenerateBMPW" (ByVal FileName As String, ByVal Text As String, ByVal Margin As Long, ByVal Size As Long, ByVal Level As TErrorCorretion)
+Declare Sub GeneratePNG Lib "@quricol32" Alias "GeneratePNGW" (ByVal FileName As Long, ByVal Text As String, ByVal Margin As Long, ByVal Size As Long, ByVal Level As TErrorCorretion)
+Declare Function GetHBitmap Lib "@quricol32" Alias "GetHBitmapW" (ByVal Text As String, ByVal Margin As Long, ByVal Size As Long, ByVal Level As TErrorCorretion) As Long
+Declare Sub SetBackgroundColor Lib "quricol32" (ByVal color As Long)
+Declare Sub SetForegroundColor Lib "quricol32" (ByVal color As Long)
+
+
+<#Module=mdlMain>
+Const QualityLow = 0
+Const QualityMedium = 1
+Const QualityStandard = 2
+Const QualityHigh = 3
+
+'---------------------------------------
+Sub Load(cmdLine)
+    form.show
+    
+    sys.ext.Setup "http://langmf.ru/ftp/dll/quricol32.dll",,,"."
+
+    GenerateBMP "qrcode.bmp", "Hello Привет - !№;%:?*()_+", 2, 5, QualityStandard
+    GeneratePNG "qrcode.png", "Hello Привет - !№;%:?*()_+", 2, 5, QualityStandard
+
+    'SetBackgroundColor vbred
+    'SetForegroundColor qbcolor(7)
+    
+    h1 = GetHBitmap("Hello Привет - !№;%:?*()_+",        2, 5, QualityStandard)
+    h2 = GetHBitmap("https://www.google.ru/?gws_rd=ssl", 2, 5, QualityStandard)
+
+    form.img(1).picture = sys.gdi.icotopic(h1, 1)
+    form.pic(1).picture = sys.gdi.icotopic(h2, 1)
+
+    Set f = sys.NewFAP(form.img(1).picture)
+    f.GetDI
+    f.Curves 1, array(0,255,255,0)
+    'f.matrix array(1, 2, 1, 2, 4, 2, 1, 2, 1)             'blur3
+    'f.matrix array(-2, -1, 0, -1, 1, 1, 0, 1, 2)          'emboss
+    'f.matrix array(0,0,0,5,0,0,0,  0,5,18,32,18,5,0,  0,18,64,100,64,18,0,  5,32,100,100,100,32,5,  0,18,64,100,64,18,0,  0,5,18,32,18,5,0,  0,0,0,5,0,0,0) 
+    f.SetDI
+End Sub
+<#Module>
+
+<#Form=form>
+Sub Form_Load()
+    this.Center
+    this.add "pic", 1, ".move 2700, 300, 2000, 2000", ".borderstyle = 0", ".autoredraw = true", ".autosize = true"
+    this.add "img", 1, ".move 300, 300, 2000, 2000"
+End Sub
+
+'---------------------------------
+Sub Form_Unload()
+    endmf
+End Sub
+<#Form>

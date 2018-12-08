@@ -187,7 +187,7 @@ Private Function CreatePicture(ByVal w As Long, ByVal h As Long) As IPictureDisp
     hDC = GetDC(0)
     hBMP = CreateCompatibleBitmap(hDC, w, h)
     With tPic:   .Size = Len(tPic):   .Type = vbPicTypeBitmap:   .hHandle = hBMP:   End With
-    Call OleCreatePictureIndirect(tPic, IID_IDispatch, 1, Pic)
+    Call OleCreatePictureIndirect(tPic, IID_IDispatch, True, Pic)
     Set CreatePicture = Pic
     ReleaseDC 0, hDC
 End Function

@@ -258,10 +258,10 @@ Public Function PicToIco(ByVal hSrcDC As Long, ByVal nWidth As Long, ByVal nHeig
 End Function
     
 Public Function IcoToPic(ByVal hImage As Long, Optional ByVal imgType As Long = 3) As IPicture
-    Dim lpPictDesc As PictDesc, riid As UUID
+    Dim tPic As PictDesc, riid As UUID
     
-    With lpPictDesc
-        .Size = Len(lpPictDesc)
+    With tPic
+        .Size = Len(tPic)
         .Type = imgType
         .hHandle = hImage
     End With
@@ -272,7 +272,7 @@ Public Function IcoToPic(ByVal hImage As Long, Optional ByVal imgType As Long = 
         .Data4(4) = &H0:    .Data4(5) = &H30:   .Data4(6) = &HC:    .Data4(7) = &HAB
     End With
 
-    Call OleCreatePictureIndirect(lpPictDesc, riid, True, IcoToPic)
+    Call OleCreatePictureIndirect(tPic, riid, True, IcoToPic)
 End Function
 
 Public Function RegionFromBitmap(ByVal picSrc As IPictureDisp, Optional ByVal TransColor As Variant) As Long

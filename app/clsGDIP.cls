@@ -220,13 +220,13 @@ End Sub
 
 ' Creates a Picture Object from a handle to a bitmap
 Private Function CreatePicture(hBitmap As Long) As IPictureDisp
-    Dim Pic As PictDesc
+    Dim tPic As PictDesc
         
-    Pic.Size = Len(Pic)
-    Pic.Type = vbPicTypeBitmap
-    Pic.hHandle = hBitmap
+    tPic.Size = Len(tPic)
+    tPic.Type = vbPicTypeBitmap
+    tPic.hHandle = hBitmap
 
-    OleCreatePictureIndirect Pic, IID_IDispatch, True, CreatePicture
+    Call OleCreatePictureIndirect(tPic, IID_IDispatch, True, CreatePicture)
 End Function
 
 ' Replaces the old bitmap of the hDC, Returns the bitmap and Deletes the hDC

@@ -17,33 +17,28 @@ Const chRGB As Long = 0, chBlue As Long = 1, chGreen As Long = 2, chRed As Long 
 
 Private bi As BITMAPINFO, BX As Long, BY As Long, BW As Long, BH As Long, B3D() As Byte
 
-Public Obj As Object, IHandle As Long, ASM As Object
+Public Obj As Variant, IHandle As Long, ASM As Object
 
 
-Public Function GetDI(Optional ByVal invertHeight As Boolean = True) As Long
-    Dim vWidth As Long, vHeight As Long, vHDC As Long, vHBitmap As Long
+Public Function GetDI(Optional ByVal invHeight As Boolean = True) As Long
+    Dim vHDC As Long, vHBitmap As Long, vWidth As Long, vHeight As Long
     
-    If Obj Is Nothing Then Exit Function
+    If IsEmpty(Obj) Then Exit Function
     
-    If ExistsMember(Obj, "ScaleWidth") Then
-        With Obj
-            vHDC = .hDC
-            vHBitmap = .Image
-            vWidth = .ScaleWidth
-            vHeight = .ScaleHeight
-        End With
+    If IsObject(Obj) Then
+        If ExistsMember(Obj, "ScaleWidth") Then
+            vHDC = Obj.hDC:         vHBitmap = Obj.Image:      vWidth = Obj.ScaleWidth:      vHeight = Obj.ScaleHeight
+        Else
+            vHDC = frmScript.hDC:   vHBitmap = Obj.Handle:     vWidth = m_HPX(Obj.Width):    vHeight = m_HPY(Obj.Height)
+        End If
     Else
-        With Obj
-            vHDC = frmScript.hDC
-            vHBitmap = .Handle
-            vWidth = m_HPX(.Width)
-            vHeight = m_HPY(.Height)
-        End With
+        vHDC = Obj(0):              vHBitmap = Obj(1):         vWidth = Obj(2):              vHeight = Obj(3)
+        If vWidth < 0 Then vWidth = m_HPX(-vWidth)
+        If vHeight < 0 Then vHeight = m_HPY(-vHeight)
     End If
     
     If IHandle <> 0 Then vHBitmap = IHandle
-    
-    If invertHeight Then vHeight = -vHeight
+    If invHeight Then vHeight = -vHeight
     
     With bi.bmiHeader
         .biSize = 40
@@ -53,7 +48,7 @@ Public Function GetDI(Optional ByVal invertHeight As Boolean = True) As Long
         .biWidth = vWidth
         .biHeight = vHeight
         
-        BX = 1: BY = 1: BW = .biWidth: BH = Abs(.biHeight)
+        BX = 1:   BY = 1:   BW = .biWidth:   BH = Abs(.biHeight)
         
         ReDim B3D(1 To 4, 1 To BW, 1 To BH)
     End With
@@ -64,14 +59,16 @@ End Function
 Public Function SetDI() As Long
     Dim vHDC As Long, vHBitmap As Long
     
-    If Obj Is Nothing Then Exit Function
+    If IsEmpty(Obj) Then Exit Function
     
-    If ExistsMember(Obj, "ScaleWidth") Then
-        vHDC = Obj.hDC
-        vHBitmap = Obj.Image
+    If IsObject(Obj) Then
+        If ExistsMember(Obj, "ScaleWidth") Then
+            vHDC = Obj.hDC:         vHBitmap = Obj.Image
+        Else
+            vHDC = frmScript.hDC:   vHBitmap = Obj.Handle
+        End If
     Else
-        vHDC = frmScript.hDC
-        vHBitmap = Obj.Handle
+        vHDC = Obj(0):              vHBitmap = Obj(1)
     End If
     
     If IHandle <> 0 Then vHBitmap = IHandle
