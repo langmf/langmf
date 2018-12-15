@@ -348,14 +348,13 @@ Sub Parse_Data(txtCode As String)
 End Sub
 
 Function Parse_Data_Mode(PCD As def_ParseCustom, Mode As String, Optional cd As clsDim, Optional ByVal bString As Boolean) As Variant
-    Dim isBuf As Boolean, vExtra As Variant, tmpBuf() As Byte
+    Dim isBuf As Boolean, tmpBuf() As Byte
     Static Base64 As New clsBase64
     
     If InStr(Mode, "base64") Then
         If Len(PCD.Data) Then
             If Not isBuf Then tmpBuf = Conv_W2A_Buf(PCD.Data)
-            tmpBuf = Base64.Decode(tmpBuf, vExtra)
-            If Not cd Is Nothing Then cd.Extra = vExtra
+            tmpBuf = Base64.Decode(tmpBuf)
         End If
         isBuf = True
     End If

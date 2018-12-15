@@ -1,0 +1,59 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.center
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+Dim IE
+
+'---------------------------------
+Sub Form_Load()
+  this.style.maxbutton = true
+  this.style.sizeborder = true
+
+  Set IE = form.add("Shell.Explorer", array("web",0,false))  
+
+  form.move2 IE, -2, -2, 120, 120, -240, -240, "web"
+
+  Write "<!DOCTYPE html><html oncontextmenu=""return false;""><head><meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" /></head>" + _
+        "<script type=""text/javascript"">var Sys; function Update() { Result.innerHTML = Sys.SHD.timeGetTime() } setInterval(Update,500)</script>" + vbCrLf + _
+        "<body scroll=no>" + vbCrLf + _
+        "<div align=center><form><input type=text id=txtValue size=10 value=""100"" onkeydown=""javascript: if (window.event.keyCode==13) {return false}"">" + vbCrLf + _
+        "<input type=button id=Submit value=""Подсчитать""></form></div><br><div id=Result align=center></div></body></html>" + vbCrLf
+
+  IE.object.Document.parentWindow.Sys = sys
+  
+  ID("Submit").onclick = GetRef("OnClick")
+End Sub
+
+'---------------------------------------
+Sub OnClick()
+  txt = ID("txtValue").value
+  ID("Result").innerhtml = "<font color=blue size=5>" & clng(txt) * 5 & " mV</font>"
+End Sub
+
+'---------------------------------------
+Function Write(nTxt)
+  With IE.Object
+	  .Navigate "about:blank"
+	  While .Document Is Nothing : WaitMs 10 : Wend
+	  .Document.Open
+	  .Document.Write nTxt
+	  .Document.Close
+	  While .Busy <> 0 : WaitMs 10 : Wend
+  End With
+End Function
+
+'---------------------------------------
+Function ID(nID)
+  Set ID = IE.object.Document.getElementById(nID)
+End Function
+
+'---------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>

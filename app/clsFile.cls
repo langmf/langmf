@@ -304,10 +304,6 @@ Public Sub ChDrive(ByVal nameDrive As String)
     VBA.ChDrive nameDrive
 End Sub
 
-Public Sub RmDir(ByVal nameDir As String)
-    modCommon.RmDir nameDir
-End Sub
-
 Public Sub ChDir(ByVal nameDir As String)
     modCommon.ChDir nameDir
 End Sub
@@ -315,6 +311,14 @@ End Sub
 Public Function CurDir() As String
     CurDir = modCommon.CurDir
 End Function
+
+Public Sub RemoveDir(ByVal nameDir As String)
+    modCommon.RemoveDir nameDir
+End Sub
+
+Public Sub RmDir(ByVal nameDir As String)
+    modCommon.RmDir nameDir
+End Sub
 
 Public Sub CreateDir(ByVal nameDir As String)
     modCommon.CreateDir nameDir

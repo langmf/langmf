@@ -111,6 +111,7 @@ Declare Function lstrlenW Lib "kernel32" (lpString As Any) As Long
 Declare Function ReadFile Lib "kernel32" (ByVal hFile As Long, lpBuffer As Any, ByVal nNumberOfBytesToRead As Long, lpNumberOfBytesRead As Long, ByVal lpOverlapped As Long) As Long
 Declare Function WriteFile Lib "kernel32" (ByVal hFile As Long, lpBuffer As Any, ByVal nNumberOfBytesToWrite As Long, lpNumberOfBytesWritten As Long, ByVal lpOverlapped As Long) As Long
 Declare Function CopyFileW Lib "kernel32" (ByVal lpExistingFileName As Long, ByVal lpNewFileName As Long, ByVal bFailIfExists As Long) As Long
+Declare Function FindClose Lib "kernel32" (ByVal hFindFile As Long) As Long
 Declare Function GlobalLock Lib "kernel32" (ByVal hMem As Long) As Long
 Declare Function GlobalFree Lib "kernel32" (ByVal hMem As Long) As Long
 Declare Function CreateFile Lib "kernel32" Alias "CreateFileW" (ByVal lpFileName As Long, ByVal dwDesiredAccess As Long, ByVal dwShareMode As Long, ByVal lpSecurityAttributes As Long, ByVal dwCreationDisposition As Long, ByVal dwFlagsAndAttributes As Long, ByVal hTemplateFile As Long) As Long
@@ -132,6 +133,8 @@ Declare Function SetEndOfFile Lib "kernel32" (ByVal hFile As Long) As Long
 Declare Function GetVersionExA Lib "kernel32" (lpVersionInformation As Any) As Long
 Declare Function GetDriveTypeA Lib "kernel32" (ByVal nDrive As String) As Long
 Declare Function MapViewOfFile Lib "kernel32" (ByVal hFileMappingObject As Long, ByVal dwDesiredAccess As Long, ByVal dwFileOffsetHigh As Long, ByVal dwFileOffsetLow As Long, ByVal dwNumberOfBytesToMap As Long) As Long
+Declare Function FindNextFileW Lib "kernel32" (ByVal hFindFile As Long, ByVal lpFindFileData As Long) As Long
+Declare Function FindFirstFileW Lib "kernel32" (ByVal lpFileName As Long, ByVal lpFindFileData As Long) As Long
 Declare Function IsWow64Process Lib "kernel32" (ByVal hProc As Long, bWow64Process As Boolean) As Long
 Declare Function GetSystemTimes Lib "kernel32" (lpIdleTime As FILETIME, lpKernelTime As FILETIME, lpUserTime As FILETIME) As Long
 Declare Function GetProcAddress Lib "kernel32" (ByVal hModule As Long, ByVal lpProcName As String) As Long

@@ -25,9 +25,15 @@ Public Interval As Long
 
 
 '------------------ Resource ------------------
-Public Extra As Variant
 Public Data As Variant
 Public Mode As String
 Public ID As String
+
+
+'----------------------------------------------
+Public Function WebEvent() As Variant
+Attribute WebEvent.VB_UserMemId = 0
+    If IsEmpty(Data) Then WebEvent = False Else WebEvent = Data
+End Function
 
 

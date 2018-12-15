@@ -28,14 +28,10 @@ End Property
 
 Public Property Get Std(Optional ByVal mHandle As Long) As String
     Dim sBuf As String, sz As Long
-    
     If mHandle = 0 Then mHandle = GetStdHandle(STD_INPUT_HANDLE)
-    sz = GetFileSize(mHandle, ByVal 0&)
-    
-    If sz > 0 Then
-        sBuf = String$(sz, " ")
-        Std = ReadFile(mHandle, ByVal sBuf, sz, sz, 0)
-    End If
+    sz = GetFileSize(mHandle, ByVal 0&):      If sz <= 0 Then Exit Property
+    sBuf = String$(sz, 0)
+    If ReadFile(mHandle, ByVal sBuf, sz, sz, 0) Then Std = Left$(sBuf, sz)
 End Property
 
 Public Property Let Std(Optional ByVal mHandle As Long, ByVal value As String)

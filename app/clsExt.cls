@@ -317,18 +317,24 @@ err1:
     Loop Until WaitIE = False
 End Function
 
-Public Function Setup(ByVal value As String, Optional ByVal actX As String, Optional ByVal bReg As Boolean = False, Optional ByVal sDir As String, Optional ByVal bKillTemp As Boolean = True, Optional ByVal vShell As Variant) As Boolean
-    Dim pathTemp As String, pathSystem As String, nameFile As String, fnShell As String, txt As String
-    Dim isTemp As Boolean, isLic As Boolean, Obj As Object, shItem As Object, shFolder As Object
-    Dim vStatus As Variant, RX As New clsRXP, Buf() As Byte
+Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Optional ByVal sDir As String, Optional ByVal SSE As Variant) As Boolean
+    Dim pathTemp As String, pathSystem As String, nameFile As String, fnShell As String, txt As String, Buf() As Byte
+    Dim isFail As Boolean, isTemp As Boolean, isReg As Boolean, isClean As Boolean, vStatus As Variant
+    Dim Obj As Object, sItem As Object, sFolder As Object, RX As New clsRXP, Prm As clsHash
     
     On Error Resume Next
     
-    Setup = True:      mf_Tmp = "":      m_ParamArray vShell, "", "", 20000, SW_SHOWNORMAL, vbNullString
+    Setup = True:      mf_Tmp = "":      m_ParamArray SSE, "", "", 20000, SW_SHOWNORMAL, vbNullString
 
-    If Len(actX) Then isLic = InStr(actX, "#"):     actX = Trim$(Replace$(actX, "#", "")):     Set Obj = CreateObject(actX)
+    Set Prm = GetQV(vPrm, nameFile)
+    isClean = IIF(Prm.Exists("Clean"), CBool(Prm("Clean")), True)
+    isReg = CBool(Prm("Reg"))
     
-    If Obj Is Nothing Then
+    If Prm.Exists("ProgID") Then Set Obj = CreateObject(Prm("ProgID")):    If Obj Is Nothing Then isFail = True
+    If Len(nameFile) And Prm.Exists("Ver") Then If VersionDLL(nameFile, Prm("Ver")) = False Then isFail = True
+    If Len(nameFile) And Not IsFile(nameFile) Then isFail = True
+    
+    If isFail = True Or (Len(nameFile) = 0 And Prm.Exists("ProgID") = False) Then
         Buf = SYS.Content(value, False, vStatus)
 
         If vStatus(0) Then
@@ -354,63 +360,63 @@ Public Function Setup(ByVal value As String, Optional ByVal actX As String, Opti
                     Set Obj = CreateObject("Shell.Application")
 
                     With Obj
-                        Set shFolder = .NameSpace(FileLongName(pathTemp))
+                        Set sFolder = .NameSpace(FileLongName(pathTemp))
     
-                        For Each shItem In .NameSpace(FileLongName(nameFile)).Items
-                            If Not shItem Is Nothing Then
-                                txt = GetFileName(shItem.Path)
+                        For Each sItem In .NameSpace(FileLongName(nameFile)).Items
+                            If Not sItem Is Nothing Then
+                                txt = GetFileName(sItem.Path)
     
-                                shFolder.CopyHere shItem, 0
+                                sFolder.CopyHere sItem, 0
 
                                 Select Case LCase$(GetExtension(txt))
                                     Case "dll", "ocx"
-                                        If bReg Then If modCommon.RegisterDLL(pathTemp + txt) = False Then Setup = False
+                                        If isReg Then If modCommon.RegisterDLL(pathTemp + txt) = False Then Setup = False
 
-                                    Case "mf", "inf", "cmd"
+                                    Case "inf", "cmd"
                                         If Len(fnShell) = 0 Then fnShell = pathTemp + txt
                                 End Select
                             End If
                         Next
 
-                        Set shItem = Nothing
-                        Set shFolder = Nothing
+                        Set sItem = Nothing
+                        Set sFolder = Nothing
                     
-                        If bKillTemp Then FileKill nameFile
+                        If isClean Then FileKill nameFile
                     End With
 
                 Case "dll", "ocx"
-                    If bReg Then If modCommon.RegisterDLL(nameFile) = False Then Setup = False
+                    If isReg Then If modCommon.RegisterDLL(nameFile) = False Then Setup = False
                 
-                Case "mf", "inf", "cmd", "exe"
+                Case "inf", "cmd", "exe"
                     fnShell = nameFile
             End Select
             
-            If VarType(vShell(0)) = vbString Then
-                If Len(vShell(0)) Then
-                    vShell(0) = Parse_MPath(vShell(0))
-                    vShell(1) = Parse_MPath(vShell(1))
+            If VarType(SSE(0)) = vbString Then
+                If Len(SSE(0)) Then
+                    SSE(0) = Parse_MPath(SSE(0))
+                    SSE(1) = Parse_MPath(SSE(1))
                 Else
-                    vShell(0) = fnShell
+                    SSE(0) = fnShell
                 End If
-                If Len(vShell(0)) Then
-                    If IsFile(CStr(vShell(0))) Then
-                        If LCase$(GetExtension(vShell(0))) = "inf" Then
-                            vShell(1) = "advpack,LaunchINFSection """ & vShell(0) & """,DefaultInstall,4"
-                            vShell(0) = pathSystem & "rundll32.exe"
-                            If WinVer.dwMajorVersion >= 6 Then vShell(4) = "runas"
+                If Len(SSE(0)) Then
+                    If IsFile(CStr(SSE(0))) Then
+                        If LCase$(GetExtension(SSE(0))) = "inf" Then
+                            SSE(1) = "advpack,LaunchINFSection """ & SSE(0) & """,DefaultInstall,4"
+                            SSE(0) = pathSystem & "rundll32.exe"
+                            If WinVer.dwMajorVersion >= 6 Then SSE(4) = "runas"
                         End If
-                        Setup = (ShellSyncEx(vShell(0), vShell(1), vShell(2), vShell(3), vShell(4)) = 0)
+                        Setup = (ShellSyncEx(SSE(0), SSE(1), SSE(2), SSE(3), SSE(4)) = 0)
                     Else
                         Setup = False
                     End If
                 End If
             End If
 
-            If bKillTemp And isTemp Then RmDir pathTemp
+            If isClean And isTemp Then RemoveDir pathTemp
         Else
             Setup = False
         End If
     End If
 
-    If isLic Then DoEvents:   Licenses.Add actX
+    If Prm.Exists("Lic") Then DoEvents:   Licenses.Add Prm("ProgID")
 End Function
