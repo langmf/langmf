@@ -15,7 +15,7 @@ Const QualityHigh = 3
 Sub Load(cmdLine)
     form.show
     
-    sys.ext.Setup "http://langmf.ru/ftp/dll/quricol32.dll",,,"."
+    sys.ext.Setup "http://langmf.ru/ftp/dll/quricol32.dll", "quricol32.dll", "."
 
     GenerateBMP "qrcode.bmp", "Hello Привет - !№;%:?*()_+", 2, 5, QualityStandard
     GeneratePNG "qrcode.png", "Hello Привет - !№;%:?*()_+", 2, 5, QualityStandard
@@ -41,9 +41,10 @@ End Sub
 
 <#Form=form>
 Sub Form_Load()
+    this.move 0,0,6000,3500
     this.Center
-    this.add "pic", 1, ".move 2700, 300, 2000, 2000", ".borderstyle = 0", ".autoredraw = true", ".autosize = true"
-    this.add "img", 1, ".move 300, 300, 2000, 2000"
+    this.add "pic", 1, ".move 3200, 300, 2000, 2000", ".borderstyle = 0", ".autoredraw = true", ".autosize = true"
+    this.add "img", 1, ".move 400, 300, 2000, 2000"
 End Sub
 
 '---------------------------------

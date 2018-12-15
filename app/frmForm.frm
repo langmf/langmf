@@ -247,16 +247,16 @@ Public Function Ctrl(ByVal typeObj As String, Optional ByVal value As Variant, O
 
     If IsMissing(value) Then
         v = Alias("#" & typeObj):      If Not IsArray(v) Then Exit Function
-        value = Array(typeObj, v(1)):    typeObj = v(0)
+        value = Array(typeObj, v(1), True):    typeObj = v(0)
     Else
-        m_ParamArray value, CVar(value), 0
+        m_ParamArray value, CVar(value), 0, True
     End If
 
-    If VarType(value(0)) = vbString Then
+    If VarType(value(0)) = vbString And CBool(value(2)) = True Then
         isAlias = True:          If Alias.Count = 0 Then cntAlias = 1000
         ID = Val(value(1)):      If ID <= 0 Then ID = cntAlias
     Else
-        ID = value(0)
+        ID = Val(value(0))
     End If
 
     typeObj = LCase$(typeObj)

@@ -909,6 +909,24 @@ Sub CreateDir(ByVal nameDir As String)
     Next
 End Sub
 
+Sub RemoveDir(ByVal nameDir As String)
+    Dim hFnd As Long, rc As Long, nFile As String, WFD As WIN32_FIND_DATA
+
+    hFnd = FindFirstFileW(StrPtr(LongPath(nameDir & "*")), VarPtr(WFD)):      If hFnd = INVALID_HANDLE Then Exit Sub
+    
+    Do
+        nFile = TrimNull(WFD.cFileName)
+
+        If nFile <> "." And nFile <> ".." Then
+            rc = WFD.dwFileAttributes And FILE_ATTRIBUTE_DIRECTORY
+            If rc = 0 Then FileKill nameDir & nFile Else RemoveDir nameDir & nFile & "\"
+        End If
+    Loop While FindNextFileW(hFnd, VarPtr(WFD))
+    
+    FindClose hFnd
+    RmDir nameDir
+End Sub
+
 Function CPath(fPath As String, Optional ByVal typePath As Boolean = True, Optional ByVal delim As String = "\") As String
     If typePath Then
         If Right$(fPath, 1) <> delim Then fPath = fPath + delim
@@ -1180,7 +1198,7 @@ Function VersionDLL(ByVal FileName As String, Optional ByVal verCmp As Variant) 
     v1 = Split(txt, "."):    VersionDLL = True
     Select Case Left$(verCmp, 1)
         Case ">"
-            v2 = Split(Mid$(verCmp, 2), ".")
+            v2 = Split(Mid$(verCmp, 2), ".", 4)
             For p = 0 To UBound(v2)
                 sz = Val(v1(p)) - Val(v2(p))
                 If sz < 0 Then VersionDLL = False:  Exit Function
@@ -1188,7 +1206,7 @@ Function VersionDLL(ByVal FileName As String, Optional ByVal verCmp As Variant) 
             Next
             
         Case Else
-            v2 = Split(verCmp, ".")
+            v2 = Split(verCmp, ".", 4)
             For p = 0 To UBound(v2)
                 If Val(v1(p)) <> Val(v2(p)) Then VersionDLL = False:     Exit Function
             Next
@@ -1282,7 +1300,7 @@ Function m_DoParams(ByVal Obj As Object, Arg As Variant) As Object
     For a = 0 To UBound(Preset)
         If Len(Preset(a)) Then txt = Replace$(txt, "$" & a, Preset(a))
     Next
-    
+
     CAS.Execute "With " & Preset(0) & vbCrLf & txt & vbCrLf & "End With", nMod
 End Function
 

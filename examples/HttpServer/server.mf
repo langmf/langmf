@@ -8,7 +8,7 @@ Dim reg, wsk1, wsk2
 
 '---------------------------------------
 Sub Load(cmdLine)
-    sys.ext.Setup "..\Telnet\mswinsck.cab", "#MSWinsock.Winsock"
+    sys.ext.Setup "..\Telnet\mswinsck.cab", "?Lic=1&ProgID=MSWinsock.Winsock"
     
     form.caption="HttpServer v1.0"
     form.width = 5400

@@ -3,7 +3,7 @@ Dim wsk
 
 '---------------------------------------
 Sub Load(cmdLine)
-  sys.ext.Setup "mswinsck.cab", "#MSWinsock.Winsock"
+  sys.ext.Setup "mswinsck.cab", "?Lic=1&ProgID=MSWinsock.Winsock"
 
   txt = sys.registry.GetSetting("LangMF Telnet", "Setup", "Host", "pop3.mail.ru:110")
   txt = inputbox("Введите параметры соединения." & vbcrlf & "Например: pop3.mail.ru:110", "Ввод" , txt)

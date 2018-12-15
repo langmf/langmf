@@ -44,7 +44,6 @@ Public Property Let Table(ByVal value As String)
     Next
     
     iTB64(61) = 255             'char of end '='
-    iTB64(126) = 254            'char of extra '~'
     
     For a = 0 To Len(m_Table) - 1
         TB64(a) = Asc(Mid$(m_Table, a + 1, 1))
@@ -56,9 +55,7 @@ Public Function Encode(Buf() As Byte, Optional ByVal isCrLf As Boolean = True) A
     Dim a As Long, Pos As Long, cnt As Long, Size As Long, size3 As Long, size4 As Long, szMod As Long
     Dim Bt1 As Byte, Bt2 As Byte, Bt3 As Byte, temp() As Byte
     
-    Size = m_ArraySize(Buf)
-    
-    If Size = 0 Then Exit Function
+    Size = m_ArraySize(Buf):      If Size = 0 Then Exit Function
 
     size4 = Size \ 3
     size3 = size4 * 3
@@ -113,23 +110,16 @@ Public Function Encode(Buf() As Byte, Optional ByVal isCrLf As Boolean = True) A
     Encode = temp
 End Function
 
-Public Function Decode(Buf() As Byte, Optional Extra As Variant) As Byte()
-    Dim a As Long, Pos As Long, Size As Long, Bt1 As Byte, Bt2 As Byte, Bt3 As Byte, Bt4 As Byte
-    Dim isExt As Boolean, posExt As Long, udsExt As Long, bufExt() As Byte, temp() As Byte
+Public Function Decode(Buf() As Byte) As Byte()
+    Dim a As Long, Pos As Long, Size As Long, Bt1 As Byte, Bt2 As Byte, Bt3 As Byte, Bt4 As Byte, temp() As Byte
 
-    Size = m_ArraySize(Buf)
-    
-    If Size < 4 Then Exit Function
-
-    posExt = -1
-    udsExt = posExt
-    
+    Size = m_ArraySize(Buf):      If Size < 4 Then Exit Function
     ReDim temp(Size - 1)
     
     For a = 0 To Size - 4 Step 4
         Bt1 = iTB64(Buf(a))
         
-        If Bt1 < 64 And isExt = False Then
+        If Bt1 < 64 Then
             Bt2 = iTB64(Buf(a + 1)):   Bt3 = iTB64(Buf(a + 2)):   Bt4 = iTB64(Buf(a + 3))
 
             temp(Pos) = ((Bt1 * 4) Or (Bt2 \ 16))
@@ -144,26 +134,10 @@ Public Function Decode(Buf() As Byte, Optional Extra As Variant) As Byte()
                 Pos = Pos + 3
             End If
         Else
-            If Bt1 = 254 Then
-                isExt = Not isExt
-            Else
-                If isExt Then
-                    posExt = posExt + 1
-                    If posExt > udsExt Then
-                        udsExt = udsExt + 10000
-                        ReDim Preserve bufExt(udsExt)
-                    End If
-                    bufExt(posExt) = Buf(a)
-                End If
-            End If
             a = a - 3
         End If
     Next
     
-    If posExt > -1 Then ReDim Preserve bufExt(posExt)
-    Extra = bufExt
-    
     ReDim Preserve temp(Pos - 1)
-    
     Decode = temp
 End Function

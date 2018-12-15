@@ -25,6 +25,7 @@ End Sub
 <#Form=form>
 '-----------------------------------------
 Sub Web_DocumentComplete(pDisp, URL)
+    web.object.document.oncontextmenu = sys.newdim
     form.text(1).text = URL
     form.style.maxbutton = 1
 End Sub

@@ -52,9 +52,9 @@ Gray_Image:
 	mov edi, ptrData
 
 	movab Y,Y2
-.LOOPY
+Gray_LOOPY:
 	movab X,X2
-.LOOPX
+Gray_LOOPX:
 	Call GetPoint
 
 	mov bl, Byte[eax]
@@ -64,12 +64,12 @@ Gray_Image:
 	dec dword X
 	mov ebx, X1
 	cmp dword X,ebx
-	ja .LOOPX
+	ja Gray_LOOPX
 	
 	dec dword Y
 	mov ebx, Y1
 	cmp dword Y,ebx
-	ja .LOOPY
+	ja Gray_LOOPY
 RET
 
 ;############################################################
@@ -77,9 +77,9 @@ Red_Image:
 	mov edi, ptrData
 
 	movab Y,Y2
-.LOOPY
+Red_LOOPY:
 	movab X,X2
-.LOOPX
+Red_LOOPX:
 	Call GetPoint
 
 	;mov Byte[eax+0], 0	;B
@@ -92,12 +92,12 @@ Red_Image:
 	dec dword X
 	mov ebx, X1
 	cmp dword X,ebx
-	ja .LOOPX
+	ja Red_LOOPX
 	
 	dec dword Y
 	mov ebx, Y1
 	cmp dword Y,ebx
-	ja .LOOPY
+	ja Red_LOOPY
 RET
 
 ;############################################################
