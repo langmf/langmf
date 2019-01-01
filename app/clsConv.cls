@@ -34,7 +34,7 @@ End Function
 
 Public Function EncodeBase64(value As Variant) As String
     Dim tmpBuf() As Byte
-    If ConvToBufferByte(value, tmpBuf) Then EncodeBase64 = Conv_A2W_Buf(Base64.Encode(tmpBuf, False))
+    If ConvToBufferByte(value, tmpBuf) Then EncodeBase64 = Conv_A2W_Buf(Base64.Encode(tmpBuf))
 End Function
 
 Public Function DecodeBase64(value As Variant) As String

@@ -107,7 +107,7 @@ Function SetupLMF() As Boolean
             
             isOK = False
             If IsFile(tmp) Then If VersionDLL(tmp, Prm("Ver")) Then isOK = True
-            
+
             If Not isOK Then
                 Buf = LoadResData(v, 10)
                 
@@ -1421,7 +1421,7 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
                 
                 If m_File2Buf(Buf, txt) Then
                     If InStr(txtMode, "zlib") > 0 Then CompressData Buf
-                    If InStr(txtMode, "base64") > 0 Then Buf = Base64.Encode(Buf)
+                    If InStr(txtMode, "base64") > 0 Then Buf = Base64.Encode(Buf, 19)
                     f.PutBuf Buf
                 End If
                 
