@@ -15,9 +15,7 @@ Attribute VB_Ext_KEY = "SavedWithClassBuilder6" ,"Yes"
 Attribute VB_Ext_KEY = "Top_Level" ,"Yes"
 Option Explicit
 
-Const def_Table As String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-
-Private TB64(63) As Byte, iTB64(255) As Byte, m_Table As String
+Private EB64(63) As Byte, DB64(255) As Byte, m_Table As String
 
 
 Private Sub Class_Initialize()
@@ -29,115 +27,95 @@ Public Property Get Table() As String
 End Property
 
 Public Property Let Table(ByVal value As String)
-    Dim a As Long
+    Dim a As Long, b As Byte, sz As Long
     
-    If LenB(value) = 0 Then
-        m_Table = def_Table
-    ElseIf Len(value) = 64 Then
-        m_Table = value
-    Else
-        Exit Property
-    End If
+    If LenB(value) Then m_Table = value Else m_Table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+    sz = Len(m_Table):      If sz > 64 Then sz = 64
     
-    For a = 0 To UBound(iTB64)
-        iTB64(a) = 64           'skip char
+    For a = 0 To UBound(DB64)
+        DB64(a) = 255              'skip char
     Next
     
-    iTB64(61) = 255             'char of end '='
+    DB64(61) = 64                  'char of end '='
     
-    For a = 0 To Len(m_Table) - 1
-        TB64(a) = Asc(Mid$(m_Table, a + 1, 1))
-        iTB64(TB64(a)) = a
+    For a = 0 To sz - 1
+        b = Asc(Mid$(m_Table, a + 1, 1)):      EB64(a) = b:      DB64(b) = a
     Next
 End Property
 
-Public Function Encode(Buf() As Byte, Optional ByVal isCrLf As Boolean = True) As Byte()
-    Dim a As Long, Pos As Long, cnt As Long, Size As Long, size3 As Long, size4 As Long, szMod As Long
-    Dim Bt1 As Byte, Bt2 As Byte, Bt3 As Byte, temp() As Byte
+Public Function Encode(Buf() As Byte, Optional ByVal vCrLf As Long) As Byte()
+    Dim a As Long, p As Long, i As Long, sz As Long, sz3 As Long, sz4 As Long, szM As Long
+    Dim b1 As Byte, b2 As Byte, b3 As Byte, tmp() As Byte
     
-    Size = m_ArraySize(Buf):      If Size = 0 Then Exit Function
+    sz = m_ArraySize(Buf):      If sz = 0 Then Exit Function
 
-    size4 = Size \ 3
-    size3 = size4 * 3
-    size4 = size4 * 4
-    szMod = Size - size3
+    sz4 = sz \ 3:      sz3 = sz4 * 3:      sz4 = sz4 * 4:      szM = sz - sz3
     
-    If isCrLf Then size4 = size4 + (size4 \ 76) * 2
-    If szMod > 0 Then size4 = size4 + 4
+    If vCrLf Then sz4 = sz4 + (sz4 \ (vCrLf * 4)) * 2
+    If szM > 0 Then sz4 = sz4 + 4
     
-    ReDim temp(size4 - 1)
+    ReDim tmp(sz4 - 1)
 
-    For a = 0 To size3 - 1 Step 3
-        Bt1 = Buf(a):   Bt2 = Buf(a + 1):   Bt3 = Buf(a + 2)
+    For a = 0 To sz3 - 1 Step 3
+        b1 = Buf(a):      b2 = Buf(a + 1):      b3 = Buf(a + 2)
 
-        temp(Pos) = TB64(Bt1 \ 4)
-        temp(Pos + 1) = TB64((Bt1 And &H3) * 16 Or (Bt2 \ 16))
-        temp(Pos + 2) = TB64((Bt2 And &HF) * 4 Or (Bt3 \ 64))
-        temp(Pos + 3) = TB64(Bt3 And &H3F)
+        tmp(p + 0) = EB64(b1 \ 4)
+        tmp(p + 1) = EB64((b1 And &H3) * 16 Or (b2 \ 16))
+        tmp(p + 2) = EB64((b2 And &HF) * 4 Or (b3 \ 64))
+        tmp(p + 3) = EB64(b3 And &H3F)
         
-        Pos = Pos + 4
+        p = p + 4
         
-        If isCrLf Then
-            cnt = cnt + 1
-            If cnt >= 19 Then
-                temp(Pos) = 13
-                temp(Pos + 1) = 10
-                Pos = Pos + 2
-                cnt = 0
-            End If
+        If vCrLf Then
+            i = i + 1:    If i >= vCrLf Then tmp(p + 0) = 13:    tmp(p + 1) = 10:    p = p + 2:    i = 0
         End If
     Next
 
-    Select Case szMod
-        Case 1
-            Bt1 = Buf(Size - 1)
-            
-            temp(Pos) = TB64(Bt1 \ 4)
-            temp(Pos + 1) = TB64((Bt1 And &H3) * 16)
-            temp(Pos + 2) = 61
-            temp(Pos + 3) = 61
-
-        Case 2
-            Bt1 = Buf(Size - 2)
-            Bt2 = Buf(Size - 1)
+    If szM = 1 Then
+        b1 = Buf(sz - 1)
+        tmp(p + 0) = EB64(b1 \ 4)
+        tmp(p + 1) = EB64((b1 And &H3) * 16)
+        tmp(p + 2) = 61
+        tmp(p + 3) = 61
+        
+    ElseIf szM = 2 Then
+        b1 = Buf(sz - 2)
+        b2 = Buf(sz - 1)
+        tmp(p + 0) = EB64(b1 \ 4)
+        tmp(p + 1) = EB64((b1 And &H3) * 16 Or (b2 \ 16))
+        tmp(p + 2) = EB64((b2 And &HF) * 4)
+        tmp(p + 3) = 61
+    End If
     
-            temp(Pos) = TB64(Bt1 \ 4)
-            temp(Pos + 1) = TB64((Bt1 And &H3) * 16 Or (Bt2 \ 16))
-            temp(Pos + 2) = TB64((Bt2 And &HF) * 4)
-            temp(Pos + 3) = 61
-    End Select
-    
-    Encode = temp
+    Encode = tmp
 End Function
 
 Public Function Decode(Buf() As Byte) As Byte()
-    Dim a As Long, Pos As Long, Size As Long, Bt1 As Byte, Bt2 As Byte, Bt3 As Byte, Bt4 As Byte, temp() As Byte
+    Dim a As Long, p As Long, i As Long, sz As Long, b1 As Byte, b2 As Byte, b3 As Byte, b4 As Byte, tmp() As Byte
 
-    Size = m_ArraySize(Buf):      If Size < 4 Then Exit Function
-    ReDim temp(Size - 1)
+    sz = m_ArraySize(Buf):      If sz Then ReDim tmp(sz - 1)
     
-    For a = 0 To Size - 4 Step 4
-        Bt1 = iTB64(Buf(a))
+    For a = 0 To sz - 1
+        b4 = DB64(Buf(a))
         
-        If Bt1 < 64 Then
-            Bt2 = iTB64(Buf(a + 1)):   Bt3 = iTB64(Buf(a + 2)):   Bt4 = iTB64(Buf(a + 3))
-
-            temp(Pos) = ((Bt1 * 4) Or (Bt2 \ 16))
-            temp(Pos + 1) = (((Bt2 And &HF) * 16) Or (Bt3 \ 4))
-            temp(Pos + 2) = (((Bt3 And &H3) * 64) Or Bt4)
-
-            If Bt3 = 255 Then
-                Pos = Pos + 1
-            ElseIf Bt4 = 255 Then
-                Pos = Pos + 2
+        If b4 < 65 Then
+            i = i + 1
+        
+            If i = 1 Then
+                b1 = b4
+            ElseIf i = 2 Then
+                b2 = b4
+            ElseIf i = 3 Then
+                b3 = b4
             Else
-                Pos = Pos + 3
+                tmp(p + 0) = ((b1 * 4) Or (b2 \ 16))
+                tmp(p + 1) = (((b2 And &HF) * 16) Or (b3 \ 4))
+                tmp(p + 2) = (((b3 And &H3) * 64) Or b4)
+    
+                i = 0:    p = p + 3 - (b3 \ 64) - (b4 \ 64)
             End If
-        Else
-            a = a - 3
         End If
     Next
     
-    ReDim Preserve temp(Pos - 1)
-    Decode = temp
+    If p Then ReDim Preserve tmp(p - 1):   Decode = tmp
 End Function
