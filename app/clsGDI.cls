@@ -61,7 +61,7 @@ Public Sub Gradient(ByVal Frm As Object, m_Vert As Variant, Optional m_gTri As V
     ReDim Vert(UBound(m_Vert))
     
     For a = 0 To UBound(m_Vert)
-        m_ParamArray m_Vert(a), 0, 0, 0, 0, 0, 0
+        ArrayDef m_Vert(a), 0, 0, 0, 0, 0, 0
         
         Vert(a).x = CLng(m_Vert(a)(0))
         Vert(a).y = CLng(m_Vert(a)(1))
@@ -71,7 +71,7 @@ Public Sub Gradient(ByVal Frm As Object, m_Vert As Variant, Optional m_gTri As V
         Vert(a).alpha = LongToUShort(m_Vert(a)(5) * 256)
     Next
     
-    If IsMissing(m_gTri) Then m_ParamArray m_gTri, Array(0, 1, 0)
+    If IsMissing(m_gTri) Then ArrayDef m_gTri, Array(0, 1, 0)
     
     ReDim gTri(UBound(m_gTri))
     
@@ -275,8 +275,8 @@ Public Function IcoToPic(ByVal hImage As Long, Optional ByVal imgType As Long = 
     Call OleCreatePictureIndirect(tPic, riid, True, IcoToPic)
 End Function
 
-Public Function RegionFromBitmap(ByVal picSrc As IPictureDisp, Optional ByVal TransColor As Variant) As Long
-    RegionFromBitmap = m_RegionFromBitmap(picSrc, TransColor)
+Public Function Region(ByVal picSrc As IPictureDisp, Optional ByVal TransColor As Variant) As Long
+    Region = RegionFromBitmap(picSrc, TransColor)
 End Function
 
 Public Function Trans(ByVal Obj As Object, ByVal ipdFon As IPictureDisp, ByVal ipdMask As IPictureDisp) As Long
@@ -284,8 +284,8 @@ Public Function Trans(ByVal Obj As Object, ByVal ipdFon As IPictureDisp, ByVal i
     
     With Obj
         .Picture = ipdFon
-        .Move .Left, .Top, m_HPX(ipdFon.Width) * Screen.TwipsPerPixelX, m_HPY(ipdFon.Height) * Screen.TwipsPerPixelY
-        rg = m_RegionFromBitmap(ipdMask)
+        .Move .Left, .Top, GetHPX(ipdFon.Width) * Screen.TwipsPerPixelX, GetHPY(ipdFon.Height) * Screen.TwipsPerPixelY
+        rg = RegionFromBitmap(ipdMask)
         Trans = SetWindowRgn(.hWnd, rg, True)
         DeleteObject rg
     End With

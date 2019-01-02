@@ -156,7 +156,7 @@ Private Sub COM_Custom(This As COM_Table, Optional Args As Variant)
     Dim a As Long, c As Long, uds As Long, mbr() As Variant
     
     For c = 0 To 1
-        uds = m_ArraySize(Args)
+        uds = ArraySize(Args)
         
         If uds Then
             With This

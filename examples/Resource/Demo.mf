@@ -34,9 +34,7 @@ Data 1,2,3,4,5...
 <#res#>
 
 <#res id="user" mode=base64 #>
-~@#$%^&*()_-
-//4hBDsEQwQ2BDEEMAQgAD8EOwQwBD0E		~~		OARABD4EMgRJBDgEOgQwBCAANwQwBDQEMAQ9BDgEOQQ=
-~
+//4!h@B#D$s%E^Q&w*Q(2)B D   EEMAQgAD8EOwQwBD0E ~~	OARABD4EMgRJBDgEOgQwBCAANwQwBDQEMAQ9BDgEOQQ     =
 <#res#>
 
 <#res id="pack" mode=base64_zlib #>

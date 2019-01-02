@@ -68,7 +68,7 @@ Public Property Get Instance() As Object
     
     Do
         a = a + 1
-        m_Wait
+        WaitMs
         Set Instance = GetObject(, "Atomix.LangMF")
     Loop Until a > 500 Or (Not Instance Is Nothing)
     

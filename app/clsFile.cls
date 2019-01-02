@@ -21,7 +21,7 @@ Public Search As Object
 
 
 Public Function API(Optional ByVal Param As Variant) As Object                 'As clsFileAPI
-    Set API = m_DoParams(New clsFileAPI, Param)
+    Set API = DoParams(New clsFileAPI, Param)
 End Function
 
 Public Function Open2(ByVal nameFile As String, Optional ByVal NumFile As Integer = 0, Optional ByVal typeOpen As String = "binary", Optional ByVal fLen As Integer = 1) As Long
@@ -105,14 +105,14 @@ Public Sub Get2(ByVal NumFile As Integer, Optional numPosFile As Variant, Option
     
     Select Case VariantType(Buf, True)
         Case vbArray + vbByte
-            fs = m_ArraySize(Buf) - 1
+            fs = ArraySize(Buf) - 1
             If fs < 0 Then Exit Sub
             ReDim tmpBuf(fs)
             If numPos <= 0 Then Get #NumFile, , tmpBuf Else Get #NumFile, numPos, tmpBuf
             Buf = tmpBuf
             
         Case vbArray + vbVariant
-            fs = m_ArraySize(Buf) - 1
+            fs = ArraySize(Buf) - 1
             If fs < 0 Then Exit Sub
             ReDim tmpBuf(fs)
             If numPos <= 0 Then Get #NumFile, , tmpBuf Else Get #NumFile, numPos, tmpBuf

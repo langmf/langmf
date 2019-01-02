@@ -152,7 +152,7 @@ Public Function XMLHTTP(Optional ByVal Host As String = "https://api.ipify.org",
 
     On Error Resume Next
 
-    m_ParamArray Param, 10000, Empty, Empty, Empty, Empty
+    ArrayDef Param, 10000, Empty, Empty, Empty, Empty
 
     Set XMLHTTP = CreateObject("MSXML2.XMLHTTP")
     If LenB(Host) = 0 Then Exit Function
@@ -166,7 +166,7 @@ Public Function XMLHTTP(Optional ByVal Host As String = "https://api.ipify.org",
 
     t1 = timeGetTime
     Do
-        m_Wait
+        WaitMs
         t2 = timeGetTime
     Loop Until XMLHTTP.readyState = 4 Or (t1 + Param(0) < t2) Or (t1 > t2) Or mf_IsEnd
 
@@ -178,7 +178,7 @@ Public Function WINHTTP(Optional ByVal Host As String = "https://api.ipify.org",
 
     On Error Resume Next
 
-    m_ParamArray Param, 10, Empty, Empty, Empty, Empty
+    ArrayDef Param, 10, Empty, Empty, Empty, Empty
 
     Set WINHTTP = CreateObject("WinHttp.WinHttpRequest.5.1"):   If WINHTTP Is Nothing Then Set WINHTTP = CreateObject("WinHttp.WinHttpRequest")
     If LenB(Host) = 0 Then Exit Function

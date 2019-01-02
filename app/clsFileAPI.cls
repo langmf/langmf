@@ -67,8 +67,8 @@ Public Function FGet(Buf As Variant, Optional ByVal numPos As Currency = 0) As L
     If hFile = INVALID_HANDLE Then Exit Function
     
     Select Case VariantType(Buf, True)
-        Case vbArray + vbByte:      SA = m_GetSafeArray(Buf):       FGet = GetMem(SA.pvData, SA.rgSABound(0).cElements, numPos)
-        Case vbArray + vbVariant:   SA = m_GetSafeArray(Buf):       sz = SA.rgSABound(0).cElements:       ReDim tmpBuf(sz - 1):      FGet = GetMem(VarPtr(tmpBuf(0)), sz, numPos):        ConvFromBufferByte Buf, tmpBuf
+        Case vbArray + vbByte:      SA = GetSafeArray(Buf):       FGet = GetMem(SA.pvData, SA.rgSABound(0).cElements, numPos)
+        Case vbArray + vbVariant:   SA = GetSafeArray(Buf):       sz = SA.rgSABound(0).cElements:       ReDim tmpBuf(sz - 1):      FGet = GetMem(VarPtr(tmpBuf(0)), sz, numPos):        ConvFromBufferByte Buf, tmpBuf
         Case vbObject:      FGet = GetMem(Buf.Class___Wrapper.Ptr + Buf.Class___Offset, Buf.Class___Size, numPos)
         Case vbByte:        FGet = GetMem(VarPtr(tmpByte), 1, numPos):          Buf = tmpByte
         Case vbLong:        FGet = GetMem(VarPtr(tmpLong), 4, numPos):          Buf = tmpLong
@@ -91,7 +91,7 @@ Public Function FPut(Buf As Variant, Optional ByVal numPos As Currency = 0) As L
     If hFile = INVALID_HANDLE Then Exit Function
     
     Select Case VariantType(Buf, True)
-        Case vbArray + vbByte:      SA = m_GetSafeArray(Buf):       FPut = PutMem(SA.pvData, SA.rgSABound(0).cElements, numPos)
+        Case vbArray + vbByte:      SA = GetSafeArray(Buf):       FPut = PutMem(SA.pvData, SA.rgSABound(0).cElements, numPos)
         Case vbArray + vbVariant:   ConvToBufferByte Buf, tmpBuf:   FPut = PutMem(VarPtr(tmpBuf(0)), UBound(tmpBuf) + 1, numPos)
         Case vbObject:      FPut = PutMem(Buf.Class___Wrapper.Ptr + Buf.Class___Offset, Buf.Class___Size, numPos)
         Case vbByte:        tmpByte = Buf:          FPut = PutMem(VarPtr(tmpByte), 1, numPos)

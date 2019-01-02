@@ -335,6 +335,6 @@ Private Sub PrepareSlot(ByVal mIndex As Long, Key As String, ByVal HCode As Long
     If LastNdx Then
         slotTable(LastNdx).nextItem = mIndex            ' this is the successor of another slot
     Else
-        hashTable(HCode) = mIndex                         ' this is the first slot for a given hash code
+        hashTable(HCode) = mIndex                       ' this is the first slot for a given hash code
     End If
 End Sub

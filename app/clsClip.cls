@@ -127,11 +127,11 @@ Public Property Get CellHeight() As Long
 End Property
 
 Public Property Get Width() As Long
-    If IsStdPic Then Width = m_HPX(m_Picture.Width)
+    If IsStdPic Then Width = GetHPX(m_Picture.Width)
 End Property
 
 Public Property Get Height() As Long
-    If IsStdPic Then Height = m_HPY(m_Picture.Height)
+    If IsStdPic Then Height = GetHPY(m_Picture.Height)
 End Property
 
 Public Property Get Clip(Optional ByVal x As Long = -1, Optional ByVal y As Long = -1, Optional ByVal cw As Long = -1, Optional ByVal ch As Long = -1) As IPictureDisp
@@ -164,10 +164,10 @@ Public Function Render(ByVal dstDC As Long, Optional ByVal dstX As Long, Optiona
 
     If dstWidth Then dstWidth = dstWidth * Zoom Else dstWidth = Width * Zoom
     If dstHeight Then dstHeight = dstHeight * Zoom Else dstHeight = Height * Zoom
-    If srcX Then srcX = m_PHX(srcX)
-    If srcY Then srcY = m_PHY(srcY)
-    If srcWidth Then srcWidth = m_PHX(srcWidth) Else srcWidth = m_Picture.Width
-    If srcHeight Then srcHeight = m_PHY(srcHeight) Else srcHeight = m_Picture.Height
+    If srcX Then srcX = GetPHX(srcX)
+    If srcY Then srcY = GetPHY(srcY)
+    If srcWidth Then srcWidth = GetPHX(srcWidth) Else srcWidth = m_Picture.Width
+    If srcHeight Then srcHeight = GetPHY(srcHeight) Else srcHeight = m_Picture.Height
 
     m_Picture.Render dstDC Or 0&, dstX Or 0&, dstY Or 0&, dstWidth Or 0&, dstHeight Or 0&, _
                      srcX Or 0&, m_Picture.Height - srcY, srcWidth Or 0&, -srcHeight, 0&

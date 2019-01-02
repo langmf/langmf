@@ -57,7 +57,7 @@ Sub Load(cmdLine)
       
   sys.ontimer 5, "SyncForms"
 
-  set f = sys.newfap(frmBkg, ,".IHandle = " & frmBkg.gdip_MainBitmap)
+  set f = sys.newfap(array(frmBkg.hdc, frmBkg.gdip_MainBitmap, frmBkg.ScaleWidth, frmBkg.ScaleHeight))
 End Sub
 
 Sub SyncForms

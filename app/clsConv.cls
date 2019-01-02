@@ -113,7 +113,7 @@ End Function
 Public Function Image2Str(ByVal Obj As IPictureDisp) As String
     Dim fName As String
     fName = GetTmpPath + "temp_" + GenTempStr + ".pic"
-    FileKill fName:    SavePicture Obj, fName:     m_File2Str Image2Str, fName:    FileKill fName
+    FileKill fName:    SavePicture Obj, fName:     modCommon.File2Str Image2Str, fName:    FileKill fName
 End Function
 
 Public Function Str2Image(value As Variant) As IPictureDisp
@@ -121,29 +121,29 @@ Public Function Str2Image(value As Variant) As IPictureDisp
 End Function
 
 Public Function File2Buf(ByVal nameFile As String) As Byte()
-    m_File2Buf File2Buf, nameFile
+    modCommon.File2Buf File2Buf, nameFile
 End Function
 
-Public Sub Buf2File(value As Variant, ByVal nameFile As String)
+Public Function Buf2File(value As Variant, ByVal nameFile As String) As Boolean
     Dim Buffer() As Byte
     ConvToBufferByte value, Buffer
-    m_Buf2File Buffer, nameFile
-End Sub
-
-Public Function File2Str(ByVal nameFile As String) As String
-    m_File2Str File2Str, nameFile
+    Buf2File = modCommon.Buf2File(Buffer, nameFile)
 End Function
 
-Public Sub Str2File(ByVal value As String, ByVal nameFile As String)
-    m_Str2File value, nameFile
-End Sub
+Public Function File2Str(ByVal nameFile As String) As String
+    modCommon.File2Str File2Str, nameFile
+End Function
+
+Public Function Str2File(ByVal value As String, ByVal nameFile As String) As Boolean
+    Str2File = modCommon.Str2File(value, nameFile)
+End Function
 
 Public Function Hex2Buf(ByVal value As String) As Byte()
-    Hex2Buf = m_Hex2Buf(value)
+    Hex2Buf = modCommon.Hex2Buf(value)
 End Function
 
 Public Function Buf2Hex(value As Variant) As String
-    Buf2Hex = m_Buf2Hex(value)
+    Buf2Hex = modCommon.Buf2Hex(value)
 End Function
 
 Public Function MPath(ByVal value As String) As String
@@ -189,7 +189,7 @@ Public Function XLT(srcTxt As Variant, curTBL As Variant, Optional ByVal bInvert
     
     For a = 0 To 255:    TBL(a) = a:    Next
     
-    ConvToBufferByte curTBL, Buffer:    uds = m_ArraySize(Buffer) - 1
+    ConvToBufferByte curTBL, Buffer:    uds = ArraySize(Buffer) - 1
     
     If bInvert Then
         For a = 0 To uds Step 2:    TBL(Buffer(a + 1)) = Buffer(a):    Next
@@ -197,7 +197,7 @@ Public Function XLT(srcTxt As Variant, curTBL As Variant, Optional ByVal bInvert
         For a = 0 To uds Step 2:    TBL(Buffer(a)) = Buffer(a + 1):    Next
     End If
     
-    ConvToBufferByte srcTxt, Buffer:    uds = m_ArraySize(Buffer) - 1
+    ConvToBufferByte srcTxt, Buffer:    uds = ArraySize(Buffer) - 1
     
     For a = 0 To uds:    Buffer(a) = TBL(Buffer(a)):    Next
     

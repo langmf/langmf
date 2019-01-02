@@ -59,7 +59,7 @@ Attribute PCall.VB_UserMemId = 0
     For a = uds To cntEnd Step -1
         t(a) = VariantType(Params(a), True)
         If t(a) = vbArray + vbVariant Then
-            For b = m_ArraySize(Params(a)) - 1 To 0 Step -1
+            For b = ArraySize(Params(a)) - 1 To 0 Step -1
                 AddPush CLng(Params(a)(b))        ' PUSH dword
                 cnt = cnt + 1
             Next

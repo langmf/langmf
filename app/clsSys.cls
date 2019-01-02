@@ -83,8 +83,7 @@ Public Function AddFileMF(ByVal nameScript As String, Optional ByVal nameLib As 
     Dim Buf() As Byte
     nameScript = Parse_MPath(nameScript)
     If Not IsFileExt(nameScript, , Array(".mf")) Then Exit Function
-    m_File2Buf Buf, nameScript
-    AddFileMF = Code_Parse(Buf, IIF(LenB(nameLib), nameLib, nameScript), forceRunMF)
+    If File2Buf(Buf, nameScript) Then AddFileMF = Code_Parse(Buf, IIF(LenB(nameLib), nameLib, nameScript), forceRunMF)
 End Function
 
 Public Function Env(Optional ByVal ID As Variant) As Variant
@@ -96,39 +95,39 @@ Public Function GenStr(Optional ByVal lenGen As Long, Optional ByVal txtPat As S
 End Function
 
 Public Function DoParams(ByVal Obj As Object, Arg As Variant) As Object
-    Set DoParams = m_DoParams(Obj, Arg)
+    Set DoParams = modCommon.DoParams(Obj, Arg)
 End Function
 
 Public Function NewForm(Optional ByVal Param As Variant) As Object
-    Set NewForm = m_DoParams(New frmForm, Param)
+    Set NewForm = modCommon.DoParams(New frmForm, Param)
 End Function
 
 Public Function NewScript(Optional ByVal Param As Variant) As Object                                'As clsActiveScript
-    Set NewScript = m_DoParams(New clsActiveScript, Param)
+    Set NewScript = modCommon.DoParams(New clsActiveScript, Param)
 End Function
 
 Public Function NewSubClass(Optional ByVal Param As Variant) As Object                              'As clsSubClass
-    Set NewSubClass = m_DoParams(New clsSubClass, Param)
+    Set NewSubClass = modCommon.DoParams(New clsSubClass, Param)
 End Function
 
 Public Function NewCollection(Optional ByVal Param As Variant) As Collection
-    Set NewCollection = m_DoParams(New Collection, Param)
+    Set NewCollection = modCommon.DoParams(New Collection, Param)
 End Function
 
 Public Function NewHash(Optional ByVal Param As Variant) As Object                                  'As clsHash
-    Set NewHash = m_DoParams(New clsHash, Param)
+    Set NewHash = modCommon.DoParams(New clsHash, Param)
 End Function
 
 Public Function NewDim(Optional ByVal Param As Variant) As Object                                   'As clsDim
-    Set NewDim = m_DoParams(New clsDim, Param)
+    Set NewDim = modCommon.DoParams(New clsDim, Param)
 End Function
 
 Public Function NewGlob(Optional ByVal Param As Variant) As Object                                  'As clsGLOB
-    Set NewGlob = m_DoParams(New clsGLOB, Param)
+    Set NewGlob = modCommon.DoParams(New clsGLOB, Param)
 End Function
 
 Public Function NewBuf(Optional Buf As Variant, Optional ByVal Param As Variant) As Object          'As clsBuffer
-    Set NewBuf = m_DoParams(New clsBuffer, Param)
+    Set NewBuf = modCommon.DoParams(New clsBuffer, Param)
     If Not IsMissing(Buf) Then NewBuf.SetData Buf
 End Function
 
@@ -143,7 +142,7 @@ Public Function NewFCP(Optional value As Variant, Optional ByVal Param As Varian
         End Select
     End If
     
-    m_DoParams NewFCP, Param
+    modCommon.DoParams NewFCP, Param
 End Function
 
 Public Function NewFAP(Optional ByVal Obj As Variant, Optional Buf As Variant, Optional ByVal Param As Variant) As Object              'As clsAsmPic
@@ -152,7 +151,7 @@ Public Function NewFAP(Optional ByVal Obj As Variant, Optional Buf As Variant, O
     If IsObject(Obj) Then Set NewFAP.Obj = Obj Else NewFAP.Obj = Obj
     If Not IsMissing(Buf) Then NewFAP.ASM.SetBuffer Buf
         
-    m_DoParams NewFAP, Param
+    modCommon.DoParams NewFAP, Param
 End Function
 
 Public Function Path(Optional ByVal value As Variant = False, Optional ByVal backSlash As Boolean = True) As String
@@ -224,7 +223,7 @@ Public Function OnTimer(ByVal Interval As Long, ByVal Param As Variant, ParamArr
     Wend
     
     If Not IsArray(Param) Then tmp = Param: Param = Empty
-    m_ParamArray Param, tmp, "", dataArg, idT
+    ArrayDef Param, tmp, "", dataArg, idT
     Timers("#" & idT) = Param
 
     Call SetTimer(frmScript.hWnd, idT, Abs(Interval), AddressOf Timer_Event)
@@ -235,7 +234,7 @@ End Function
 Public Sub OffTimer(ByVal Param As Variant)
     Dim v As Variant, nMod As Variant, nFunc As String
     
-    If IsArray(Param) Then m_ParamArray Param, "", 0:   nFunc = Param(0):   nMod = Param(1) Else nFunc = Param:   nMod = ""
+    If IsArray(Param) Then ArrayDef Param, "", 0:   nFunc = Param(0):   nMod = Param(1) Else nFunc = Param:   nMod = ""
 
     For Each v In Timers.Items
         If v(1) = nMod Or (IsNumeric(nMod) And nMod = 0) Then
@@ -253,7 +252,7 @@ Public Sub Prm(Param As Variant, ParamArray vsp() As Variant)
     If Not IsArray(Param) Then
         Param = Empty
         ReDim Param(uds)
-    ElseIf m_ArraySize(Param) = 0 Then
+    ElseIf ArraySize(Param) = 0 Then
         ReDim Param(uds)
     Else
         If UBound(Param) <> uds Then ReDim Preserve Param(uds)
@@ -308,7 +307,7 @@ Public Function Content(ByVal value As String, Optional ByVal bString As Boolean
                 vStatus(4) = .Status:    vStatus(5) = .StatusText
                 On Error GoTo 0
                 If .readyState = 4 And vStatus(4) = 200 Then
-                    If m_ArraySize(.responseBody) Then
+                    If ArraySize(.responseBody) Then
                         Buf = .responseBody
                         If bString Then Content = Conv_A2W_Buf(Buf) Else Content = Buf
                     End If
@@ -330,7 +329,7 @@ Public Function Content(ByVal value As String, Optional ByVal bString As Boolean
 
         Case "file://", ""
             vStatus(1) = 1
-            If m_File2Buf(Buf, vName) Then
+            If File2Buf(Buf, vName) Then
                 If bString Then Content = Conv_A2W_Buf(Buf) Else Content = Buf
                 vStatus(0) = True
             Else

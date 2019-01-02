@@ -30,7 +30,7 @@ Public CScript As New Collection
 
 Public Function ActiveScript_Error(ByVal Obj As clsActiveScript) As Variant
     If (Not frmError.Visible) And (Not mf_IsEnd) Then
-        If Not mf_NoError Then frmError.Display Obj:    m_EndMF
+        If Not mf_NoError Then frmError.Display Obj:    EndMF
     End If
     ActiveScript_Error = True
 End Function

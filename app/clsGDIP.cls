@@ -371,7 +371,7 @@ Private Function LoadPictureFromByte_Gdip(value As Variant) As Long
     
     ConvToBufferByte value, tmpBuf
     
-    If m_ArraySize(tmpBuf) = 0 Then Exit Function
+    If ArraySize(tmpBuf) = 0 Then Exit Function
 
     If CreateStreamOnHGlobal(tmpBuf(0), 0, istm) = 0 Then
         Call GdipLoadImageFromStream(istm, LoadPictureFromByte_Gdip)

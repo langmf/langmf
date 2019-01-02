@@ -106,10 +106,10 @@ Public Function Paint(ByVal Obj As clsDim, ParamArray rstObj() As Variant) As Lo
             If .Picture <> 0 Then
                     Picture = .Picture
                     
-                    Move Left, Top, m_HPX(Picture.Width) * Screen.TwipsPerPixelX, m_HPY(Picture.Height) * Screen.TwipsPerPixelY
+                    Move Left, Top, GetHPX(Picture.Width) * Screen.TwipsPerPixelX, GetHPY(Picture.Height) * Screen.TwipsPerPixelY
                     
                     If VarType(.TransColor) <> vbBoolean Then
-                        rg = m_RegionFromBitmap(.MaskPicture, .TransColor)
+                        rg = RegionFromBitmap(.MaskPicture, .TransColor)
                         
                         If rg = 0 Then
                             Call GetWindowRect(hWnd, mRect)
