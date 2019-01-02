@@ -17,7 +17,7 @@ Const chRGB As Long = 0, chBlue As Long = 1, chGreen As Long = 2, chRed As Long 
 
 Private bi As BITMAPINFO, BX As Long, BY As Long, BW As Long, BH As Long, B3D() As Byte
 
-Public Obj As Variant, IHandle As Long, ASM As Object
+Public Obj As Variant, ASM As Object
 
 
 Public Function GetDI(Optional ByVal invHeight As Boolean = True) As Long
@@ -27,17 +27,16 @@ Public Function GetDI(Optional ByVal invHeight As Boolean = True) As Long
     
     If IsObject(Obj) Then
         If ExistsMember(Obj, "ScaleWidth") Then
-            vHDC = Obj.hDC:         vHBitmap = Obj.Image:      vWidth = Obj.ScaleWidth:      vHeight = Obj.ScaleHeight
+            vHDC = Obj.hDC:         vHBitmap = Obj.Image:      vWidth = Obj.ScaleWidth:       vHeight = Obj.ScaleHeight
         Else
-            vHDC = frmScript.hDC:   vHBitmap = Obj.Handle:     vWidth = m_HPX(Obj.Width):    vHeight = m_HPY(Obj.Height)
+            vHDC = frmScript.hDC:   vHBitmap = Obj.Handle:     vWidth = GetHPX(Obj.Width):    vHeight = GetHPY(Obj.Height)
         End If
     Else
-        vHDC = Obj(0):              vHBitmap = Obj(1):         vWidth = Obj(2):              vHeight = Obj(3)
-        If vWidth < 0 Then vWidth = m_HPX(-vWidth)
-        If vHeight < 0 Then vHeight = m_HPY(-vHeight)
+        vHDC = Obj(0):              vHBitmap = Obj(1):         vWidth = Obj(2):               vHeight = Obj(3)
+        If vWidth < 0 Then vWidth = GetHPX(-vWidth)
+        If vHeight < 0 Then vHeight = GetHPY(-vHeight)
     End If
     
-    If IHandle <> 0 Then vHBitmap = IHandle
     If invHeight Then vHeight = -vHeight
     
     With bi.bmiHeader
@@ -70,8 +69,6 @@ Public Function SetDI() As Long
     Else
         vHDC = Obj(0):              vHBitmap = Obj(1)
     End If
-    
-    If IHandle <> 0 Then vHBitmap = IHandle
     
     SetDI = SetDIBits(vHDC, vHBitmap, 0, Abs(bi.bmiHeader.biHeight), B3D(1, 1, 1), bi, 0)
 End Function
@@ -381,7 +378,7 @@ Public Sub Matrix(Optional ByVal value As Variant)
     Dim x As Long, y As Long, cx As Long, cy As Long, mx As Long, my As Long, r As Long, g As Long, b As Long
     Dim sum As Long, d As Long, m As Long, w As Long, h As Long, k As Long, Mat() As Long, B3D_Tmp() As Byte
 
-    d = Sqr(m_ArraySize(value)) - 1
+    d = Sqr(ArraySize(value)) - 1
     If d < 0 Then Exit Sub
     B3D_Tmp = B3D:    m = d \ 2:    ReDim Mat(d, d):    cx = 10000:    cy = -10000:    w = BX + BW - 1:    h = BY + BH - 1
     
@@ -490,7 +487,7 @@ Public Sub Copy(srcBuf As Variant, Optional ByVal dstX As Long, Optional ByVal d
     Dim r As Long, b As Long, g As Long, iMask As Long, SA As SafeArray, Buf() As Byte
     Dim sw As Long, sh As Long, dw As Long, dh As Long
     
-    SA = m_GetSafeArray(srcBuf)
+    SA = GetSafeArray(srcBuf)
     
     With SA
         If .cDims = 3 And .cbElements = 1 And .rgSABound(2).cElements = 4 Then

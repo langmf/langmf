@@ -147,7 +147,7 @@ Public Property Get IsExe() As Boolean
 End Property
 
 Public Sub WaitMs(Optional ByVal msec As Long)
-    m_Wait msec
+    modCommon.WaitMs msec
 End Sub
 
 Public Sub Sleep(Optional ByVal msec As Long)
@@ -163,7 +163,7 @@ Public Function DoEvents3() As Long
 End Function
 
 Public Sub EndMF(Optional ByVal Interval As Long = 1)
-    m_EndMF Interval
+    modCommon.EndMF Interval
 End Sub
 
 Public Function ExistsMember(Obj As Variant, ByVal ProcName As String) As Boolean
@@ -195,11 +195,11 @@ Public Property Get Object() As Object
 End Property
 
 Public Function ArraySize(Var As Variant) As Long
-    ArraySize = m_ArraySize(Var)
+    ArraySize = modCommon.ArraySize(Var)
 End Function
 
 Public Function ArrayPtr(Var As Variant) As Long
-    ArrayPtr = m_GetSafeArray(Var).pvData
+    ArrayPtr = GetSafeArray(Var).pvData
 End Function
 
 Public Function ArrayByte(Var As Variant) As Byte()
@@ -229,7 +229,7 @@ Public Property Get ResToStr(ByVal Key As String) As String
     If Not SYS.Resource.Exists(Key) Then Exit Property
     Set cd = SYS.Resource(Key):     vt = VarType(cd.Data)
     If vt = vbString Then ResToStr = cd.Data
-    If vt = vbArray + vbByte Then tmpBuf = cd.Data: If ArraySize(tmpBuf) Then ResToStr = Conv_A2W_Buf(tmpBuf)
+    If vt = vbArray + vbByte Then tmpBuf = cd.Data: If modCommon.ArraySize(tmpBuf) Then ResToStr = Conv_A2W_Buf(tmpBuf)
 End Property
 
 Public Property Get ResToBuf(ByVal Key As String) As Byte()
@@ -284,8 +284,8 @@ Public Function DllCall(ByVal lData As String, ByVal sData As Variant, ParamArra
                 vt = VarType(Params(i)(0))
                 Select Case vt
                     Case vbSingle, vbDouble:    CopyMemory l, ByVal VBA.VarPtr(Params(i)(0)) + 8, 8:    v(a) = l.LowPart:    If vt = vbDouble Then ReDim Preserve v(UBound(v) + 1):    a = a + 1:   v(a) = l.HighPart
-                    Case vbArray + vbByte:      t(i) = m_GetSafeArray(Params(i)(0)).pvData:     v(a) = VBA.VarPtr(t(i))
-                    Case vbString:              t(i) = VBA.StrPtr(Params(i)(0)):                v(a) = VBA.VarPtr(t(i))
+                    Case vbArray + vbByte:      t(i) = GetSafeArray(Params(i)(0)).pvData:     v(a) = VBA.VarPtr(t(i))
+                    Case vbString:              t(i) = VBA.StrPtr(Params(i)(0)):              v(a) = VBA.VarPtr(t(i))
                     Case Else:                  v(a) = VBA.VarPtr(Params(i)(0)) + 8
                 End Select
                             

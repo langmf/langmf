@@ -92,26 +92,26 @@ Function IsIDE() As Boolean
 err1:  IsIDE = True
 End Function
 
-Sub m_EndMF(Optional ByVal Interval As Long = 1)
+Sub EndMF(Optional ByVal Interval As Long = 1)
     mf_IsEnd = True
     If Interval = 0 Then Script_End:    End
     Call SetTimer(frmScript.hWnd, IIF(Interval < 0, 30011, 30012), Abs(Interval), AddressOf Timer_Func)
 End Sub
 
-Function m_HPX(ByVal value As Long) As Long
-    m_HPX = (value * GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSX)) / 2540
+Function GetHPX(ByVal value As Long) As Long
+    GetHPX = (value * GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSX)) / 2540
 End Function
 
-Function m_HPY(ByVal value As Long) As Long
-    m_HPY = (value * GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSY)) / 2540
+Function GetHPY(ByVal value As Long) As Long
+    GetHPY = (value * GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSY)) / 2540
 End Function
 
-Function m_PHX(ByVal value As Long) As Long
-    m_PHX = (value * 2540) / GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSX)
+Function GetPHX(ByVal value As Long) As Long
+    GetPHX = (value * 2540) / GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSX)
 End Function
 
-Function m_PHY(ByVal value As Long) As Long
-    m_PHY = (value * 2540) / GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSY)
+Function GetPHY(ByVal value As Long) As Long
+    GetPHY = (value * 2540) / GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSY)
 End Function
 
 Sub FlexMove(ByVal Obj As Object, Optional x As Variant = "Left", Optional y As Variant = "Top", Optional Width As Variant = "Width", Optional Height As Variant = "Height", Optional ByVal PrtWidth As Single, Optional ByVal PrtHeight As Single, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal offsetX As Single, Optional ByVal offsetY As Single, Optional ByVal typeW As Single, Optional ByVal typeH As Single)
@@ -159,7 +159,7 @@ Sub FlexMove(ByVal Obj As Object, Optional x As Variant = "Left", Optional y As 
     If LenB(sy) Then CBN Obj, sy, VbLet, Array(y)
 End Sub
 
-Function m_RegionFromBitmap(ByVal picSrc As IPictureDisp, Optional ByVal TransColor As Variant) As Long
+Function RegionFromBitmap(ByVal picSrc As IPictureDisp, Optional ByVal TransColor As Variant) As Long
     Dim Height As Long, Width As Long, rFinal As Long, rTmp As Long, Start As Long, Row As Long, Col As Long
     Dim Buf() As Long, bi As BITMAPINFO, Color As Long, isNotClear As Boolean
     
@@ -168,8 +168,8 @@ Function m_RegionFromBitmap(ByVal picSrc As IPictureDisp, Optional ByVal TransCo
         .biPlanes = 1
         .biBitCount = 32
         .biCompression = 0
-        .biWidth = m_HPX(picSrc.Width)
-        .biHeight = -m_HPY(picSrc.Height)
+        .biWidth = GetHPX(picSrc.Width)
+        .biHeight = -GetHPY(picSrc.Height)
         Width = .biWidth: Height = Abs(.biHeight)
     End With
     
@@ -203,7 +203,7 @@ Function m_RegionFromBitmap(ByVal picSrc As IPictureDisp, Optional ByVal TransCo
         Loop
     Next
     
-    If isNotClear Then m_RegionFromBitmap = rFinal Else DeleteObject (rFinal)
+    If isNotClear Then RegionFromBitmap = rFinal Else DeleteObject (rFinal)
 End Function
 
 Function CompressData(Data() As Byte, Optional ByVal cmsType As Long = CMS_FORMAT_ZLIB) As Long
@@ -269,7 +269,7 @@ Function DecompressData(Data() As Byte, Optional ByVal cmsType As Long = CMS_FOR
 End Function
 
 Sub GetBounds(TheData() As Byte, iL As Long, iU As Long)
-    With m_GetSafeArray(TheData)
+    With GetSafeArray(TheData)
         iL = .rgSABound(0).lLbound
         iU = .rgSABound(0).cElements + iL - 1
     End With
@@ -405,17 +405,17 @@ Public Function FileLongName(ByVal fName As String) As String
     If rc > 0 Then FileLongName = Left$(txt, rc)
 End Function
 
-Function m_Str2File(Buf As String, nameFile As String) As Boolean
+Function Str2File(Buf As String, nameFile As String) As Boolean
     Dim f As New clsFileAPI
     
     If f.FOpen(nameFile, CREATE_ALWAYS) = INVALID_HANDLE Then Exit Function
     f.PutStr Buf
     f.FClose
     
-    m_Str2File = True
+    Str2File = True
 End Function
 
-Function m_File2Str(Buf As String, nameFile As String) As Boolean
+Function File2Str(Buf As String, nameFile As String) As Boolean
     Dim f As New clsFileAPI, sz As Long
     
     Buf = ""
@@ -424,10 +424,10 @@ Function m_File2Str(Buf As String, nameFile As String) As Boolean
     sz = f.LOF:    If sz Then Buf = String$(sz, 0):   f.GetStr Buf
     f.FClose
     
-    m_File2Str = sz
+    File2Str = sz
 End Function
 
-Function m_File2Buf(Buf() As Byte, nameFile As String) As Boolean
+Function File2Buf(Buf() As Byte, nameFile As String) As Boolean
     Dim f As New clsFileAPI, sz As Long
     
     Erase Buf
@@ -436,20 +436,20 @@ Function m_File2Buf(Buf() As Byte, nameFile As String) As Boolean
     sz = f.LOF:    If sz Then ReDim Buf(sz - 1):   f.GetBuf Buf
     f.FClose
     
-    m_File2Buf = sz
+    File2Buf = sz
 End Function
 
-Function m_Buf2File(Buf() As Byte, nameFile As String) As Boolean
+Function Buf2File(Buf() As Byte, nameFile As String) As Boolean
     Dim f As New clsFileAPI
     
     If f.FOpen(nameFile, CREATE_ALWAYS) = INVALID_HANDLE Then Exit Function
     f.PutBuf Buf
     f.FClose
     
-    m_Buf2File = True
+    Buf2File = True
 End Function
 
-Sub m_ParamArray(Param As Variant, ParamArray vsp() As Variant)
+Sub ArrayDef(Param As Variant, ParamArray vsp() As Variant)
     Dim a As Long, uds As Long
 
     uds = UBound(vsp)
@@ -458,7 +458,7 @@ Sub m_ParamArray(Param As Variant, ParamArray vsp() As Variant)
     If Not IsArray(Param) Then
         Param = Empty
         ReDim Param(uds)
-    ElseIf m_ArraySize(Param) = 0 Then
+    ElseIf ArraySize(Param) = 0 Then
         ReDim Param(uds)
     Else
         If UBound(Param) <> uds Then ReDim Preserve Param(uds)
@@ -514,7 +514,7 @@ End Function
 Function Conv_A2W_Buf(Buf() As Byte, Optional ByVal Cpg As Long = -1, Optional ByVal vPos As Long = 0) As String
     Dim sz As Long, ptrSrc As Long
     
-    With m_GetSafeArray(Buf)
+    With GetSafeArray(Buf)
         sz = .rgSABound(0).cElements - vPos
         If .cDims = 1 Then ptrSrc = .pvData + vPos
     End With
@@ -550,7 +550,7 @@ End Function
 Function ToUnicode(Buf() As Byte) As String
     Dim sz As Long, i As Long, b As Byte
     
-    sz = m_ArraySize(Buf)
+    sz = ArraySize(Buf)
     
     If sz > 1 Then
         If Buf(0) = 255 And Buf(1) = 254 Then                               'UTF-16 LE
@@ -580,7 +580,7 @@ End Function
 Function LoadPictureFromByte(value As Variant) As IPicture
     Dim IID_IPicture As UUID, istm As stdole.IUnknown, tmpBuf() As Byte
     
-    ConvToBufferByte value, tmpBuf:     If m_ArraySize(tmpBuf) = 0 Then Exit Function
+    ConvToBufferByte value, tmpBuf:     If ArraySize(tmpBuf) = 0 Then Exit Function
     
     If CreateStreamOnHGlobal(tmpBuf(0), 0, istm) = 0 Then
         If CLSIDFromString(StrPtr("{7BF80980-BF32-101A-8BBB-00AA00300CAB}"), IID_IPicture) = 0 Then
@@ -599,7 +599,7 @@ Function BigLongToDouble(ByVal low_part As Long, ByVal high_part As Long) As Dou
     BigLongToDouble = Result
 End Function
 
-Function m_CmdOut(ByVal sCommandLine As String, Optional ByVal nShowWindow As Boolean = False, Optional ByVal fOEMConvert As Boolean = True, Optional ByVal CmdOut_Event As Object) As String
+Function CmdOut(ByVal sCommandLine As String, Optional ByVal nShowWindow As Boolean = False, Optional ByVal fOEMConvert As Boolean = True, Optional ByVal CmdOut_Event As Object) As String
     Dim hPipeRead As Long, hPipeWrite1 As Long, hPipeWrite2 As Long, hCurProcess As Long, lBytesRead As Long, lpExitCode As Long
     Dim SA As SECURITY_ATTRIBUTES, si As STARTUPINFO, pi As PROCESS_INFORMATION
     Dim baOutput As String, sNewOutput As String, tp As Long
@@ -628,7 +628,7 @@ Function m_CmdOut(ByVal sCommandLine As String, Optional ByVal nShowWindow As Bo
         hPipeWrite1 = 0:      If hPipeWrite2 Then Call CloseHandle(hPipeWrite2):    hPipeWrite2 = 0
         
         Do
-            sNewOutput = "":      m_Wait:      GetExitCodeProcess pi.hProcess, lpExitCode
+            sNewOutput = "":      WaitMs:      GetExitCodeProcess pi.hProcess, lpExitCode
 
             If ReadFileStr(hPipeRead, baOutput, BUFSIZE, lBytesRead, 0) <> 0 Then
                 If fOEMConvert Then
@@ -638,7 +638,7 @@ Function m_CmdOut(ByVal sCommandLine As String, Optional ByVal nShowWindow As Bo
                     sNewOutput = Left$(baOutput, lBytesRead)
                 End If
                 
-                m_CmdOut = m_CmdOut & sNewOutput
+                CmdOut = CmdOut & sNewOutput
                 
                 tp = 0
             Else
@@ -698,7 +698,7 @@ Function ConvToBufferByte(bufVar As Variant, bufByte() As Byte) As Boolean
         
     ElseIf vt = vbArray + vbVariant Then
     
-        SA = m_GetSafeArray(bufVar)
+        SA = GetSafeArray(bufVar)
         uds = SA.rgSABound(0).cElements - 1
         If uds < 0 Then Exit Function
         
@@ -736,13 +736,13 @@ Function ConvFromBufferByte(bufVar As Variant, bufByte() As Byte, Optional ByVal
         
     ElseIf vt = vbArray + vbVariant Then
     
-        uds = m_ArraySize(bufByte) - 1
+        uds = ArraySize(bufByte) - 1
         If uds < 0 Then Exit Function
         
         GetMem2 VarPtr(bufVar), vt
         
         If vt = VT_BYREF + VT_VARIANT Then
-            SA = m_GetSafeArray(bufVar)
+            SA = GetSafeArray(bufVar)
             SA.fFeatures = 128
             PutMem4 VarPtrArray(v), VarPtr(SA)
             ReDim v(uds)
@@ -767,13 +767,13 @@ Function ConvFromBufferByte(bufVar As Variant, bufByte() As Byte, Optional ByVal
     ConvFromBufferByte = True
 End Function
 
-Function m_Buf2Hex(Buf As Variant) As String
+Function Buf2Hex(Buf As Variant) As String
     Dim i As Long, p As Long, cnt As Long, n1 As Byte, n2 As Byte
     Dim tmpBuf() As Byte, tmpOut() As Byte
     
     ConvToBufferByte Buf, tmpBuf
     
-    cnt = m_ArraySize(tmpBuf)
+    cnt = ArraySize(tmpBuf)
     If cnt = 0 Then Exit Function
     
     ReDim tmpOut(cnt * 2 - 1)
@@ -786,16 +786,16 @@ Function m_Buf2Hex(Buf As Variant) As String
     
     Erase tmpBuf
     
-    m_Buf2Hex = Conv_A2W_Buf(tmpOut)
+    Buf2Hex = Conv_A2W_Buf(tmpOut)
 End Function
 
-Function m_Hex2Buf(value As String) As Byte()
+Function Hex2Buf(value As String) As Byte()
     Dim i As Long, p As Long, cnt As Long, n1 As Byte, n2 As Byte, Pos As Long
     Dim tmpBuf() As Byte, tmpOut() As Byte
     
     tmpBuf = Conv_W2A_Buf(value)
     
-    cnt = m_ArraySize(tmpBuf)
+    cnt = ArraySize(tmpBuf)
     If cnt < 2 Then Exit Function
     
     ReDim tmpOut(cnt / 2 - 1)
@@ -813,7 +813,7 @@ Function m_Hex2Buf(value As String) As Byte()
     Erase tmpBuf
     ReDim Preserve tmpOut(p - 1)
     
-    m_Hex2Buf = tmpOut
+    Hex2Buf = tmpOut
 End Function
 
 Sub SetTopMost(ByVal hWnd As Long, Optional ByVal value As Boolean = True)
@@ -852,7 +852,7 @@ Sub SetIconWindow(ByVal hWnd As Long, ByVal varName As Variant, Optional ByVal n
     If LenB(nameLib) Then FreeLibrary hInst
 End Sub
 
-Sub m_Wait(Optional ByVal msec As Long)
+Sub WaitMs(Optional ByVal msec As Long)
     Dim t1 As Long, t2 As Long, lowCPU As Boolean
     
     If msec = 0 Then API_DoEvents:     Sleep 1:             Exit Sub
@@ -1023,7 +1023,7 @@ End Sub
 Function LoadResDataWNull(ByVal ID As Variant, VType As Variant) As Byte()
     Dim a As Long, Buf() As Byte
     
-    Buf = LoadResData(ID, VType):    If m_ArraySize(Buf) = 0 Then Exit Function
+    Buf = LoadResData(ID, VType):    If ArraySize(Buf) = 0 Then Exit Function
     
     For a = UBound(Buf) To 0 Step -1
         If Buf(a) <> 0 Then ReDim Preserve Buf(a):   Exit For
@@ -1132,7 +1132,7 @@ Function StructFunc(ByVal This As Long, Optional vsp As Variant) As Long
     End Select
     
     'vsp(0)-offset      vsp(1)-inc offset   vsp(2)-length   vsp(3)-dst Ptr  vsp(4)-deference Ptr
-    m_ParamArray vsp, 0, 0, 4, 0, 1
+    ArrayDef vsp, 0, 0, 4, 0, 1
     
     StructFunc = This                                               'main Ptr
     For a = 1 To vsp(4):      CopyMem4 ByVal StructFunc, StructFunc:       Next
@@ -1237,9 +1237,9 @@ Function CBN(Obj As Variant, ProcName As Variant, ByVal CallType As VbCallType, 
     End If
 
     If hr = S_OK Then
-        If cntArgs = -1 Then m_ArrayReverse Args
+        If cntArgs = -1 Then ArrayReverse Args
 
-        SA = m_GetSafeArray(Args)
+        SA = GetSafeArray(Args)
         
         If cntArgs > -1 Then pDispParams.cArgs = cntArgs Else pDispParams.cArgs = SA.rgSABound(0).cElements
         pDispParams.rgPointerToVariantArray = SA.pvData
@@ -1264,13 +1264,13 @@ Function CBN(Obj As Variant, ProcName As Variant, ByVal CallType As VbCallType, 
     End If
 End Function
 
-Function m_DoParams(ByVal Obj As Object, Arg As Variant) As Object
+Function DoParams(ByVal Obj As Object, Arg As Variant) As Object
     Dim a As Long, b As Long, uds As Long, txt As String, nMod As String
     Static Preset(32) As String
     
-    Set m_DoParams = Obj
+    Set DoParams = Obj
     If VarType(Arg) = vbString Then Arg = Array(Arg)
-    uds = m_ArraySize(Arg) - 1
+    uds = ArraySize(Arg) - 1
     If uds < 0 Then Exit Function
     
     For a = 0 To uds
@@ -1279,7 +1279,7 @@ Function m_DoParams(ByVal Obj As Object, Arg As Variant) As Object
                 txt = txt + Arg(a) + vbCrLf
                 
             Case vbArray + vbVariant
-                Select Case m_ArraySize(Arg(a))
+                Select Case ArraySize(Arg(a))
                     Case 1
                         nMod = Arg(a)(0)
                     Case Is > 1
@@ -1304,10 +1304,10 @@ Function m_DoParams(ByVal Obj As Object, Arg As Variant) As Object
     CAS.Execute "With " & Preset(0) & vbCrLf & txt & vbCrLf & "End With", nMod
 End Function
 
-Sub m_ArrayReverse(arr As Variant)
+Sub ArrayReverse(arr As Variant)
     Dim SA As SafeArray, a As Long, uds As Long, newArr() As Variant
     
-    SA = m_GetSafeArray(arr):    uds = SA.rgSABound(0).cElements - 1:    If uds <= 0 Or SA.cDims <> 1 Then Exit Sub
+    SA = GetSafeArray(arr):    uds = SA.rgSABound(0).cElements - 1:    If uds <= 0 Or SA.cDims <> 1 Then Exit Sub
 
     ReDim newArr(uds)
     For a = 0 To uds
@@ -1317,7 +1317,7 @@ Sub m_ArrayReverse(arr As Variant)
     arr = newArr
 End Sub
 
-Function m_GetSafeArray(arr As Variant, Optional vt As Integer) As SafeArray
+Function GetSafeArray(arr As Variant, Optional vt As Integer) As SafeArray
     Dim Ptr As Long, cDims As Integer
     
     Ptr = VarPtr(arr):    GetMem2 Ptr, vt
@@ -1327,13 +1327,13 @@ Function m_GetSafeArray(arr As Variant, Optional vt As Integer) As SafeArray
     If (vt And VT_ARRAY) Then
         GetMem4 Ptr + 8, Ptr
         If Ptr <> 0 Then If (vt And VT_BYREF) Then GetMem4 Ptr, Ptr
-        If Ptr <> 0 Then GetMem2 Ptr, cDims:   CopyMemory m_GetSafeArray, ByVal Ptr, 16 + cDims * 8
+        If Ptr <> 0 Then GetMem2 Ptr, cDims:   CopyMemory GetSafeArray, ByVal Ptr, 16 + cDims * 8
     End If
 End Function
 
-Function m_ArraySize(arr As Variant) As Long
-    With m_GetSafeArray(arr)
-        If .cDims = 1 Then m_ArraySize = .rgSABound(0).cElements
+Function ArraySize(arr As Variant) As Long
+    With GetSafeArray(arr)
+        If .cDims = 1 Then ArraySize = .rgSABound(0).cElements
     End With
 End Function
 
@@ -1341,7 +1341,7 @@ End Function
 Function VerifyArrayRange(arr As Variant, Optional iL As Long, Optional iU As Long, Optional ByVal minCount As Long = 1, Optional ByVal maxCount As Long = 0, Optional vt As Integer, Optional ByVal ZeroiL As Boolean = True) As Boolean
     Dim sz As Long, SA As SafeArray
     
-    SA = m_GetSafeArray(arr, vt)
+    SA = GetSafeArray(arr, vt)
     If SA.cDims <> 1 Then Exit Function
     sz = SA.rgSABound(0).cElements
     iL = SA.rgSABound(0).lLbound

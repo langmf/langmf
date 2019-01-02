@@ -118,7 +118,7 @@ Public Function Shell_SyncEx(ByVal FileName As String, Optional ByVal CommandLin
 End Function
 
 Public Function Shell_SyncOut(ByVal sCommandLine As String, Optional ByVal nShowWindow As Boolean = False, Optional ByVal fOEMConvert As Boolean = True, Optional ByVal CmdOut_Event As Object) As String
-    Shell_SyncOut = m_CmdOut(sCommandLine, nShowWindow, fOEMConvert, CmdOut_Event)
+    Shell_SyncOut = CmdOut(sCommandLine, nShowWindow, fOEMConvert, CmdOut_Event)
 End Function
 
 Public Function RegisterDLL(ByVal FileName As String, Optional ByVal isReg As Boolean = True) As Boolean
@@ -215,7 +215,7 @@ Public Sub AutoIcon(ByVal hWnd As Long, Data As Variant, Optional ByVal kNormal 
     Dim rs As Single, rb As Single, ms As Single, mb As Single
     Dim iconDE() As ICONDIRENTRY, iconHdr As ICONDIR, Buf() As Byte
     
-    ConvToBufferByte Data, Buf:      If m_ArraySize(Buf) < 23 Then Exit Sub
+    ConvToBufferByte Data, Buf:      If ArraySize(Buf) < 23 Then Exit Sub
     
     szIconB = GetSystemMetrics(SM_CXICON)
     szIconS = GetSystemMetrics(SM_CXSMICON)
@@ -273,7 +273,7 @@ Public Function CreateIE(Optional ByVal txtCode As String, Optional ByVal prtHWn
         .StatusBar = False
         .Resizable = False
         
-        While .Busy <> 0:    m_Wait:     Wend
+        While .Busy <> 0:    WaitMs:     Wend
         
         .Width = 400
         .Height = 300
@@ -283,8 +283,8 @@ Public Function CreateIE(Optional ByVal txtCode As String, Optional ByVal prtHWn
         If LenB(txtCode) Then
             .Document.Write txtCode
             .Document.Close
-            m_Wait -100
-            While .Busy <> 0:    m_Wait:    Wend
+            WaitMs -100
+            While .Busy <> 0:    WaitMs:    Wend
         End If
         
         Set Style = New clsFormStyle
@@ -296,7 +296,7 @@ Public Function CreateIE(Optional ByVal txtCode As String, Optional ByVal prtHWn
     
     If prtHWnd Then Style.TitleBar = False
     
-    m_DoParams CreateIE, Param
+    DoParams CreateIE, Param
     
     If prtHWnd Then Style.Child = prtHWnd
 End Function
@@ -305,7 +305,7 @@ Public Function WaitIE(ByVal Obj As Variant, Optional ByVal Flags As Long) As Bo
     On Error GoTo err1
     Do
         WaitIE = True
-        m_Wait
+        WaitMs
         If Len(Obj.Document.readyState) = 0 Then
 err1:
             WaitIE = False
@@ -324,7 +324,7 @@ Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Opti
     
     On Error Resume Next
     
-    Setup = True:      mf_Tmp = "":      m_ParamArray SSE, "", "", 20000, SW_SHOWNORMAL, vbNullString
+    Setup = True:      mf_Tmp = "":      ArrayDef SSE, "", "", 20000, SW_SHOWNORMAL, vbNullString
 
     Set Prm = GetQV(vPrm, nameFile)
     isClean = IIF(Prm.Exists("Clean"), CBool(Prm("Clean")), True)
@@ -345,7 +345,7 @@ Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Opti
             CreateDir pathTemp
 
             nameFile = pathTemp + RX.Eval(value, "([^\\\/\?]+)$")
-            m_Buf2File Buf, nameFile
+            Buf2File Buf, nameFile
 
             Select Case LCase$(GetExtension(nameFile))
                 Case "cab", "zip"

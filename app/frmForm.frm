@@ -249,7 +249,7 @@ Public Function Ctrl(ByVal typeObj As String, Optional ByVal value As Variant, O
         v = Alias("#" & typeObj):      If Not IsArray(v) Then Exit Function
         value = Array(typeObj, v(1), True):    typeObj = v(0)
     Else
-        m_ParamArray value, CVar(value), 0, True
+        ArrayDef value, CVar(value), 0, True
     End If
 
     If VarType(value(0)) = vbString And CBool(value(2)) = True Then
@@ -291,7 +291,7 @@ Public Function Ctrl(ByVal typeObj As String, Optional ByVal value As Variant, O
         If Not Obj Is Nothing Then
             CBN Obj, "Visible", VbLet, Array(True)
 
-            Call m_DoParams(Obj, dataArg)
+            Call DoParams(Obj, dataArg)
 
             If isAlias Then
                 cntAlias = cntAlias + 1

@@ -47,7 +47,7 @@ Public Function Encode(Buf() As Byte, Optional ByVal vCrLf As Long) As Byte()
     Dim a As Long, p As Long, i As Long, sz As Long, sz3 As Long, sz4 As Long, szM As Long
     Dim b1 As Byte, b2 As Byte, b3 As Byte, tmp() As Byte
     
-    sz = m_ArraySize(Buf):      If sz = 0 Then Exit Function
+    sz = ArraySize(Buf):      If sz = 0 Then Exit Function
 
     sz4 = sz \ 3:      sz3 = sz4 * 3:      sz4 = sz4 * 4:      szM = sz - sz3
     
@@ -93,7 +93,7 @@ End Function
 Public Function Decode(Buf() As Byte) As Byte()
     Dim a As Long, p As Long, i As Long, sz As Long, b1 As Byte, b2 As Byte, b3 As Byte, b4 As Byte, tmp() As Byte
 
-    sz = m_ArraySize(Buf):      If sz Then ReDim tmp(sz - 1)
+    sz = ArraySize(Buf):      If sz Then ReDim tmp(sz - 1)
     
     For a = 0 To sz - 1
         b4 = DB64(Buf(a))

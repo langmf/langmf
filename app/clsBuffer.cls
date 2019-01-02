@@ -25,8 +25,8 @@ Public Function GetData(Optional ByVal typeVar As Integer = vbArray + vbByte) As
 End Function
 
 Public Property Get Ptr(Optional ByVal allowExec As Boolean) As Long
-    m_Size = m_ArraySize(Buffer):    If m_Size = 0 Then Exit Property
-    m_Ptr = VarPtr(Buffer(0)):       If allowExec Then AllowExecuteCode m_Ptr, Size
+    m_Size = ArraySize(Buffer):    If m_Size = 0 Then Exit Property
+    m_Ptr = VarPtr(Buffer(0)):     If allowExec Then AllowExecuteCode m_Ptr, Size
     Ptr = m_Ptr
 End Property
 

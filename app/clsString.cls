@@ -104,7 +104,7 @@ End Function
 Public Function Sort(txt As Variant, Optional ByVal bAscending As Boolean = True, Optional ByVal bCaseSensitive As Boolean = False) As Variant()
     Dim tmpStr() As String, a As Long
     
-    If m_ArraySize(txt) = 0 Then Exit Function
+    If ArraySize(txt) = 0 Then Exit Function
     
     ReDim tmpStr(UBound(txt))
     

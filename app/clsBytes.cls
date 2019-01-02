@@ -91,8 +91,7 @@ End Function
 Public Function CRC(Buf As Variant, Optional ByVal addToEnd As Boolean) As Variant
     Dim a As Long, sz As Long, vCrc As Byte
     
-    sz = m_ArraySize(Buf)
-    If sz = 0 Then Exit Function
+    sz = ArraySize(Buf):      If sz = 0 Then Exit Function
     
     For a = 0 To sz - 1
         vCrc = crcTable(vCrc Xor CByte(Buf(a)))
@@ -115,7 +114,7 @@ Public Function Crypt(Optional value As Variant, Optional ByVal Flag As Long = -
 
     ConvToBufferByte value, Buf
  
-    For a = 0 To m_ArraySize(Buf) - 1
+    For a = 0 To ArraySize(Buf) - 1
         tmp = Buf(a) Xor Key(p) Xor (i Mod 256) Xor (i \ 256) Xor s
         If Flag = 2 Then s = Buf(a)
         If Flag = 3 Then s = tmp
@@ -149,7 +148,7 @@ Public Sub ArrayRedim(Buf As Variant, vsp() As Variant, Optional ByVal isPreserv
     End If
     
     If VerifyLongRange(value, 0, 255) Then
-        With m_GetSafeArray(Buf)
+        With GetSafeArray(Buf)
             If .pvData Then
                 Select Case .cDims
                     Case 1:     FillMemory ByVal .pvData, .rgSABound(0).cElements, value

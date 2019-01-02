@@ -111,7 +111,7 @@ Function SetupLMF() As Boolean
             If Not isOK Then
                 Buf = LoadResData(v, 10)
                 
-                If m_Buf2File(Buf, fName) Then
+                If Buf2File(Buf, fName) Then
                     If Prm.Exists("ProgID") Then
                         If Prm.Exists("NET") Then
                             isOK = (ShellSync(GetWindowsPath + "\Microsoft.NET\Framework\" + Prm("NET") + "\regasm.exe " & fName & " /codebase /tlb", 8000, True) = 0)
@@ -188,7 +188,7 @@ Function Code_Parse(Buf() As Byte, Optional ByVal nameScript As String, Optional
 
     On Error Resume Next
     
-    If m_ArraySize(Buf) = 0 Then Exit Function
+    If ArraySize(Buf) = 0 Then Exit Function
     
     '--------------------------------------------------------------------
     If LenB(nameScript) = 0 Then nameScript = "Code_Parse_" & mf_Counter
@@ -241,8 +241,8 @@ Function Code_Parse(Buf() As Byte, Optional ByVal nameScript As String, Optional
 
     '----------------------------- DEBUG MODE ---------------------------
     If (mf_Debug And 1) Then
-        m_Str2File txtCode, "script_" & mf_Counter & ".log"
-        m_Str2File txtDLL, "dll_" & mf_Counter & ".log"
+        Str2File txtCode, "script_" & mf_Counter & ".log"
+        Str2File txtDLL, "dll_" & mf_Counter & ".log"
     End If
     '--------------------------------------------------------------------
     
@@ -373,7 +373,7 @@ Function Parse_Data_Mode(PCD As def_ParseCustom, Mode As String, Optional cd As 
     End If
     
     If InStr(Mode, "null") Then
-        If isBuf Then ReDim Preserve tmpBuf(m_ArraySize(tmpBuf)) Else PCD.Data = PCD.Data + Chr$(0)
+        If isBuf Then ReDim Preserve tmpBuf(ArraySize(tmpBuf)) Else PCD.Data = PCD.Data + Chr$(0)
     End If
     
     If isBuf Then
@@ -430,7 +430,7 @@ Sub Parse_VBNET(txtCode As String)
             If Len(PCD(a).Data) Then
                 tmp = Parse_Data_Mode(PCD(a), .SubMatches(10), , True)
                 If Len(.SubMatches(8)) > 0 Then tmp = Obj.Build(tmp, .SubMatches(8)) Else tmp = Obj.Build(tmp)
-                If Len(tmp) > 0 And Len(.SubMatches(2)) = 0 Then MsgBox tmp, , "VBNET Error!":   m_Str2File CStr(tmp), "vbnet.log"
+                If Len(tmp) > 0 And Len(.SubMatches(2)) = 0 Then MsgBox tmp, , "VBNET Error!":   Str2File CStr(tmp), "vbnet.log"
             
                 If Len(.SubMatches(5)) > 0 Then
                     For Each tmp In Obj.Find(Trim$(.SubMatches(6)))
@@ -988,8 +988,7 @@ Sub Parse_AddLib(txtLib As String)
             Next
             
             If isLibAdd Then
-                m_File2Buf Buf, txt
-                Code_Parse Buf, txt
+                If File2Buf(Buf, txt) Then Call Code_Parse(Buf, txt)
             End If
         End If
     Next
@@ -1013,7 +1012,7 @@ Function Parse_Include(txtCode As String, Optional ByVal noFind As String, Optio
 
                 If nm = "*" Then
                     CAS.Execute "Dim mf_Data" + vbCrLf + oth:      vStatus = CAS.CodeObject.mf_Data
-                    For a = 1 To m_ArraySize(vStatus)
+                    For a = 1 To ArraySize(vStatus)
                         txt = txt + "#Include " + .SubMatches(0) + vStatus(a - 1) + .SubMatches(2) + vbCrLf
                     Next
                 Else
@@ -1274,7 +1273,7 @@ Function CompressMF(ByVal fName As String, Optional VExt As Variant, Optional By
     f.FClose
     
     If MFHC.Signature = mf_Sign Then Exit Function
-    If Not m_File2Buf(Buf, fName) Then Exit Function
+    If Not File2Buf(Buf, fName) Then Exit Function
     
     FileKill fName
     
@@ -1292,7 +1291,7 @@ Function CompressMF(ByVal fName As String, Optional VExt As Variant, Optional By
         .VerMajor = App.Major
         .VerMinor = App.Minor
         .VerBuild = App.Revision
-        .HExtCount = m_ArraySize(VExt) \ 2
+        .HExtCount = ArraySize(VExt) \ 2
         .HExtOffset = .Length
         .DataOffset = .HExtOffset + .HExtCount * Len(HExt(0))
         .DataSize = UBound(Buf) + 1
@@ -1306,7 +1305,7 @@ Function CompressMF(ByVal fName As String, Optional VExt As Variant, Optional By
                 HExt(a).HeaderID = CLng(VExt(n - 1))
                 HExt(a).DataOffset = ofs
                 If VarType(VExt(n)) = vbString Then VExt(n) = Conv_W2A_Buf(CStr(VExt(n)))
-                If IsArray(VExt(n)) Then HExt(a).DataSize = m_ArraySize(VExt(n))
+                If IsArray(VExt(n)) Then HExt(a).DataSize = ArraySize(VExt(n))
                 ofs = ofs + HExt(a).DataSize
             Next
         End If
@@ -1327,7 +1326,7 @@ End Function
 Function DeCompressMF(tmpBuf() As Byte, Optional VExt As Variant, Optional ByVal bString As Boolean) As Boolean
     Dim a As Long, MFHC As def_HeaderCompile, HExt() As def_HeaderExt, Buf() As Byte
     
-    If m_ArraySize(tmpBuf) = 0 Then Exit Function
+    If ArraySize(tmpBuf) = 0 Then Exit Function
     
     CopyMemory MFHC, tmpBuf(0), Len(MFHC)
     If MFHC.Signature <> mf_Sign Then Exit Function
@@ -1375,7 +1374,7 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
     nameMF = FileLongName(nameMF)
     setupPath = RX.Eval(nameMF, "(.+\\)", GetAppPath)
 
-    If m_File2Buf(Buf, setupPath + "make.ini") Then
+    If File2Buf(Buf, setupPath + "make.ini") Then
         txtINI = Code_Parse(Buf, "Make")
         If ExistsMember(CAS.CodeObject, "LMF_Make_Begin") Then txtINI = CBN("", "LMF_Make_Begin", VbFunc, Array(txtINI))
         
@@ -1396,10 +1395,10 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
         End If
 
 
-        If m_File2Buf(Buf, nameMF) Then
+        If File2Buf(Buf, nameMF) Then
             txt = ToUnicode(Buf):    Erase Buf
             If Parse_Include(txt, , True) Then
-                Call m_Str2File(Chr$(239) + Chr$(187) + Chr$(191) + EncodeUTF8(txt), nameMF)
+                Call Str2File(Chr$(239) + Chr$(187) + Chr$(191) + EncodeUTF8(txt), nameMF)
                 txt = ""
             End If
         End If
@@ -1419,7 +1418,7 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
                 
                 f.PutStr "<#res id=""" + CStr(Parse_MPath(Mts(a).SubMatches(0))) + """" + txtMode + " #>" + vbCrLf
                 
-                If m_File2Buf(Buf, txt) Then
+                If File2Buf(Buf, txt) Then
                     If InStr(txtMode, "zlib") > 0 Then CompressData Buf
                     If InStr(txtMode, "base64") > 0 Then Buf = Base64.Encode(Buf, 19)
                     f.PutBuf Buf
