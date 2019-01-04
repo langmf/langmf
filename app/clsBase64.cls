@@ -117,5 +117,5 @@ Public Function Decode(Buf() As Byte) As Byte()
         End If
     Next
     
-    If p Then ReDim Preserve tmp(p - 1):   Decode = tmp
+    If p Then ReDim Preserve tmp(p - 1):    Decode = tmp
 End Function

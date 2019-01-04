@@ -369,9 +369,7 @@ End Function
 Private Function LoadPictureFromByte_Gdip(value As Variant) As Long
     Dim istm As stdole.IUnknown, tmpBuf() As Byte
     
-    ConvToBufferByte value, tmpBuf
-    
-    If ArraySize(tmpBuf) = 0 Then Exit Function
+    ConvToBufferByte value, tmpBuf:      If ArraySize(tmpBuf) = 0 Then Exit Function
 
     If CreateStreamOnHGlobal(tmpBuf(0), 0, istm) = 0 Then
         Call GdipLoadImageFromStream(istm, LoadPictureFromByte_Gdip)

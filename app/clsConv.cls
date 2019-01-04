@@ -44,22 +44,21 @@ End Function
 
 Public Function Compress(value As Variant, Optional ByVal cmsType As Long = CMS_FORMAT_ZLIB) As Long
     Dim tmpBuf() As Byte
-    ConvToBufferByte value, tmpBuf
+    If Not ConvToBufferByte(value, tmpBuf) Then Compress = -1:    Exit Function
     Compress = CompressData(tmpBuf(), cmsType)
     ConvFromBufferByte value, tmpBuf
 End Function
 
 Public Function Decompress(value As Variant, Optional ByVal cmsType As Long = CMS_FORMAT_ZLIB) As Long
     Dim tmpBuf() As Byte
-    ConvToBufferByte value, tmpBuf
+    If Not ConvToBufferByte(value, tmpBuf) Then Decompress = -1:    Exit Function
     Decompress = DecompressData(tmpBuf(), cmsType)
     ConvFromBufferByte value, tmpBuf
 End Function
 
 Public Function Buf(value As Variant, Optional ByVal typeVar As Integer = vbArray + vbVariant) As Variant
     Dim tmpBuf() As Byte
-    ConvToBufferByte value, tmpBuf
-    ConvFromBufferByte Buf, tmpBuf, typeVar
+    If ConvToBufferByte(value, tmpBuf) Then ConvFromBufferByte Buf, tmpBuf, typeVar
 End Function
 
 Public Function EncodeUrl(ByVal value As String, Optional ByVal Cpg As Long = -1) As String
@@ -125,9 +124,8 @@ Public Function File2Buf(ByVal nameFile As String) As Byte()
 End Function
 
 Public Function Buf2File(value As Variant, ByVal nameFile As String) As Boolean
-    Dim Buffer() As Byte
-    ConvToBufferByte value, Buffer
-    Buf2File = modCommon.Buf2File(Buffer, nameFile)
+    Dim tmpBuf() As Byte
+    If ConvToBufferByte(value, tmpBuf) Then Buf2File = modCommon.Buf2File(tmpBuf, nameFile)
 End Function
 
 Public Function File2Str(ByVal nameFile As String) As String
@@ -138,12 +136,14 @@ Public Function Str2File(ByVal value As String, ByVal nameFile As String) As Boo
     Str2File = modCommon.Str2File(value, nameFile)
 End Function
 
-Public Function Hex2Buf(ByVal value As String) As Byte()
-    Hex2Buf = modCommon.Hex2Buf(value)
+Public Function Hex2Buf(value As Variant) As Byte()
+    Dim tmpBuf() As Byte
+    If ConvToBufferByte(value, tmpBuf) Then Hex2Buf = modCommon.Hex2Buf(tmpBuf)
 End Function
 
 Public Function Buf2Hex(value As Variant) As String
-    Buf2Hex = modCommon.Buf2Hex(value)
+    Dim tmpBuf() As Byte
+    If ConvToBufferByte(value, tmpBuf) Then Buf2Hex = Conv_A2W_Buf(modCommon.Buf2Hex(tmpBuf))
 End Function
 
 Public Function MPath(ByVal value As String) As String
@@ -185,23 +185,23 @@ Public Function Ptr2Str(ByVal pStr As Long, Optional ByVal ptrType As Long = 0, 
 End Function
 
 Public Function XLT(srcTxt As Variant, curTBL As Variant, Optional ByVal bInvert As Boolean = False) As Variant
-    Dim a As Long, uds As Long, Buffer() As Byte, TBL(255) As Byte
+    Dim a As Long, uds As Long, tmpBuf() As Byte, TBL(255) As Byte
     
     For a = 0 To 255:    TBL(a) = a:    Next
     
-    ConvToBufferByte curTBL, Buffer:    uds = ArraySize(Buffer) - 1
+    ConvToBufferByte curTBL, tmpBuf:    uds = ArraySize(tmpBuf) - 1
     
     If bInvert Then
-        For a = 0 To uds Step 2:    TBL(Buffer(a + 1)) = Buffer(a):    Next
+        For a = 0 To uds Step 2:    TBL(tmpBuf(a + 1)) = tmpBuf(a):    Next
     Else
-        For a = 0 To uds Step 2:    TBL(Buffer(a)) = Buffer(a + 1):    Next
+        For a = 0 To uds Step 2:    TBL(tmpBuf(a)) = tmpBuf(a + 1):    Next
     End If
     
-    ConvToBufferByte srcTxt, Buffer:    uds = ArraySize(Buffer) - 1
+    ConvToBufferByte srcTxt, tmpBuf:    uds = ArraySize(tmpBuf) - 1
     
-    For a = 0 To uds:    Buffer(a) = TBL(Buffer(a)):    Next
+    For a = 0 To uds:    tmpBuf(a) = TBL(tmpBuf(a)):    Next
     
-    XLT = Buf(Buffer, VarType(srcTxt))
+    XLT = Buf(tmpBuf, VarType(srcTxt))
 End Function
 
 Public Function HashFile(ByVal FileName As String, Optional ByVal Algorithm As Long = SHA1) As String

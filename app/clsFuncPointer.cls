@@ -77,11 +77,7 @@ Attribute PCall.VB_UserMemId = 0
         If uds > -1 Then fnc = VTable(Params(0))
         AddPush ptrIfc
     Else
-        If ptrCode = 0 Then
-            If uds > -1 Then fnc = CLng(Params(0))
-        Else
-            fnc = ptrCode
-        End If
+        fnc = ptrCode:    If fnc = 0 And uds > -1 Then fnc = CLng(Params(0))
     End If
 
     If fnc <> 0 Then
@@ -119,12 +115,11 @@ End Function
 
 Public Sub SetBuffer(Buf As Variant)
     Dim tmpBuf() As Byte
-    If ConvToBufferByte(Buf, tmpBuf) Then
-        ReDim Preserve tmpBuf(UBound(btFnc))
-        CopyMemory btFnc(0), tmpBuf(0), UBound(btFnc) + 1
-        ptrCode = VarPtr(btFnc(0))
-        AllowExecuteCode ptrCode, UBound(btFnc) + 1
-    End If
+    ConvToBufferByte Buf, tmpBuf
+    ReDim Preserve tmpBuf(UBound(btFnc))
+    CopyMemory btFnc(0), tmpBuf(0), UBound(btFnc) + 1
+    ptrCode = VarPtr(btFnc(0))
+    AllowExecuteCode ptrCode, UBound(btFnc) + 1
 End Sub
 
 Private Sub AddPush(ByVal lng As Long)
@@ -157,7 +152,6 @@ Private Sub Class_Initialize()
 
     ptrASM = VarPtr(btASM(0))
     AllowExecuteCode ptrASM, MAXTPL
-
     Unicode = True
 End Sub
 
