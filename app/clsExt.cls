@@ -327,8 +327,7 @@ Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Opti
     Setup = True:      mf_Tmp = "":      ArrayDef SSE, "", "", 20000, SW_SHOWNORMAL, vbNullString
 
     Set Prm = GetQV(vPrm, nameFile)
-    isClean = IIF(Prm.Exists("Clean"), CBool(Prm("Clean")), True)
-    isReg = CBool(Prm("Reg"))
+    isReg = CBool(Prm("Reg")):      isClean = True:     If Prm.Exists("Clean") Then isClean = CBool(Prm("Clean"))
     
     If Prm.Exists("ProgID") Then Set Obj = CreateObject(Prm("ProgID")):    If Obj Is Nothing Then isFail = True
     If Len(nameFile) And Prm.Exists("Ver") Then If VersionDLL(nameFile, Prm("Ver")) = False Then isFail = True

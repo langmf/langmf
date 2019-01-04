@@ -580,7 +580,7 @@ End Function
 Function LoadPictureFromByte(value As Variant) As IPicture
     Dim IID_IPicture As UUID, istm As stdole.IUnknown, tmpBuf() As Byte
     
-    ConvToBufferByte value, tmpBuf:     If ArraySize(tmpBuf) = 0 Then Exit Function
+    ConvToBufferByte value, tmpBuf:      If ArraySize(tmpBuf) = 0 Then Exit Function
     
     If CreateStreamOnHGlobal(tmpBuf(0), 0, istm) = 0 Then
         If CLSIDFromString(StrPtr("{7BF80980-BF32-101A-8BBB-00AA00300CAB}"), IID_IPicture) = 0 Then
@@ -693,7 +693,10 @@ Function ConvToBufferByte(bufVar As Variant, bufByte() As Byte) As Boolean
     
     vt = VariantType(bufVar, True)
     
-    If vt = vbString Then
+    If vt = vbArray + vbByte Then
+        bufByte = bufVar
+
+    ElseIf vt = vbString Then
         bufByte = Conv_W2A_Buf(CStr(bufVar))
         
     ElseIf vt = vbArray + vbVariant Then
@@ -712,9 +715,7 @@ Function ConvToBufferByte(bufVar As Variant, bufByte() As Byte) As Boolean
         Next
         
         PutMem4 VarPtrArray(v), 0
-        
-    ElseIf vt = vbArray + vbByte Then
-        bufByte = bufVar
+
     Else
         Exit Function
     End If
@@ -728,7 +729,10 @@ Function ConvFromBufferByte(bufVar As Variant, bufByte() As Byte, Optional ByVal
     If VarType(bufVar) = vbEmpty Then bufVar = Array()
     If IsMissing(vt) Then vt = VariantType(bufVar, True)
     
-    If vt = -vbString Then
+    If vt = vbArray + vbByte Then
+        bufVar = bufByte
+
+    ElseIf vt = -vbString Then
         bufVar = ToUnicode(bufByte)
 
     ElseIf vt = vbString Then
@@ -756,9 +760,6 @@ Function ConvFromBufferByte(bufVar As Variant, bufByte() As Byte, Optional ByVal
                 bufVar(a) = bufByte(a)
             Next
         End If
-        
-    ElseIf vt = vbArray + vbByte Then
-        bufVar = bufByte
 
     Else
         Exit Function
@@ -767,53 +768,37 @@ Function ConvFromBufferByte(bufVar As Variant, bufByte() As Byte, Optional ByVal
     ConvFromBufferByte = True
 End Function
 
-Function Buf2Hex(Buf As Variant) As String
-    Dim i As Long, p As Long, cnt As Long, n1 As Byte, n2 As Byte
-    Dim tmpBuf() As Byte, tmpOut() As Byte
+Function Buf2Hex(tmpBuf() As Byte) As Byte()
+    Dim i As Long, p As Long, sz As Long, n1 As Byte, n2 As Byte, tmpOut() As Byte
     
-    ConvToBufferByte Buf, tmpBuf
+    sz = ArraySize(tmpBuf):      If sz = 0 Then Exit Function
     
-    cnt = ArraySize(tmpBuf)
-    If cnt = 0 Then Exit Function
-    
-    ReDim tmpOut(cnt * 2 - 1)
+    ReDim tmpOut(sz * 2 - 1)
 
-    For i = 0 To cnt - 1
-        n1 = tmpBuf(i) \ 16:    n2 = tmpBuf(i) And 15
+    For i = 0 To sz - 1
+        n1 = tmpBuf(i):    n2 = n1 And 15:    n1 = n1 \ 16
         tmpOut(p) = GT_BHex(n1):   p = p + 1
         tmpOut(p) = GT_BHex(n2):   p = p + 1
     Next
     
-    Erase tmpBuf
-    
-    Buf2Hex = Conv_A2W_Buf(tmpOut)
+    Buf2Hex = tmpOut
 End Function
 
-Function Hex2Buf(value As String) As Byte()
-    Dim i As Long, p As Long, cnt As Long, n1 As Byte, n2 As Byte, Pos As Long
-    Dim tmpBuf() As Byte, tmpOut() As Byte
+Function Hex2Buf(tmpBuf() As Byte) As Byte()
+    Dim i As Long, p As Long, sz As Long, n1 As Byte, n2 As Byte, tmpOut() As Byte
     
-    tmpBuf = Conv_W2A_Buf(value)
+    sz = ArraySize(tmpBuf):      If sz < 2 Then Exit Function
     
-    cnt = ArraySize(tmpBuf)
-    If cnt < 2 Then Exit Function
-    
-    ReDim tmpOut(cnt / 2 - 1)
+    ReDim tmpOut(sz / 2 - 1):    n1 = 255
 
-    For i = 0 To cnt - 1
-        If Pos = 0 Then
-            n1 = GT_IHex(tmpBuf(i))
-            If n1 <> 255 Then Pos = Pos + 1
-        Else
-            n2 = GT_IHex(tmpBuf(i))
-            If n2 <> 255 Then tmpOut(p) = n1 * 16 + n2:   p = p + 1:   Pos = 0
+    For i = 0 To sz - 1
+        n2 = GT_IHex(tmpBuf(i))
+        If n2 <> 255 Then
+            If n1 = 255 Then n1 = n2 Else tmpOut(p) = n1 * 16 + n2:   p = p + 1:   n1 = 255
         End If
     Next
-    
-    Erase tmpBuf
-    ReDim Preserve tmpOut(p - 1)
-    
-    Hex2Buf = tmpOut
+
+    If p Then ReDim Preserve tmpOut(p - 1):    Hex2Buf = tmpOut
 End Function
 
 Sub SetTopMost(ByVal hWnd As Long, Optional ByVal value As Boolean = True)

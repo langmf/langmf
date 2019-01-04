@@ -1001,7 +1001,7 @@ Function Parse_Include(txtCode As String, Optional ByVal noFind As String, Optio
     tmp = "[ \t\v]*#Include +([<""])" + noFind + "([^"">]+)(["">])([^\r]*)"
 
     Set REG1 = New RegExp:      REG1.Global = False:      REG1.IgnoreCase = True
-    REG1.Pattern = IIF(bCompile, Replace$(tmp, """", ""), tmp)
+    If bCompile Then REG1.Pattern = Replace$(tmp, """", "") Else REG1.Pattern = tmp
     
     Do
         Set Mts = REG1.Execute(txtCode)
