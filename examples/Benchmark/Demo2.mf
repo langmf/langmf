@@ -3,6 +3,7 @@ Dim Ver, Res, tm, fn, Norm, Fast
 
 Const porog = 50
 
+'------------------------------------------
 Sub Load(cmdLine)
     sys.ext.setpriority &H80
  
@@ -42,9 +43,9 @@ Sub Load(cmdLine)
 
     '---------------------------------------------------------
     i = 0
-    For Each v In Res
+    For Each v In Sort(Res)
         With Form.Add("label", i * 2 + 1, ".Caption = Empty", ".BackStyle = 1", ".ForeColor = QBColor(15)")
-            If v(1) > 50 Then c = QBColor(2)  :  m = Norm  : Else :  c = QBColor(5)  :  m = Fast
+            If v(1) > porog Then c = QBColor(2)  :  m = Norm  : Else :  c = QBColor(5)  :  m = Fast
             .BackColor = c
             .Move 160, 400 + i * 600, ((Form.scaleWidth - 320) * m) / (v(1)), 360
         End With
@@ -61,11 +62,13 @@ Sub Load(cmdLine)
     Form.Show
 End Sub
 
+'------------------------------------------
 Sub TStart()
     DoEvents
     tm = timeGetTime
 End Sub
 
+'------------------------------------------
 Sub TStop(buf, txt)
     tm = timeGetTime - tm  :  if tm <= 0 then tm = 1
     If tm > porog Then
@@ -77,7 +80,23 @@ Sub TStop(buf, txt)
     fn = fn + 1
     sys.conv.buf2file buf, "out" & fn & ".bmp"
 End Sub
+'------------------------------------------
+Function Sort(c)
+	Dim n, m, i, v
+	Set n = sys.newcollection
 
+	while c.count
+		m = &H7FFFFFFF
+		For i = 1 To c.count
+			If c(i)(1) < m Then m = c(i)(1)  :  v = i 
+		Next
+		n.add c(v)
+		c.remove(v)
+	wend
+	
+	Set Sort = n
+End Function
+'------------------------------------------
 Function Text(w, txt)
     Text = txt  :  while Len(Text) < w  :  Text = Text + " "  :  wend
 End Function

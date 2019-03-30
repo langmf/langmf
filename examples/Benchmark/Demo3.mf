@@ -1,189 +1,117 @@
-Declare Function SetPixel Lib "gdi32" (ByVal hDC As Long, ByVal x As Long, ByVal y As Long, ByVal crColor As Long) As Long
-Declare Function GetTickCount Lib "kernel32" () As Long
-
 <#Module=mdlDemo>
-DIM hdc, MaxIter, XRes, YRes, colors()
+Dim Ver, Res, tm, Norm, Fast1, Fast2, Out
 
+Const porog1 = 10, porog2 = 200
+
+'------------------------------------------
 Sub Load(cmdLine)
-    XRes = 400
-    YRes = 400
-    MaxIter = 50
-    Redim colors(MaxIter)
+    sys.ext.setpriority &H80
  
-    Form.Caption = "Benchmark Mandel"
-    Form.Width = XRes * vbPX + 100
-    Form.Height = YRes * vbPY + 440
-	Form.Autoredraw = True
-	Form.Center
+    Form.Caption = "Benchmark Engine"
+    Form.Width = 8000
+    Form.Height = 6000
+    Form.AutoRedraw = True
+    Form.Center
+
+    For a = 0 To Form.Height
+      clr = 255 - int((a/(form.scaleheight))*255)
+      If clr < 0 Then clr = 0
+      GLine Form, 0, a, Form.scaleWidth, a, RGB(0, 0, clr)
+    Next
+
+
+    Set Res = sys.newcollection
+
+
+    '-------------------------------------------------------
+    TStart  :  TStop Class1.Test(34, 0), "Native"
+    TStart  :  TStop Class1.Test(34, 1), "Fast"
+
+    '-------------------------------------------------------
+    TStart  :  TStop JS2.Test(34, 0), "Native"
+    TStart  :  TStop JS2.Test(34, 1), "Fast"
+    
+    '-------------------------------------------------------
+	TStart  :  TStop VB.Test(34, 0), "Native"
+	TStart  :  TStop VB.Test(34, 1), "Fast"
+    
+    '-------------------------------------------------------
+    TStart  :  TStop JS1.Test(34, 0), "Native"
+    TStart  :  TStop JS1.Test(34, 1), "Fast"
+	
+    '---------------------------------------------------------
+	sys.conv.str2file out, "out.txt"
+	
+	
+    '---------------------------------------------------------
+    i = 0
+    For Each v In Sort(Res)
+        With Form.Add("label", i * 2 + 1, ".Caption = Empty", ".BackStyle = 1", ".ForeColor = QBColor(15)")
+            If v(1) < porog1 Then
+                c = QBColor(5)  :  m = Fast1
+            ElseIf v(1) < porog2 Then
+                c = QBColor(3)  :  m = Fast2
+            Else
+                c = QBColor(2)  :  m = Norm
+            End If
+            .BackColor = c
+            .Move 160, 400 + i * 600, ((Form.scaleWidth - 320) * m) / (v(1)), 360
+        End With
+
+        With Form.Add("label", i * 2 + 2,  ".ForeColor = QBColor(15)", ".ZOrder 0")
+            On Error Resume Next  :  .FontName = "Lucida Console"  :  .FontSize = 9  :  On Error Goto 0
+            .Move 220, 480 + i * 600, 1000, 360
+            .Caption = Text(18, "Time = " & v(1) & " ms.") & v(0)
+        End With
+        
+        i = i + 1
+    Next
+
     Form.Show
-	
-    hdc = Form.hdc
-	FillColorTable
-	JS.Param hdc, MaxIter, XRes, YRes, colors
-	
-	
-	'----------------- VBScript ------------------
-	t = GetTickCount
-    GenMandelbrot -2.1, -1.25, 0.6, 1.25
-	msgbox GetTickCount - t & " ticks",,"VBScript" 
-	
-	
-	'---------------------------------------------
-	GLine form, 0,0,form.scalewidth,form.scaleheight, &H8000000F, 2
-	msgbox "Go"
-	
-
-	'------------------ Chakra -------------------
-    t = GetTickCount
-    JS.GenMandelbrot -2.1, -1.25, 0.6, 1.25
-	msgbox GetTickCount - t & " ticks",,"Chakra"
-
-	
-	'---------------------------------------------
-	GLine form, 0,0,form.scalewidth,form.scaleheight, &H8000000F, 2
-	msgbox "Go"
-	
-	
-	'---------------- Chakra + FAP ---------------
-    set fap = sys.newfap(form.image)
-	fap.getdi
-    t = GetTickCount
-    JS.GenMandelbrot2 -2.1, -1.25, 0.6, 1.25, fap
-	fap.setdi
-	form.refresh
-	
-	msgbox GetTickCount - t & " ticks",,"Chakra + FAP"     
 End Sub
 
+'------------------------------------------
+Sub TStart()
+    DoEvents
+    tm = timeGetTime
+End Sub
 
-SUB GenMandelbrot(xMn, yMn, xMx, yMx)
-	DIM iX, iY, iters, cx, cy, dx, dy
-	
-	dx = (xMx - xMn) / (XRes - 1)
-	dy = (yMx - yMn) / (YRes - 1)
-	
-	FOR iY = 0 TO YRes
-		cy = yMn + iY * dy
-		FOR iX = 0 TO XRes
-			cx = xMn + iX * dx
-			iters = Iterate(cx, cy)
-			IF iters = MaxIter THEN
-				SetPixel hdc, iX, iY, 0
-			ELSE
-				SetPixel hdc, iX, iY, colors(iters)
-			END IF
-		NEXT
-		form.refresh
-        doevents
-	NEXT
-END SUB
+'------------------------------------------
+Sub TStop(buf, txt)
+    tm = timeGetTime - tm  :  if tm <= 0 then tm = 1
+    If tm < porog1 Then
+        If Fast1 = Empty or tm < Fast1 Then Fast1 = tm
+    ElseIf tm < porog2 Then
+        If Fast2 = Empty or tm < Fast2 Then Fast2 = tm
+    Else
+        If Norm = Empty or tm < Norm Then Norm = tm
+    End If
+    Res.Add Array(Text(30, Ver) + txt, tm)
+    out = out + cstr(buf) + vbtab + vbtab + cstr(tm) + vbtab + Ver + "   (" + txt + ")" + vbcrlf
+End Sub
 
-FUNCTION Iterate(cx, cy)
-	DIM iters, temp, X, Y, X2, Y2
-	
-    X = cx : Y = cy : X2 = X * X : Y2 = Y * Y
-    
-	WHILE (iters < MaxIter) AND (X2 + Y2) < 4
-		temp = cx + X2 - Y2
-		Y = cy + 2 * X * Y
-		Y2 = Y * Y
-		X = temp
-		X2 = X * X
-		iters = iters + 1
-	WEND
-	
-	Iterate = iters
-END FUNCTION
+'------------------------------------------
+Function Sort(c)
+	Dim n, m, i, v
+	Set n = sys.newcollection
 
-SUB FillColorTable()
-	DIM r, g, b, rd, gd, bd, rr, gg, bb, i, j, wid, clr(3)
+	while c.count
+		m = &H7FFFFFFF
+		For i = 1 To c.count
+			If c(i)(1) < m Then m = c(i)(1)  :  v = i 
+		Next
+		n.add c(v)
+		c.remove(v)
+	wend
 	
-	clr(1) = RGB(0, 255, 0)
-	clr(2) = RGB(255, 255, 0)
-	clr(3) = RGB(255, 0, 0)
-	
-	wid = MaxIter / 3
-	
-	FOR j = 0 TO 2
-		toRGB clr(j), r, g, b
-		toRGB clr(j + 1), rr, gg, bb
-		rd = (rr - r) / (wid + 1)
-		gd = (gg - g) / (wid + 1)
-		bd = (bb - b) / (wid + 1)
-		FOR i = 0 TO wid
-			colors(j * wid + i) = RGB(r, g, b)
-			r = r + rd
-			g = g + gd
-			b = b + bd
-		NEXT
-	NEXT
-END SUB
+	Set Sort = n
+End Function
 
-SUB toRGB(c, r, g, b)
-	r = c AND &HFF
-	g = (c AND &HFF00&) / &H100
-	b = (c AND &HFF0000) / &H10000
-END SUB
+'------------------------------------------
+Function Text(w, txt)
+    Text = txt  :  while Len(Text) < w  :  Text = Text + " "  :  wend
+End Function
 <#Module>
-
-
-<#Script=JS,chakra#>
-var hdc, MaxIter, XRes, YRes, colors, colors2;
-
-function Param(m_hdc, m_MaxIter, m_XRes, m_YRes, m_colors) {
-	hdc = m_hdc; XRes = m_XRes; YRes = m_YRes; MaxIter = m_MaxIter;
-	colors = new VBArray(m_colors).toArray();
-    colors2 = new Array(); colors2.length = MaxIter;
-    for (i = 0; i <= MaxIter; i++) {var c = colors[i]; colors2[i] = ((c & 255) * 0x10000) + (c & 0xff00) + ((c / 0x10000) & 255); }
-}
-
-function GenMandelbrot(xMn, yMn, xMx, yMx) {
-	var iX, iY, iters, cx, cy, dx, dy, f = JS.form;
-	
-	dx = (xMx - xMn) / (XRes - 1)
-	dy = (yMx - yMn) / (YRes - 1)
-	
-	for (iY = 0; iY < YRes; iY++) {
-		cy = yMn + iY * dy
-		for (iX = 0; iX < XRes; iX++) {
-			cx = xMn + iX * dx
-			iters = Iterate(cx, cy)
-			if (iters == MaxIter) { JS.SetPixel(hdc, iX, iY, 0) } else { JS.SetPixel(hdc, iX, iY, colors[iters]) }
-		}
-		f.refresh()
-	}
-}
-
-function GenMandelbrot2(xMn, yMn, xMx, yMx, fap) {
-	var iX, iY, iters, cx, cy, dx, dy;
-	
-	dx = (xMx - xMn) / (XRes - 1)
-	dy = (yMx - yMn) / (YRes - 1)
-	
-	for (iY = 0; iY < YRes; iY++) {
-		cy = yMn + iY * dy
-		for (iX = 0; iX < XRes; iX++) {
-			cx = xMn + iX * dx
-			iters = Iterate(cx, cy)
-			if (iters == MaxIter) {	fap(iX + 1, iY +1) = 0 } else { fap(iX + 1, iY +1) = colors2[iters] }
-		}
-	}
-}
-
-function Iterate(cx, cy) {
-	var iters = 0, X = cx, Y = cy, X2 = X * X, Y2 = Y * Y
-	
-	while (iters < MaxIter && (X2 + Y2) < 4) {
-		Y = cy + 2 * X * Y
-		X = cx + X2 - Y2
-		Y2 = Y * Y
-		X2 = X * X
-		iters = iters + 1
-	}
-	
-	return iters
-}
-<#Script#>
 
 
 <#form=form>
@@ -191,3 +119,106 @@ Sub Form_Unload()
   endmf
 End Sub
 <#form>
+
+
+<#Script=VB,VBScript#>
+    Function Test(b, t)
+        VB.Ver = ScriptEngine & " = " & ScriptEngineMajorVersion & "." & ScriptEngineMinorVersion & "." & ScriptEngineBuildVersion
+		if t then Test = fibF(b) else Test = fibN(b)
+    End Function
+
+    Function fibN(n)
+        if n < 2 then fibN = n else fibN = fibN(n-2) + fibN(n-1)
+    End Function
+    
+    Function fibF(n)
+        dim a, b, i, c
+		a = 1  :  b = 1
+        for i = 3 to n
+			c = a + b
+			a = b
+			b = c
+		next
+		fibF = b
+    End Function
+<#Script#>
+
+
+<#Script=JS1#>
+    function Test(b, t) {
+        JS1.Ver = ScriptEngine() + " = " + ScriptEngineMajorVersion() + "." + ScriptEngineMinorVersion() + "." + ScriptEngineBuildVersion();
+        if (t) return fibF(b); else return fibN(b);
+    }
+
+	function fibN(n) {
+		if (n < 2) return n;
+		return (fibN(n-2) + fibN(n-1));
+	}
+    
+    function fibF(n) {
+		var a = 1, b = 1;
+		for (var i = 3; i <= n; i++) {
+			var c = a + b;
+			a = b;
+			b = c;
+		}
+		return b;
+	}
+<#Script#>
+
+
+<#Script=JS2,chakra#>
+    function Test(b, t) {
+        JS2.Ver = ScriptEngine() + " = " + ScriptEngineMajorVersion() + "." + ScriptEngineMinorVersion() + "." + ScriptEngineBuildVersion();
+        if (t) return fibF(b); else return fibN(b);
+    }
+	
+	function fibN(n) {
+		if (n < 2) return n;
+		return (fibN(n-2) + fibN(n-1));
+	}
+	
+	function fibF(n) {
+		var a = 1, b = 1;
+		for (var i = 3; i <= n; i++) {
+			var c = a + b;
+			a = b;
+			b = c;
+		}
+		return b;
+	}
+<#Script#>
+
+<#VBNet instance="Class1" start="main" #>
+Imports System
+Imports Microsoft.VisualBasic
+
+public Module modMain
+    Public LMF as Object
+    Public Sub Main(Byval Obj as Object)
+        LMF = Obj
+    End Sub
+End Module
+
+Public Class Class1
+    Public Function Test(byval b as integer, byval t as integer) As integer
+        LMF.Script.CodeObject.Ver = "VB.NET = " + Environment.Version.ToString()
+		if t then return fibF(b) else return fibN(b)
+    End Function
+
+	Private Function fibN(byval n as integer) As integer
+		if n < 2 then return n
+		return fibN(n-2) + fibN(n-1)
+    End Function
+
+	Private Function fibF(byval n as integer) As integer
+        dim a as integer = 1, b as integer = 1, i as integer, c as integer
+		for i = 3 to n
+			c = a + b
+			a = b
+			b = c
+		next
+		return b
+    End Function	
+End Class
+<#VBNet#>

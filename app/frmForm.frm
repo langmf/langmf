@@ -249,14 +249,16 @@ Public Function Ctrl(ByVal typeObj As String, Optional ByVal value As Variant, O
         v = Alias("#" & typeObj):      If Not IsArray(v) Then Exit Function
         value = Array(typeObj, v(1), True):    typeObj = v(0)
     Else
-        ArrayDef value, CVar(value), 0, True
+        ArrayDef value, CVar(value), Empty, True
     End If
 
-    If VarType(value(0)) = vbString And CBool(value(2)) = True Then
-        isAlias = True:          If Alias.Count = 0 Then cntAlias = 1000
-        ID = Val(value(1)):      If ID <= 0 Then ID = cntAlias
-    Else
-        ID = Val(value(0))
+    If VarType(value(1)) <> vbString Then
+        If VarType(value(0)) = vbString And CBool(value(2)) = True Then
+            isAlias = True:          If Alias.Count = 0 Then cntAlias = 1000
+            ID = Val(value(1)):      If ID <= 0 Then ID = cntAlias
+        Else
+            ID = Val(value(0))
+        End If
     End If
 
     typeObj = LCase$(typeObj)
@@ -359,10 +361,10 @@ Public Function CreateWC(ByVal NameControl As String, Optional ByVal NameClass A
     End If
 End Function
 
-Public Function CreateOCX(ByVal NameControl As String, Optional ByVal strGUID As String, Optional ByVal NotWrapEvent As Boolean) As Variant
+Public Function CreateOCX(ByVal NameControl As String, Optional ByVal strGUID As String, Optional ByVal NameEvent As String) As Variant
     Dim OCX As New clsOCX
     If LenB(strGUID) Then
-        Set CreateOCX = OCX.Create(Me, NameControl, strGUID, NotWrapEvent)
+        Set CreateOCX = OCX.Create(Me, NameControl, strGUID, NameEvent)
         WC.Add OCX, NameControl
     Else
         CreateOCX = WC.Remove(NameControl)

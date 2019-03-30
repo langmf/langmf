@@ -16,13 +16,12 @@ Option Explicit
 Public WithEvents Object As VBControlExtender
 Attribute Object.VB_VarHelpID = -1
 
-Private Name As String, NotWrapEvent As Boolean
+Public Name As String, TypeEvent As Long
 
 
-Public Function Create(ByVal Frm As Object, ByVal strName As String, ByVal strGUID As String, Optional ByVal bNotWrapEvent As Boolean) As Object
-    Name = strName
-    NotWrapEvent = bNotWrapEvent
-    Set Object = Frm.Controls.Add(strGUID, strName)
+Public Function Create(Optional ByVal Frm As Object, Optional ByVal strName As String, Optional ByVal strGUID As String, Optional ByVal strEvent As String) As Object
+    Name = strName:     TypeEvent = 0:      If LenB(strEvent) Then Name = strEvent:     TypeEvent = 1
+    If LenB(strGUID) Then Set Object = Frm.Controls.Add(strGUID, strName)
     Set Create = Object
 End Function
 
@@ -54,8 +53,8 @@ End Sub
 Private Sub Object_ObjectEvent(Info As EventInfo)
     On Error Resume Next
     
-    If NotWrapEvent Then
-        Object.Parent.Events Name & "_Event", Info
+    If TypeEvent Then
+        Object.Parent.Events Name & "_Event", Me, Info
     Else
         With Info.EventParameters
             Select Case .Count

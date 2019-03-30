@@ -140,14 +140,19 @@ End Property
 Public Property Get Items(Optional ByVal Flags As Long, Optional ByVal txtPattern As String) As Variant
     Dim a As Long, i As Long, n As Long, isRXP As Boolean, isFind As Boolean, v() As Variant
     
-    If Flags = -1 Then ReDim v(UBound(hashTable)):   For a = 0 To UBound(hashTable):   n = 0:   i = hashTable(a):   Do While i:   n = n + 1:   i = slotTable(i).nextItem:   Loop:   v(a) = n:   Next:   Items = v:   Exit Property
+    If Flags = -1 Then
+        ReDim v(UBound(hashTable))
+        For a = 0 To UBound(hashTable)
+            n = 0:    i = hashTable(a)
+            Do While i:    n = n + 1:    i = slotTable(i).nextItem:    Loop
+            v(a) = n
+        Next
+        Items = v:    Exit Property
+    End If
     
-    If m_Count = 0 Then Items = Array(): Exit Property
+    If m_Count = 0 Then Items = Array():   Exit Property
     
-    isRXP = Len(txtPattern)
-    RXP.Pattern = txtPattern
-    
-    ReDim v(0 To m_Count - 1)
+    isRXP = Len(txtPattern):      RXP.Pattern = txtPattern:      ReDim v(0 To m_Count - 1)
     
     For i = 0 To UBound(slotTable)
         With slotTable(i)

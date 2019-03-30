@@ -1,0 +1,49 @@
+<#Module=mdlFile>
+'---------------------------------------
+Sub Load(cmdLine)
+   const maxIter = 8
+   
+   for a = 1 to maxIter
+       buf1 = sys.conv.file2buf(sys.path("engine") + "LangMF.exe")
+       t = timegettime
+       out = sys.conv.base64.encode(arraybyte(buf1))
+       t = timegettime - t  :  t1 = t1 + t
+       sys.conv.buf2file out, "langmf.b64"
+
+       
+       buf2 = sys.conv.file2buf("langmf.b64")
+       t = timegettime
+       out = sys.conv.base64.decode(arraybyte(buf2))
+       t = timegettime - t  :  t2 = t2 + t
+       sys.conv.buf2file out, "langmf.exe"   
+   next
+
+   t1 = t1 / maxIter
+   t2 = t2 / maxIter
+
+
+   for a = 1 to maxIter
+       buf3 = sys.conv.file2buf(sys.path("engine") + "LangMF.exe")
+       t = timegettime
+       out = sys.conv.buf2hex(buf3)
+       t = timegettime - t  :  t3 = t3 + t
+       sys.conv.buf2file out, "langmf.hex"
+
+       
+       buf4 = sys.conv.file2buf("langmf.hex")
+       t = timegettime
+       out = sys.conv.hex2buf(buf4)
+       t = timegettime - t  :  t4 = t4 + t
+       sys.conv.buf2file out, "langmf2.exe"   
+   next
+
+   t3 = t3 / maxIter
+   t4 = t4 / maxIter
+   
+   msgbox "encode Base64 - " & t1 & " ms  -  " & sys.file.formatbytes(arraysize(buf1) * (1000 / t1)) & "/s" & vbcrlf & _
+          "decode Base64 - " & t2 & " ms  -  " & sys.file.formatbytes(arraysize(buf2) * (1000 / t2)) & "/s" & vbcrlf & vbcrlf & _
+          "encode HEX -    " & t3 & " ms  -  " & sys.file.formatbytes(arraysize(buf3) * (1000 / t3)) & "/s" & vbcrlf & _
+          "decode HEX -    " & t4 & " ms  -  " & sys.file.formatbytes(arraysize(buf4) * (1000 / t4)) & "/s"          
+   endmf
+End Sub
+<#Module>
