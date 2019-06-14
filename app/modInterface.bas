@@ -26,11 +26,11 @@ Private Function COM_QueryInterface(This As COM_Table, riid As UUID, pvObj As Lo
         If (.Mask And COM_Mask_QueryInterface) Then
             COM_QueryInterface = .Wrapper.COM_QueryInterface(VarPtr(This), VarPtr(riid), VarPtr(pvObj))
         Else
-            If isOK = False Then isOK = IsEqualGUID(riid, .IID_User)
-            If isOK = False Then isOK = IsEqualGUID(riid, IID_IUnknown)
-            If isOK = False Then isOK = IsEqualGUID(riid, IID_IDispatch)
-            If isOK = False Then isOK = IsEqualGUID(riid, IID_IClassFactory) And (.Mask And COM_Mask_CreateInstance)
-            If isOK = False Then COM_QueryInterface = E_NOINTERFACE:    Exit Function
+            If Not isOK Then isOK = IsEqualGUID(riid, .IID_User)
+            If Not isOK Then isOK = IsEqualGUID(riid, IID_IUnknown)
+            If Not isOK Then isOK = IsEqualGUID(riid, IID_IDispatch)
+            If Not isOK Then isOK = IsEqualGUID(riid, IID_IClassFactory) And (.Mask And COM_Mask_CreateInstance)
+            If Not isOK Then COM_QueryInterface = E_NOINTERFACE:    Exit Function
             pvObj = VarPtr(.pVTable):      .cRefs = .cRefs + 1:      COM_QueryInterface = S_OK
         End If
     End With
@@ -163,7 +163,7 @@ Private Sub COM_Custom(This As COM_Table, Optional Args As Variant)
                 .iArgs = Args
                 If uds > 2 Then
                     If IsMissing(Args(2)) Then Erase mbr Else mbr = Args(2)
-                    If VerifyArrayRange(mbr, , , , 45) Then
+                    If ArrayValid(mbr, , , , 45) Then
                         For a = 0 To UBound(mbr)
                             If IsNumeric(mbr(a)) Then .VTable(a + 3) = CLng(mbr(a))
                         Next
@@ -189,11 +189,14 @@ End Sub
 
 Private Function IsEqualGUID(i1 As UUID, i2 As UUID) As Boolean
     Dim Tmp1 As Currency, Tmp2 As Currency
+
     If i1.Data1 <> i2.Data1 Then Exit Function
     If i1.Data2 <> i2.Data2 Then Exit Function
     If i1.Data3 <> i2.Data3 Then Exit Function
+
     CopyMemory Tmp1, i1.Data4(0), 8
     CopyMemory Tmp2, i2.Data4(0), 8
+
     If Tmp1 = Tmp2 Then IsEqualGUID = True
 End Function
 

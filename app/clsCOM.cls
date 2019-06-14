@@ -63,13 +63,11 @@ Public Function Enums(ByVal value As Variant, Optional ByVal Flags As Long = -1)
     On Error GoTo err1
 
     If IsObject(value) Then
-        
         Set Disp = value
         If Disp.GetTypeInfoCount = 0 Then Exit Function
         Set TI = Disp.GetTypeInfo
-        
+
     ElseIf VarType(value) = vbString Then
-        
         Set Enums = New clsHash
         If LoadTypeLib(StrPtr(CStr(value)), TL) = 0 Then
             For i = 0 To TL.GetTypeInfoCount - 1
@@ -78,6 +76,7 @@ Public Function Enums(ByVal value As Variant, Optional ByVal Flags As Long = -1)
             Next
         End If
         Exit Function
+
     Else
         PutMem4 VarPtr(TI), value
         TI.AddRef

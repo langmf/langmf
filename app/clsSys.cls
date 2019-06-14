@@ -273,7 +273,7 @@ Public Function CallBack(Optional ByVal vMethod As Variant = 0, Optional Obj As 
     Set CallBack = New clsCallback
     
     If IsObject(Obj) Then
-        If VerifyLongRange(vCount, 0, 10) Then CallBack.Init Obj, vMethod, vCount, isCDecl
+        If vCount >= 0 And vCount <= 10 Then CallBack.Init Obj, vMethod, vCount, isCDecl
     Else
         If vCount > -1 Then
             If ExistsMember(CAS.CodeObject(Obj), CStr(vMethod)) = False Then Exit Function
@@ -283,7 +283,7 @@ Public Function CallBack(Optional ByVal vMethod As Variant = 0, Optional Obj As 
             If Not i("Funcs").Exists(vMethod) Then Exit Function
             If i("Funcs")(vMethod).Item("Type") = VT_VOID Then Exit Function
             vCount = i("Funcs")(vMethod).Item("Prms")
-            If VerifyLongRange(vCount, 0, 10) = False Then Exit Function
+            If vCount < 0 Or vCount > 10 Then Exit Function
         End If
         CallBack.Init CAS.Eval("GetRef(""" & vMethod & """)", Obj), , vCount, isCDecl
     End If

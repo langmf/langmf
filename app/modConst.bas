@@ -114,6 +114,7 @@ Declare Function CopyFileW Lib "kernel32" (ByVal lpExistingFileName As Long, ByV
 Declare Function FindClose Lib "kernel32" (ByVal hFindFile As Long) As Long
 Declare Function GlobalLock Lib "kernel32" (ByVal hMem As Long) As Long
 Declare Function GlobalFree Lib "kernel32" (ByVal hMem As Long) As Long
+Declare Function GlobalSize Lib "kernel32" (ByVal hMem As Long) As Long
 Declare Function CreateFile Lib "kernel32" Alias "CreateFileW" (ByVal lpFileName As Long, ByVal dwDesiredAccess As Long, ByVal dwShareMode As Long, ByVal lpSecurityAttributes As Long, ByVal dwCreationDisposition As Long, ByVal dwFlagsAndAttributes As Long, ByVal hTemplateFile As Long) As Long
 Declare Function CreatePipe Lib "kernel32" (phReadPipe As Long, phWritePipe As Long, lpPipeAttributes As Any, ByVal nSize As Long) As Long
 Declare Function ReadFileStr Lib "kernel32" Alias "ReadFile" (ByVal hFile As Long, ByVal lpBuffer As String, ByVal nNumberOfBytesToRead As Long, lpNumberOfBytesRead As Long, ByVal lpOverlapped As Long) As Long
@@ -256,9 +257,10 @@ Declare Function CLSIDFromProgID Lib "ole32" (ByVal lpsz As Any, pClsid As UUID)
 Declare Function StringFromGUID2 Lib "ole32" (ByVal ptrIID As Long, ByVal strIID As Long, Optional ByVal cbMax As Long = 39) As Long
 Declare Function CoCreateInstance Lib "ole32" (rclsid As UUID, ByVal pUnkOuter As Long, ByVal dwClsContext As Long, riid As UUID, ppv As Long) As Long
 Declare Function CoDisconnectObject Lib "ole32" (ByVal pUnk As IUnknown, pvReserved As Long) As Long
-Declare Function CreateStreamOnHGlobal Lib "ole32" (hGlobal As Any, ByVal fDeleteOnRelease As Long, ppstm As Any) As Long
+Declare Function GetHGlobalFromStream Lib "ole32" (ByVal ppstm As stdole.IUnknown, hGlobal As Long) As Long
+Declare Function CreateStreamOnHGlobal Lib "ole32" (ByVal hGlobal As Long, ByVal fDeleteOnRelease As Long, ppstm As Any) As Long
 
-Declare Function OleLoadPicture Lib "olepro32" (pStream As Any, ByVal lSize As Long, ByVal fRunmode As Long, riid As UUID, IPic As IPictureDisp) As Long
+Declare Function OleLoadPicture Lib "olepro32" (ByVal ppstm As stdole.IUnknown, ByVal lSize As Long, ByVal fRunmode As Long, riid As UUID, IPic As IPictureDisp) As Long
 Declare Function OleCreatePictureIndirect Lib "olepro32" (PicDesc As PictDesc, RefIID As UUID, ByVal fPictureOwnsHandle As Long, IPic As IPictureDisp) As Long
 
 Declare Function LoadTypeLib Lib "oleaut32" (ByVal szFile As Long, pptlib As ITypeLib) As Long

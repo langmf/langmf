@@ -31,9 +31,7 @@ Sub Load(cmdLine)
   Print " MD5   - ", Hash(&H8003&)
   Print " SHA1  - ", Hash(vbSHA1)
   Print " SHA256  - ", Hash(vbSHA256)
-  a = sys.str.lsplit(Hash(vbSHA512), 64)
-  for each v in a : txt = txt & v & vbcrlf : next
-  Print " SHA512  - ", txt
+  Print " SHA512  - ", join(sys.str.lsplit(Hash(vbSHA512), 64, vbcrlf + vbtab + "    "))
 End Sub
 
 '---------------------------------------

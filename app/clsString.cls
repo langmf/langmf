@@ -121,13 +121,14 @@ Public Function Sort(txt As Variant, Optional ByVal bAscending As Boolean = True
     Sort = txt
 End Function
 
-Public Function LSplit(ByVal txt As String, Optional ByVal sz As Long = 80) As Variant()
-    Dim a As Long, i As Long, tmpStr() As Variant
+Public Function LSplit(ByVal txt As String, Optional ByVal sz As Long = 80, Optional ByVal addStr As String) As Variant()
+    Dim a As Long, i As Long, n As Long, tmpStr() As Variant
     
-    ReDim tmpStr((Len(txt) - 1) \ sz)
+    n = (Len(txt) - 1) \ sz
+    ReDim tmpStr(n)
     
     For a = 1 To Len(txt) Step sz
-        tmpStr(i) = Mid$(txt, a, sz)
+        If i < n Then tmpStr(i) = Mid$(txt, a, sz) + addStr Else tmpStr(i) = Mid$(txt, a, sz)
         i = i + 1
     Next
     

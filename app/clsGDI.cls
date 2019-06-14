@@ -41,7 +41,7 @@ End Sub
 Public Sub Polygon(ByVal m_hDC As Long, m_Vert As Variant)
     Dim a As Long, Vert() As POINTAPI
 
-    If Not VerifyArrayRange(m_Vert) Then Exit Sub
+    If Not ArrayValid(m_Vert) Then Exit Sub
     
     ReDim Vert(UBound(m_Vert))
     
@@ -56,7 +56,7 @@ End Sub
 Public Sub Gradient(ByVal Frm As Object, m_Vert As Variant, Optional m_gTri As Variant, Optional ByVal m_Type As Long = 1)
     Dim a As Long, Vert() As TRIVERTEX, gTri() As Gradient_Triangle
     
-    If Not VerifyArrayRange(m_Vert) Then Exit Sub
+    If Not ArrayValid(m_Vert) Then Exit Sub
     
     ReDim Vert(UBound(m_Vert))
     
@@ -292,8 +292,9 @@ Public Function Trans(ByVal Obj As Object, ByVal ipdFon As IPictureDisp, ByVal i
 End Function
 
 Public Function Pic2DIB(Buf As Variant) As Variant
-    Dim FAP As New clsAsmPic
-    Set FAP.Obj = LoadPictureFromByte(Buf)
+    Dim FAP As New clsAsmPic, pd As IPictureDisp
+    Set pd = LoadPictureFromByte(Buf)
+    Set FAP.Obj = pd
     FAP.GetDI
     Pic2DIB = FAP.GetBuffer
 End Function

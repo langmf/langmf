@@ -15,7 +15,7 @@ End Type
 Sub Load(cmdLine) 
     form.caption="Aero glass example"
     form.backcolor = 0
-
+	form.move 0,0, 8000, 6000
     form.Center
     form.show
     

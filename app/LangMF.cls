@@ -15,7 +15,7 @@ Attribute VB_Ext_KEY = "SavedWithClassBuilder6" ,"Yes"
 Attribute VB_Ext_KEY = "Top_Level" ,"Yes"
 Option Explicit
 
-Private oleInstance As Long, isFail As Boolean
+Private isFail As Boolean
 
 
 Public Function Command(ByVal cmdLine As String) As String
@@ -53,10 +53,7 @@ Public Property Get Script(Optional ByVal Index As Long = -1) As Object
     If CAS Is Nothing Then Script_Init
     
     If Index = -1 Then Set Script = CAS:   Exit Property
-    
-    If Not VerifyLongRange(Index, 1, frmScript.CScript.Count) Then Exit Property
-    
-    Set Script = frmScript.CScript(CStr(Index))
+    If Index >= 1 And Index <= frmScript.CScript.Count Then Set Script = frmScript.CScript(CStr(Index))
 End Property
 
 Public Property Get Instance() As Object
@@ -67,10 +64,8 @@ Public Property Get Instance() As Object
     Shell """" + GetAppPath(True) + """ " + mf_New
     
     Do
-        a = a + 1
-        WaitMs
-        Set Instance = GetObject(, "Atomix.LangMF")
-    Loop Until a > 500 Or (Not Instance Is Nothing)
+        Call WaitMs:     a = a + 1:     Set Instance = GetObject(, "Atomix.LangMF")
+    Loop Until a > 1000 Or (Not Instance Is Nothing)
     
     Instance.ROT False
 End Property
@@ -78,13 +73,15 @@ End Property
 Public Function ROT(Optional ByVal value As Boolean = True) As Long
 Attribute ROT.VB_Description = "Running Object Table"
     Dim mGuid As UUID
+    Static oleInst As Long
     
     If value Then
-        oleInstance = 0
-        If CLSIDFromProgID(StrPtr("Atomix.LangMF"), mGuid) = 0 Then ROT = RegisterActiveObject(Me, mGuid, ACTIVEOBJECT_STRONG, oleInstance)
+        oleInst = 0
+        If CLSIDFromProgID(StrPtr("Atomix.LangMF"), mGuid) = 0 Then ROT = RegisterActiveObject(Me, mGuid, ACTIVEOBJECT_STRONG, oleInst)
     Else
-        If oleInstance <> 0 Then ROT = RevokeActiveObject(oleInstance, 0)
+        If oleInst <> 0 Then ROT = RevokeActiveObject(oleInst, 0)
         CoDisconnectObject Me, 0
+        oleInst = 0
     End If
 End Function
 

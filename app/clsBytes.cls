@@ -131,7 +131,7 @@ Public Sub ArrayRedim(Buf As Variant, vsp() As Variant, Optional ByVal isPreserv
    
     If VarType(Buf) <> (vbArray + vbByte) Then Buf = tmpBuf
     
-    If VerifyArrayRange(vsp, , , 1, 3) Then
+    If ArrayValid(vsp, , , 1, 3) Then
         If isPreserve Then
             Select Case UBound(vsp)
                 Case 0:     ReDim Preserve Buf(vsp(0))
@@ -147,7 +147,7 @@ Public Sub ArrayRedim(Buf As Variant, vsp() As Variant, Optional ByVal isPreserv
         End If
     End If
     
-    If VerifyLongRange(value, 0, 255) Then
+    If value >= 0 And value <= 255 Then
         With GetSafeArray(Buf)
             If .pvData Then
                 Select Case .cDims

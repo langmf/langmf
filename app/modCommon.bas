@@ -1,7 +1,7 @@
 Attribute VB_Name = "modCommon"
 Option Explicit
 
-Global IID_Null As UUID, IID_IClassFactory As UUID, IID_IDispatch As UUID, IID_IUnknown As UUID
+Global IID_Null As UUID, IID_IClassFactory As UUID, IID_IDispatch As UUID, IID_IUnknown As UUID, IID_IPicture As UUID
 
 Global WinVer As OSVERSIONINFOEX, ArrNRes() As Variant, HashWins As clsHash, TypeWins As Long
 
@@ -16,10 +16,11 @@ Sub InitGlobal()
     Dim a As Long, b As Long
     
     '-------------------------------------
+    With IID_IPicture:       .Data1 = &H7BF80980:  .Data2 = &HBF32:      .Data3 = &H101A:       .Data4(0) = &H8B:    .Data4(1) = &HBB:    .Data4(3) = &HAA:    .Data4(5) = &H30:    .Data4(6) = &HC:    .Data4(7) = &HAB:      End With
     With IID_IClassFactory:  .Data1 = 1:           .Data4(0) = &HC0:     .Data4(7) = &H46:      End With
     With IID_IDispatch:      .Data1 = &H20400:     .Data4(0) = &HC0:     .Data4(7) = &H46:      End With
     With IID_IUnknown:       .Data4(0) = &HC0:     .Data4(7) = &H46:                            End With
-    
+
     '-------------------------------------
     WinVer.dwOSVersionInfoSize = Len(WinVer)
     Call GetVersionExA(WinVer)
@@ -549,10 +550,17 @@ End Function
 
 Function ToUnicode(Buf() As Byte) As String
     Dim sz As Long, i As Long, b As Byte
-    
+
     sz = ArraySize(Buf)
-    
-    If sz > 1 Then
+
+    If sz >= 3 Then
+        If Buf(0) = 239 And Buf(1) = 187 And Buf(2) = 191 Then               'UTF-8
+            ToUnicode = Conv_A2W_Buf(Buf, 65001, 3)
+            Exit Function
+        End If
+    End If
+
+    If sz >= 2 Then
         If Buf(0) = 255 And Buf(1) = 254 Then                               'UTF-16 LE
             ToUnicode = Mid$(Buf, 2)
             Exit Function
@@ -566,27 +574,56 @@ Function ToUnicode(Buf() As Byte) As String
             Exit Function
         End If
     End If
-    
-    If sz > 2 Then
-        If Buf(0) = 239 And Buf(1) = 187 And Buf(2) = 191 Then               'UTF-8
-            ToUnicode = Conv_A2W_Buf(Buf, 65001, 3)
-            Exit Function
-        End If
+
+    If sz Then ToUnicode = Conv_A2W_Buf(Buf)                                'ANSI
+End Function
+
+Function IStreamToArray(istm As stdole.IUnknown, arr() As Byte) As Boolean
+    Dim hMem As Long, pMem As Long, cnt As Long
+
+    If istm Is Nothing Then Exit Function
+    If GetHGlobalFromStream(istm, hMem) <> 0 Then Exit Function
+
+    cnt = GlobalSize(hMem):         If cnt <= 0 Then Exit Function
+    pMem = GlobalLock(hMem)
+
+    If pMem <> 0 Then
+        ReDim arr(0 To cnt - 1)
+        CopyMemory arr(0), ByVal pMem, cnt
+        GlobalUnlock hMem
+        IStreamToArray = True
     End If
-    
-    If sz > 0 Then ToUnicode = Conv_A2W_Buf(Buf)                              'ANSI
+End Function
+
+Function IStreamFromArray(ByVal Ptr As Long, ByVal Length As Long) As stdole.IUnknown
+    Dim hMem As Long, pMem  As Long
+
+    On Error GoTo err1
+
+    If Ptr = 0& Then CreateStreamOnHGlobal 0, 1, IStreamFromArray:     Exit Function
+    If Length = 0 Then Exit Function
+
+    hMem = GlobalAlloc(&H2&, Length):       If hMem = 0 Then Exit Function
+    pMem = GlobalLock(hMem)
+
+    If pMem <> 0 Then
+        CopyMemory ByVal pMem, ByVal Ptr, Length
+        Call GlobalUnlock(hMem)
+        Call CreateStreamOnHGlobal(hMem, 1, IStreamFromArray)
+    End If
+
+    If IStreamFromArray Is Nothing Then GlobalFree hMem
+err1:
 End Function
 
 Function LoadPictureFromByte(value As Variant) As IPicture
-    Dim IID_IPicture As UUID, istm As stdole.IUnknown, tmpBuf() As Byte
+    Dim sz As Long, istm As stdole.IUnknown, tmpBuf() As Byte
     
-    ConvToBufferByte value, tmpBuf:      If ArraySize(tmpBuf) = 0 Then Exit Function
+    ConvToBufferByte value, tmpBuf:      sz = ArraySize(tmpBuf):        If sz = 0 Then Exit Function
     
-    If CreateStreamOnHGlobal(tmpBuf(0), 0, istm) = 0 Then
-        If CLSIDFromString(StrPtr("{7BF80980-BF32-101A-8BBB-00AA00300CAB}"), IID_IPicture) = 0 Then
-            Call OleLoadPicture(ByVal ObjPtr(istm), UBound(tmpBuf) + 1, 0, IID_IPicture, LoadPictureFromByte)
-        End If
-    End If
+    Set istm = IStreamFromArray(VarPtr(tmpBuf(0)), sz)
+    Call OleLoadPicture(istm, sz, 0, IID_IPicture, LoadPictureFromByte)
+    Set istm = Nothing
 End Function
 
 Function BigLongToDouble(ByVal low_part As Long, ByVal high_part As Long) As Double
@@ -859,12 +896,12 @@ Function API_DoEvents() As Long
     Wend
 End Function
 
-Function Api_Error(ByVal vLastDllError As Long, Optional ByVal nFile As String, Optional ByVal clrChar As Boolean = True) As String
+Function API_Error(ByVal vLastDllError As Long, Optional ByVal nFile As String, Optional ByVal clrChar As Boolean = True) As String
     Dim Flags As Long, hModule As Long
     Flags = &H1000&:      If Len(nFile) Then Flags = &H800&:   hModule = GetModuleHandleW(StrPtr(nFile))
-    Api_Error = Space$(65535)
-    Api_Error = Left$(Api_Error, FormatMessageW(Flags, hModule, vLastDllError, 0&, StrPtr(Api_Error), Len(Api_Error)))
-    If clrChar Then Api_Error = Replace$(Api_Error, vbCrLf, "")
+    API_Error = Space$(65535)
+    API_Error = Left$(API_Error, FormatMessageW(Flags, hModule, vLastDllError, 0&, StrPtr(API_Error), Len(API_Error)))
+    If clrChar Then API_Error = Replace$(API_Error, vbCrLf, "")
 End Function
 
 Sub RmDir(ByVal nameDir As String)
@@ -923,7 +960,9 @@ End Function
 
 Function FormatBytes(ByVal value As Double, Optional ByVal arrUnit As Variant) As String
     Const KB1 As Single = 1024, MB1 As Single = KB1 * 1024, GB1 As Single = MB1 * 1024, TB1 As Single = GB1 * 1024
+
     If Not IsArray(arrUnit) Then arrUnit = Array(" bytes", " KB", " MB", " GB", " TB")
+
     If value <= 999 Then
         FormatBytes = Format$(value, "0") & arrUnit(0)
     ElseIf value <= KB1 * 999 Then
@@ -966,13 +1005,13 @@ End Function
 
 Function GEV(Optional ByVal ID As Variant) As Variant
     Dim cnt As Integer, txt() As String, Col As New clsHash
+
     If IsMissing(ID) Or IsEmpty(ID) Then
         While LenB(Environ$(cnt + 1))
             txt = Split(Environ$(cnt + 1), "=")
             Col.Add txt(1), txt(0)
             cnt = cnt + 1
         Wend
-        
         Set GEV = Col
     Else
         GEV = Environ$(ID)
@@ -1323,7 +1362,7 @@ Function ArraySize(arr As Variant) As Long
 End Function
 
 
-Function VerifyArrayRange(arr As Variant, Optional iL As Long, Optional iU As Long, Optional ByVal minCount As Long = 1, Optional ByVal maxCount As Long = 0, Optional vt As Integer, Optional ByVal ZeroiL As Boolean = True) As Boolean
+Function ArrayValid(arr As Variant, Optional iL As Long, Optional iU As Long, Optional ByVal minCount As Long = 1, Optional ByVal maxCount As Long = 0, Optional vt As Integer, Optional ByVal ZeroiL As Boolean = True) As Boolean
     Dim sz As Long, SA As SafeArray
     
     SA = GetSafeArray(arr, vt)
@@ -1335,20 +1374,7 @@ Function VerifyArrayRange(arr As Variant, Optional iL As Long, Optional iU As Lo
     If sz < minCount Then Exit Function
     If maxCount > 0 Then If sz > maxCount Then Exit Function
 
-    VerifyArrayRange = True
-End Function
-
-Function VerifyLongRange(ByVal value As Long, ByVal minValue As Long, ByVal maxValue As Long) As Boolean
-    If value < minValue Then Exit Function
-    If value > maxValue Then Exit Function
-    VerifyLongRange = True
-End Function
-
-Function VerifyLongValues(ByVal value As Long, ParamArray Args() As Variant) As Boolean
-    Dim a As Long
-    For a = 0 To UBound(Args)
-        If value = Args(a) Then VerifyLongValues = True:  Exit Function
-    Next
+    ArrayValid = True
 End Function
 
 

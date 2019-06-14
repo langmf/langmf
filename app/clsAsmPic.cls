@@ -73,6 +73,7 @@ Public Function SetDI() As Long
     SetDI = SetDIBits(vHDC, vHBitmap, 0, Abs(bi.bmiHeader.biHeight), B3D(1, 1, 1), bi, 0)
 End Function
 
+
 Public Function Ptr(Optional ByVal value As Long = 0) As Long
     Select Case value
         Case -1:    Ptr = VarPtr(bi)
@@ -88,6 +89,7 @@ End Function
 Public Sub SetBuffer(Buf As Variant)
     B3D = Buf
 End Sub
+
 
 'Default Member
 Public Property Get Point(ByVal x As Long, ByVal y As Long) As Long
@@ -114,6 +116,7 @@ End Function
 Public Sub SetRect(Optional ByVal typeX As Single = -2, Optional ByVal typeY As Single = -2, Optional ByVal offsetX As Single = 0, Optional ByVal offsetY As Single = 0, Optional ByVal typeW As Single = 1, Optional ByVal typeH As Single = 1)
     DoRect BX, BY, BW, BH, typeX, typeY, offsetX, offsetY, typeW, typeH
 End Sub
+
 
 Public Sub Main(ByVal numFunc As Long, Optional ByVal channel As Long = 0, Optional ByVal value As Byte = 0)
     Dim x As Long, y As Long, GT_Tmp(255) As Byte
@@ -436,12 +439,12 @@ Public Sub Replace(Optional ByVal fColor As Long = 0, Optional ByVal rColor As L
     Dim fc_r As Byte, fc_g As Byte, fc_b As Byte, rc_r As Byte, rc_g As Byte, rc_b As Byte
     Dim x As Long, y As Long, r As Integer, g As Integer, b As Integer
     
-    fc_b = fColor And 255&: fColor = fColor \ 256
-    fc_g = fColor And 255&: fColor = fColor \ 256
+    fc_b = fColor And 255&:     fColor = fColor \ 256
+    fc_g = fColor And 255&:     fColor = fColor \ 256
     fc_r = fColor And 255&
     
-    rc_b = rColor And 255&: rColor = rColor \ 256
-    rc_g = rColor And 255&: rColor = rColor \ 256
+    rc_b = rColor And 255&:     rColor = rColor \ 256
+    rc_g = rColor And 255&:     rColor = rColor \ 256
     rc_r = rColor And 255&
 
     For y = BY To BY + BH - 1
@@ -468,7 +471,7 @@ Public Sub Table(Optional channel As Variant = chRGB)
     Dim a As Long
     
     If IsArray(channel) Then
-        If Not VerifyArrayRange(channel, , , , 256) Then Exit Sub
+        If Not ArrayValid(channel, , , , 256) Then Exit Sub
     
         For a = 0 To 255
             GT_Tmp(a) = a
@@ -503,7 +506,6 @@ Public Sub Copy(srcBuf As Variant, Optional ByVal dstX As Long, Optional ByVal d
     dw = UBound(B3D, 2)
     dh = UBound(B3D, 3)
 
-
     '-------------------- Correct coord -------------------------
     CorrRect srcX, srcY, srcWidth, srcHeight, sw, sh, True
     
@@ -519,35 +521,35 @@ Public Sub Copy(srcBuf As Variant, Optional ByVal dstX As Long, Optional ByVal d
         srcY = srcY - y1
         
         '-----------------------------------------------------
-        dw = (vAlpha And 256) > 0:   vAlpha = vAlpha And 255:   sh = vAlpha:   sw = 255 - sh
+        dw = (vAlpha And 256) > 0:   vAlpha = vAlpha And 255:   sh = vAlpha:    sw = 255 - sh
         
         For y = y1 To y2
             For x = x1 To x2
-                x3 = x + srcX:   y3 = y + srcY
+                x3 = x + srcX:      y3 = y + srcY
 
-                r = Buf(3, x3, y3):    g = Buf(2, x3, y3):    b = Buf(1, x3, y3)
+                r = Buf(3, x3, y3):     g = Buf(2, x3, y3):     b = Buf(1, x3, y3)
                 If maskColor >= 0 Then iMask = r * 65536 + g * 256 + b
 
                 If maskColor <> iMask Then
                     If typeOper = 0 Then                    'vbSrcCopy + Alpha
-                        If dw Then sh = GT_Grad(Buf(4, x3, y3), vAlpha):   sw = 255 - sh
-                        
+                        If dw Then sh = GT_Grad(Buf(4, x3, y3), vAlpha):    sw = 255 - sh
+
                     ElseIf typeOper = &H8800C6 Then         'vbSrcAnd
-                        r = B3D(3, x, y) And r
-                        g = B3D(2, x, y) And g
-                        b = B3D(1, x, y) And b
-                        
+                        r = r And B3D(3, x, y)
+                        g = g And B3D(2, x, y)
+                        b = b And B3D(1, x, y)
+
                     ElseIf typeOper = &HEE0086 Then         'vbSrcPaint
-                        r = B3D(3, x, y) Or r
-                        g = B3D(2, x, y) Or g
-                        b = B3D(1, x, y) Or b
-                        
+                        r = r Or B3D(3, x, y)
+                        g = g Or B3D(2, x, y)
+                        b = b Or B3D(1, x, y)
+
                     ElseIf typeOper = &H660046 Then         'vbSrcInvert
-                        r = B3D(3, x, y) Xor r
-                        g = B3D(2, x, y) Xor g
-                        b = B3D(1, x, y) Xor b
+                        r = r Xor B3D(3, x, y)
+                        g = g Xor B3D(2, x, y)
+                        b = b Xor B3D(1, x, y)
                     End If
-                    
+
                     B3D(3, x, y) = GT_Grad(B3D(3, x, y), sw) + GT_Grad(r, sh)
                     B3D(2, x, y) = GT_Grad(B3D(2, x, y), sw) + GT_Grad(g, sh)
                     B3D(1, x, y) = GT_Grad(B3D(1, x, y), sw) + GT_Grad(b, sh)
@@ -558,6 +560,7 @@ Public Sub Copy(srcBuf As Variant, Optional ByVal dstX As Long, Optional ByVal d
     
     PutMem4 VarPtrArray(Buf), 0
 End Sub
+
 
 Private Sub DoLevels(ByVal channel As Long, GT_Tmp() As Byte)
     Dim x As Long, y As Long
@@ -625,7 +628,6 @@ Private Sub CorrRect(x As Long, y As Long, w As Long, h As Long, ByVal iWidth As
         If w = 0 Then w = iWidth
         If h = 0 Then h = iHeight
     End If
-    
     If x < 1 Then x = 1
     If y < 1 Then y = 1
     If w < 1 Then w = 1
