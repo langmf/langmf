@@ -35,7 +35,7 @@ Sub Form_Load()
 	brush = sys.gdi.plus.Pic2DIB(sys.conv.file2str("..\..\src\lens.png"))
 	'brush = sys.gdi.plus.Pic2DIB(sys.conv.file2str("..\..\src\lens.png"), vbred or &H80000000)
     
-	cx = 1 : cy = 1 : id = 0 : gc = 0
+	cx = 1 : cy = 1 : id = 0 : gc = 5
 	
 	this.timer(1).enabled = true 
 End Sub
@@ -68,7 +68,7 @@ End Sub
 '---------------------------------
 Sub Pic2_Click()
 	gc = gc + 1
-    if gc > 4 then gc = 0
+    if gc > 5 then gc = 1
 End Sub
 
 '---------------------------------
@@ -81,17 +81,17 @@ Sub Draw()
 
 	select case id
 		case 100	'Add Color 100
-			f.Curves 0, array(0,255,100,-1)
+			f.Curves 5, array(0,255,100,-1)
 
 		case 101	'Gray & Blue
 			f.Gray
 			f.Curves 1, array(0,255,255,0)
 
 		case 102	'Negative
-			f.Curves 0, array(0,255,255,1)
+			f.Curves 5, array(0,255,255,1)
 
 		case 103	'Contrast 100%
-			f.Contrast 0, 100
+			f.Contrast 5, 100
 
 		case 104	'Color Negative
 			f.Curves 1, array(0,25,255,0), array(26,108,332,3.07), array(109,255,0,0)
@@ -99,10 +99,10 @@ Sub Draw()
 			f.Curves 3, array(0,59,255,0), array(60,181,378,2.09), array(182,255,0,0)
 
 		case 105	'High Contrast
-			f.Curves 0, array(0,77,0,-0.649), array(78,175,-58,-1.408), array(176,255,42,-0.837)
+			f.Curves 5, array(0,77,0,-0.649), array(78,175,-58,-1.408), array(176,255,42,-0.837)
 
 		case 106	'Light MidTone
-			f.Levels 0, 0, 255, 0, 255, 1.25
+			f.Levels 5, 0, 255, 0, 255, 1.25
 
 		case 107	'Gray Infrared
 			f.Mix -70,200,-30,-70,200,-30,-70,200,-30
@@ -129,11 +129,10 @@ Sub Draw()
 			tbl(a) = a xor 255
 			next
 
-			f.Table tbl
-			f.Table 0
+			f.Table 5, tbl
 
 		case 114	'Bit
-			f.Main 1, 0, 64
+			f.Main 1, 5, 64
 
 		case 115	'Matrix
 			'f.matrix array(0, 1, 0, 1, 1, 1, 0, 1, 0)             'blur
@@ -156,7 +155,7 @@ Sub Draw()
         f.SetRect
         buf = f.Gistogram(gc, max, min, brs)
         with this.pic(2) : .cls : .visible = true : .currentx = 5 : .currenty = 0 :  end with
-        GPrint this.pic(2), "Ch = " & array("RGB", "Blue", "Green", "Red", "Alpha")(gc), -1
+        GPrint this.pic(2), "Ch = " & array("None", "Blue", "Green", "Red", "Alpha", "RGB")(gc), -1
         GPrint this.pic(2), "   Max = " & max, -1   :   GPrint this.pic(2), "   Min = " & min, -1   :   GPrint this.pic(2), "   Brs = " & brs
         GPrint this.pic(2), "0",15,110   :   GPrint this.pic(2), "255",290,110
         for a=0 to 255   :   GLine this.pic(2), a+30, 120, a+30, 120 - (buf(a) / max) * 90   :   next

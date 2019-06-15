@@ -13,7 +13,8 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 Option Explicit
 
-Const chRGB As Long = 0, chBlue As Long = 1, chGreen As Long = 2, chRed As Long = 3, chAlpha As Long = 4
+Const nm_Blue As Long = 1, nm_Green As Long = 2, nm_Red As Long = 3, nm_Alpha As Long = 4, nm_RGB As Long = 5
+Const ch_Blue As Long = 16, ch_Green As Long = 32, ch_Red As Long = 64, ch_Alpha As Long = 128, ch_RGB As Long = 112
 
 Private bi As BITMAPINFO, BX As Long, BY As Long, BW As Long, BH As Long, B3D() As Byte
 
@@ -118,10 +119,12 @@ Public Sub SetRect(Optional ByVal typeX As Single = -2, Optional ByVal typeY As 
 End Sub
 
 
-Public Sub Main(ByVal numFunc As Long, Optional ByVal channel As Long = 0, Optional ByVal value As Byte = 0)
-    Dim x As Long, y As Long, GT_Tmp(255) As Byte
+Public Sub Main(ByVal numFunc As Long, Optional ByVal channel As Long = nm_RGB, Optional ByVal value As Byte = 0)
+    Dim x As Long, y As Long, ch As Long, GT_Tmp(255) As Byte
     
-    If channel <> chRGB Then
+    Do
+        ch = NextChan(channel):      If ch = 0 Then Exit Do
+
         Select Case numFunc
             Case 1      'Bits
                 For x = 0 To 255
@@ -129,47 +132,44 @@ Public Sub Main(ByVal numFunc As Long, Optional ByVal channel As Long = 0, Optio
                 Next
                 For y = BY To BY + BH - 1
                     For x = BX To BX + BW - 1
-                        B3D(channel, x, y) = GT_Tmp(B3D(channel, x, y))
+                        B3D(ch, x, y) = GT_Tmp(B3D(ch, x, y))
                     Next
                 Next
                 
             Case 2      'And
                 For y = BY To BY + BH - 1
                     For x = BX To BX + BW - 1
-                        B3D(channel, x, y) = B3D(channel, x, y) And value
+                        B3D(ch, x, y) = B3D(ch, x, y) And value
                     Next
                 Next
                 
             Case 3      'Or
                 For y = BY To BY + BH - 1
                     For x = BX To BX + BW - 1
-                        B3D(channel, x, y) = B3D(channel, x, y) Or value
+                        B3D(ch, x, y) = B3D(ch, x, y) Or value
                     Next
                 Next
                 
             Case 4      'Xor
                 For y = BY To BY + BH - 1
                     For x = BX To BX + BW - 1
-                        B3D(channel, x, y) = B3D(channel, x, y) Xor value
+                        B3D(ch, x, y) = B3D(ch, x, y) Xor value
                     Next
                 Next
         End Select
-    Else
-        Call Main(numFunc, chBlue, value)
-        Call Main(numFunc, chGreen, value)
-        Call Main(numFunc, chRed, value)
-    End If
+    Loop
 End Sub
 
 Public Sub Gray(Optional ByVal pR As Integer = 33, Optional ByVal pg As Integer = 34, Optional ByVal pb As Integer = 33)
     Dim x As Long, y As Long, b As Integer
+
     For y = BY To BY + BH - 1
         For x = BX To BX + BW - 1
             b = GT_Tran(B3D(3, x, y), pR) + GT_Tran(B3D(2, x, y), pg) + GT_Tran(B3D(1, x, y), pb)
             b = GT_Mix(b)
-            B3D(1, x, y) = b
-            B3D(2, x, y) = b
             B3D(3, x, y) = b
+            B3D(2, x, y) = b
+            B3D(1, x, y) = b
         Next
     Next
 End Sub
@@ -188,15 +188,14 @@ Public Sub Contrast(ByVal channel As Long, Optional ByVal value As Long = 0)
 End Sub
 
 Public Sub Curves(ByVal channel As Long, ParamArray Arg() As Variant)
-    Dim a As Long, b As Integer, c As Long, m_Sub As Long, m_KF As Single, GT_Tmp(255) As Byte
+    Dim a As Long, b As Long, c As Long, m_Sub As Long, m_KF As Single, GT_Tmp(255) As Byte
 
-    For a = 0 To 255
-        GT_Tmp(a) = a
-    Next
+    For a = 0 To 255:       GT_Tmp(a) = a:      Next
     
     For a = 0 To UBound(Arg)
         m_Sub = Arg(a)(2)
         m_KF = Arg(a)(3)
+
         For c = Arg(a)(0) To Arg(a)(1)
             b = m_Sub - c * m_KF
             If b < 0 Then b = 0
@@ -209,7 +208,7 @@ Public Sub Curves(ByVal channel As Long, ParamArray Arg() As Variant)
 End Sub
 
 Public Sub Levels(ByVal channel As Long, Optional ByVal m_IL As Long = 0, Optional ByVal m_IR As Long = 255, Optional ByVal m_OL As Long = 0, Optional ByVal m_OR As Long = 255, Optional ByVal m_KF As Single = 1)
-    Dim pStep As Single, oStep As Double, dGamma As Double, a As Long, b As Integer, gLevels(255) As Byte, GT_Tmp(255) As Byte
+    Dim pStep As Single, oStep As Double, dGamma As Double, a As Long, b As Long, m(255) As Byte, GT_Tmp(255) As Byte
         
     For a = 0 To 255
         dGamma = CDbl(a) / 255
@@ -217,7 +216,7 @@ Public Sub Levels(ByVal channel As Long, Optional ByVal m_IL As Long = 0, Option
         dGamma = dGamma * 255
         If dGamma > 255 Then dGamma = 255
         If dGamma < 0 Then dGamma = 0
-        gLevels(a) = dGamma
+        m(a) = dGamma
     Next
     
     pStep = 255 / (CSng(m_IR) - CSng(m_IL))
@@ -232,7 +231,7 @@ Public Sub Levels(ByVal channel As Long, Optional ByVal m_IL As Long = 0, Option
             If b > 255 Then b = 255
             GT_Tmp(a) = b
         End If
-        GT_Tmp(a) = gLevels(GT_Tmp(a))
+        GT_Tmp(a) = m(GT_Tmp(a))
     Next
     
     oStep = (CSng(m_OR) - CSng(m_OL)) / 255
@@ -251,24 +250,13 @@ Public Sub Mix(Optional ByVal CR_PR As Long = 100, Optional ByVal CR_PG As Long 
     
     For y = BY To BY + BH - 1
         For x = BX To BX + BW - 1
-            b = B3D(1, x, y)
-            g = B3D(2, x, y)
             r = B3D(3, x, y)
+            g = B3D(2, x, y)
+            b = B3D(1, x, y)
 
-            o = GT_Tran(r, CR_PR)
-            o = o + GT_Tran(g, CR_PG)
-            o = o + GT_Tran(b, CR_PB)
-            B3D(3, x, y) = GT_Mix(o)
-
-            o = GT_Tran(r, CG_PR)
-            o = o + GT_Tran(g, CG_PG)
-            o = o + GT_Tran(b, CG_PB)
-            B3D(2, x, y) = GT_Mix(o)
-
-            o = GT_Tran(r, CB_PR)
-            o = o + GT_Tran(g, CB_PG)
-            o = o + GT_Tran(b, CB_PB)
-            B3D(1, x, y) = GT_Mix(o)
+            o = GT_Tran(r, CR_PR):    o = o + GT_Tran(g, CR_PG):    o = o + GT_Tran(b, CR_PB):    B3D(3, x, y) = GT_Mix(o)
+            o = GT_Tran(r, CG_PR):    o = o + GT_Tran(g, CG_PG):    o = o + GT_Tran(b, CG_PB):    B3D(2, x, y) = GT_Mix(o)
+            o = GT_Tran(r, CB_PR):    o = o + GT_Tran(g, CB_PG):    o = o + GT_Tran(b, CB_PB):    B3D(1, x, y) = GT_Mix(o)
         Next
     Next
 End Sub
@@ -323,56 +311,37 @@ Public Sub Gradient(ParamArray Arg() As Variant)
             a = GT_Mix(a)
             
             With GT_Tmp(a)
-                B3D(1, x, y) = .rgbBlue
-                B3D(2, x, y) = .rgbGreen
                 B3D(3, x, y) = .rgbRed
+                B3D(2, x, y) = .rgbGreen
+                B3D(1, x, y) = .rgbBlue
             End With
         Next
     Next
 End Sub
 
 Public Function Gistogram(ByVal channel As Long, Optional iMax As Variant, Optional iMin As Variant, Optional iBrs As Variant)
-    Dim gLevels(255) As Long, Buf() As Variant, x As Long, y As Long, vMax As Long, vMin As Long, vBrs As Long, b As Byte
+    Dim m(255) As Long, Buf() As Variant, x As Long, y As Long, vMax As Long, vMin As Long, vBrs As Long, b As Byte
     
-    vMax = 0: vMin = 2147483647
+    vMax = 0:       vMin = 2147483647:      NextChan channel, 2
     
-    Select Case channel
-         Case chRGB
-            For y = BY To BY + BH - 1
-                For x = BX To BX + BW - 1
-                    b = B3D(1, x, y)
-                    vBrs = (vBrs + b) / 2
-                    gLevels(b) = gLevels(b) + 1
-                    b = B3D(2, x, y)
-                    vBrs = (vBrs + b) / 2
-                    gLevels(b) = gLevels(b) + 1
-                    b = B3D(3, x, y)
-                    vBrs = (vBrs + b) / 2
-                    gLevels(b) = gLevels(b) + 1
-                Next
-            Next
-            
-        Case chBlue To chAlpha
-            For y = BY To BY + BH - 1
-                For x = BX To BX + BW - 1
-                    b = B3D(channel, x, y)
-                    vBrs = (vBrs + b) / 2
-                    gLevels(b) = gLevels(b) + 1
-                Next
-            Next
-    End Select
+    For y = BY To BY + BH - 1
+        For x = BX To BX + BW - 1
+            If (channel And ch_Alpha) Then b = B3D(4, x, y):    vBrs = (vBrs + b) / 2:      m(b) = m(b) + 1
+            If (channel And ch_Red) Then b = B3D(3, x, y):      vBrs = (vBrs + b) / 2:      m(b) = m(b) + 1
+            If (channel And ch_Green) Then b = B3D(2, x, y):    vBrs = (vBrs + b) / 2:      m(b) = m(b) + 1
+            If (channel And ch_Blue) Then b = B3D(1, x, y):     vBrs = (vBrs + b) / 2:      m(b) = m(b) + 1
+        Next
+    Next
     
     ReDim Buf(255)
     For x = 0 To 255
-        y = gLevels(x)
+        y = m(x)
         Buf(x) = y
         If y > vMax Then vMax = y
         If y < vMin Then vMin = y
     Next
     
-    iBrs = vBrs
-    iMax = vMax
-    iMin = vMin
+    iBrs = vBrs:        iMax = vMax:        iMin = vMin
     
     Gistogram = Buf
 End Function
@@ -381,8 +350,8 @@ Public Sub Matrix(Optional ByVal value As Variant)
     Dim x As Long, y As Long, cx As Long, cy As Long, mx As Long, my As Long, r As Long, g As Long, b As Long
     Dim sum As Long, d As Long, m As Long, w As Long, h As Long, k As Long, Mat() As Long, B3D_Tmp() As Byte
 
-    d = Sqr(ArraySize(value)) - 1
-    If d < 0 Then Exit Sub
+    d = Sqr(ArraySize(value)) - 1:      If d < 0 Then Exit Sub
+
     B3D_Tmp = B3D:    m = d \ 2:    ReDim Mat(d, d):    cx = 10000:    cy = -10000:    w = BX + BW - 1:    h = BY + BH - 1
     
     For y = 0 To d
@@ -398,7 +367,7 @@ Public Sub Matrix(Optional ByVal value As Variant)
     For y = BY To h
         For x = BX To w
         
-            r = 0:   g = 0:   b = 0
+            r = 0:      g = 0:      b = 0
                  
             For my = 0 To d
                 For mx = 0 To d
@@ -417,7 +386,7 @@ Public Sub Matrix(Optional ByVal value As Variant)
                 Next
             Next
             
-            r = r / sum:    g = g / sum:    b = b / sum
+            r = r / sum:        g = g / sum:        b = b / sum
             
             If r < 0 Then r = 0
             If r > 255 Then r = 255
@@ -466,23 +435,18 @@ Public Sub Replace(Optional ByVal fColor As Long = 0, Optional ByVal rColor As L
     Next
 End Sub
 
-Public Sub Table(Optional channel As Variant = chRGB)
+Public Sub Table(Optional ByVal channel As Long = nm_RGB, Optional TBL As Variant)
     Static GT_Tmp(255) As Byte
     Dim a As Long
     
-    If IsArray(channel) Then
-        If Not ArrayValid(channel, , , , 256) Then Exit Sub
-    
-        For a = 0 To 255
-            GT_Tmp(a) = a
-        Next
+    If IsArray(TBL) Then
+        If Not ArrayValid(TBL, , , , 256) Then Exit Sub
         
-        For a = 0 To UBound(channel)
-            GT_Tmp(a) = channel(a)
-        Next
-    Else
-        Call DoLevels(channel, GT_Tmp)
+        For a = 0 To 255:               GT_Tmp(a) = a:          Next
+        For a = 0 To UBound(TBL):       GT_Tmp(a) = TBL(a):     Next
     End If
+
+    Call DoLevels(channel, GT_Tmp)
 End Sub
 
 Public Sub Copy(srcBuf As Variant, Optional ByVal dstX As Long, Optional ByVal dstY As Long, Optional ByVal srcX As Long, Optional ByVal srcY As Long, Optional ByVal srcWidth As Long, Optional ByVal srcHeight As Long, Optional ByVal typeOper As Long = 0, Optional ByVal maskColor As Long = -1, Optional ByVal vAlpha As Long = 255)
@@ -501,50 +465,43 @@ Public Sub Copy(srcBuf As Variant, Optional ByVal dstX As Long, Optional ByVal d
     
     If sw = 0 Or sh = 0 Then Exit Sub
     
-    PutMem4 VarPtrArray(Buf), VarPtr(SA)
-    
-    dw = UBound(B3D, 2)
-    dh = UBound(B3D, 3)
+    PutMem4 VarPtrArray(Buf), VarPtr(SA):       dw = UBound(B3D, 2):        dh = UBound(B3D, 3)
 
     '-------------------- Correct coord -------------------------
     CorrRect srcX, srcY, srcWidth, srcHeight, sw, sh, True
     
-    x1 = dstX:  x2 = dstX + srcWidth - 1
-    y1 = dstY:  y2 = dstY + srcHeight - 1
+    x1 = dstX:      x2 = dstX + srcWidth - 1
+    y1 = dstY:      y2 = dstY + srcHeight - 1
     
+    '------------------------------------------------------------
     If (x2 > 0) And (y2 > 0) And (x1 <= dw) And (y1 <= dh) Then
     
-        CorrRect x1, y1, 0&, 0&, dw, dh
-        CorrRect x2, y2, 0&, 0&, dw, dh
+        CorrRect x1, y1, 0&, 0&, dw, dh:        srcX = srcX - x1
+        CorrRect x2, y2, 0&, 0&, dw, dh:        srcY = srcY - y1
         
-        srcX = srcX - x1
-        srcY = srcY - y1
-        
-        '-----------------------------------------------------
-        dw = (vAlpha And 256) > 0:   vAlpha = vAlpha And 255:   sh = vAlpha:    sw = 255 - sh
+        dw = (vAlpha And 256) > 0:      vAlpha = vAlpha And 255:    sh = vAlpha:    sw = 255 - sh
         
         For y = y1 To y2
             For x = x1 To x2
-                x3 = x + srcX:      y3 = y + srcY
+                x3 = x + srcX:      y3 = y + srcY:      r = Buf(3, x3, y3):     g = Buf(2, x3, y3):     b = Buf(1, x3, y3)
 
-                r = Buf(3, x3, y3):     g = Buf(2, x3, y3):     b = Buf(1, x3, y3)
                 If maskColor >= 0 Then iMask = r * 65536 + g * 256 + b
 
                 If maskColor <> iMask Then
-                    If typeOper = 0 Then                    'vbSrcCopy + Alpha
+                    If typeOper = 0 Then                                    'vbSrcCopy + Alpha
                         If dw Then sh = GT_Grad(Buf(4, x3, y3), vAlpha):    sw = 255 - sh
 
-                    ElseIf typeOper = &H8800C6 Then         'vbSrcAnd
+                    ElseIf typeOper = &H8800C6 Then                         'vbSrcAnd
                         r = r And B3D(3, x, y)
                         g = g And B3D(2, x, y)
                         b = b And B3D(1, x, y)
 
-                    ElseIf typeOper = &HEE0086 Then         'vbSrcPaint
+                    ElseIf typeOper = &HEE0086 Then                         'vbSrcPaint
                         r = r Or B3D(3, x, y)
                         g = g Or B3D(2, x, y)
                         b = b Or B3D(1, x, y)
 
-                    ElseIf typeOper = &H660046 Then         'vbSrcInvert
+                    ElseIf typeOper = &H660046 Then                         'vbSrcInvert
                         r = r Xor B3D(3, x, y)
                         g = g Xor B3D(2, x, y)
                         b = b Xor B3D(1, x, y)
@@ -562,11 +519,32 @@ Public Sub Copy(srcBuf As Variant, Optional ByVal dstX As Long, Optional ByVal d
 End Sub
 
 
+Private Function NextChan(c As Long, Optional ByVal Flag As Long) As Long
+    Dim v As Long
+
+    If c <= 0 Then Exit Function
+
+    v = c And &HF:      c = c And &HF0
+    If v = nm_RGB Then c = c Or ch_RGB
+    If v >= nm_Blue And v <= nm_Alpha Then c = c Or (2 ^ (v + 3))
+    If Flag = 2 Then Exit Function
+
+    v = c And ch_RGB
+    If Flag = 1 And v = ch_RGB Then c = c Xor ch_RGB:    NextChan = nm_RGB:       Exit Function
+
+    If (c And ch_Red) Then c = c Xor ch_Red:          NextChan = nm_Red:       Exit Function
+    If (c And ch_Blue) Then c = c Xor ch_Blue:        NextChan = nm_Blue:      Exit Function
+    If (c And ch_Green) Then c = c Xor ch_Green:      NextChan = nm_Green:     Exit Function
+    If (c And ch_Alpha) Then c = c Xor ch_Alpha:      NextChan = nm_Alpha:     Exit Function
+End Function
+
 Private Sub DoLevels(ByVal channel As Long, GT_Tmp() As Byte)
-    Dim x As Long, y As Long
+    Dim x As Long, y As Long, ch As Long
     
-    Select Case channel
-         Case chRGB
+    Do
+        ch = NextChan(channel, 1):       If ch = 0 Then Exit Do
+
+        If ch = nm_RGB Then
             For y = BY To BY + BH - 1
                 For x = BX To BX + BW - 1
                     B3D(3, x, y) = GT_Tmp(B3D(3, x, y))
@@ -574,14 +552,14 @@ Private Sub DoLevels(ByVal channel As Long, GT_Tmp() As Byte)
                     B3D(1, x, y) = GT_Tmp(B3D(1, x, y))
                 Next
             Next
-            
-        Case chBlue To chAlpha
+        Else
             For y = BY To BY + BH - 1
                 For x = BX To BX + BW - 1
-                    B3D(channel, x, y) = GT_Tmp(B3D(channel, x, y))
+                    B3D(ch, x, y) = GT_Tmp(B3D(ch, x, y))
                 Next
             Next
-    End Select
+        End If
+    Loop
 End Sub
 
 Private Sub DoRect(x As Long, y As Long, w As Long, h As Long, typeX As Single, typeY As Single, offsetX As Single, offsetY As Single, typeW As Single, typeH As Single)

@@ -47,7 +47,7 @@ dim count, img, txt, typeImg
     'Set f = sys.NewFAP(img)
 	'f.GetDI
     'f.Gray
-    'f.Curves 0, array(0,255,255,1)
+    'f.Curves 5, array(0,255,255,1)
     'f.SetDI
     
     sys.cgi.std = "Content-Type: image/bmp"+vbcrlf+vbcrlf
