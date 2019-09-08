@@ -450,30 +450,6 @@ Function Buf2File(Buf() As Byte, nameFile As String) As Boolean
     Buf2File = True
 End Function
 
-Sub ArrayDef(Param As Variant, ParamArray vsp() As Variant)
-    Dim a As Long, uds As Long
-
-    uds = UBound(vsp)
-    If uds < 0 Then Exit Sub
-    
-    If Not IsArray(Param) Then
-        Param = Empty
-        ReDim Param(uds)
-    ElseIf ArraySize(Param) = 0 Then
-        ReDim Param(uds)
-    Else
-        If UBound(Param) <> uds Then ReDim Preserve Param(uds)
-    End If
-    
-    For a = 0 To uds
-        If Not IsObject(Param(a)) Then
-            If IsEmpty(Param(a)) Or IsMissing(Param(a)) Then
-                If IsObject(vsp(a)) Then Set Param(a) = vsp(a) Else Param(a) = vsp(a)
-            End If
-        End If
-    Next
-End Sub
-
 Function ListWindows(Optional ByVal hWnd As Long, Optional ByVal VType As Long) As clsHash
     TypeWins = VType
     Set HashWins = New clsHash
@@ -1328,6 +1304,30 @@ Function DoParams(ByVal Obj As Object, Arg As Variant) As Object
     CAS.Execute "With " & Preset(0) & vbCrLf & txt & vbCrLf & "End With", nMod
 End Function
 
+Sub ArrayDef(Param As Variant, ParamArray vsp() As Variant)
+    Dim a As Long, uds As Long
+
+    uds = UBound(vsp)
+    If uds < 0 Then Exit Sub
+    
+    If Not IsArray(Param) Then
+        Param = Empty
+        ReDim Param(uds)
+    ElseIf ArraySize(Param) = 0 Then
+        ReDim Param(uds)
+    Else
+        If UBound(Param) <> uds Then ReDim Preserve Param(uds)
+    End If
+    
+    For a = 0 To uds
+        If Not IsObject(Param(a)) Then
+            If IsEmpty(Param(a)) Or IsMissing(Param(a)) Then
+                If IsObject(vsp(a)) Then Set Param(a) = vsp(a) Else Param(a) = vsp(a)
+            End If
+        End If
+    Next
+End Sub
+
 Sub ArrayReverse(arr As Variant)
     Dim SA As SafeArray, a As Long, uds As Long, newArr() As Variant
     
@@ -1360,7 +1360,6 @@ Function ArraySize(arr As Variant) As Long
         If .cDims = 1 Then ArraySize = .rgSABound(0).cElements
     End With
 End Function
-
 
 Function ArrayValid(arr As Variant, Optional iL As Long, Optional iU As Long, Optional ByVal minCount As Long = 1, Optional ByVal maxCount As Long = 0, Optional vt As Integer, Optional ByVal ZeroiL As Boolean = True) As Boolean
     Dim sz As Long, SA As SafeArray

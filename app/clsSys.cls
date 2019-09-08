@@ -213,7 +213,7 @@ Public Function Power(Optional ByVal value As String = "off", Optional ByVal Fla
     End Select
 End Function
 
-Public Function OnTimer(ByVal Interval As Long, ByVal Param As Variant, ParamArray dataArg() As Variant) As Long
+Public Function OnTimer(ByVal Interval As Long, ByVal Param As Variant, ParamArray Args() As Variant) As Long
     Dim idT As Long, tmp As String
 
     If Interval < 0 Then idT = -1
@@ -222,8 +222,8 @@ Public Function OnTimer(ByVal Interval As Long, ByVal Param As Variant, ParamArr
         If Interval < 0 Then idT = idT - 1 Else idT = idT + 1
     Wend
     
-    If Not IsArray(Param) Then tmp = Param: Param = Empty
-    ArrayDef Param, tmp, "", dataArg, idT
+    If Not IsArray(Param) Then tmp = Param:   Param = Empty
+    ArrayDef Param, tmp, "", Args, idT
     Timers("#" & idT) = Param
 
     Call SetTimer(frmScript.hWnd, idT, Abs(Interval), AddressOf Timer_Event)
@@ -314,7 +314,7 @@ Public Function Content(ByVal value As String, Optional ByVal bString As Boolean
                     vStatus(0) = True
                 Else
                     If .readyState = 0 Then vStatus(5) = "Timeout abort."
-                    If vStatus(4) >= 12000 Then vStatus(5) = Api_Error(vStatus(4), "wininet.dll")
+                    If vStatus(4) >= 12000 Then vStatus(5) = API_Error(vStatus(4), "wininet.dll")
                 End If
             End With
 
@@ -333,7 +333,7 @@ Public Function Content(ByVal value As String, Optional ByVal bString As Boolean
                 If bString Then Content = Conv_A2W_Buf(Buf) Else Content = Buf
                 vStatus(0) = True
             Else
-                vStatus(4) = Err.LastDllError:      vStatus(5) = Api_Error(vStatus(4))
+                vStatus(4) = Err.LastDllError:      vStatus(5) = API_Error(vStatus(4))
             End If
     End Select
 End Function
