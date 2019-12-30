@@ -850,6 +850,20 @@ Sub SetIconWindow(ByVal hWnd As Long, ByVal varName As Variant, Optional ByVal n
     If LenB(nameLib) Then FreeLibrary hInst
 End Sub
 
+Sub InitCommonControlsXP()
+    Dim iccex As tagInitCommonControlsEx
+    
+    On Error GoTo err1
+    
+    With iccex
+      .lngSize = Len(iccex)
+      .lngICC = &H7FFF&
+    End With
+    
+    InitCommonControlsEx iccex
+err1:
+End Sub
+
 Sub WaitMs(Optional ByVal msec As Long)
     Dim t1 As Long, t2 As Long, lowCPU As Boolean
     

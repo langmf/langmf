@@ -33,5 +33,6 @@ Public ID As String
 '----------------------------------------------
 Public Function WebEvent() As Variant
 Attribute WebEvent.VB_UserMemId = 0
-    If IsEmpty(Data) Then WebEvent = False Else WebEvent = Data
+    If IsEmpty(Data) Then WebEvent = False:   Exit Function
+    If IsObject(Data) Then Set WebEvent = Data Else WebEvent = Data
 End Function

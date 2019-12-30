@@ -227,7 +227,7 @@ Declare Function PlaySoundW Lib "winmm" (ByVal lpszName As Long, ByVal hModule A
 Declare Function mciSendStringW Lib "winmm" (ByVal lpstrCommand As Long, ByVal lpstrReturnString As Long, ByVal uReturnLength As Long, ByVal hwndCallback As Long) As Long
 
 Declare Sub WTSFreeMemory Lib "wtsapi32" (ByVal pMemory As Long)
-Declare Function WTSEnumerateProcesses Lib "wtsapi32" Alias "WTSEnumerateProcessesA" (ByVal hServer As Long, ByVal Reserved As Long, ByVal Version As Long, ByRef ppProcessInfo As Long, ByRef pCount As Long) As Long
+Declare Function WTSEnumerateProcesses Lib "wtsapi32" Alias "WTSEnumerateProcessesA" (ByVal hServer As Long, ByVal Reserved As Long, ByVal version As Long, ByRef ppProcessInfo As Long, ByRef pCount As Long) As Long
 
 Declare Function IsUserAnAdmin Lib "shell32" Alias "#680" () As Integer
 Declare Function ShellExecuteW Lib "shell32" (ByVal hWnd As Long, ByVal lpOperation As Long, ByVal lpFile As Long, ByVal lpParameters As Long, ByVal lpDirectory As Long, ByVal nShowCmd As Long) As Long
@@ -235,9 +235,9 @@ Declare Function ShellExecuteExW Lib "shell32" (ByVal SEI As Long) As Long
 Declare Function SHGetPathFromIDListW Lib "shell32" (ByVal pidl As Long, ByVal pszPath As Long) As Long
 Declare Function SHGetSpecialFolderLocation Lib "shell32" (ByVal hwndOwner As Long, ByVal nFolder As Long, pidl As ITEMIDLIST) As Long
 
-Declare Function VerQueryValueW Lib "Version" (pBlock As Any, ByVal lpSubBlock As Long, lplpBuffer As Any, puLen As Long) As Long
-Declare Function GetFileVersionInfoW Lib "Version" (ByVal lptstrFilename As Long, ByVal dwhandle As Long, ByVal dwlen As Long, lpData As Any) As Long
-Declare Function GetFileVersionInfoSizeW Lib "Version" (ByVal lptstrFilename As Long, lpdwHandle As Long) As Long
+Declare Function VerQueryValueW Lib "version" (pBlock As Any, ByVal lpSubBlock As Long, lplpBuffer As Any, puLen As Long) As Long
+Declare Function GetFileVersionInfoW Lib "version" (ByVal lptstrFilename As Long, ByVal dwhandle As Long, ByVal dwlen As Long, lpData As Any) As Long
+Declare Function GetFileVersionInfoSizeW Lib "version" (ByVal lptstrFilename As Long, lpdwHandle As Long) As Long
 
 Declare Function RtlGetCompressionWorkSpaceSize Lib "ntdll" (ByVal CompressionFormat As Integer, CompressBufferWorkSpaceSize As Long, CompressFragmentWorkSpaceSize As Long) As Long
 Declare Function NtAllocateVirtualMemory Lib "ntdll" (ByVal ProcHandle As Long, BaseAddress As Long, ByVal NumBits As Long, regionsize As Long, ByVal Flags As Long, ByVal ProtectMode As Long) As Long
@@ -272,6 +272,7 @@ Declare Function RegisterActiveObject Lib "oleaut32" (ByVal pUnk As IUnknown, rc
 
 Declare Function wglGetProcAddress Lib "opengl32" (ByVal prcname As String) As Long
 Declare Function SetSuspendState Lib "powrprof" (ByVal hibernate As Long, ByVal ForceCritical As Long, ByVal DisableWakeEvent As Long) As Long
+Declare Function InitCommonControlsEx Lib "comctl32" (iccex As tagInitCommonControlsEx) As Boolean
 
 Declare Function zlib_Compress Lib "zlib" Alias "compress" (dest As Any, destLen As Any, src As Any, ByVal srcLen As Long) As Long
 Declare Function zlib_UnCompress Lib "zlib" Alias "uncompress" (dest As Any, destLen As Any, src As Any, ByVal srcLen As Long) As Long
@@ -891,4 +892,9 @@ Type ICONDIR
    idReserved As Integer
    idType As Integer
    idCount As Integer
+End Type
+
+Type tagInitCommonControlsEx
+    lngSize As Long
+    lngICC As Long
 End Type

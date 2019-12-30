@@ -110,7 +110,7 @@ Sub Timer1_Timer()
   cntAlarm = cntAlarm + 1
   if cntAlarm > 11 then Call Command2_Click
   if this.mtext(1).backcolor = &H80000005 then this.mtext(1).backcolor = QBColor(12) else this.mtext(1).backcolor = &H80000005
-  Call sys.ext.PlaySound(sys.path + "alarm.wav", 0, 1)
+  Call sys.ext.Play(sys.path + "alarm.wav", 0, 1)
 End Sub
 
 '----------------------

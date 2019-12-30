@@ -27,7 +27,7 @@ End Sub
 '---------------------------------
 Sub Command1_Click()
   sFile = sys.cdlg.showopen("Wav Files (*.wav)|*.wav", "Wav Files")
-  rc = sys.ext.PlaySound(sFile, 0, SND_ASYNC)
+  rc = sys.ext.Play(sFile, 0, SND_ASYNC)
 End Sub
 
 '---------------------------------

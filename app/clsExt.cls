@@ -34,8 +34,8 @@ Public Sub SendKeys(ByVal numKey As String, Optional ByVal cWait As Boolean = Fa
     VBA.SendKeys numKey, cWait
 End Sub
 
-Public Function PlaySound(ByVal fName As String, ByVal hMod As Long, ByVal wFlags As Long) As Long
-    PlaySound = PlaySoundW(StrPtr(fName), hMod, wFlags)
+Public Function Play(ByVal fName As String, ByVal hMod As Long, ByVal wFlags As Long) As Long
+    Play = PlaySoundW(StrPtr(fName), hMod, wFlags)
 End Function
 
 Public Function Mci(ByVal sCommand As String, Optional ByVal isVal As Boolean) As Variant
@@ -57,9 +57,9 @@ Public Function Template(ByVal txtCode As String, Optional ByVal fnPrint As Stri
     Template = Parse_Template(txtCode, fnPrint, dmStart, dmStop)
 End Function
 
-Public Function CreateStdFont(Optional ByVal fName As String = "Arial", Optional ByVal fSize As Currency = 8, Optional ByVal fBold As Boolean, Optional ByVal fItalic As Boolean, Optional ByVal fUnderline As Boolean, Optional ByVal fStrikethrough As Boolean, Optional ByVal fCharset As Integer = 204) As StdFont
-    Set CreateStdFont = New StdFont
-    With CreateStdFont:    .Name = fName:   .Size = fSize:   .Bold = fBold:   .Italic = fItalic:   .Underline = fUnderline:   .Strikethrough = fStrikethrough:    .Charset = fCharset:    End With
+Public Function Font(Optional ByVal fName As String = "Arial", Optional ByVal fSize As Currency = 8, Optional ByVal fBold As Boolean, Optional ByVal fItalic As Boolean, Optional ByVal fUnderline As Boolean, Optional ByVal fStrikethrough As Boolean, Optional ByVal fCharset As Integer = 204) As StdFont
+    Set Font = New StdFont
+    With Font:    .Name = fName:   .Size = fSize:   .Bold = fBold:   .Italic = fItalic:   .Underline = fUnderline:   .Strikethrough = fStrikethrough:    .Charset = fCharset:    End With
 End Function
 
 Public Sub VB_Load(ByVal tmpObj As Object)

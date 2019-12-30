@@ -89,7 +89,7 @@ Public Property Get PText() As String: PText = vText: End Property              
 Public Property Let PText(ByVal value As String): vText = value: Refresh: End Property
 Public Property Get PColor() As Long: PColor = vColor: End Property                                                                     'no_check
 Public Property Let PColor(ByVal value As Long): vColor = value: Refresh: End Property
-Public Property Get Visible() As Boolean: Visible = WindowLong(hWnd, , WS_VISIBLE): End Property                                      'no_check
+Public Property Get Visible() As Boolean: Visible = WindowLong(hWnd, , WS_VISIBLE): End Property                                        'no_check
 Public Property Let Visible(ByVal value As Boolean): Call WindowLong(hWnd, value, WS_VISIBLE): End Property
 Public Sub Refresh(Optional ByVal mStyle As Long = SW_SHOW): ShowWindow hWnd, mStyle: End Sub                                           'no_check
 Public Sub SetFocus(): Call modConst.SetFocus(hWnd): End Sub                                                                            'no_check
