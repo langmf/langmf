@@ -115,7 +115,7 @@ Function GetPHY(ByVal value As Long) As Long
     GetPHY = (value * 2540) / GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSY)
 End Function
 
-Sub FlexMove(ByVal Obj As Object, Optional x As Variant = "Left", Optional y As Variant = "Top", Optional Width As Variant = "Width", Optional Height As Variant = "Height", Optional ByVal PrtWidth As Single, Optional ByVal PrtHeight As Single, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal offsetX As Single, Optional ByVal offsetY As Single, Optional ByVal typeW As Single, Optional ByVal typeH As Single)
+Sub FlexMove(ByVal Obj As Object, Optional x As Variant = "Left", Optional y As Variant = "Top", Optional Width As Variant = "Width", Optional Height As Variant = "Height", Optional ByVal PrtWidth As Single, Optional ByVal PrtHeight As Single, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal typeW As Single, Optional ByVal typeH As Single, Optional ByVal offsetX As Single, Optional ByVal offsetY As Single)
     Dim sx As String, sy As String, sw As String, sh As String
     
     If VarType(Width) = vbString Then sw = Width:      Width = CBN(Obj, sw, VbGet)

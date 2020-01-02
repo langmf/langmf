@@ -6,7 +6,7 @@ const sm_ID = 0, sm_Flag = 1, sm_Curr = 3, sm_Worst = 4, sm_Raw = 5, sm_Reserved
 '---------------------------------------
 Sub Load(cmdLine)
   form.move 0,0,6000, 5000
-  form.add "textbox", 1, ".Parent.Move2 $0, ,,,,1,1", ".Text = Info", ".fontname = ""Lucida Console"" : .fontsize = 12"
+  form.add "textbox", 1, ".Parent.Move2 $0,,,1,1", ".Text = Info", ".fontname = ""Lucida Console"" : .fontsize = 12"
   form.center
   form.show
 End Sub

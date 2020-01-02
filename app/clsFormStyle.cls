@@ -169,6 +169,10 @@ Public Sub Icon(Optional ByVal indexIcon As Variant = 1, Optional ByVal nameIcon
     SetIconWindow hWnd, indexIcon, nameIcon
 End Sub
 
+Public Function Show(Optional ByVal nCmdShow As Long = SW_SHOW) As Long
+    Show = ShowWindow(hWnd, nCmdShow)
+End Function
+
 
 '---------------------------------------------------------------------------------
 Public Function TB_State(ByVal tbpFlags As Long) As Long

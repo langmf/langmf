@@ -4,7 +4,7 @@
 '---------------------------------------
 Sub Load(cmdLine)
   form.move 0,0,6000,2000
-  form.add "textbox", 1, ".Parent.Move2 $0, ,,,,1,1", ".Text = CpuID", ".fontname = ""Lucida Console"" : .fontsize = 14"
+  form.add "textbox", 1, ".Parent.Move2 $0,,,1,1", ".Text = CpuID", ".fontname = ""Lucida Console"" : .fontsize = 18"
   form.center
   form.show
 End Sub

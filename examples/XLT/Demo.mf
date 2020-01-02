@@ -6,7 +6,7 @@ Sub Load(cmdLine)
 
   form.caption="Пример работы с кодировками"
 
-  form.add "textbox",1, ".Parent.Move2 $0, ,,,,1,1"
+  form.add "textbox",1, ".Parent.Move2 $0,,,1,1"
   
   With form.menu.add(10,"Convert","Popup1")
   	.add 11, "from ISO-8859"

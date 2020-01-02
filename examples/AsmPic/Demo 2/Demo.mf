@@ -12,7 +12,7 @@ Dim f, cx, cy, id, brush, gc
 Sub Form_Load()
 	this.add "timer",1, ".interval = 20"
 	this.add "pic",3, ".Visible=False", ".move 0,0", ".AutoSize = True", ".ScaleMode = 3", ".BorderStyle = 0", ".Picture = sys.gdi.plus.LoadPicture(""..\..\src\test2.jpg"")"
-	this.add "pic",2, ".Visible=False", ".BorderStyle = 0", ".backcolor = vbwhite", ".Parent.Move2 $0,-2,-3,,,3800,1600,1", ".ScaleMode = 3"
+	this.add "pic",2, ".Visible=False", ".BorderStyle = 0", ".backcolor = vbwhite", ".Parent.Move2 $0,-2,-3,3800,1600,,,1", ".ScaleMode = 3"
 	this.add "pic",1,  ".Autosize = true", ".ScaleMode = 3", ".Move 0,0"
 	
 	this.Menu.add 1, "Action", "p1", , , , , , , Array(100, "Add Color", "Gray & Blue", "Negative", _
@@ -22,9 +22,9 @@ Sub Form_Load()
 
     this.move 0, 0, this.pic(3).image.width * vbDC(88) * vbPX / 2540 + 120, this.pic(3).image.height * vbDC(90) * vbPY / 2540 + (this.height - this.scaleheight) + 480
 		
-	this.add "check",1, ".Caption = ""Rectangle""", ".Parent.Move2 $0,-3,-3,-120,-100,1080,300"
-	this.add "check",2, ".Caption = ""Brush""", ".Parent.Move2 $0,-3,-3,-1500,-100,1080,300"
-	this.add "check",3, ".Caption = ""Gistogram""", ".Parent.Move2 $0,-3,-3,-3300,-100,1080,300"
+	this.add "check",1, ".Caption = ""Rectangle""", ".Parent.Move2 $0,-3,-3,1080,300, -120,-100"
+	this.add "check",2, ".Caption = ""Brush""",     ".Parent.Move2 $0,-3,-3,1080,300,-1500,-100"
+	this.add "check",3, ".Caption = ""Gistogram""", ".Parent.Move2 $0,-3,-3,1080,300,-3300,-100"
     
 	this.Center
 	
@@ -77,7 +77,7 @@ Sub Draw()
 
 	f.GetDI
 
-	if this.Check(1).value then f.SetRect -1, -1, 0, 0, 300, 300
+	if this.Check(1).value then f.SetRect -1, -1, 300, 300
 
 	select case id
 		case 100	'Add Color 100

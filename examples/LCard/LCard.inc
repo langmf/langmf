@@ -116,6 +116,8 @@ Class LCard
 	End Sub
 		
 	Function Create(numSLot)
+		On Error Resume Next
+		
 		pIUnknown = CreateInstance(numSLot)
 		
 		If pIUnknown Then

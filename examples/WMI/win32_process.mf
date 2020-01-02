@@ -10,7 +10,7 @@ Sub Load(cmdLine)
 
   form.caption="Process - WMI"
 
-  form.add "textbox",1, ".Parent.Move2 $0, ,,,,1,1"
+  form.add "textbox",1, ".Parent.Move2 $0,,,1,1"
 
   form.center
   form.show

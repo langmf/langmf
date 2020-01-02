@@ -8,7 +8,7 @@ Sub Load(cmdLine)
   form.caption = "LCard - www.lcard.ru"
   form.move 0, 0, 4400, 5000
 
-  form.Add "label", 1, ".AutoSize = False", ".BorderStyle = 1", ".BackStyle = 1", ".BackColor = vbBlack", ".Parent.Move2 $0,-2,-2,120,120,-240,-240,1", _
+  form.Add "label", 1, ".AutoSize = False", ".BorderStyle = 1", ".BackStyle = 1", ".BackColor = vbBlack", ".Parent.Move2 $0,-2,-2,-240,-240,120,120,1", _
   						".FontName = ""Lucida Console""", ".FontSize = 10", ".FontBold = True", ".ForeColor = &H00E0E0E0&"
 
   rc = dev.Create(0)

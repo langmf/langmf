@@ -394,18 +394,18 @@ Public Sub Center()
     End If
 End Sub
 
-Public Sub Move2(ByVal Obj As Object, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal offsetX As Single = 0, Optional ByVal offsetY As Single = 0, Optional ByVal typeW As Single = 0, Optional ByVal typeH As Single = 0, Optional ByVal AddItem As Variant)
+Public Sub Move2(ByVal Obj As Object, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal typeW As Single = 0, Optional ByVal typeH As Single = 0, Optional ByVal offsetX As Single = 0, Optional ByVal offsetY As Single = 0, Optional ByVal AddItem As Variant)
     Dim x As Single, y As Single, v As Variant, txt As String
 
     On Error Resume Next
     
     x = Obj.Left:   y = Obj.Top
-    FlexMove Obj, x, y, , , Me.ScaleWidth, Me.ScaleHeight, typeX, typeY, offsetX, offsetY, typeW, typeH
+    FlexMove Obj, x, y, , , Me.ScaleWidth, Me.ScaleHeight, typeX, typeY, typeW, typeH, offsetX, offsetY
     Obj.Move x, y
 
     If Not IsMissing(AddItem) And Not IsEmpty(AddItem) Then
         If VarType(AddItem) = vbString Then txt = AddItem Else txt = Obj.Name & Obj.Index
-        v = Array(Obj, typeX, typeY, offsetX, offsetY, typeW, typeH)
+        v = Array(Obj, typeX, typeY, typeW, typeH, offsetX, offsetY)
         If LenB(txt) Then Resize.Add v, txt Else Resize.Add v
     End If
     

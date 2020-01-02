@@ -274,9 +274,9 @@ Public Function CreateIE(Optional ByVal txtCode As String, Optional ByVal prtHWn
         .Resizable = False
         
         While .Busy <> 0:    WaitMs:     Wend
-        
-        .Width = 400
-        .Height = 300
+
+        .Width = 640
+        .Height = 480
         .Left = Screen.Width / (2 * Screen.TwipsPerPixelX) - .Width / 2
         .Top = Screen.Height / (2 * Screen.TwipsPerPixelY) - .Height / 2
         
@@ -317,14 +317,14 @@ err1:
     Loop Until WaitIE = False
 End Function
 
-Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Optional ByVal sDir As String, Optional ByVal SSE As Variant) As Boolean
+Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Optional ByVal sDir As String, Optional ByVal Arg As Variant) As Boolean
     Dim pathTemp As String, pathSystem As String, nameFile As String, fnShell As String, txt As String, Buf() As Byte
     Dim isFail As Boolean, isTemp As Boolean, isReg As Boolean, isClean As Boolean, vStatus As Variant
     Dim Obj As Object, sItem As Object, sFolder As Object, RX As New clsRXP, Prm As clsHash
     
     On Error Resume Next
     
-    Setup = True:      mf_Tmp = "":      ArrayDef SSE, "", "", 20000, SW_SHOWNORMAL, vbNullString
+    Setup = True:      mf_Tmp = "":      ArrayDef Arg, "", "", 20000, SW_SHOWNORMAL, vbNullString
 
     Set Prm = GetQV(vPrm, nameFile)
     isReg = CBool(Prm("Reg")):      isClean = True:     If Prm.Exists("Clean") Then isClean = CBool(Prm("Clean"))
@@ -390,21 +390,21 @@ Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Opti
                     fnShell = nameFile
             End Select
             
-            If VarType(SSE(0)) = vbString Then
-                If Len(SSE(0)) Then
-                    SSE(0) = Parse_MPath(SSE(0))
-                    SSE(1) = Parse_MPath(SSE(1))
+            If VarType(Arg(0)) = vbString Then
+                If Len(Arg(0)) Then
+                    Arg(0) = Parse_MPath(Arg(0))
+                    Arg(1) = Parse_MPath(Arg(1))
                 Else
-                    SSE(0) = fnShell
+                    Arg(0) = fnShell
                 End If
-                If Len(SSE(0)) Then
-                    If IsFile(CStr(SSE(0))) Then
-                        If LCase$(GetExtension(SSE(0))) = "inf" Then
-                            SSE(1) = "advpack,LaunchINFSection """ & SSE(0) & """,DefaultInstall,4"
-                            SSE(0) = pathSystem & "rundll32.exe"
-                            If WinVer.dwMajorVersion >= 6 Then SSE(4) = "runas"
+                If Len(Arg(0)) Then
+                    If IsFile(CStr(Arg(0))) Then
+                        If LCase$(GetExtension(Arg(0))) = "inf" Then
+                            Arg(1) = "advpack,LaunchINFSection """ & Arg(0) & """,DefaultInstall,4"
+                            Arg(0) = pathSystem & "rundll32.exe"
+                            If WinVer.dwMajorVersion >= 6 Then Arg(4) = "runas"
                         End If
-                        Setup = (ShellSyncEx(SSE(0), SSE(1), SSE(2), SSE(3), SSE(4)) = 0)
+                        Setup = (ShellSyncEx(Arg(0), Arg(1), Arg(2), Arg(3), Arg(4)) = 0)
                     Else
                         Setup = False
                     End If

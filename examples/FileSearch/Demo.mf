@@ -4,8 +4,8 @@
 Sub Load(cmdLine)
   form.move 0,0,7200,7200
 
-  form.add "textbox",1, ".Parent.Move2 $0,-2,-2,,,1,-600"
-  form.add "command",1, ".Parent.Move2 $0,,-3,,-120,1200,360", ".caption=""Search"""
+  form.add "textbox",1, ".Parent.Move2 $0,-2,-2,1,-600"
+  form.add "command",1, ".Parent.Move2 $0,,-3,1200,360,,-120", ".caption=""Search"""
 
   form.Center
   form.show

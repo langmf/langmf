@@ -16,7 +16,7 @@ Sub Form_Load()
 
   Set IE = form.add("Shell.Explorer", array("web",0,false))  
 
-  form.move2 IE, -2, -2, 120, 120, -240, -240, "web"
+  form.move2 IE, -2, -2, -240, -240, 120, 120, "web"
 
   Write "<!DOCTYPE html><html oncontextmenu=""return false;""><head><meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" /></head>" + _
         "<script type=""text/javascript"">var Sys; function Update() { Result.innerHTML = Sys.SHD.timeGetTime() } setInterval(Update,500)</script>" + vbCrLf + _

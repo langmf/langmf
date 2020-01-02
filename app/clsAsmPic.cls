@@ -114,8 +114,8 @@ Public Function GetRect() As Variant
     GetRect = Array(BX, BY, BW, BH)
 End Function
 
-Public Sub SetRect(Optional ByVal typeX As Single = -2, Optional ByVal typeY As Single = -2, Optional ByVal offsetX As Single = 0, Optional ByVal offsetY As Single = 0, Optional ByVal typeW As Single = 1, Optional ByVal typeH As Single = 1)
-    DoRect BX, BY, BW, BH, typeX, typeY, offsetX, offsetY, typeW, typeH
+Public Sub SetRect(Optional ByVal typeX As Single = -2, Optional ByVal typeY As Single = -2, Optional ByVal typeW As Single = 1, Optional ByVal typeH As Single = 1, Optional ByVal offsetX As Single = 0, Optional ByVal offsetY As Single = 0)
+    DoRect bi.bmiHeader.biWidth, Abs(bi.bmiHeader.biHeight), BX, BY, BW, BH, typeX, typeY, typeW, typeH, offsetX, offsetY
 End Sub
 
 
@@ -468,7 +468,7 @@ Public Sub Copy(srcBuf As Variant, Optional ByVal dstX As Long, Optional ByVal d
     PutMem4 VarPtrArray(Buf), VarPtr(SA):       dw = UBound(B3D, 2):        dh = UBound(B3D, 3)
 
     '-------------------- Correct coord -------------------------
-    CorrRect srcX, srcY, srcWidth, srcHeight, sw, sh, True
+    CorrRect sw, sh, srcX, srcY, srcWidth, srcHeight, True
     
     x1 = dstX:      x2 = dstX + srcWidth - 1
     y1 = dstY:      y2 = dstY + srcHeight - 1
@@ -476,8 +476,8 @@ Public Sub Copy(srcBuf As Variant, Optional ByVal dstX As Long, Optional ByVal d
     '------------------------------------------------------------
     If (x2 > 0) And (y2 > 0) And (x1 <= dw) And (y1 <= dh) Then
     
-        CorrRect x1, y1, 0&, 0&, dw, dh:        srcX = srcX - x1
-        CorrRect x2, y2, 0&, 0&, dw, dh:        srcY = srcY - y1
+        CorrRect dw, dh, x1, y1, 0&, 0&:       srcX = srcX - x1
+        CorrRect dw, dh, x2, y2, 0&, 0&:       srcY = srcY - y1
         
         dw = (vAlpha And 256) > 0:      vAlpha = vAlpha And 255:    sh = vAlpha:    sw = 255 - sh
         
@@ -562,58 +562,53 @@ Private Sub DoLevels(ByVal channel As Long, GT_Tmp() As Byte)
     Loop
 End Sub
 
-Private Sub DoRect(x As Long, y As Long, w As Long, h As Long, typeX As Single, typeY As Single, offsetX As Single, offsetY As Single, typeW As Single, typeH As Single)
-    Dim iWidth As Long, iHeight As Long
-    
-    iWidth = bi.bmiHeader.biWidth
-    iHeight = Abs(bi.bmiHeader.biHeight)
-    
+Private Sub DoRect(ByVal srcW As Long, ByVal srcH As Long, x As Long, y As Long, w As Long, h As Long, typeX As Single, typeY As Single, typeW As Single, typeH As Single, offsetX As Single, offsetY As Single)
     Select Case typeW
         Case Is > 1:    w = typeW
-        Case Is > 0:    w = iWidth * typeW
-        Case Is < 0:    w = iWidth + typeW
+        Case Is > 0:    w = srcW * typeW
+        Case Is < 0:    w = srcW + typeW
     End Select
     
     Select Case typeH
         Case Is > 1:    h = typeH
-        Case Is > 0:    h = iHeight * typeH
-        Case Is < 0:    h = iHeight + typeH
+        Case Is > 0:    h = srcH * typeH
+        Case Is < 0:    h = srcH + typeH
     End Select
 
     Select Case typeX
-        Case -1:        x = iWidth / 2 - w / 2 + offsetX
-        Case Is > 0:    x = iWidth * typeX + offsetX
-        Case -1.1:      x = iWidth / 2 + offsetX
-        Case -1.2:      x = iWidth / 2 - w + offsetX
+        Case -1:        x = srcW / 2 - w / 2 + offsetX
+        Case Is > 0:    x = srcW * typeX + offsetX
+        Case -1.1:      x = srcW / 2 + offsetX
+        Case -1.2:      x = srcW / 2 - w + offsetX
         Case -2:        x = offsetX
-        Case -3:        x = iWidth - w + offsetX
+        Case -3:        x = srcW - w + offsetX
     End Select
 
     Select Case typeY
-        Case -1:        y = iHeight / 2 - h / 2 + offsetY
-        Case Is > 0:    y = iHeight * typeY + offsetY
-        Case -1.1:      y = iHeight / 2 + offsetY
-        Case -1.2:      y = iHeight / 2 - h + offsetY
+        Case -1:        y = srcH / 2 - h / 2 + offsetY
+        Case Is > 0:    y = srcH * typeY + offsetY
+        Case -1.1:      y = srcH / 2 + offsetY
+        Case -1.2:      y = srcH / 2 - h + offsetY
         Case -2:        y = offsetY
-        Case -3:        y = iHeight - h + offsetY
+        Case -3:        y = srcH - h + offsetY
     End Select
     
-    CorrRect x, y, w, h, iWidth, iHeight
+    CorrRect srcW, srcH, x, y, w, h
 End Sub
 
-Private Sub CorrRect(x As Long, y As Long, w As Long, h As Long, ByVal iWidth As Long, ByVal iHeight As Long, Optional ByVal isAutoWH As Boolean)
+Private Sub CorrRect(ByVal srcW As Long, ByVal srcH As Long, x As Long, y As Long, w As Long, h As Long, Optional ByVal isAutoWH As Boolean)
     If isAutoWH Then
-        If w = 0 Then w = iWidth
-        If h = 0 Then h = iHeight
+        If w = 0 Then w = srcW
+        If h = 0 Then h = srcH
     End If
     If x < 1 Then x = 1
     If y < 1 Then y = 1
     If w < 1 Then w = 1
     If h < 1 Then h = 1
-    If x > iWidth Then x = iWidth
-    If y > iHeight Then y = iHeight
-    If (x + w - 1) > iWidth Then w = iWidth - x + 1
-    If (y + h - 1) > iHeight Then h = iHeight - y + 1
+    If x > srcW Then x = srcW
+    If y > srcH Then y = srcH
+    If (x + w - 1) > srcW Then w = srcW - x + 1
+    If (y + h - 1) > srcH Then h = srcH - y + 1
 End Sub
 
 Private Sub Class_Initialize()
