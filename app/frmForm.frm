@@ -395,21 +395,15 @@ Public Sub Center()
 End Sub
 
 Public Sub Move2(ByVal Obj As Object, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal typeW As Single = 0, Optional ByVal typeH As Single = 0, Optional ByVal offsetX As Single = 0, Optional ByVal offsetY As Single = 0, Optional ByVal AddItem As Variant)
-    Dim x As Single, y As Single, v As Variant, txt As String
+    Dim v As Variant, txt As String
 
-    On Error Resume Next
-    
-    x = Obj.Left:   y = Obj.Top
-    FlexMove Obj, typeX, typeY, typeW, typeH, offsetX, offsetY, Me.ScaleWidth, Me.ScaleHeight, x, y
-    Obj.Move x, y
+    FlexMove Obj, typeX, typeY, typeW, typeH, offsetX, offsetY, Me.ScaleWidth, Me.ScaleHeight
 
     If Not IsMissing(AddItem) And Not IsEmpty(AddItem) Then
         If VarType(AddItem) = vbString Then txt = AddItem Else txt = Obj.Name & Obj.Index
         v = Array(Obj, typeX, typeY, typeW, typeH, offsetX, offsetY)
         If LenB(txt) Then Resize.Add v, txt Else Resize.Add v
     End If
-    
-    Err.Clear
 End Sub
 
 Public Function IsFont(ByVal nameFont As String) As Boolean
@@ -1207,15 +1201,20 @@ Private Sub Form_Unload(Cancel As Integer)
 End Sub
 
 Private Sub Form_Resize()
-    Dim v As Variant
+    Dim v As Variant, b As Boolean
     
     On Error Resume Next
+    
+    b = Me.Visible
+    If b Then Style.Freeze = True
     
     For Each v In Resize.Items
         Move2 v(0), v(1), v(2), v(3), v(4), v(5), v(6)
     Next
-
+    
     Events "Form_Resize"
+    
+    If b Then Style.Freeze = False
 End Sub
 
 Private Sub Form_Paint()

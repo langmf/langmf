@@ -115,57 +115,69 @@ Function GetPHY(ByVal value As Long) As Long
     GetPHY = (value * 2540) / GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSY)
 End Function
 
-Sub FlexMove(ByVal Obj As Object, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal typeW As Single, Optional ByVal typeH As Single, Optional ByVal offsetX As Single, Optional ByVal offsetY As Single, Optional ByVal prtWidth As Single, Optional ByVal prtHeight As Single, Optional x As Variant = "Left", Optional y As Variant = "Top", Optional Width As Variant = "Width", Optional Height As Variant = "Height")
-    Dim sx As String, sy As String, sw As String, sh As String, p As Long
-    
+Sub FlexMove(ByVal Obj As Object, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal typeW As Single, Optional ByVal typeH As Single, Optional ByVal ofsX As Single, Optional ByVal ofsY As Single, Optional ByVal prtW As Single, Optional ByVal prtH As Single, Optional x As Variant = "Left", Optional y As Variant = "Top", Optional w As Variant = "Width", Optional h As Variant = "Height")
+    Dim sx As String, sy As String, sw As String, sh As String, t As Long, p As Long
+
     If Not Obj Is Nothing Then
-        If VarType(Width) = vbString Then sw = Width:      Width = CBN(Obj, sw, VbGet)
-        If VarType(Height) = vbString Then sh = Height:    Height = CBN(Obj, sh, VbGet)
-        If VarType(x) = vbString Then sx = x:   x = CBN(Obj, sx, VbGet)
-        If VarType(y) = vbString Then sy = y:   y = CBN(Obj, sy, VbGet)
-        If prtWidth = 0 Then If Obj.Parent Is Nothing Then prtWidth = Obj.ScaleWidth Else prtWidth = Obj.Parent.ScaleWidth
-        If prtHeight = 0 Then If Obj.Parent Is Nothing Then prtHeight = Obj.ScaleHeight Else prtHeight = Obj.Parent.ScaleHeight
+        If VarType(x) = vbString Then sx = x:   x = CBN(Obj, sx, VbGet):   t = t + 1
+        If VarType(y) = vbString Then sy = y:   y = CBN(Obj, sy, VbGet):   t = t + 2
+        If VarType(w) = vbString Then sw = w:   w = CBN(Obj, sw, VbGet):   t = t + 4
+        If VarType(h) = vbString Then sh = h:   h = CBN(Obj, sh, VbGet):   t = t + 8
+        If prtW = 0 Then If Obj.Parent Is Nothing Then prtW = Obj.ScaleWidth Else prtW = Obj.Parent.ScaleWidth
+        If prtH = 0 Then If Obj.Parent Is Nothing Then prtH = Obj.ScaleHeight Else prtH = Obj.Parent.ScaleHeight
     End If
-    
-    If prtWidth < 0 Then prtWidth = Abs(prtWidth) * Screen.TwipsPerPixelX
-    If prtHeight < 0 Then prtHeight = Abs(prtHeight) * Screen.TwipsPerPixelY
-    
-    p = typeX \ 256:    typeX = Round(typeX - p * 256, 1):    p = Abs(p):    prtWidth = prtWidth / (p \ 256 + 1):      offsetX = offsetX + (p Mod 256) * prtWidth
-    p = typeY \ 256:    typeY = Round(typeY - p * 256, 1):    p = Abs(p):    prtHeight = prtHeight / (p \ 256 + 1):    offsetY = offsetY + (p Mod 256) * prtHeight
-    
+
+    If prtW < 0 Then prtW = Abs(prtW) * Screen.TwipsPerPixelX
+    If prtH < 0 Then prtH = Abs(prtH) * Screen.TwipsPerPixelY
+
+    p = typeX \ 256:    typeX = typeX - p * 256:    p = Abs(p):    prtW = prtW / (p \ 256 + 1):    ofsX = ofsX + (p Mod 256) * prtW
+    p = typeY \ 256:    typeY = typeY - p * 256:    p = Abs(p):    prtH = prtH / (p \ 256 + 1):    ofsY = ofsY + (p Mod 256) * prtH
+
+    If typeX < 0 Then typeX = Round(typeX, 1)
+    If typeY < 0 Then typeY = Round(typeY, 1)
+
     Select Case typeW
-        Case Is > 1:    Width = typeW
-        Case Is > 0:    Width = prtWidth * typeW
-        Case Is < 0:    Width = prtWidth + typeW
+        Case Is > 1:    w = typeW
+        Case Is > 0:    w = prtW * typeW
+        Case Is < 0:    w = prtW + typeW
     End Select
-    If LenB(sw) Then CBN Obj, sw, VbLet, Array(Width)
-    
+
     Select Case typeH
-        Case Is > 1:    Height = typeH
-        Case Is > 0:    Height = prtHeight * typeH
-        Case Is < 0:    Height = prtHeight + typeH
+        Case Is > 1:    h = typeH
+        Case Is > 0:    h = prtH * typeH
+        Case Is < 0:    h = prtH + typeH
     End Select
-    If LenB(sh) Then CBN Obj, sh, VbLet, Array(Height)
-    
+
     Select Case typeX
-        Case -1:        x = prtWidth / 2 - Width / 2 + offsetX
-        Case Is > 0:    x = prtWidth * typeX + offsetX
-        Case -1.1:      x = prtWidth / 2 + offsetX
-        Case -1.2:      x = prtWidth / 2 - Width + offsetX
-        Case -2:        x = offsetX
-        Case -3:        x = prtWidth - Width + offsetX
+        Case Is > 0:    x = prtW * typeX + ofsX
+        Case -1:        x = prtW / 2 - w / 2 + ofsX
+        Case -1.1:      x = prtW / 2 + ofsX
+        Case -1.2:      x = prtW / 2 - w + ofsX
+        Case -2:        x = ofsX
+        Case -3:        x = prtW - w + ofsX
     End Select
-    If LenB(sx) Then CBN Obj, sx, VbLet, Array(x)
 
     Select Case typeY
-        Case -1:        y = prtHeight / 2 - Height / 2 + offsetY
-        Case Is > 0:    y = prtHeight * typeY + offsetY
-        Case -1.1:      y = prtHeight / 2 + offsetY
-        Case -1.2:      y = prtHeight / 2 - Height + offsetY
-        Case -2:        y = offsetY
-        Case -3:        y = prtHeight - Height + offsetY
+        Case Is > 0:    y = prtH * typeY + ofsY
+        Case -1:        y = prtH / 2 - h / 2 + ofsY
+        Case -1.1:      y = prtH / 2 + ofsY
+        Case -1.2:      y = prtH / 2 - h + ofsY
+        Case -2:        y = ofsY
+        Case -3:        y = prtH - h + ofsY
     End Select
-    If LenB(sy) Then CBN Obj, sy, VbLet, Array(y)
+
+    If (t And 3) = 3 Then
+        If ExistsMember(Obj, "Move") Then
+            If t = 15 Then CBN Obj, "Move", VbMethod, Array(h, w, y, x), -2, , p:    If p = S_OK Then Exit Sub
+            If t And 4 Then CBN Obj, "Move", VbMethod, Array(w, y, x), -2, , p:      If p = S_OK Then Exit Sub
+            CBN Obj, "Move", VbMethod, Array(y, x), -2, , p:                         If p = S_OK Then Exit Sub
+        End If
+    End If
+
+    If t And 1 Then CBN Obj, sx, VbLet, Array(x), -2
+    If t And 2 Then CBN Obj, sy, VbLet, Array(y), -2
+    If t And 4 Then CBN Obj, sw, VbLet, Array(w), -2
+    If t And 8 Then CBN Obj, sh, VbLet, Array(h), -2
 End Sub
 
 Function RegionFromBitmap(ByVal picSrc As IPictureDisp, Optional ByVal TransColor As Variant) As Long
@@ -1240,9 +1252,9 @@ Function ExistsMember(ByVal Disp As ATL.IDispatch, ProcName As String) As Boolea
     ExistsMember = (Disp.GetIDsOfNames(IID_Null, ProcName, 1, LOCALE_USER_DEFAULT, 0&) = S_OK)
 End Function
 
-Function CBN(Obj As Variant, ProcName As Variant, ByVal CallType As VbCallType, Optional ByVal Args As Variant, Optional ByVal cntArgs As Long = -1, Optional ByVal pvarResult As Long) As Variant
+Function CBN(Obj As Variant, ProcName As Variant, ByVal CallType As VbCallType, Optional ByVal Args As Variant, Optional ByVal cntArgs As Long = -1, Optional ByVal pvarResult As Long, Optional hr As Long) As Variant
     Dim Disp As ATL.IDispatch, pDispParams As ATL.DISPPARAMS, pexcepinfo As ATL.EXCEPINFO, puArgError As Long
-    Dim idMember As Long, pNamed As Long, hr As Long, SA As SafeArray
+    Dim idMember As Long, pNamed As Long, SA As SafeArray
     
     If IsObject(Obj) Then
         Set Disp = Obj

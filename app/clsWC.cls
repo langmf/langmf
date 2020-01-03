@@ -43,7 +43,7 @@ Public Function Create(ByVal objParent As Object, ByVal txtClass As String, Opti
     lLeft = 0: lTop = 0: lWidth = 100: lHeight = 25
     hWnd = CreateWindowExW(dwExStyle, StrPtr(txtClass), StrPtr(txtCaption), WS_CHILD Or WS_VISIBLE Or dwStyle, lLeft, lTop, lWidth, lHeight, Parent.hWnd, 0, App.hInstance, 0)
     vColor = GetSysColor(COLOR_WINDOWTEXT)
-    Set Font = SYS.Ext.CreateStdFont
+    Set Font = SYS.Ext.Font
     hDC = GetDC(hWnd)
     Create = hWnd
     

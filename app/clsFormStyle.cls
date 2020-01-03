@@ -132,6 +132,11 @@ End Property
 
 
 '---------------------------------------------------------------------------------
+Public Property Let Freeze(ByVal vData As Boolean)                               'no_check
+   SendMessageW hWnd, WM_SETREDRAW, Not vData, 0
+   If Not vData Then RedrawWindow hWnd, 0, 0, RDW_INVALIDATE Or RDW_ALLCHILDREN
+End Property
+
 Public Property Get Child(Optional ByVal newLong As Long = WS_CHILD) As Long
     Child = GetWindowLongW(hWnd, GWL_STYLE) And newLong
 End Property

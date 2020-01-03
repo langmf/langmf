@@ -49,6 +49,7 @@ Declare Function GetSysColor Lib "user32" (ByVal nIndex As Long) As Long
 Declare Function DestroyMenu Lib "user32" (ByVal hMenu As Long) As Long
 Declare Function MessageBoxW Lib "user32" (ByVal hWnd As Long, ByVal lpText As Long, ByVal lpCaption As Long, ByVal wType As Long) As Long
 Declare Function GetMenuState Lib "user32" (ByVal hMenu As Long, ByVal wID As Long, ByVal wFlags As Long) As Long
+Declare Function RedrawWindow Lib "user32" (ByVal hWnd As Long, ByVal lprcUpdate As Long, ByVal hrgnUpdate As Long, ByVal fuRedraw As Long) As Long
 Declare Function PeekMessageA Lib "user32" (lpMsg As WNDMsg, ByVal hWnd As Long, ByVal wMsgFilterMin As Long, ByVal wMsgFilterMax As Long, ByVal wRemoveMsg As Long) As Long
 Declare Function PostMessageA Lib "user32" (ByVal hWnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
 Declare Function SendMessageW Lib "user32" (ByVal hWnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
@@ -227,7 +228,7 @@ Declare Function PlaySoundW Lib "winmm" (ByVal lpszName As Long, ByVal hModule A
 Declare Function mciSendStringW Lib "winmm" (ByVal lpstrCommand As Long, ByVal lpstrReturnString As Long, ByVal uReturnLength As Long, ByVal hwndCallback As Long) As Long
 
 Declare Sub WTSFreeMemory Lib "wtsapi32" (ByVal pMemory As Long)
-Declare Function WTSEnumerateProcesses Lib "wtsapi32" Alias "WTSEnumerateProcessesA" (ByVal hServer As Long, ByVal Reserved As Long, ByVal version As Long, ByRef ppProcessInfo As Long, ByRef pCount As Long) As Long
+Declare Function WTSEnumerateProcesses Lib "wtsapi32" Alias "WTSEnumerateProcessesA" (ByVal hServer As Long, ByVal Reserved As Long, ByVal Version As Long, ByRef ppProcessInfo As Long, ByRef pCount As Long) As Long
 
 Declare Function IsUserAnAdmin Lib "shell32" Alias "#680" () As Integer
 Declare Function ShellExecuteW Lib "shell32" (ByVal hWnd As Long, ByVal lpOperation As Long, ByVal lpFile As Long, ByVal lpParameters As Long, ByVal lpDirectory As Long, ByVal nShowCmd As Long) As Long
@@ -235,9 +236,9 @@ Declare Function ShellExecuteExW Lib "shell32" (ByVal SEI As Long) As Long
 Declare Function SHGetPathFromIDListW Lib "shell32" (ByVal pidl As Long, ByVal pszPath As Long) As Long
 Declare Function SHGetSpecialFolderLocation Lib "shell32" (ByVal hwndOwner As Long, ByVal nFolder As Long, pidl As ITEMIDLIST) As Long
 
-Declare Function VerQueryValueW Lib "version" (pBlock As Any, ByVal lpSubBlock As Long, lplpBuffer As Any, puLen As Long) As Long
-Declare Function GetFileVersionInfoW Lib "version" (ByVal lptstrFilename As Long, ByVal dwhandle As Long, ByVal dwlen As Long, lpData As Any) As Long
-Declare Function GetFileVersionInfoSizeW Lib "version" (ByVal lptstrFilename As Long, lpdwHandle As Long) As Long
+Declare Function VerQueryValueW Lib "Version" (pBlock As Any, ByVal lpSubBlock As Long, lplpBuffer As Any, puLen As Long) As Long
+Declare Function GetFileVersionInfoW Lib "Version" (ByVal lptstrFilename As Long, ByVal dwhandle As Long, ByVal dwlen As Long, lpData As Any) As Long
+Declare Function GetFileVersionInfoSizeW Lib "Version" (ByVal lptstrFilename As Long, lpdwHandle As Long) As Long
 
 Declare Function RtlGetCompressionWorkSpaceSize Lib "ntdll" (ByVal CompressionFormat As Integer, CompressBufferWorkSpaceSize As Long, CompressFragmentWorkSpaceSize As Long) As Long
 Declare Function NtAllocateVirtualMemory Lib "ntdll" (ByVal ProcHandle As Long, BaseAddress As Long, ByVal NumBits As Long, regionsize As Long, ByVal Flags As Long, ByVal ProtectMode As Long) As Long
@@ -302,6 +303,7 @@ Global Const MEM_TOP_DOWN           As Long = &H100000
 '--------------------------------------------
 Global Const WM_ACTIVATE            As Long = 6
 Global Const WM_PAINT               As Long = &HF
+Global Const WM_SETREDRAW           As Long = &HB
 Global Const WM_USER                As Long = &H400&
 Global Const WM_HOTKEY              As Long = &H312&
 Global Const WM_COMMAND             As Long = &H111&
@@ -343,6 +345,8 @@ Global Const WS_MAXIMIZEBOX         As Long = &H10000
 Global Const WS_THICKFRAME          As Long = &H40000
 Global Const WS_VISIBLE             As Long = &H10000000
 Global Const WS_BORDER              As Long = &H800000
+Global Const RDW_ALLCHILDREN        As Long = &H80
+Global Const RDW_INVALIDATE         As Long = &H1
 Global Const SWP_NOACTIVATE         As Long = &H10
 Global Const SWP_SHOWWINDOW         As Long = &H40
 Global Const SWP_FRAMECHANGED       As Long = &H20
