@@ -1,27 +1,67 @@
-<#Module=Demo>
-Sub Load(cmdLine)
-  With form
-    .Height = 4650
-    .Width = 5445
-    .Center
-    .Style.SizeBorder= true
-    .Style.MaxButton= true
+<#Module=mdlDemo>
+Dim cx, cy
+
+'-----------------------------------------
+Sub Load(cmdLine)  
+  form.move 0,0,12000,10000
+  form.Center
   
-  .Add "Pic", 1,     ".Parent.Move2 $0, 0.05, 0.4,  0.45, 0.45,,,1"  
-  .Add "HScroll", 2, ".Parent.Move2 $0, 0.05, 0.88, 0.45, 0.07,,,1"
-  .Add "HScroll", 1, ".Parent.Move2 $0, 0.05, 0.30, 0.45, 0.07,,,1"
-  .Add "Combo", 1,   ".Parent.Move2 $0, 0.55, 0.30, 0.40, 0.07,,,1", ".Text = ""Combo1"""
-  .Add "List", 1,    ".Parent.Move2 $0, 0.55, 0.4,  0.4,  0.55,,,1"
-  .Add "Command", 1, ".Parent.Move2 $0, 0.05, 0.17, 0.9,   0.1,,,1"
-  .Add "Text", 1,    ".Parent.Move2 $0, 0.05, 0.05, 0.9,   0.1,,,1"
+  form.style.maxbutton = true
+  form.style.sizeborder = true
   
-  .show
-  End With
+  cx = 2  :  cy = 2  :  w = form.scalewidth / ((iif(cx>cy,cx,cy) + 1) * 8)  :  w = iif(w < 300, 300, w)
+  
+  for x = 0 to cx
+	  for y = 0 to cy
+		  Make x,y, 1,		-1,		-1, 0.1, 0.1,    0,    0
+		  
+		  Make x,y, 2,    -1.2,   -1.2,   w,   w, -w/2, -w/2
+		  Make x,y, 3,    -1.1,   -1.2,   w,   w, +w/2, -w/2   
+		  Make x,y, 4,    -1.1,   -1.1,   w,   w, +w/2, +w/2
+		  Make x,y, 5,    -1.2,   -1.1,   w,   w, -w/2, +w/2
+
+		  Make x,y, 6,		-2,		-1,   w,   w,    0,    0			
+		  Make x,y, 7,		-2,		-2,   w,   w,    0,    0
+		  Make x,y, 8,		-1,		-2,   w,   w,    0,    0
+		  Make x,y, 9,		-3,		-2,   w,   w,    0,    0
+		  Make x,y, 10,		-3,		-1,   w,   w,    0,    0
+		  Make x,y, 11,		-3,		-3,   w,   w,    0,    0  
+		  Make x,y, 12,		-1,		-3,   w,   w,    0,    0
+		  Make x,y, 13,		-2,		-3,   w,   w,    0,    0
+	  next
+  next
+  
+  form.show
+End Sub
+
+'-----------------------------------------
+Sub Make(x,y,i,tx,ty,tw,th,ox,oy)
+	px = (65536 * cx + 256 * x)  :  py = (65536 * cy + 256 * y)  :  tx = tx + IIF(tx < 0, -px, px)  :  ty = ty + IIF(ty < 0, -py, py)
+	Set obj = form.Add("command", "But_" & x & "_" & y & "_" & i,  ".Caption = """ & i & """")
+	form.Move2 obj, tx,ty,tw,th,ox,oy,1
+End Sub
+
+'-----------------------------------------
+Sub Update()
+  form.cls  :  form.autoredraw = true  :  form.drawwidth = 2  :  dw = form.scalewidth / (cx + 1)  :  dh = form.scaleheight / (cy + 1)
+  for x = 1 to cx  :  GLine form, x*dw,    0,            x*dw, form.scaleheight, &HFF0000  :  next
+  for y = 1 to cy  :  GLine form, 0,    y*dh, form.scalewidth,             y*dh, &HFF0000  :  next
 End Sub
 <#Module>
 
 <#Form=form>
+'-----------------------------------------
+Sub Command_Click(id)
+	this.alias(this.alias("command" & id)).caption = ""
+End Sub
+
+'-----------------------------------------
+Sub Form_Resize()
+  If form.scalewidth > 0 Then Update
+End Sub
+
+'-----------------------------------------
 Sub Form_Unload()
-    endmf
+   endmf
 End Sub
 <#Form>

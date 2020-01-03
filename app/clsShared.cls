@@ -24,8 +24,8 @@ Public Function WindowLong(ByVal hWnd As Long, Optional ByVal mStyle As Long, Op
     WindowLong = modCommon.WindowLong(hWnd, value, mStyle, nIndex)
 End Function
 
-Public Sub GMove(ByVal Obj As Object, Optional x As Variant = "Left", Optional y As Variant = "Top", Optional Width As Variant = "Width", Optional Height As Variant = "Height", Optional ByVal PrtWidth As Single, Optional ByVal PrtHeight As Single, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal typeW As Single, Optional ByVal typeH As Single, Optional ByVal offsetX As Single, Optional ByVal offsetY As Single)
-    FlexMove Obj, x, y, Width, Height, PrtWidth, PrtHeight, typeX, typeY, typeW, typeH, offsetX, offsetY
+Public Sub GMove(Optional ByVal Obj As Object, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal typeW As Single, Optional ByVal typeH As Single, Optional ByVal offsetX As Single, Optional ByVal offsetY As Single, Optional ByVal prtWidth As Single, Optional ByVal prtHeight As Single, Optional x As Variant = "Left", Optional y As Variant = "Top", Optional Width As Variant = "Width", Optional Height As Variant = "Height")
+    FlexMove Obj, typeX, typeY, typeW, typeH, offsetX, offsetY, prtWidth, prtHeight, x, y, Width, Height
 End Sub
 
 Public Sub GPrint(ByVal Obj As Object, ByVal txt As String, Optional ByVal cx As Single = -0.2, Optional ByVal cy As Single = -0.2)

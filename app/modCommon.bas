@@ -115,47 +115,55 @@ Function GetPHY(ByVal value As Long) As Long
     GetPHY = (value * 2540) / GetDeviceCaps(frmScript.hDC, DC_LOGPIXELSY)
 End Function
 
-Sub FlexMove(ByVal Obj As Object, Optional x As Variant = "Left", Optional y As Variant = "Top", Optional Width As Variant = "Width", Optional Height As Variant = "Height", Optional ByVal PrtWidth As Single, Optional ByVal PrtHeight As Single, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal typeW As Single, Optional ByVal typeH As Single, Optional ByVal offsetX As Single, Optional ByVal offsetY As Single)
-    Dim sx As String, sy As String, sw As String, sh As String
+Sub FlexMove(ByVal Obj As Object, Optional ByVal typeX As Single = -1, Optional ByVal typeY As Single = -1, Optional ByVal typeW As Single, Optional ByVal typeH As Single, Optional ByVal offsetX As Single, Optional ByVal offsetY As Single, Optional ByVal prtWidth As Single, Optional ByVal prtHeight As Single, Optional x As Variant = "Left", Optional y As Variant = "Top", Optional Width As Variant = "Width", Optional Height As Variant = "Height")
+    Dim sx As String, sy As String, sw As String, sh As String, p As Long
     
-    If VarType(Width) = vbString Then sw = Width:      Width = CBN(Obj, sw, VbGet)
-    If VarType(Height) = vbString Then sh = Height:    Height = CBN(Obj, sh, VbGet)
-    If VarType(x) = vbString Then sx = x:   x = CBN(Obj, sx, VbGet)
-    If VarType(y) = vbString Then sy = y:   y = CBN(Obj, sy, VbGet)
-    If PrtWidth = 0 Then If Obj.Parent Is Nothing Then PrtWidth = Obj.ScaleWidth Else PrtWidth = Obj.Parent.ScaleWidth
-    If PrtHeight = 0 Then If Obj.Parent Is Nothing Then PrtHeight = Obj.ScaleHeight Else PrtHeight = Obj.Parent.ScaleHeight
+    If Not Obj Is Nothing Then
+        If VarType(Width) = vbString Then sw = Width:      Width = CBN(Obj, sw, VbGet)
+        If VarType(Height) = vbString Then sh = Height:    Height = CBN(Obj, sh, VbGet)
+        If VarType(x) = vbString Then sx = x:   x = CBN(Obj, sx, VbGet)
+        If VarType(y) = vbString Then sy = y:   y = CBN(Obj, sy, VbGet)
+        If prtWidth = 0 Then If Obj.Parent Is Nothing Then prtWidth = Obj.ScaleWidth Else prtWidth = Obj.Parent.ScaleWidth
+        If prtHeight = 0 Then If Obj.Parent Is Nothing Then prtHeight = Obj.ScaleHeight Else prtHeight = Obj.Parent.ScaleHeight
+    End If
+    
+    If prtWidth < 0 Then prtWidth = Abs(prtWidth) * Screen.TwipsPerPixelX
+    If prtHeight < 0 Then prtHeight = Abs(prtHeight) * Screen.TwipsPerPixelY
+    
+    p = typeX \ 256:    typeX = Round(typeX - p * 256, 1):    p = Abs(p):    prtWidth = prtWidth / (p \ 256 + 1):      offsetX = offsetX + (p Mod 256) * prtWidth
+    p = typeY \ 256:    typeY = Round(typeY - p * 256, 1):    p = Abs(p):    prtHeight = prtHeight / (p \ 256 + 1):    offsetY = offsetY + (p Mod 256) * prtHeight
     
     Select Case typeW
         Case Is > 1:    Width = typeW
-        Case Is > 0:    Width = PrtWidth * typeW
-        Case Is < 0:    Width = PrtWidth + typeW
+        Case Is > 0:    Width = prtWidth * typeW
+        Case Is < 0:    Width = prtWidth + typeW
     End Select
     If LenB(sw) Then CBN Obj, sw, VbLet, Array(Width)
     
     Select Case typeH
         Case Is > 1:    Height = typeH
-        Case Is > 0:    Height = PrtHeight * typeH
-        Case Is < 0:    Height = PrtHeight + typeH
+        Case Is > 0:    Height = prtHeight * typeH
+        Case Is < 0:    Height = prtHeight + typeH
     End Select
     If LenB(sh) Then CBN Obj, sh, VbLet, Array(Height)
     
     Select Case typeX
-        Case -1:        x = PrtWidth / 2 - Width / 2 + offsetX
-        Case Is > 0:    x = PrtWidth * typeX + offsetX
-        Case -1.1:      x = PrtWidth / 2 + offsetX
-        Case -1.2:      x = PrtWidth / 2 - Width + offsetX
+        Case -1:        x = prtWidth / 2 - Width / 2 + offsetX
+        Case Is > 0:    x = prtWidth * typeX + offsetX
+        Case -1.1:      x = prtWidth / 2 + offsetX
+        Case -1.2:      x = prtWidth / 2 - Width + offsetX
         Case -2:        x = offsetX
-        Case -3:        x = PrtWidth - Width + offsetX
+        Case -3:        x = prtWidth - Width + offsetX
     End Select
     If LenB(sx) Then CBN Obj, sx, VbLet, Array(x)
 
     Select Case typeY
-        Case -1:        y = PrtHeight / 2 - Height / 2 + offsetY
-        Case Is > 0:    y = PrtHeight * typeY + offsetY
-        Case -1.1:      y = PrtHeight / 2 + offsetY
-        Case -1.2:      y = PrtHeight / 2 - Height + offsetY
+        Case -1:        y = prtHeight / 2 - Height / 2 + offsetY
+        Case Is > 0:    y = prtHeight * typeY + offsetY
+        Case -1.1:      y = prtHeight / 2 + offsetY
+        Case -1.2:      y = prtHeight / 2 - Height + offsetY
         Case -2:        y = offsetY
-        Case -3:        y = PrtHeight - Height + offsetY
+        Case -3:        y = prtHeight - Height + offsetY
     End Select
     If LenB(sy) Then CBN Obj, sy, VbLet, Array(y)
 End Sub

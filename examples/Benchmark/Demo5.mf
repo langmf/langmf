@@ -8,14 +8,14 @@ Sub Load(cmdLine)
        t = timegettime
        out1 = sys.conv.base64.encode(arraybyte(buf1))
        t = timegettime - t  :  t1 = t1 + t
-       sys.conv.buf2file out, "langmf.b64"
+       sys.conv.buf2file out1, "langmf.b64"
 
        
        buf2 = sys.conv.file2buf("langmf.b64")
        t = timegettime
        out2 = sys.conv.base64.decode(arraybyte(buf2))
        t = timegettime - t  :  t2 = t2 + t
-       sys.conv.buf2file out, "langmf.exe"   
+       sys.conv.buf2file out2, "langmf.exe"   
    next
 
    t1 = t1 / maxIter
@@ -27,14 +27,14 @@ Sub Load(cmdLine)
        t = timegettime
        out3 = sys.conv.buf2hex(buf3)
        t = timegettime - t  :  t3 = t3 + t
-       sys.conv.buf2file out, "langmf.hex"
+       sys.conv.buf2file out3, "langmf.hex"
 
        
        buf4 = sys.conv.file2buf("langmf.hex")
        t = timegettime
        out4 = sys.conv.hex2buf(buf4)
        t = timegettime - t  :  t4 = t4 + t
-       sys.conv.buf2file out, "langmf2.exe"   
+       sys.conv.buf2file out4, "langmf2.exe"   
    next
 
    t3 = t3 / maxIter

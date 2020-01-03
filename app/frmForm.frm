@@ -400,7 +400,7 @@ Public Sub Move2(ByVal Obj As Object, Optional ByVal typeX As Single = -1, Optio
     On Error Resume Next
     
     x = Obj.Left:   y = Obj.Top
-    FlexMove Obj, x, y, , , Me.ScaleWidth, Me.ScaleHeight, typeX, typeY, typeW, typeH, offsetX, offsetY
+    FlexMove Obj, typeX, typeY, typeW, typeH, offsetX, offsetY, Me.ScaleWidth, Me.ScaleHeight, x, y
     Obj.Move x, y
 
     If Not IsMissing(AddItem) And Not IsEmpty(AddItem) Then

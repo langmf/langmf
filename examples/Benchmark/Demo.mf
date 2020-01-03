@@ -7,7 +7,7 @@ Sub SetData
 	dat.add array("Core i5 - 2500",492,492,641,917)
 	dat.add array("Intel Celeron G1840",401,427,531,806)
 	dat.add array("A10-5800K",400,427,581,800)
-	dat.add array("Athlon || X4 620",270,322,370,526)
+	dat.add array("Phenom || X4 965",312,370,434,625)
 	dat.add array("Pentium 4 2800 MHz HT",147,180,196,331)
 	dat.add array("Intel Atom Z3735G",139,165,215,253)
 	dat.add array("Athlon XP 2000+",103,110,152,193)
