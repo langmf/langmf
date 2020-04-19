@@ -210,6 +210,7 @@ Public Function Power(Optional ByVal value As String = "off", Optional ByVal Fla
         Case "logoff":          Power = ExitWindowsEx(Flags Or EWX_LOGOFF, &HFFFF&)
         Case "suspend":         Power = SetSuspendState((Flags And 1&), 0, (Flags And 2&))
         Case "monitor":         Power = SendMessageW(frmScript.hWnd, WM_SYSCOMMAND, SC_MONITORPOWER, ByVal Flags)
+        Case "nosleep":         Power = SetThreadExecutionState(IIF(Flags = -1, ES_CONTINUOUS Or ES_SYSTEM_REQUIRED Or ES_DISPLAY_REQUIRED, IIF(Flags = 0, ES_CONTINUOUS, Flags)))
     End Select
 End Function
 

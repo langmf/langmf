@@ -183,6 +183,7 @@ Declare Function FileTimeToLocalFileTime Lib "kernel32" (lpFileTime As FILETIME,
 Declare Function GetProcAddressByOrdinal Lib "kernel32" Alias "GetProcAddress" (ByVal hModule As Long, ByVal lpProcName As Long) As Long
 Declare Function SetEnvironmentVariableW Lib "kernel32" (ByVal lpName As Long, ByVal lpValue As Long) As Long
 Declare Function GetEnvironmentVariableW Lib "kernel32" (ByVal lpName As Long, ByVal lpBuffer As Long, ByVal nSize As Long) As Long
+Declare Function SetThreadExecutionState Lib "kernel32" (ByVal esFlags As Long) As Long
 
 
 Declare Function GetUserNameW Lib "advapi32" (ByVal lpBuffer As Long, nSize As Long) As Long
@@ -472,6 +473,9 @@ Global Const EWX_SHUTDOWN               As Long = 1
 Global Const EWX_REBOOT                 As Long = 2
 Global Const EWX_FORCE                  As Long = 4
 Global Const EWX_POWEROFF               As Long = 8
+Global Const ES_SYSTEM_REQUIRED         As Long = 1
+Global Const ES_DISPLAY_REQUIRED        As Long = 2
+Global Const ES_CONTINUOUS              As Long = &H80000000
 Global Const SC_MONITORPOWER            As Long = &HF170&
 
 '--------------------------------------------
