@@ -18,13 +18,13 @@ Const ch_Blue As Long = 16, ch_Green As Long = 32, ch_Red As Long = 64, ch_Alpha
 
 Private bi As BITMAPINFO, BX As Long, BY As Long, BW As Long, BH As Long, B3D() As Byte
 
-Public Obj As Variant, ASM As Object
+Public Result As Variant, Obj As Variant, ASM As Object
 
 
-Public Function GetDI(Optional ByVal invHeight As Boolean = True) As Long
+Public Function GetDI(Optional ByVal invHeight As Boolean = True) As Object
     Dim vHDC As Long, vHBitmap As Long, vWidth As Long, vHeight As Long
     
-    If IsEmpty(Obj) Then Exit Function
+    Set GetDI = Me:         Result = 0:         If IsEmpty(Obj) Then Exit Function
     
     If IsObject(Obj) Then
         If ExistsMember(Obj, "ScaleWidth") Then
@@ -53,13 +53,13 @@ Public Function GetDI(Optional ByVal invHeight As Boolean = True) As Long
         ReDim B3D(1 To 4, 1 To BW, 1 To BH)
     End With
 
-    GetDI = GetDIBits(vHDC, vHBitmap, 0, Abs(bi.bmiHeader.biHeight), B3D(1, 1, 1), bi, 0)
+    Result = GetDIBits(vHDC, vHBitmap, 0, Abs(bi.bmiHeader.biHeight), B3D(1, 1, 1), bi, 0)
 End Function
 
-Public Function SetDI() As Long
+Public Function SetDI() As Object
     Dim vHDC As Long, vHBitmap As Long
     
-    If IsEmpty(Obj) Then Exit Function
+    Set SetDI = Me:         Result = 0:         If IsEmpty(Obj) Then Exit Function
     
     If IsObject(Obj) Then
         If ExistsMember(Obj, "ScaleWidth") Then
@@ -71,7 +71,7 @@ Public Function SetDI() As Long
         vHDC = Obj(0):              vHBitmap = Obj(1)
     End If
     
-    SetDI = SetDIBits(vHDC, vHBitmap, 0, Abs(bi.bmiHeader.biHeight), B3D(1, 1, 1), bi, 0)
+    Result = SetDIBits(vHDC, vHBitmap, 0, Abs(bi.bmiHeader.biHeight), B3D(1, 1, 1), bi, 0)
 End Function
 
 
@@ -114,13 +114,16 @@ Public Function GetRect() As Variant
     GetRect = Array(BX, BY, BW, BH)
 End Function
 
-Public Sub SetRect(Optional ByVal typeX As Single = -2, Optional ByVal typeY As Single = -2, Optional ByVal typeW As Single = 1, Optional ByVal typeH As Single = 1, Optional ByVal offsetX As Single = 0, Optional ByVal offsetY As Single = 0)
+Public Function SetRect(Optional ByVal typeX As Single = -2, Optional ByVal typeY As Single = -2, Optional ByVal typeW As Single = 1, Optional ByVal typeH As Single = 1, Optional ByVal offsetX As Single = 0, Optional ByVal offsetY As Single = 0) As Object
+    Set SetRect = Me
     DoRect bi.bmiHeader.biWidth, Abs(bi.bmiHeader.biHeight), BX, BY, BW, BH, typeX, typeY, typeW, typeH, offsetX, offsetY
-End Sub
+End Function
 
 
-Public Sub Main(ByVal numFunc As Long, Optional ByVal channel As Long = nm_RGB, Optional ByVal value As Byte = 0)
+Public Function Main(ByVal numFunc As Long, Optional ByVal channel As Long = nm_RGB, Optional ByVal value As Byte = 0) As Object
     Dim x As Long, y As Long, ch As Long, GT_Tmp(255) As Byte
+    
+    Set Main = Me
     
     Do
         ch = NextChan(channel):      If ch = 0 Then Exit Do
@@ -158,10 +161,12 @@ Public Sub Main(ByVal numFunc As Long, Optional ByVal channel As Long = nm_RGB, 
                 Next
         End Select
     Loop
-End Sub
+End Function
 
-Public Sub Gray(Optional ByVal pR As Integer = 33, Optional ByVal pg As Integer = 34, Optional ByVal pb As Integer = 33)
+Public Function Gray(Optional ByVal pR As Integer = 33, Optional ByVal pg As Integer = 34, Optional ByVal pb As Integer = 33) As Object
     Dim x As Long, y As Long, b As Integer
+
+    Set Gray = Me
 
     For y = BY To BY + BH - 1
         For x = BX To BX + BW - 1
@@ -172,11 +177,13 @@ Public Sub Gray(Optional ByVal pR As Integer = 33, Optional ByVal pg As Integer 
             B3D(1, x, y) = b
         Next
     Next
-End Sub
+End Function
 
-Public Sub Contrast(ByVal channel As Long, Optional ByVal value As Long = 0)
+Public Function Contrast(ByVal channel As Long, Optional ByVal value As Long = 0) As Object
     Dim x As Long, y As Long, GT_Tmp(255) As Byte
     
+    Set Contrast = Me
+
     For x = 0 To 255
         y = x + (((x - 127) * value) \ 200)
         If y < 0 Then y = 0
@@ -185,10 +192,12 @@ Public Sub Contrast(ByVal channel As Long, Optional ByVal value As Long = 0)
     Next
                 
     Call DoLevels(channel, GT_Tmp)
-End Sub
+End Function
 
-Public Sub Curves(ByVal channel As Long, ParamArray Arg() As Variant)
+Public Function Curves(ByVal channel As Long, ParamArray Arg() As Variant) As Object
     Dim a As Long, b As Long, c As Long, m_Sub As Long, m_KF As Single, GT_Tmp(255) As Byte
+
+    Set Curves = Me
 
     For a = 0 To 255:       GT_Tmp(a) = a:      Next
     
@@ -205,11 +214,13 @@ Public Sub Curves(ByVal channel As Long, ParamArray Arg() As Variant)
     Next
     
     Call DoLevels(channel, GT_Tmp)
-End Sub
+End Function
 
-Public Sub Levels(ByVal channel As Long, Optional ByVal m_IL As Long = 0, Optional ByVal m_IR As Long = 255, Optional ByVal m_OL As Long = 0, Optional ByVal m_OR As Long = 255, Optional ByVal m_KF As Single = 1)
+Public Function Levels(ByVal channel As Long, Optional ByVal m_IL As Long = 0, Optional ByVal m_IR As Long = 255, Optional ByVal m_OL As Long = 0, Optional ByVal m_OR As Long = 255, Optional ByVal m_KF As Single = 1) As Object
     Dim pStep As Single, oStep As Double, dGamma As Double, a As Long, b As Long, m(255) As Byte, GT_Tmp(255) As Byte
         
+    Set Levels = Me
+    
     For a = 0 To 255
         dGamma = CDbl(a) / 255
         dGamma = dGamma ^ (1 / m_KF)
@@ -243,10 +254,12 @@ Public Sub Levels(ByVal channel As Long, Optional ByVal m_IL As Long = 0, Option
     Next
     
     Call DoLevels(channel, GT_Tmp)
-End Sub
+End Function
 
-Public Sub Mix(Optional ByVal CR_PR As Long = 100, Optional ByVal CR_PG As Long = 0, Optional ByVal CR_PB As Long = 0, Optional ByVal CG_PR As Long = 0, Optional ByVal CG_PG As Long = 100, Optional ByVal CG_PB As Long = 0, Optional ByVal CB_PR As Long = 0, Optional ByVal CB_PG As Long = 0, Optional ByVal CB_PB As Long = 100)
+Public Function Mix(Optional ByVal CR_PR As Long = 100, Optional ByVal CR_PG As Long = 0, Optional ByVal CR_PB As Long = 0, Optional ByVal CG_PR As Long = 0, Optional ByVal CG_PG As Long = 100, Optional ByVal CG_PB As Long = 0, Optional ByVal CB_PR As Long = 0, Optional ByVal CB_PG As Long = 0, Optional ByVal CB_PB As Long = 100) As Object
     Dim x As Long, y As Long, r As Byte, g As Byte, b As Byte, o As Integer
+    
+    Set Mix = Me
     
     For y = BY To BY + BH - 1
         For x = BX To BX + BW - 1
@@ -259,12 +272,14 @@ Public Sub Mix(Optional ByVal CR_PR As Long = 100, Optional ByVal CR_PG As Long 
             o = GT_Tran(r, CB_PR):    o = o + GT_Tran(g, CB_PG):    o = o + GT_Tran(b, CB_PB):    B3D(1, x, y) = GT_Mix(o)
         Next
     Next
-End Sub
+End Function
 
-Public Sub Gradient(ParamArray Arg() As Variant)
+Public Function Gradient(ParamArray Arg() As Variant) As Object
     Dim GT_Tmp(255) As RGBQUAD, c1 As RGBQUAD, c2 As RGBQUAD, x As Long, y As Long, a As Long, c As Long, id1 As Long, id2 As Long
     Dim r As Single, g As Single, b As Single, kr As Single, kg As Single, kb As Single
 
+    Set Gradient = Me
+    
     For a = 0 To UBound(Arg) - 1
         id1 = Arg(a)(0)
         id2 = Arg(a + 1)(0)
@@ -317,12 +332,12 @@ Public Sub Gradient(ParamArray Arg() As Variant)
             End With
         Next
     Next
-End Sub
+End Function
 
-Public Function Gistogram(ByVal channel As Long, Optional iMax As Variant, Optional iMin As Variant, Optional iBrs As Variant)
+Public Function Gistogram(ByVal channel As Long) As Object
     Dim m(255) As Long, Buf() As Variant, x As Long, y As Long, vMax As Long, vMin As Long, vBrs As Long, b As Byte
     
-    vMax = 0:       vMin = 2147483647:      NextChan channel, 2
+    Set Gistogram = Me:         vMax = 0:       vMin = 2147483647:      NextChan channel, 2
     
     For y = BY To BY + BH - 1
         For x = BX To BX + BW - 1
@@ -341,16 +356,16 @@ Public Function Gistogram(ByVal channel As Long, Optional iMax As Variant, Optio
         If y < vMin Then vMin = y
     Next
     
-    iBrs = vBrs:        iMax = vMax:        iMin = vMin
-    
-    Gistogram = Buf
+    Result = Array(vMin, vMax, vBrs, Buf)
 End Function
 
-Public Sub Matrix(Optional ByVal value As Variant)
+Public Function Matrix(Optional ByVal value As Variant) As Object
     Dim x As Long, y As Long, cx As Long, cy As Long, mx As Long, my As Long, r As Long, g As Long, b As Long
     Dim sum As Long, d As Long, m As Long, w As Long, h As Long, k As Long, Mat() As Long, B3D_Tmp() As Byte
 
-    d = Sqr(ArraySize(value)) - 1:      If d < 0 Then Exit Sub
+    Set Matrix = Me
+
+    d = Sqr(ArraySize(value)) - 1:      If d < 0 Then Exit Function
 
     B3D_Tmp = B3D:    m = d \ 2:    ReDim Mat(d, d):    cx = 10000:    cy = -10000:    w = BX + BW - 1:    h = BY + BH - 1
     
@@ -402,11 +417,13 @@ Public Sub Matrix(Optional ByVal value As Variant)
     Next
     
     B3D = B3D_Tmp
-End Sub
+End Function
 
-Public Sub Replace(Optional ByVal fColor As Long = 0, Optional ByVal rColor As Long = 0, Optional ByVal RP As Long = 8, Optional ByVal GP As Long = 8, Optional ByVal BP As Long = 8)
+Public Function Replace(Optional ByVal fColor As Long = 0, Optional ByVal rColor As Long = 0, Optional ByVal RP As Long = 8, Optional ByVal GP As Long = 8, Optional ByVal BP As Long = 8) As Object
     Dim fc_r As Byte, fc_g As Byte, fc_b As Byte, rc_r As Byte, rc_g As Byte, rc_b As Byte
     Dim x As Long, y As Long, r As Integer, g As Integer, b As Integer
+    
+    Set Replace = Me
     
     fc_b = fColor And 255&:     fColor = fColor \ 256
     fc_g = fColor And 255&:     fColor = fColor \ 256
@@ -433,26 +450,30 @@ Public Sub Replace(Optional ByVal fColor As Long = 0, Optional ByVal rColor As L
             End If
         Next
     Next
-End Sub
+End Function
 
-Public Sub Table(Optional ByVal channel As Long = nm_RGB, Optional TBL As Variant)
+Public Function Table(Optional ByVal channel As Long = nm_RGB, Optional TBL As Variant) As Object
     Static GT_Tmp(255) As Byte
     Dim a As Long
     
+    Set Table = Me
+    
     If IsArray(TBL) Then
-        If Not ArrayValid(TBL, , , , 256) Then Exit Sub
+        If Not ArrayValid(TBL, , , , 256) Then Exit Function
         
         For a = 0 To 255:               GT_Tmp(a) = a:          Next
         For a = 0 To UBound(TBL):       GT_Tmp(a) = TBL(a):     Next
     End If
 
     Call DoLevels(channel, GT_Tmp)
-End Sub
+End Function
 
-Public Sub Copy(srcBuf As Variant, Optional ByVal dstX As Long, Optional ByVal dstY As Long, Optional ByVal srcX As Long, Optional ByVal srcY As Long, Optional ByVal srcWidth As Long, Optional ByVal srcHeight As Long, Optional ByVal typeOper As Long = 0, Optional ByVal maskColor As Long = -1, Optional ByVal vAlpha As Long = 255)
+Public Function Copy(srcBuf As Variant, Optional ByVal dstX As Long, Optional ByVal dstY As Long, Optional ByVal srcX As Long, Optional ByVal srcY As Long, Optional ByVal srcWidth As Long, Optional ByVal srcHeight As Long, Optional ByVal typeOper As Long = 0, Optional ByVal maskColor As Long = -1, Optional ByVal vAlpha As Long = 255) As Object
     Dim x As Long, y As Long, x1 As Long, y1 As Long, x2 As Long, y2 As Long, x3 As Long, y3 As Long
     Dim r As Long, b As Long, g As Long, iMask As Long, SA As SafeArray, Buf() As Byte
     Dim sw As Long, sh As Long, dw As Long, dh As Long
+    
+    Set Copy = Me
     
     SA = GetSafeArray(srcBuf)
     
@@ -463,7 +484,7 @@ Public Sub Copy(srcBuf As Variant, Optional ByVal dstX As Long, Optional ByVal d
         End If
     End With
     
-    If sw = 0 Or sh = 0 Then Exit Sub
+    If sw = 0 Or sh = 0 Then Exit Function
     
     PutMem4 VarPtrArray(Buf), VarPtr(SA):       dw = UBound(B3D, 2):        dh = UBound(B3D, 3)
 
@@ -516,7 +537,7 @@ Public Sub Copy(srcBuf As Variant, Optional ByVal dstX As Long, Optional ByVal d
     End If
     
     PutMem4 VarPtrArray(Buf), 0
-End Sub
+End Function
 
 
 Private Function NextChan(c As Long, Optional ByVal Flag As Long) As Long

@@ -6,7 +6,7 @@ End Sub
 <#Module>
 
 <#Form=form>
-Dim f, cx, cy, id, brush, gc
+Dim r, f, cx, cy, id, brush, gc
 
 '---------------------------------
 Sub Form_Load()
@@ -153,7 +153,7 @@ Sub Draw()
 
     if this.Check(3).value then
         f.SetRect
-        buf = f.Gistogram(gc, max, min, brs)
+		r = f.Gistogram(gc).result  :  min = r(0)  :  max = r(1)  :  brs = r(2)  :  buf = r(3)
         with this.pic(2) : .cls : .visible = true : .currentx = 5 : .currenty = 0 :  end with
         GPrint this.pic(2), "Ch = " & array("None", "Blue", "Green", "Red", "Alpha", "RGB")(gc), -1
         GPrint this.pic(2), "   Max = " & max, -1   :   GPrint this.pic(2), "   Min = " & min, -1   :   GPrint this.pic(2), "   Brs = " & brs

@@ -303,7 +303,7 @@ End Sub
 Function LoadTexture()
     Set buf = sys.newfap(ResToPic("saturn"))
 
-    If buf.GetDI Then
+    If buf.GetDI.Result Then
         glPixelStorei 3317, 1
         glTexImage2D 3553, 0, 3, buf.Width, buf.Height, 0, 32993, 5121, buf.Ptr
         LoadTexture = True

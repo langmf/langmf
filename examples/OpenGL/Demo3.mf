@@ -159,7 +159,7 @@ End Sub
 Function LoadTexture()
     Set buf = sys.newfap(ResToPic("texture"))
     
-	If buf.GetDI Then
+	If buf.GetDI.Result Then
 
         '---------------------------------------------
         'effect - 1
