@@ -318,9 +318,9 @@ err1:
 End Function
 
 Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Optional ByVal sDir As String, Optional ByVal Arg As Variant) As Boolean
-    Dim pathTemp As String, pathSystem As String, nameFile As String, fnShell As String, txt As String, Buf() As Byte
-    Dim isFail As Boolean, isTemp As Boolean, isReg As Boolean, isClean As Boolean, vStatus As Variant
-    Dim Obj As Object, sItem As Object, sFolder As Object, RX As New clsRXP, Prm As clsHash
+    Dim pathTemp As String, pathSystem As String, nameFile As String, extFile As String, fnShell As String, txt As String, Buf() As Byte
+    Dim a As Long, isFail As Boolean, isTemp As Boolean, isReg As Boolean, isClean As Boolean, vStatus As Variant
+    Dim Obj As Object, sItem As Object, sFolder As Object, sUnpack As Object, RX As New clsRXP, Prm As clsHash
     
     On Error Resume Next
     
@@ -346,45 +346,49 @@ Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Opti
             nameFile = pathTemp + RX.Eval(value, "([^\\\/\?]+)$")
             Buf2File Buf, nameFile
 
-            Select Case LCase$(GetExtension(nameFile))
-                Case "cab", "zip"
-                    Const regCab1 = "CLSID\\{0CD7A5C0-9F37-11CE-AE65-08002B2E1262}"
-                    Const regCab2 = "{098f2470-bae0-11cd-b579-08002b30bfeb}"
-    
-                    If SYS.Registry.RegRead("HKCR\.cab\") <> regCab1 Then
-                        SYS.Registry.RegWrite "HKCR\.cab\", regCab1
-                        SYS.Registry.RegWrite "HKCR\.cab\PersistentHandler\", regCab2
-                    End If
-
+            extFile = LCase$(GetExtension(nameFile))
+            Select Case extFile
+                Case "cab", "zip", "e7z"
                     Set Obj = CreateObject("Shell.Application")
 
                     With Obj
                         Set sFolder = .NameSpace(FileLongName(pathTemp))
-    
-                        For Each sItem In .NameSpace(FileLongName(nameFile)).Items
-                            If Not sItem Is Nothing Then
-                                txt = GetFileName(sItem.Path)
-    
-                                sFolder.CopyHere sItem, 0
+                        Set sUnpack = .NameSpace(FileLongName(nameFile)).Items
 
-                                Select Case LCase$(GetExtension(txt))
-                                    Case "dll", "ocx"
-                                        If isReg Then If modCommon.RegisterDLL(pathTemp + txt) = False Then Setup = False
+                        If extFile = "e7z" Then
+                            Setup = (ShellSync(nameFile & " -y -o""" & pathTemp & """", , True) = 0)
+                            Set sUnpack = sFolder.Items
+                        End If
 
-                                    Case "inf", "cmd"
-                                        If Len(fnShell) = 0 Then fnShell = pathTemp + txt
-                                End Select
-                            End If
+                        For Each sItem In sUnpack
+                            Do
+                                If sItem Is Nothing Then Set sItem = sUnpack.Item(a):   a = a + 1               'fix wine
+
+                                If Not sItem Is Nothing Then
+                                    txt = GetFileName(sItem.Path):      If extFile <> "e7z" Then sFolder.CopyHere sItem, 20
+
+                                    Select Case LCase$(GetExtension(txt))
+                                        Case "dll", "ocx"
+                                            If isReg Then Setup = Setup And modCommon.RegisterDLL(pathTemp + txt)
+
+                                        Case "inf", "cmd"
+                                            If Len(fnShell) = 0 Then fnShell = pathTemp + txt
+                                    End Select
+                                End If
+
+                                Set sItem = Nothing
+                            Loop Until a = 0 Or a >= sUnpack.Count
                         Next
 
                         Set sItem = Nothing
                         Set sFolder = Nothing
-                    
+                        Set sUnpack = Nothing
+
                         If isClean Then FileKill nameFile
                     End With
 
                 Case "dll", "ocx"
-                    If isReg Then If modCommon.RegisterDLL(nameFile) = False Then Setup = False
+                    If isReg Then Setup = Setup And modCommon.RegisterDLL(nameFile)
                 
                 Case "inf", "cmd", "exe"
                     fnShell = nameFile

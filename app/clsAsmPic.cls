@@ -110,8 +110,9 @@ Public Property Get Height() As Long
     Height = Abs(bi.bmiHeader.biHeight)
 End Property
 
-Public Function GetRect() As Variant
-    GetRect = Array(BX, BY, BW, BH)
+Public Function GetRect() As Object
+    Set GetRect = Me
+    Result = Array(BX, BY, BW, BH)
 End Function
 
 Public Function SetRect(Optional ByVal typeX As Single = -2, Optional ByVal typeY As Single = -2, Optional ByVal typeW As Single = 1, Optional ByVal typeH As Single = 1, Optional ByVal offsetX As Single = 0, Optional ByVal offsetY As Single = 0) As Object
@@ -551,12 +552,12 @@ Private Function NextChan(c As Long, Optional ByVal Flag As Long) As Long
     If Flag = 2 Then Exit Function
 
     v = c And ch_RGB
-    If Flag = 1 And v = ch_RGB Then c = c Xor ch_RGB:    NextChan = nm_RGB:       Exit Function
+    If Flag = 1 And v = ch_RGB Then c = c Xor ch_RGB:   NextChan = nm_RGB:       Exit Function
 
-    If (c And ch_Red) Then c = c Xor ch_Red:          NextChan = nm_Red:       Exit Function
-    If (c And ch_Blue) Then c = c Xor ch_Blue:        NextChan = nm_Blue:      Exit Function
-    If (c And ch_Green) Then c = c Xor ch_Green:      NextChan = nm_Green:     Exit Function
-    If (c And ch_Alpha) Then c = c Xor ch_Alpha:      NextChan = nm_Alpha:     Exit Function
+    If (c And ch_Red) Then c = c Xor ch_Red:            NextChan = nm_Red:       Exit Function
+    If (c And ch_Blue) Then c = c Xor ch_Blue:          NextChan = nm_Blue:      Exit Function
+    If (c And ch_Green) Then c = c Xor ch_Green:        NextChan = nm_Green:     Exit Function
+    If (c And ch_Alpha) Then c = c Xor ch_Alpha:        NextChan = nm_Alpha:     Exit Function
 End Function
 
 Private Sub DoLevels(ByVal channel As Long, GT_Tmp() As Byte)

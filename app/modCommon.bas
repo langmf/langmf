@@ -1181,6 +1181,7 @@ Function ShellSync(ByVal CommandLine As String, Optional ByVal Timeout As Long =
     
     CreateProcessW 0, StrPtr(CommandLine), 0, 0, 1, NORMAL_PRIORITY_CLASS, 0, 0, Start, Proc
     Call WaitForSingleObject(Proc.hProcess, Timeout)
+    If Proc.hProcess = 0 Then ShellSync = 2:   Exit Function
     GetExitCodeProcess Proc.hProcess, ShellSync
     CloseHandle Proc.hProcess
 End Function

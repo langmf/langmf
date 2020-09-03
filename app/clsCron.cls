@@ -132,8 +132,7 @@ Public Sub StopTimer()
 End Sub
 
 Private Sub GetTime()
-    Call GetLocalTime(st)
-    If st.wDayOfWeek = 0 Then st.wDayOfWeek = 7
+    Call GetLocalTime(st):      If st.wDayOfWeek = 0 Then st.wDayOfWeek = 7
 End Sub
 
 Private Sub DoFunc(ByVal value As String)
