@@ -21,7 +21,7 @@ End Sub
 <#Form=form>
 '-----------------------------------------
 Sub Web_DocumentComplete(pDisp, URL)
-    web.object.document.oncontextmenu = sys.newdim
+	web.object.document.oncontextmenu = sys.newdim
 End Sub
 
 '-----------------------------------------

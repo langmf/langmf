@@ -376,6 +376,8 @@ Function Parse_Data_Mode(PCD As def_ParseCustom, Mode As String, Optional cd As 
         If isBuf Then ReDim Preserve tmpBuf(ArraySize(tmpBuf)) Else PCD.Data = PCD.Data + Chr$(0)
     End If
     
+    If InStr(Mode, "str") Then bString = True
+        
     If isBuf Then
         If bString Then Parse_Data_Mode = Conv_A2W_Buf(tmpBuf) Else Parse_Data_Mode = tmpBuf
     Else
