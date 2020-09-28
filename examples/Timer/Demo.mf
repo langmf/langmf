@@ -11,8 +11,6 @@ Sub Load(cmdLine)
 
   logo.center
   logo.show
-
-  sys.ontimer 30, "test"
 End Sub
 
 '----------------------------------------
@@ -21,13 +19,19 @@ sub Test()
 
   txt = "Данный скрипт-движок позволяет создавать очень мощные скрипты, в то же время обладая простым языком и графическим интерфейсом."
 
-  if cnt >= len(txt) then sys.offtimer "test"
-
+  if cnt = 1 then logo.label(1).caption = ""
   logo.label(1).caption = logo.label(1).caption + mid(txt, cnt, 1)
+  
+  if cnt >= len(txt) then sys.offtimer "test"  :  cnt = 0
 End sub
 <#Module>
 
 <#Form=logo>
+'----------------------------------------
+Sub Form_State(act, mzd, hwnd)
+  if act then sys.ontimer 30, "test" else sys.offtimer "test"
+End Sub
+
 '----------------------------------------
 Sub Form_Unload()
   sys.offtimer "test"

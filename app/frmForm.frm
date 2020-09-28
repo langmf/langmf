@@ -1310,6 +1310,7 @@ Public Function WindowProc(ByRef bHandled As Boolean, ByVal u_hWnd As Long, ByVa
     Select Case uMsg
         Case WM_ACTIVATE
             If wParam > 0 And wParam < 3 Then Menu.HotKey (True) Else Menu.HotKey (False)
+            Call Events("Form_State", wParam And &HFFFF&, wParam \ &H10000, lParam)
             
         Case WM_COMMAND
             If lParam = 0 Then Call Menu.Click(wParam)

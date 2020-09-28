@@ -1,10 +1,14 @@
 ﻿<#Module=mdlMain>
 '---------------------------------------
 Sub Load(cmdLine)
+  dim txt
+  
+  txt = "© Demo Ω"
+  
   With Form
 	.Width = 5040
 	.Height = 2400
-    .UniCaption = "© Demo Ω"
+    .UniCaption = txt
 	.Center
 	.Show
 	
@@ -13,7 +17,7 @@ Sub Load(cmdLine)
 	with .wc("my")
 		.SubClass.List(&H201, &H204, &H207) = 3
 		.move 1200, 700, 2500, 500
-		.msg &HC, 0, strptr("© Demo Ω")
+		.msg &HC, 0, strptr(txt)
 		.font.size = 16
 	end with
   End With

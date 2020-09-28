@@ -1024,10 +1024,10 @@ Function Parse_Include(txtCode As String, Optional ByVal noFind As String, Optio
                         DeCompressMF tmpBuf:      txt = ToUnicode(tmpBuf)
 
                         If Len(txt) Then
-                            If bCompile = False Then Call Parse_Data(txt)
                             If vStatus(1) = 1 Then tmp = CurDir:     ChDir GetDirectory(vStatus(3))
                             Call Parse_Include(txt, noFind, bCompile)
                             If vStatus(1) = 1 Then ChDir tmp
+                            If bCompile = False Then Call Parse_Data(txt)
                         End If
                     Else
                         If Left$(oth, 2) = "'*" Then
@@ -1422,7 +1422,7 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
                 
                 If File2Buf(Buf, txt) Then
                     If InStr(txtMode, "zlib") > 0 Then CompressData Buf
-                    If InStr(txtMode, "base64") > 0 Then Buf = Base64.Encode(Buf, 19)
+                    If InStr(txtMode, "base64") > 0 Then Buf = Base64.Encode(Buf, 39)
                     f.PutBuf Buf
                 End If
                 

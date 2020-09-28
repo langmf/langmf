@@ -131,14 +131,18 @@ Public Function FPrint(Optional ByVal value As String, Optional ByVal addStr As 
 End Function
 
 Public Function GetBuf(value() As Byte, Optional ByVal numPos As Currency = 0) As Long
-    If hFile = INVALID_HANDLE Then Exit Function
+    Dim sz As Long
+    sz = ArraySize(value)
+    If sz = 0 Or hFile = INVALID_HANDLE Then Exit Function
     If numPos > 0 Then Pos = numPos
     If ReadFile(hFile, value(0), UBound(value) + 1, GetBuf, 0) = 0 Then Exit Function
     EOF = (GetBuf = 0)
 End Function
 
 Public Function PutBuf(value() As Byte, Optional ByVal numPos As Currency = 0) As Long
-    If hFile = INVALID_HANDLE Then Exit Function
+    Dim sz As Long
+    sz = ArraySize(value)
+    If sz = 0 Or hFile = INVALID_HANDLE Then Exit Function
     If numPos > 0 Then Pos = numPos
     If WriteFile(hFile, value(0), UBound(value) + 1, PutBuf, 0) = 0 Then Exit Function
     If AutoFlush Then Flush
