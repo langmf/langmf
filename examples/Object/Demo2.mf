@@ -7,7 +7,7 @@ Sub Load(cmdLine)
   
   obj.[].Add 1, 100, "sys", sys, "MY", array(1,2,3), "Привет", "rus", "o", Object.[].Add("f", 101).Add("d", 102).Parent
  
-  out = obj.[].Hash & vbcrlf & sys.str.rpt("-", 30) & vbcrlf
+  out = chr(17) & " " & ObjPtr(obj.[].Hash) & vbcrlf & sys.str.rpt("-", 30) & vbcrlf
   For each v in obj.[].Hash.Items(2)
 	out = out & v(1) & vbTab & "= "
 	if IsObject(v(0)) then

@@ -57,7 +57,6 @@ End Sub
 
 <#Script=Parser1#>
 function Change(xres, yres, bpp, freq, disp) {
-//disp = Parser1.Sys.SHD.vbNull;
 return Parser1.sys.gdi.SetDisplay(Parser1.Sys.Conv.ArrayJS([xres, yres, bpp, freq]), disp);
 }
 <#Script#>

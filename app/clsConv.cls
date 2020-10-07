@@ -32,9 +32,9 @@ Public Function W2A(ByVal value As String, Optional ByVal Cpg As Long = -1) As S
     W2A = Conv_W2A_Str(value, Cpg)
 End Function
 
-Public Function EncodeBase64(value As Variant) As String
+Public Function EncodeBase64(value As Variant, Optional ByVal vCrLf As Long) As String
     Dim tmpBuf() As Byte
-    If ConvToBufferByte(value, tmpBuf) Then EncodeBase64 = Conv_A2W_Buf(Base64.Encode(tmpBuf))
+    If ConvToBufferByte(value, tmpBuf) Then EncodeBase64 = Conv_A2W_Buf(Base64.Encode(tmpBuf, vCrLf))
 End Function
 
 Public Function DecodeBase64(value As Variant) As String
