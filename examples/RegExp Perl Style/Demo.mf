@@ -6,7 +6,7 @@ Sub Load(cmdLine)
 
   msgbox my,,"Example 1"
 
-  my=~i/([a-z]+)(.+?)([a-z]+)/$3$2$1/
+  my = my =~ i/([a-z]+)(.+?)([a-z]+)/$3$2$1/
 
   msgbox my,,"Example 1"
 
@@ -25,7 +25,7 @@ Sub Load(cmdLine)
      msgbox "Not Find Digit",,"Example 2"
   end if
 
-  txt1 =~ mg/"[0-9]+"/""/
+  txt1 = txt1 =~ mg/"[0-9]+"/""/
 
   msgbox txt1,,"Example 2"
 

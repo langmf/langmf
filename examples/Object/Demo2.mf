@@ -5,7 +5,7 @@ Dim obj
 Sub Load(cmdLine)
   Set obj = Object
   
-  obj.[].Add 1, 100, "sys", sys, "MY", array(1,2,3), "Привет", "rus", "o", Object.[].Add("f", 101).Add("d", 102).Parent
+  obj.[].Fill 1, 100, "sys", sys, "MY", array(1,2,3), "Привет", "rus", "o", Object.[].Fill("f", 101).Fill("d", 102).Parent
  
   out = chr(17) & " " & ObjPtr(obj.[].Hash) & vbcrlf & sys.str.rpt("-", 30) & vbcrlf
   For each v in obj.[].Hash.Items(2)

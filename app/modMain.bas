@@ -391,7 +391,7 @@ Sub Parse_Resource(txtCode As String)
     If Not Parse_Custom(PCD, txtCode, "<#res ", "#>", "<#res#>", vbBinaryCompare) Then Exit Sub
 
     Set REG1 = New RegExp:      REG1.Global = True:      REG1.IgnoreCase = True
-    REG1.Pattern = "^id=""([^""]+)""( +mode=([^ ]+))?"
+    REG1.Pattern = "^id=""([^""]+)""(\s+mode=([^\s]+))?"
 
     For a = 0 To UBound(PCD)
         If Len(PCD(a).Param) Then
@@ -419,7 +419,7 @@ Sub Parse_VBNET(txtCode As String)
     If Not Parse_Custom(PCD, txtCode, "<#vbnet", "#>", "<#vbnet#>") Then Exit Sub
     
     Set REG1 = New RegExp:      REG1.Global = True:      REG1.IgnoreCase = True
-    REG1.Pattern = "^(=([a-z0-9_]*))?( +noerror)?( +instance=""([^""]+)"")?( +start=""([^""]+)"")?( +lang=([a-z0-9_]+))?( +mode=([^ ]+))?"
+    REG1.Pattern = "^(=([a-z0-9_]*))?(\s+noerror)?(\s+instance=""([^""]+)"")?(\s+start=""([^""]+)"")?(\s+lang=([a-z0-9_]+))?(\s+mode=([^\s]+))?"
 
     For a = 0 To UBound(PCD)
         Set Mts = REG1.Execute(PCD(a).Param)
@@ -466,7 +466,7 @@ Function Parse_CScript(txtCode As String) As Collection
     If frmScript.CScript.Count = 0 Then cntCScript = 0
 
     Set REG1 = New RegExp:      REG1.Global = True:      REG1.IgnoreCase = True
-    REG1.Pattern = "^=? *([a-z0-9_]*) *,? *([a-z0-9_]*) *,? *([a-z0-9_]*)"
+    REG1.Pattern = "^=?\s*([a-z0-9_]*)\s*,?\s*([a-z0-9_]*)\s*,?\s*([a-z0-9_]*)"
     
     For a = 0 To UBound(PCD)
         If Len(PCD(a).Param) Then
@@ -579,7 +579,7 @@ Sub Parse_Types(txtCode As String)
     Do
         aDim = "": aPtr = "": vTxt = "": iTxt = "": oTxt = "": vOffset = 0
         
-        REG.Pattern = "\n[ \t\v]*(private |public )?type +([a-z0-9_]+)([\d\D]+?)\n[ \t\v]*end type"
+        REG.Pattern = "\n[ \t]*(private[ \t]+|public[ \t]+)?type[ \t]+([a-z0-9_]+)([\d\D]+?)\n[ \t]*end type"
         
         Set Mts = REG.Execute(txtCode)
         
@@ -593,7 +593,7 @@ Sub Parse_Types(txtCode As String)
             For a = 0 To UBound(txt)
                 If Len(txt(a)) > 0 Then
                 
-                    REG.Pattern = "^[ \t\v]*([a-z0-9_]+)(\((\d+)\))? +as +([^ \r]+)( +\* +(\-?\d+))?"
+                    REG.Pattern = "^\s*([a-z0-9_]+)(\((\d+)\))?\s+as\s+([^\s]+)(\s+\*\s+(\-?\d+))?"
                     
                     Set mts1 = REG.Execute(txt(a))
                     
@@ -728,7 +728,7 @@ Sub Parse_Types(txtCode As String)
     Do
         oTxt = ""
         
-        REG.Pattern = "\n[ \t\v]*Dim +([a-z0-9_]+)(\(([a-z0-9_]+)\))? +as +(new )?([a-z0-9_]+)(\([^\r]*\))?"
+        REG.Pattern = "\n[ \t]*Dim[ \t]+([a-z0-9_]+)(\(([a-z0-9_]+)\))?[ \t]+as[ \t]+(new[ \t]+)?([a-z0-9_]+)(\([^\r]*\))?"
         Set Mts = REG.Execute(txtCode)
 
         If Mts.Count Then
@@ -764,7 +764,7 @@ Sub Parse_Interface(txtCode As String)
         txt = ""
         
         REG.Global = False
-        REG.Pattern = "\ninterface +([a-z0-9_]+) *\[ *(\{[a-z0-9\-]*\}) *, *(\{[a-z0-9\-]*\}) *, *(\d+) *\] *= *(.+)"
+        REG.Pattern = "\ninterface\s+([a-z0-9_]+)\s*\[\s*(\{[a-z0-9\-]*\})\s*,\s*(\{[a-z0-9\-]*\})\s*,\s*(\d+)\s*\]\s*=\s*(.+)"
         Set Mts = REG.Execute(txtCode)
     
         If Mts.Count > 0 Then
@@ -831,7 +831,7 @@ Sub Parse_RegExp(txtCode As String)
     REG.Global = False
     
     Do
-        REG.Pattern = "([a-z0-9_\.\(\)]+) *=~ *([igem]*)\/(.*?(\\\\|[^\\]))?\/(.*)\/"
+        REG.Pattern = "([a-z0-9_\.\(\)]+)[ \t]*=~[ \t]*([igem]*)\/(.*?(\\\\|[^\\]))?\/(.*)\/"
         Set Mts = REG.Execute(txtCode)
     
         If Mts.Count Then
@@ -847,7 +847,7 @@ Sub Parse_RegExp(txtCode As String)
                 If fm Then pm = "" Else pm = """":  If p3 = vbTab Then p3 = ""
     
                 If fr Then
-                    txtCode = Replace$(txtCode, .value, p0 + " = sys.rxp.replace(" + p0 + ", " + pm + p2 + pm + ", " + pm + p3 + pm + ", " + CStr(fi) + ", " + CStr(fg) + ")")
+                    txtCode = Replace$(txtCode, .value, "sys.rxp.replace(" + p0 + ", " + pm + p2 + pm + ", " + pm + p3 + pm + ", " + CStr(fi) + ", " + CStr(fg) + ")")
                 Else
                     txtCode = Replace$(txtCode, .value, "sys.rxp." + IIF(fe, "execute", "test") + "(" + p0 + ", " + pm + p2 + pm + ", " + CStr(fi) + ", " + CStr(fg) + ")")
                 End If
@@ -867,13 +867,13 @@ End Sub
 Function Parse_DLL(txtCode As String) As String
     Dim a As Long, b As Long, r As Boolean, v1 As String, v2 As String, txt As String, nAlias As String
     Dim tFunc As String, nFunc As String, REG1 As RegExp, Mts As MatchCollection, mt As MatchCollection
-    
-    REG.Pattern = "\n(private |public )?declare +(function|sub) +([^ ]+) +(Lib +""([^""]+)"" +)?(alias +""([^""]+)"" +)?\(([^\)]*)\)( as )?([a-z0-9_]*)"
+
+    REG.Pattern = "\n[ \t]*(private[ \t]+|public[ \t]+)?declare[ \t]+(function|sub)[ \t]+([^ \t]+)[ \t]+(Lib[ \t]+""([^""]+)""[ \t]+)?(alias[ \t]+""([^""]+)""[ \t]+)?\(([^\)]*)\)([ \t]+as[ \t]+)?([a-z0-9_]*)"
     Set Mts = REG.Execute(txtCode)
 
     If Mts.Count > 0 Then
         Set REG1 = New RegExp:      REG1.Global = True:      REG1.IgnoreCase = True
-        REG1.Pattern = " *(byval|byref)? *([a-z0-9_]+) *(as)? *([a-z0-9_]*) *,?"
+        REG1.Pattern = "\s*((byval|byref)\s+)?([a-z0-9_]+)(\s+as\s+)?([a-z0-9_]*)\s*,?"
     End If
 
     For a = 0 To Mts.Count - 1
@@ -889,7 +889,7 @@ Function Parse_DLL(txtCode As String) As String
             
             For b = 0 To mt.Count - 1
                 With mt(b)
-                    If LCase$(.SubMatches(3)) <> "string" Then txt = txt & .SubMatches(0)
+                    If LCase$(.SubMatches(4)) <> "string" Then txt = txt & .SubMatches(1)
                     txt = txt & " mf_v" & b & ", "
                 End With
             Next
@@ -903,8 +903,8 @@ Function Parse_DLL(txtCode As String) As String
             For b = 0 To mt.Count - 1
                 With mt(b)
                     v1 = "":    v2 = ""
-                    r = (LCase$(.SubMatches(0)) <> "byval")
-                    Select Case LCase$(.SubMatches(3))
+                    r = (LCase$(.SubMatches(1)) <> "byval")
+                    Select Case LCase$(.SubMatches(4))
                         Case "long":        If r Then v1 = "VarPtr(":   v2 = ", True) + 8"
                         Case "single":      If Not r Then v1 = "Array(CSng(":   v2 = "))"
                         Case "double":      If Not r Then v1 = "Array(CDbl(":   v2 = "))"
@@ -929,7 +929,7 @@ End Function
 Function Parse_Lib(txtCode As String) As String
     Dim a As Long, txt As String, Mts As MatchCollection
     
-    REG.Pattern = "\n[ \t\v]*#Lib +""([^""]+)"""
+    REG.Pattern = "\n[ \t]*#Lib[ \t]+""([^""]+)"""
     Set Mts = REG.Execute(txtCode)
 
     For a = 0 To Mts.Count - 1
@@ -945,7 +945,7 @@ Sub Parse_Directiv(txtCode As String)
     Dim a As Long, Mts As MatchCollection
     
     With REG
-        .Pattern = "\n<#--([\w\d_]+)( *= *""([^""]+)"")? *>"
+        .Pattern = "\n<#--[ \t]*([\w\d_]+)([ \t]*=[ \t]*""([^""]+)"")?[ \t]*>"
         Set Mts = .Execute(txtCode)
         
         For a = 0 To Mts.Count - 1
@@ -1000,7 +1000,7 @@ Function Parse_Include(txtCode As String, Optional ByVal noFind As String, Optio
     Dim a As Long, txt As String, tmp As String, nm As String, oth As String, vStatus As Variant
     Dim REG1 As RegExp, Mts As MatchCollection, clsFS As New clsFileSearch, tmpBuf() As Byte
     
-    tmp = "[ \t\v]*#Include +([<""])" + noFind + "([^"">]+)(["">])([^\r]*)"
+    tmp = "[ \t]*#Include[ \t]+([<""])" + noFind + "([^"">]+)(["">])([^\r]*)"
 
     Set REG1 = New RegExp:      REG1.Global = False:      REG1.IgnoreCase = True
     If bCompile Then REG1.Pattern = Replace$(tmp, """", "") Else REG1.Pattern = tmp
@@ -1048,17 +1048,17 @@ Function Parse_Modify(txtCode As String, Optional txtConv As Variant, Optional B
     Dim a As Long, b As Long, st As Long, Fnd As String, Rep As String, txt() As String, REG1 As RegExp
     
     Set REG1 = New RegExp:      REG1.Global = True:      REG1.IgnoreCase = True
-    
+
     If IsMissing(txtConv) Then
         txtConv = Array("Функци(я|и)", "Function", "Процедур(а|ы)", "Sub", "Вызвать", "Call", "Константа", "Const", _
         "Переменная", "Dim", "Переопределить", "Redim", "Комментарий", "Rem", "Конец Цикла", "Loop", "Цикл", "Do", _
         "Конец Пока", "Wend", "Пока", "While", "Для", "For", "Перебора", "Each", "Дальше", "Next", "Если", "If", _
-        "Тогда", "Then", "Иначе", "Else", "ИначеЕсли", "ElseIf", "Свойство", "Property", "Присвоить", "Let", _
-        "Установить", "Set", "Получить", "Get", "Выбор", "Select", "Условие", "Case", "По условию", "Until", _
+        "Тогда", "Then", "Иначе", "Else", "ИначеЕсли", "ElseIf", "Свойств(о|а)", "Property", "Присвоить", "Let", _
+        "Установить", "Set", "Получить", "Get", "Выбора?", "Select", "Условие", "Case", "По условию", "Until", _
         "Связать", "With", "Истина", "True", "Ложь", "False", "Нуль", "Null", "Пусто", "Empty", "Стереть", "Erase", _
         "Очистить", "Nothing", "Выход", "Exit", "Есть", "Is", "До", "To", "Шаг", "Step", "Частн(ая|ое)", "Private", _
-        "Публичн(ая|ое)", "Public", "Новый", "New", "Как", "As", "Тип", "Type", "Конец", "End", _
-        "Сообщение", "MsgBox", "СоздатьОбъект", "CreateObject", "ПолучитьОбъект", "GetObject", _
+        "Публичн(ая|ое)", "Public", "Новый", "New", "Как", "As", "Тип", "Type", "Конец", "End", "Возврат", "Return", _
+        "Продолжить", "Continue", "Сообщение", "MsgBox", "СоздатьОбъект", "CreateObject", "ПолучитьОбъект", "GetObject", _
         "а", "a", "б", "b", "в", "v", "г", "g", "д", "d", "е", "e", "ё", "jo", "ж", "zh", "з", "z", "и", "i", "й", "j", _
         "к", "k", "л", "l", "м", "m", "н", "n", "о", "o", "п", "p", "р", "r", "с", "s", "т", "t", "у", "u", "ф", "f", _
         "х", "x", "ц", "c", "ч", "ch", "ш", "sh", "щ", "sch", "ъ", "qi", "ы", "y", "ь", "qu", "э", "e", "ю", "yu", "я", "ya")
@@ -1454,7 +1454,7 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
         
         If ExistsMember(CAS.CodeObject, "LMF_Make_End") Then Call CBN("", "LMF_Make_End", VbFunc, Array(txtINI))
         
-        If RX.Test(txtOpt, "\nend[ \t]*=[ \t]*([^\r]+)") Then MsgBox Parse_MPath(RX.Mts(0).SubMatches(0)), , "LangMF"
+        If RX.Test(txtOpt, "\nend[ \t]*=[ \t]*([^\r]+)") Then txt = RX.Mts(0).SubMatches(0):   If LenB(txt) Then CAS.Execute txt
     Else
         BackupMF nameMF
         'v = Array(101, "my", 2000, , -5, "привет")                  'headers extension

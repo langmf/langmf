@@ -1249,6 +1249,21 @@ Function ExistsMember(ByVal Disp As ATL.IDispatch, ProcName As String) As Boolea
     ExistsMember = (Disp.GetIDsOfNames(IID_Null, ProcName, 1, LOCALE_USER_DEFAULT, 0&) = S_OK)
 End Function
 
+Function GetFunc(ByVal value As String) As Object
+    Dim fn As String, REG1 As RegExp, Mts As MatchCollection, mt As Match
+    
+    Set REG1 = New RegExp:      REG1.IgnoreCase = True:      REG1.Pattern = "^(function)?\s*(\w*)\s*(\([^\)]*\))(.+)"
+    Set Mts = REG1.Execute(value)
+    
+    If Mts.Count Then
+        Set mt = Mts(0):      fn = mt.SubMatches(1):      If LenB(fn) = 0 Then fn = "TmpFunc_" & GenTempStr & "_"
+        value = "Function " + fn + mt.SubMatches(2) + vbCrLf + mt.SubMatches(3) + vbCrLf + "End Function"
+        value = Replace$(value, "result", fn, , , vbTextCompare):       CAS.Execute value:      value = fn
+    End If
+
+    Set GetFunc = CAS.Eval("GetRef(""" + value + """)")
+End Function
+
 Function CBN(Obj As Variant, ProcName As Variant, ByVal CallType As VbCallType, Optional ByVal Args As Variant, Optional ByVal cntArgs As Long = -1, Optional ByVal pvarResult As Long, Optional hr As Long) As Variant
     Dim Disp As ATL.IDispatch, pDispParams As ATL.DISPPARAMS, pexcepinfo As ATL.EXCEPINFO, puArgError As Long
     Dim idMember As Long, pNamed As Long, SA As SafeArray

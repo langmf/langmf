@@ -14,11 +14,11 @@ Sub Load(cmdLine)
 			.fprint "Members"
 			.fprint sys.str.rpt("=", 60)
 				
-			for each f in e.items(2)	
+			for each f in e.items(2)
 				.fprint f(1) & " = " & f(0)
 			next
 
-			.fprint sys.str.rpt("=", 60)		
+			.fprint sys.str.rpt("=", 60)
 			.fprint
 			
 			.fclose

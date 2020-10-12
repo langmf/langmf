@@ -1,29 +1,29 @@
 <#Module=mdlMain>
 
 Type BITMAPINFOHEADER
-        biSize As Long
-        biWidth As Long
-        biHeight As Long
-        biPlanes As Long
-        biBitCount As Long
-        biCompression As Long
-        biSizeImage As Long
-        biXPelsPerMeter As Long
-        biYPelsPerMeter As Long
-        biClrUsed As Long
-        biClrImportant As Long
+	biSize As Long
+	biWidth As Long
+	biHeight As Long
+	biPlanes As Long
+	biBitCount As Long
+	biCompression As Long
+	biSizeImage As Long
+	biXPelsPerMeter As Long
+	biYPelsPerMeter As Long
+	biClrUsed As Long
+	biClrImportant As Long
 End Type
 
 Type RGBQUAD
-        rgbBlue As Long
-        rgbGreen As Long
-        rgbRed As Long
-        rgbReserved As Long
+	rgbBlue As Long
+	rgbGreen As Long
+	rgbRed As Long
+	rgbReserved As Long
 End Type
 
 Type BITMAPINFO
-        bmiHeader As BITMAPINFOHEADER
-        bmiColors As RGBQUAD
+	bmiHeader As BITMAPINFOHEADER
+	bmiColors As RGBQUAD
 End Type
 
 

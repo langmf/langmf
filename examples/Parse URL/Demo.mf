@@ -115,8 +115,8 @@ dim subdmn
 
   do
      .finput t
-     t =~ i/[a-z]+\:\/\/([^\/\:]+).+/$1/
-     if not subdmn then t =~ i/.+?([^\.]+\.[a-z][^\.]+)$/$1/
+     t = t =~ i/[a-z]+\:\/\/([^\/\:]+).+/$1/
+     if not subdmn then t = t =~ i/.+?([^\.]+\.[a-z][^\.]+)$/$1/
 
      Add(t)
 

@@ -50,12 +50,6 @@ Public Sub MemFill(ByVal addr As Long, Optional ByVal Size As Long = 16, Optiona
     FillMemory ByVal addr, Size, value
 End Sub
 
-Public Function CopyVar(srcVar As Variant, Optional dstVar As Variant, Optional ByVal Size As Long = 4, Optional ByVal srcOffset As Long = 8, Optional ByVal dstOffset As Long = 8) As Variant
-    If IsMissing(dstVar) Then dstVar = CLng(0)
-    CopyMemory ByVal VBA.VarPtr(dstVar) + dstOffset, ByVal VBA.VarPtr(srcVar) + srcOffset, Size
-    CopyVar = dstVar
-End Function
-
 Public Function VarByVal(ByVal addr As Long) As Variant
     VariantCopyInd VarPtr(VarByVal), addr
 End Function
@@ -66,5 +60,36 @@ End Sub
 
 Public Function CVar2(Var As Variant) As Variant
     CVar2 = CVar(Var)
+End Function
+
+Public Function CopyVar(srcVar As Variant, Optional dstVar As Variant, Optional ByVal Size As Long = 4, Optional ByVal srcOffset As Long = 8, Optional ByVal dstOffset As Long = 8) As Variant
+    If IsMissing(dstVar) Then dstVar = CLng(0)
+    CopyMemory ByVal VBA.VarPtr(dstVar) + dstOffset, ByVal VBA.VarPtr(srcVar) + srcOffset, Size
+    CopyVar = dstVar
+End Function
+
+Public Function Map(arr As Variant, Optional cbk As Variant) As Variant()
+    Dim a As Long, i As Long, c As Long, uds As Long, t As Long, v As Variant, h As Variant, tmp() As Variant
+
+    t = VariantType(cbk):       If t = VT_ARRVAR Then c = UBound(cbk)
+
+    If TypeName(arr) = "clsHash" Then
+        For Each h In arr.Items(2)
+            v = h(0)
+            If i >= uds Then uds = uds + 100:    ReDim Preserve tmp(uds - 1)
+            If t = VT_ARRVAR Then For a = 0 To c:      v = cbk(a)(v, h(1), arr):       Next
+            If t = VT_OBJECT Then v = cbk(v)
+            tmp(i) = v:     i = i + 1
+        Next
+    Else
+        For Each v In arr
+            If i >= uds Then uds = uds + 100:    ReDim Preserve tmp(uds - 1)
+            If t = VT_ARRVAR Then For a = 0 To UBound(cbk):      v = cbk(a)(v, i, arr):          Next
+            If t = VT_OBJECT Then v = cbk(v)
+            tmp(i) = v:     i = i + 1
+        Next
+    End If
+    
+    If i Then ReDim Preserve tmp(i - 1):  Map = tmp Else Map = Array()
 End Function
 

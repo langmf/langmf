@@ -1,0 +1,31 @@
+<#--debug="0">
+
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  Set h = Sys.NewHash.Fill(1, 101, "2", 102, 3, 103)
+  Set o = Object.[].Fill(1, 101, "2", 102, 3, 103).Parent
+  
+  'a = array(1,2,3,4,5,6,7,8,9,10)
+  a = "1 2 3 4 5 6 7 8 9 10"  :  Set a = a =~ ige/\d+//
+  
+  f0 = sys.var.map(a)
+  f1 = sys.var.map(a, array(GetFunc("(v,i,a) result = v * i")))
+  f2 = sys.var.map(a, GetFunc("(v) result = v * v"))
+  f3 = sys.var.map(a, o)
+  f4 = sys.var.map(a, h)
+  f5 = sys.var.map(h, GetFunc("(v) result = v"))
+  f6 = sys.var.map(h, array(GetFunc("(v,i,a) result = i & "":"" & v")))
+
+  msgbox join(f0,"  ") & vbcrlf & join(f1,"  ") & vbcrlf & join(f2,"  ") & vbcrlf & join(f3,"  ") & vbcrlf & join(f4,"  ") & vbcrlf & join(f5,"  ") & vbcrlf & join(f6,"  ")
+
+  
+  txt = "<a href=""%mf_script%\test1.js"">"  & vbcrlf & "<a href=""%test2.js"">" & vbcrlf & "<a href=""%mf_temp%\test3.js"">"
+  s1 = txt =~ igm/"( (src\s*=|href\s*=|url\()\s*"")(%[^""]+?"")"/GetFunc("(m) result = m.submatches(0) + Replace(Sys.Conv.MPath(m.submatches(2)), ""%"", Sys.Path)")/
+  s2 = txt =~ igm/"( (src\s*=|href\s*=|url\()\s*"")(%[^""]+?"")"/array(GetFunc("(m,i) result = m.submatches(0) + "" "" & i & "" = "" + Replace(Sys.Conv.MPath(m.submatches(2)), ""%"", Sys.Path)"))/
+  
+  msgbox s1 & vbcrlf & vbcrlf & s2
+  
+  endmf
+End Sub
+<#Module>

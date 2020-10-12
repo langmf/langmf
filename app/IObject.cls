@@ -24,19 +24,14 @@ End Property
 Public Function COM_Invoke(ByVal pThis As Long, ByVal idMember As Long, ByVal IDName As String, ByVal wFlags As Long, Arg() As Variant, Result As Variant) As Long              'no_check
     Dim uds As Long, v As Variant
     
-    This = pThis
+    This = pThis:       uds = UBound(Arg)
     
-    uds = UBound(Arg)
-    
+    If idMember = -5 Then IDName = Arg(uds):    uds = uds - 1
+
     If idMember = 0 Then
-        If uds = -1 Then
-            Set Result = ObjFromPtr(pThis)
-            Exit Function
-        Else
-            IDName = Arg(uds)
-            uds = uds - 1
-        End If
-    ElseIf idMember = -1 And LenB(IDName) = 0 Then
+        If uds = -1 Then Set Result = ObjFromPtr(pThis):    Exit Function
+        IDName = Arg(uds):      uds = uds - 1
+    ElseIf (idMember = -5 Or idMember = -1) And LenB(IDName) = 0 Then
         Set Result = Me
         Exit Function
     End If
@@ -69,10 +64,10 @@ Public Function COM_Invoke(ByVal pThis As Long, ByVal idMember As Long, ByVal ID
 End Function
 
 
-Public Function Add(ParamArray vsp() As Variant) As IObject
+Public Function Fill(ParamArray vsp() As Variant) As IObject
     Dim a As Long, uds As Long
 
-    Set Add = Me
+    Set Fill = Me
 
     uds = UBound(vsp):      If uds < 1 Then Exit Function
     

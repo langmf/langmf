@@ -49,7 +49,7 @@ Sub Load(cmdLine)
 	next
 	set func = nothing
 	t1 = timegettime - t1
-	out = out & "API_Direct - " & t1 & " ms" & vbTab & " Value=" & sys.str.trimnull(txt) & vbcrlf	
+	out = out & "API_Direct -   " & t1 & " ms" & vbTab & " Value=" & sys.str.trimnull(txt) & vbcrlf	
 
 	
 	msgbox out

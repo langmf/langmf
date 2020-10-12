@@ -81,7 +81,7 @@ Dim PROCESSENTRY32 as tagPROCESSENTRY32
 Sub Load(command)
 
  With Form
-	.Width = 2436
+	.Width = 3436
 	.Height	= 5760
     .Center
 	.Caption = "Список процессов"
@@ -89,11 +89,11 @@ Sub Load(command)
 	.BackColor = &HC0C0C0
 	.Style.ToolWindow = True
 
-	.Add "Label", 1, ".move 60, 180, 2220, 240", ".Alignment=2",".Caption=""Процессы"""
-	.Add "List", 1, ".move 60, 540, 2220, 3600"
-	.Add "Command", 1,".Caption=""Обновить""", ".move 60, 4320, 2220, 240",".ToolTipText=""Обновление списка процессов"""		
-	.Add "Command", 2,".Caption=""Завершить процесс""", ".move 60, 4620, 2220, 240",".ToolTipText=""Нормальное завершение выбранного процесса"""		
-	.Add "Command", 3,".Caption=""Выход""", ".move 60, 4920, 2220, 240",".ToolTipText=""Выход"""				
+	.Add "Label", 1, ".move 60, 180, 3220, 240", ".Alignment=2",".Caption=""Процессы"""
+	.Add "List", 1, ".move 60, 540, 3220, 3600"
+	.Add "Command", 1,".Caption=""Обновить""", ".move 60, 4320, 3220, 240",".ToolTipText=""Обновление списка процессов"""
+	.Add "Command", 2,".Caption=""Завершить процесс""", ".move 60, 4620, 3220, 240",".ToolTipText=""Нормальное завершение выбранного процесса"""
+	.Add "Command", 3,".Caption=""Выход""", ".move 60, 4920, 3220, 240",".ToolTipText=""Выход"""
 
 	For Each Control In .Controls
 			On Error Resume Next
