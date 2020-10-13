@@ -1123,7 +1123,8 @@ Function Parse_MPath(ByVal MPath As String) As String
             Case "mf_"
                 Arg = LCase$(Mts(a).SubMatches(2))
                 If LCase$(Left$(Arg, 3)) = "rnd" Then
-                    MPath = Replace$(MPath, txt, GenTempStr(Val(Mid$(Arg, 4))))
+                    idx = Val(Mid$(Arg, 4)):    If idx = 0 Then idx = 12
+                    MPath = Replace$(MPath, txt, GenTempStr(idx))
                 Else
                     MPath = Replace$(MPath, txt, SYS.Path(Arg, False))
                 End If

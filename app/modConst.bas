@@ -252,6 +252,7 @@ Declare Function GetModuleFileNameExW Lib "psapi" (ByVal hProcess As Long, ByVal
 Declare Function GetProcessMemoryInfo Lib "psapi" (ByVal hProcess As Long, ppsmemCounters As PROCESS_MEMORY_COUNTERS, ByVal cb As Long) As Long
 Declare Function GetProcessImageFileNameW Lib "psapi" (ByVal hProcess As Long, ByVal lpImageFileName As Long, ByVal nSize As Long) As Long
 
+Declare Sub CoCreateGuid Lib "ole32" (pClsid As UUID)
 Declare Sub CoTaskMemFree Lib "ole32" (ByVal hMem As Long)
 Declare Function CoTaskMemAlloc Lib "ole32" (ByVal cb As Long) As Long
 Declare Function CLSIDFromString Lib "ole32" (ByVal lpsz As Any, pClsid As UUID) As Long
@@ -268,6 +269,7 @@ Declare Function OleCreatePictureIndirect Lib "olepro32" (PicDesc As PictDesc, R
 Declare Function LoadTypeLib Lib "oleaut32" (ByVal szFile As Long, pptlib As ITypeLib) As Long
 Declare Function VariantCopy Lib "oleaut32" (varDest As Variant, varSrc As Variant) As Long
 Declare Function VariantCopyInd Lib "oleaut32" (ByVal pvargDest As Long, ByVal pvargSrc As Long) As Long
+Declare Function VariantCopyInd2 Lib "oleaut32" Alias "VariantCopyInd" (vargDest As Variant, vargSrc As Variant) As Long
 Declare Function SysAllocStringLen Lib "oleaut32" (ByVal OleStr As Long, ByVal bLen As Long) As Long
 Declare Function RevokeActiveObject Lib "oleaut32" (ByVal dwRegister As Long, ByVal pvReserved As Long) As Long
 Declare Function RegisterActiveObject Lib "oleaut32" (ByVal pUnk As IUnknown, rclsid As UUID, ByVal dwFlags As Long, pdwRegister As Long) As Long

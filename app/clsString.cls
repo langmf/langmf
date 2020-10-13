@@ -13,6 +13,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 Option Explicit
 
+
 Public Function Asc(ByVal txt As String) As Long
     Asc = VBA.Asc(txt)
 End Function

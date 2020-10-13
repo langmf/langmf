@@ -90,8 +90,8 @@ Public Function Env(Optional ByVal ID As Variant) As Variant
     If IsMissing(ID) Or IsEmpty(ID) Then Set Env = GEV Else Env = GEV(ID)
 End Function
 
-Public Function GenStr(Optional ByVal lenGen As Long, Optional ByVal txtPat As String) As String
-    GenStr = GenTempStr(lenGen, txtPat)
+Public Function GenStr(Optional ByVal value As Variant, Optional ByVal txtPat As String) As String
+    GenStr = GenTempStr(value, txtPat)
 End Function
 
 Public Function DoParams(ByVal Obj As Object, Arg As Variant) As Object

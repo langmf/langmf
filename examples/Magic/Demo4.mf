@@ -8,16 +8,17 @@ Sub Load(cmdLine)
   
   'a = array(1,2,3,4,5,6,7,8,9,10)
   a = "1 2 3 4 5 6 7 8 9 10"  :  Set a = a =~ ige/\d+//
-  
-  f0 = sys.var.map(a)
-  f1 = sys.var.map(a, array(GetFunc("(v,i,a) result = v * i")))
-  f2 = sys.var.map(a, GetFunc("(v) result = v * v"))
-  f3 = sys.var.map(a, o)
-  f4 = sys.var.map(a, h)
-  f5 = sys.var.map(h, GetFunc("(v) result = v"))
-  f6 = sys.var.map(h, array(GetFunc("(v,i,a) result = i & "":"" & v")))
 
-  msgbox join(f0,"  ") & vbcrlf & join(f1,"  ") & vbcrlf & join(f2,"  ") & vbcrlf & join(f3,"  ") & vbcrlf & join(f4,"  ") & vbcrlf & join(f5,"  ") & vbcrlf & join(f6,"  ")
+  f0 = sys.var.map(a)
+  f1 = sys.var.map(a, GetFunc("<$>(v) $ = iif(v mod 2 = 1, vbMissing, v)"))
+  f2 = sys.var.map(a, array(GetFunc("<$>(v,i,a) $ = v * i")))
+  f3 = sys.var.map(a, GetFunc("(v) result = v * v"))
+  f4 = sys.var.map(a, o)
+  f5 = sys.var.map(a, h)
+  f6 = sys.var.map(h, GetFunc("(v) result = v"))
+  f7 = sys.var.map(h, array(GetFunc("(v,i,a) result = i & "":"" & v")))
+
+  msgbox join(f0,"  ") & vbcrlf & join(f1,"  ") & vbcrlf & join(f2,"  ") & vbcrlf & join(f3,"  ") & vbcrlf & join(f4,"  ") & vbcrlf & join(f5,"  ") & vbcrlf & join(f6,"  ") & vbcrlf & join(f7,"  ")
 
   
   txt = "<a href=""%mf_script%\test1.js"">"  & vbcrlf & "<a href=""%test2.js"">" & vbcrlf & "<a href=""%mf_temp%\test3.js"">"

@@ -1,0 +1,19 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+	
+	v1 = sys.var.verr(11)
+	v2 = sys.var.conv(&H800A0000 + 11)
+	
+	v3 = vbMissing
+	v4 = sys.var.conv(&H80020004)
+
+	msgbox Check(v1) & vbcrlf & Check(v2) & vbcrlf & Check(v3) & vbcrlf & Check(v4)
+
+	endmf
+End Sub
+
+Function Check(v)
+	Check = TypeName(v) & " - " &  IsError(v) & " - " & IsMissing(v) & " - " & Hex(sys.var.conv(v, 3)) & " - " & sys.var.vlng(v) & vbcrlf
+End Function
+<#Module>

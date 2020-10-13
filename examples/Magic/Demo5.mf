@@ -1,0 +1,19 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  
+  t1 = timegettime
+  set f = GetFunc("<$>(v) for a = 0 to 1000000 : $=$+v : next")
+  r1 = f(3)
+  t1 = timegettime - t1
+
+  t2 = timegettime
+  set f = GetFunc("<$>test(v) for a = 0 to 1000000 : $=$+v : next")
+  r2 = f(3)
+  t2 = timegettime - t2
+  
+  msgbox t1 & vbtab & r1 & vbcrlf & t2 & vbtab & r2
+  
+  endmf
+End Sub
+<#Module>

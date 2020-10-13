@@ -322,20 +322,32 @@ Function IsFileExt(value As String, Optional ByVal vPath As Variant, Optional By
     Next
 End Function
 
-Function GenTempStr(Optional ByVal lenGen As Long, Optional pat As String) As String
-    Dim a As Long, b As Long, s As Long, out() As Byte, p() As Byte
+Function GenTempStr(Optional ByVal value As Variant, Optional pat As String) As String
+    Dim a As Long, b As Long, c As Long, s As Long, u As UUID, out() As Byte, p() As Byte
 
-    If lenGen = 0 Then lenGen = 12
-    If lenGen > -1 Then Randomize Timer Else lenGen = -lenGen
-    If LenB(pat) = 0 Then pat = "abcdefghijklmnopqrstuvwxyz0123456789"
+    If IsMissing(value) Or IsEmpty(value) Then c = 12
+    If IsNumeric(value) Then c = value
     
-    p = pat:        s = Len(pat):       ReDim out(lenGen * 2 - 1)
-
-    For a = 0 To lenGen * 2 - 1 Step 2
-        b = CLng(Rnd * (s - 1)) * 2:        out(a) = p(b):         out(a + 1) = p(b + 1)
-    Next
+    If c Then
+        If c > -1 Then Randomize Timer Else c = -c
+        If LenB(pat) = 0 Then pat = "abcdefghijklmnopqrstuvwxyz0123456789"
+        
+        p = pat:        s = Len(pat):       ReDim out(c * 2 - 1)
     
-    GenTempStr = out
+        For a = 0 To c * 2 - 1 Step 2
+            b = CLng(Rnd * (s - 1)) * 2:        out(a) = p(b):         out(a + 1) = p(b + 1)
+        Next
+        
+        GenTempStr = out
+    End If
+    
+    If VarType(value) = vbString Then
+        value = LCase$(value)
+        If Len(value) = 4 And Mid$(value, 2, 3) = "uid" Then
+            CoCreateGuid u:         GenTempStr = String$(38, 0):        StringFromGUID2 VarPtr(u), StrPtr(GenTempStr)
+            If Left$(value, 1) = "u" Then GenTempStr = Replace(Mid$(GenTempStr, 2, Len(GenTempStr) - 2), "-", "")
+        End If
+    End If
 End Function
 
 Function EncodeUTF8(value As String, Optional ByVal Cpg As Long = 65001) As String
@@ -1250,15 +1262,16 @@ Function ExistsMember(ByVal Disp As ATL.IDispatch, ProcName As String) As Boolea
 End Function
 
 Function GetFunc(ByVal value As String) As Object
-    Dim fn As String, REG1 As RegExp, Mts As MatchCollection, mt As Match
+    Dim fn As String, rt As String, REG1 As RegExp, Mts As MatchCollection
     
-    Set REG1 = New RegExp:      REG1.IgnoreCase = True:      REG1.Pattern = "^(function)?\s*(\w*)\s*(\([^\)]*\))(.+)"
+    Set REG1 = New RegExp:      REG1.IgnoreCase = True:      REG1.Pattern = "^(\s*<([^>]+)>\s*)?(function)?\s*(\w*)\s*(\([^\)]*\))(.+)"
     Set Mts = REG1.Execute(value)
     
     If Mts.Count Then
-        Set mt = Mts(0):      fn = mt.SubMatches(1):      If LenB(fn) = 0 Then fn = "TmpFunc_" & GenTempStr & "_"
-        value = "Function " + fn + mt.SubMatches(2) + vbCrLf + mt.SubMatches(3) + vbCrLf + "End Function"
-        value = Replace$(value, "result", fn, , , vbTextCompare):       CAS.Execute value:      value = fn
+        fn = Mts(0).SubMatches(3):      If LenB(fn) = 0 Then fn = "func_" & GenTempStr("uuid")
+        rt = Mts(0).SubMatches(1):      If LenB(rt) = 0 Then rt = "result"
+        value = "Function " + fn + Mts(0).SubMatches(4) + vbCrLf + Mts(0).SubMatches(5) + vbCrLf + "End Function"
+        value = Replace$(value, rt, fn, , , vbTextCompare):       CAS.Execute value:      value = fn
     End If
 
     Set GetFunc = CAS.Eval("GetRef(""" + value + """)")

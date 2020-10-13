@@ -67,6 +67,18 @@ Public Property Get vbDC(ByVal nIndex As Long, Optional ByVal hDC As Long) As Lo
     vbDC = GetDeviceCaps(hDC, nIndex)
 End Property
 
+Public Property Get vbMissing() As Variant
+    vbMissing = DISP_E_PARAMNOTFOUND:     VariantType(vbMissing) = VT_ERROR
+End Property
+
+Public Function IsMissing(Var As Variant) As Boolean
+    IsMissing = Information.IsMissing(Var)
+End Function
+
+Public Function IsError(Var As Variant) As Boolean
+    IsError = Information.IsError(Var)
+End Function
+
 Public Function StrConv(ByVal txt As String, ByVal typeStr As Integer, Optional ByVal LocaleID As Long = -1) As String
     If LocaleID = -1 Then StrConv = VBA.StrConv(txt, typeStr) Else StrConv = VBA.StrConv(txt, typeStr, LocaleID)
 End Function
@@ -100,6 +112,17 @@ End Property
 Public Property Let VType(vrtSrc As Variant, Optional ByVal isBYREF As Boolean, ByVal value As Integer)
     VariantType(vrtSrc, isBYREF) = value
 End Property
+
+Public Function VarCopy(srcVar As Variant, Optional dstVar As Variant, Optional ByVal sz As Long, Optional ByVal srcOffset As Long = 8, Optional ByVal dstOffset As Long = 8) As Variant
+    If sz = 0 Then
+        dstVar = Empty:     VariantCopy dstVar, srcVar
+    ElseIf sz = -1 Then
+        dstVar = Empty:     VariantCopyInd2 dstVar, srcVar
+    Else
+        If IsMissing(dstVar) Then dstVar = CLng(0)
+        CopyMemory ByVal VBA.VarPtr(dstVar) + dstOffset, ByVal VBA.VarPtr(srcVar) + srcOffset, sz
+    End If
+End Function
 
 Public Function ObjFromPtr(ByVal vPtr As Long, Optional ByVal isIUnknown As Boolean = False) As Variant
     Dim VD As Object, IUnk As ATL.IUnknown
