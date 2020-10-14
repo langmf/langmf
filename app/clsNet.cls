@@ -113,7 +113,7 @@ Public Function Name2IP(ByVal sHostname As String) As String
 End Function
 
 Public Sub WOL(ByVal txtIP As String, ByVal txtMAC As String, Optional ByVal txtPasswd As String)
-    Dim txtHost() As String, a As Long, b As Long, arrMAC(5) As Byte, magicData() As Byte, Obj As Object
+    Dim txtHost() As String, a As Long, b As Long, arrMAC(5) As Byte, magicData() As Byte
 
     On Error Resume Next
     

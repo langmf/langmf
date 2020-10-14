@@ -229,7 +229,7 @@ End Function
 
 Function CompressData(Data() As Byte, Optional ByVal cmsType As Long = CMS_FORMAT_ZLIB) As Long
     Dim sz As Long, org As Long, iL As Long, iU As Long, Buf() As Byte
-    Dim WorkSpaceSize As Long, WorkSpace As Long, fin As Long
+    Dim WorkSpaceSize As Long, WorkSpace As Long
 
     If cmsType = CMS_FORMAT_NONE Then Exit Function
     
@@ -1262,7 +1262,7 @@ Function ExistsMember(ByVal Disp As ATL.IDispatch, ProcName As String) As Boolea
 End Function
 
 Function GetFunc(Optional value As String) As Object
-    Dim c As Long, fn As String, rt As String, txt As String, REG1 As RegExp, Mts As MatchCollection
+    Dim fn As String, rt As String, txt As String, REG1 As RegExp, Mts As MatchCollection
     
     If LenB(value) = 0 Then Set GetFunc = Funcs:    Exit Function
     

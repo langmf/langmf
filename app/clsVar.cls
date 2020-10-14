@@ -81,7 +81,9 @@ End Function
 
 Public Function Map(arr As Variant, Optional cbk As Variant) As Variant()
     Dim a As Long, i As Long, j As Long, c As Long, uds As Long, t As Long, v As Variant, h As Variant, tmp() As Variant
-
+    
+    On Error Resume Next
+    
     t = VariantType(cbk):       If t = VT_ARRVAR Then c = UBound(cbk)
 
     If TypeName(arr) = "clsHash" Then
@@ -102,6 +104,6 @@ Public Function Map(arr As Variant, Optional cbk As Variant) As Variant()
         Next
     End If
     
-    If i Then ReDim Preserve tmp(i - 1):  Map = tmp Else Map = Array()
+    Err.Clear:          If i Then ReDim Preserve tmp(i - 1):  Map = tmp Else Map = Array()
 End Function
 

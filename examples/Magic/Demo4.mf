@@ -3,11 +3,12 @@
 <#Module=mdlMain>
 '---------------------------------------
 Sub Load(cmdLine)
+  Set c = Sys.NewCollection(".add 101,""1"" : .add 102,""2"" : .add 103,""3""")
   Set h = Sys.NewHash.Fill(1, 101, "2", 102, 3, 103)
   Set o = Object.[].Fill(1, 101, "2", 102, 3, 103).Parent
   
-  'a = array(1,2,3,4,5,6,7,8,9,10)
-  a = "1 2 3 4 5 6 7 8 9 10"  :  Set a = a =~ ige/\d+//
+  a = array(1,2,3,4,5,6,7,8,9,10)
+  'a = "1 2 3 4 5 6 7 8 9 10"  :  Set a = a =~ ige/\d+//
 
   f0 = sys.var.map(a)
   f1 = sys.var.map(a, GetFunc("<$>(v) $ = iif(v mod 2 = 1, vbMissing, v)"))
@@ -16,9 +17,10 @@ Sub Load(cmdLine)
   f4 = sys.var.map(a, o)
   f5 = sys.var.map(a, h)
   f6 = sys.var.map(h, GetFunc("(v) result = v"))
-  f7 = sys.var.map(h, array(GetFunc("(v,i,a) result = i & "":"" & v")))
+  f7 = sys.var.map(a, c)
+  f8 = sys.var.map(h, array(GetFunc("(v,i,a) result = i & "":"" & v")))
 
-  msgbox join(f0,"  ") & vbcrlf & join(f1,"  ") & vbcrlf & join(f2,"  ") & vbcrlf & join(f3,"  ") & vbcrlf & join(f4,"  ") & vbcrlf & join(f5,"  ") & vbcrlf & join(f6,"  ") & vbcrlf & join(f7,"  ")
+  msgbox join(f0,"  ") & vbcrlf & join(f1,"  ") & vbcrlf & join(f2,"  ") & vbcrlf & join(f3,"  ") & vbcrlf & join(f4,"  ") & vbcrlf & join(f5,"  ") & vbcrlf & join(f6,"  ") & vbcrlf & join(f7,"  ") & vbcrlf & join(f8,"  ")
 
   
   txt = "<a href=""%mf_script%\test1.js"">"  & vbcrlf & "<a href=""%test2.js"">" & vbcrlf & "<a href=""%mf_temp%\test3.js"">"

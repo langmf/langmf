@@ -67,7 +67,7 @@ Public Function TrimNull(ByVal txt As String) As String
 End Function
 
 Public Function Rpt(ByVal txt As String, ByVal cnt As Long) As String
-    Dim i As Long, j As Long, sz As Long, p As Long, b() As Byte, o() As Byte
+    Dim i As Long, sz As Long, p As Long, b() As Byte, o() As Byte
     
     If Len(txt) = 0 Or cnt = 0 Then Exit Function
 

@@ -348,7 +348,7 @@ Sub Parse_Data(txtCode As String)
     Call Parse_VBNET(txtCode)
 End Sub
 
-Function Parse_Data_Mode(PCD As def_ParseCustom, Mode As String, Optional cd As clsDim, Optional ByVal bString As Boolean) As Variant
+Function Parse_Data_Mode(PCD As def_ParseCustom, Mode As String, Optional ByVal bString As Boolean) As Variant
     Dim isBuf As Boolean, tmpBuf() As Byte
     Static Base64 As New clsBase64
     
@@ -404,7 +404,7 @@ Sub Parse_Resource(txtCode As String)
                 With cd
                     .ID = Mts(0).SubMatches(0)
                     .Mode = Mts(0).SubMatches(2)
-                    .Data = Parse_Data_Mode(PCD(a), .Mode, cd)
+                    .Data = Parse_Data_Mode(PCD(a), .Mode)
                     SYS.Resource.Add cd, .ID
                 End With
             End If
@@ -431,7 +431,7 @@ Sub Parse_VBNET(txtCode As String)
             If Len(.SubMatches(1)) > 0 Then CAS.AddObject .SubMatches(1), Obj
 
             If Len(PCD(a).Data) Then
-                tmp = Parse_Data_Mode(PCD(a), .SubMatches(10), , True)
+                tmp = Parse_Data_Mode(PCD(a), .SubMatches(10), True)
                 If Len(.SubMatches(8)) > 0 Then tmp = Obj.Build(tmp, .SubMatches(8)) Else tmp = Obj.Build(tmp)
                 If Len(tmp) > 0 And Len(.SubMatches(2)) = 0 Then MsgBox tmp, , "VBNET Error!":   Str2File CStr(tmp), "vbnet.log"
             
@@ -999,7 +999,7 @@ End Sub
 
 Function Parse_Include(txtCode As String, Optional ByVal noFind As String, Optional ByVal bCompile As Boolean) As Boolean
     Dim a As Long, txt As String, tmp As String, nm As String, oth As String, vStatus As Variant
-    Dim REG1 As RegExp, Mts As MatchCollection, clsFS As New clsFileSearch, tmpBuf() As Byte
+    Dim REG1 As RegExp, Mts As MatchCollection, tmpBuf() As Byte
     
     tmp = "[ \t]*#Include[ \t]+([<""])" + noFind + "([^"">]+)(["">])([^\r]*)"
 
