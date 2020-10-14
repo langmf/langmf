@@ -1,0 +1,40 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+	dim a, f, r, t
+	
+	for a = 1 to 100
+		GetFunc("<$>(v)$=v+1 '" + sys.genstr("uuid"))
+	next
+
+	t = timegettime
+	for a = 0 to 100000
+		set f = GetFunc("<$>( v )$=v+1")
+		r = f(r)
+	next
+	t = timegettime - t
+  
+  
+  	with sys.file.api
+		set e = sys.com.enums2(sys.host.script.codeobject)
+		if e.count then
+			.fopen "info.txt", 2
+			.fprint "Members"
+			.fprint sys.str.rpt("=", 60)
+				
+			for each f in e.items(2)
+				.fprint f(1) & " = " & f(0)
+			next
+
+			.fprint sys.str.rpt("=", 60)
+			.fprint
+			.fclose
+		end if
+	end with
+	
+	
+	msgbox t & vbtab & r & vbcrlf & getfunc.item(101)(1)
+  
+  endmf
+End Sub
+<#Module>

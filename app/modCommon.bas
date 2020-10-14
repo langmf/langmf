@@ -1261,20 +1261,27 @@ Function ExistsMember(ByVal Disp As ATL.IDispatch, ProcName As String) As Boolea
     ExistsMember = (Disp.GetIDsOfNames(IID_Null, ProcName, 1, LOCALE_USER_DEFAULT, 0&) = S_OK)
 End Function
 
-Function GetFunc(ByVal value As String) As Object
-    Dim fn As String, rt As String, REG1 As RegExp, Mts As MatchCollection
+Function GetFunc(Optional value As String) As Object
+    Dim c As Long, fn As String, rt As String, txt As String, REG1 As RegExp, Mts As MatchCollection
     
-    Set REG1 = New RegExp:      REG1.IgnoreCase = True:      REG1.Pattern = "^(\s*<([^>]+)>\s*)?(function)?\s*(\w*)\s*(\([^\)]*\))(.+)"
-    Set Mts = REG1.Execute(value)
+    If LenB(value) = 0 Then Set GetFunc = Funcs:    Exit Function
     
-    If Mts.Count Then
-        fn = Mts(0).SubMatches(3):      If LenB(fn) = 0 Then fn = "func_" & GenTempStr("uuid")
-        rt = Mts(0).SubMatches(1):      If LenB(rt) = 0 Then rt = "result"
-        value = "Function " + fn + Mts(0).SubMatches(4) + vbCrLf + Mts(0).SubMatches(5) + vbCrLf + "End Function"
-        value = Replace$(value, rt, fn, , , vbTextCompare):       CAS.Execute value:      value = fn
-    End If
+    On Error GoTo GetFunc_New
+    Set GetFunc = Funcs(value)(0)
+    Exit Function
+GetFunc_New:
+    On Error GoTo 0
 
-    Set GetFunc = CAS.Eval("GetRef(""" + value + """)")
+    Set REG1 = New RegExp:      REG1.IgnoreCase = True:      REG1.Pattern = "^(\s*<([^>]+)>\s*)?(function)?\s*(\w*)\s*(\([^\)]*\))(.+)"
+    Set Mts = REG1.Execute(value):          If Mts.Count = 0 Then Exit Function
+    
+    fn = Mts(0).SubMatches(3):      If LenB(fn) = 0 Then fn = "func_" & GenTempStr("uuid")
+    rt = Mts(0).SubMatches(1):      If LenB(rt) = 0 Then rt = "result"
+    txt = Replace$("Function " + fn + Mts(0).SubMatches(4) + vbCrLf + Mts(0).SubMatches(5) + vbCrLf + "End Function", rt, fn, , , vbTextCompare)
+    CAS.Execute txt:                Set GetFunc = CAS.Eval("GetRef(""" + fn + """)")
+    
+    REG1.Global = True:     REG1.Pattern = "\w+":     Set Mts = REG1.Execute(Mts(0).SubMatches(4))
+    Funcs.Add Array(GetFunc, value, fn, rt, Mts), value
 End Function
 
 Function CBN(Obj As Variant, ProcName As Variant, ByVal CallType As VbCallType, Optional ByVal Args As Variant, Optional ByVal cntArgs As Long = -1, Optional ByVal pvarResult As Long, Optional hr As Long) As Variant

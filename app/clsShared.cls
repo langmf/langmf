@@ -197,7 +197,7 @@ Public Function CallByName2(Obj As Variant, ProcName As Variant, ByVal typeCall 
     CBN Obj, ProcName, typeCall, Args, CountArgs, VBA.VarPtr(CallByName2)
 End Function
 
-Public Function GetFunc(ByVal txtCode As String) As Object
+Public Function GetFunc(Optional ByVal txtCode As String) As Object
     Set GetFunc = modCommon.GetFunc(txtCode)
 End Function
 

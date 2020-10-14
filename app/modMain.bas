@@ -59,6 +59,7 @@ Global SYS As clsSys
 Global CAS As clsActiveScript
 Global REG As New RegExp
 Global Types As clsHash
+Global Funcs As Collection
 
 Global mf_TimeLMF As Long, mf_TimeParse As Long, mf_AsyncLoad As Long, mf_NoError As Boolean
 Global mf_Counter As Integer, mf_IsEnd As Boolean, mf_Debug As Long, mf_Tmp As String
@@ -1211,6 +1212,7 @@ Sub Script_Init()
         CAS.AddObject "Sys", SYS
         CAS.AddObject "Shd", SYS.SHD, True
         Set Types = New clsHash
+        Set Funcs = New Collection
         EMailDevelop = mf_EMailDevelop
     End If
     
@@ -1227,7 +1229,7 @@ Sub Script_End()
         Set Frm = Nothing
     Next
                 
-    Erase MDL:    mf_Counter = 0:     mf_AsyncLoad = 0:     mf_NoError = False
+    Erase MDL:    mf_Counter = 0:     mf_AsyncLoad = 0:     mf_NoError = False:     Set Funcs = Nothing
 
     If Not CAS Is Nothing Then CAS.Reset
     Set CAS = Nothing
