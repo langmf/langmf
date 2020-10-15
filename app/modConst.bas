@@ -184,6 +184,8 @@ Declare Function GetProcAddressByOrdinal Lib "kernel32" Alias "GetProcAddress" (
 Declare Function SetEnvironmentVariableW Lib "kernel32" (ByVal lpName As Long, ByVal lpValue As Long) As Long
 Declare Function GetEnvironmentVariableW Lib "kernel32" (ByVal lpName As Long, ByVal lpBuffer As Long, ByVal nSize As Long) As Long
 Declare Function SetThreadExecutionState Lib "kernel32" (ByVal esFlags As Long) As Long
+Declare Function QueryPerformanceCounter Lib "kernel32" (lpPerformanceCount As Any) As Long
+Declare Function QueryPerformanceFrequency Lib "kernel32" (lpFrequency As Any) As Long
 
 
 Declare Function GetUserNameW Lib "advapi32" (ByVal lpBuffer As Long, nSize As Long) As Long
@@ -224,8 +226,10 @@ Declare Function CreateFontIndirectW Lib "gdi32" (lpLogFont As LOGFONT) As Long
 Declare Function CreateCompatibleBitmap Lib "gdi32" (ByVal hDC As Long, ByVal nWidth As Long, ByVal nHeight As Long) As Long
 
 
-Declare Function timeGetTime Lib "winmm" () As Long
 Declare Function PlaySoundW Lib "winmm" (ByVal lpszName As Long, ByVal hModule As Long, ByVal dwFlags As Long) As Long
+Declare Function timeGetTime Lib "winmm" () As Long
+Declare Function timeEndPeriod Lib "winmm" (Optional ByVal uPeriod As Long = 1) As Long
+Declare Function timeBeginPeriod Lib "winmm" (Optional ByVal uPeriod As Long = 1) As Long
 Declare Function mciSendStringW Lib "winmm" (ByVal lpstrCommand As Long, ByVal lpstrReturnString As Long, ByVal uReturnLength As Long, ByVal hwndCallback As Long) As Long
 
 Declare Sub WTSFreeMemory Lib "wtsapi32" (ByVal pMemory As Long)

@@ -3,15 +3,22 @@
 Sub Load(cmdLine)
 	dim a, f, r, t
 	
+	sys.file.Open2 "test.txt", 1, "output"
 	for a = 1 to 100
-		GetFunc("<$>(v)$=v+1 '" + sys.genstr("uuid"))
+		t = sys.genstr()
+		sys.file.Print2 1, timegettime & " - " & a & " - " & t
+		GetFunc("<$>(v)$=v+1 '" + t)
 	next
+	sys.file.Close2 1
+
 
 	t = timegettime
+	timegettime(true)
 	for a = 0 to 100000
 		set f = GetFunc("<$>( v )$=v+1")
 		r = f(r)
 	next
+	timegettime(false)
 	t = timegettime - t
   
   
@@ -33,7 +40,7 @@ Sub Load(cmdLine)
 	end with
 	
 	
-	msgbox t & vbtab & r & vbcrlf & getfunc.item(101)(1)
+	msgbox t & vbcrlf & timegettime(-2) & vbcrlf & vbcrlf & r & vbcrlf & getfunc.item(101)(1)
   
   endmf
 End Sub

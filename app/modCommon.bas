@@ -3,7 +3,7 @@ Option Explicit
 
 Global IID_Null As UUID, IID_IClassFactory As UUID, IID_IDispatch As UUID, IID_IUnknown As UUID, IID_IPicture As UUID
 
-Global WinVer As OSVERSIONINFOEX, ArrNRes() As Variant, HashWins As clsHash, TypeWins As Long
+Global WinVer As OSVERSIONINFOEX, ArrNRes() As Variant, HashWins As clsHash, TypeWins As Long, QPF As Currency
 
 Global GT_BHex(15) As Byte
 Global GT_IHex(255) As Byte
@@ -27,6 +27,9 @@ Sub InitGlobal()
     
     '-------------------------------------
     InitCommonControlsXP
+    
+    '-------------------------------------
+    QueryPerformanceFrequency QPF
 
     '-------------------------------------
     For a = 0 To 255:       GT_Mix(a) = a:      Next
@@ -323,19 +326,23 @@ Function IsFileExt(value As String, Optional ByVal vPath As Variant, Optional By
 End Function
 
 Function GenTempStr(Optional ByVal value As Variant, Optional pat As String) As String
-    Dim a As Long, b As Long, c As Long, s As Long, u As UUID, out() As Byte, p() As Byte
+    Dim a As Long, b As Long, sz As Long, l As Long, u As UUID, out() As Byte, p() As Byte
 
-    If IsMissing(value) Or IsEmpty(value) Then c = 12
-    If IsNumeric(value) Then c = value
+    Static oldTm As Long
     
-    If c Then
-        If c > -1 Then Randomize Timer Else c = -c
+    If IsMissing(value) Or IsEmpty(value) Then sz = 12
+    If IsNumeric(value) Then sz = value
+    
+    If sz Then
+        If sz > 0 Then a = timeGetTime - oldTm:    If a < 0 Or a > 50 Then oldTm = timeGetTime:    Randomize oldTm
+        If sz < 0 Then sz = -sz
+        
         If LenB(pat) = 0 Then pat = "abcdefghijklmnopqrstuvwxyz0123456789"
         
-        p = pat:        s = Len(pat):       ReDim out(c * 2 - 1)
+        p = pat:        l = Len(pat):       ReDim out(sz * 2 - 1)
     
-        For a = 0 To c * 2 - 1 Step 2
-            b = CLng(Rnd * (s - 1)) * 2:        out(a) = p(b):         out(a + 1) = p(b + 1)
+        For a = 0 To sz * 2 - 1 Step 2
+            b = CLng(Rnd * (l - 1)) * 2:        out(a) = p(b):         out(a + 1) = p(b + 1)
         Next
         
         GenTempStr = out

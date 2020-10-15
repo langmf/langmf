@@ -16,8 +16,15 @@ Option Explicit
 Private HashDLL As clsHash
 
 
-Public Function timeGetTime() As Long
-    timeGetTime = modConst.timeGetTime()
+Public Function timeGetTime(Optional ByVal tMode As Long = -11) As Currency
+    Static vOld As Currency, vNew As Currency, vAll As Currency
+    If tMode = -13 Then timeGetTime = modConst.timeBeginPeriod():                           Exit Function
+    If tMode = -12 Then timeGetTime = modConst.timeEndPeriod():                             Exit Function
+    If tMode = -11 Then timeGetTime = modConst.timeGetTime():                               Exit Function
+    If tMode = -3 Then timeGetTime = ((vNew - vOld) / QPF) * 1000:                          Exit Function
+    If tMode = -2 Then timeGetTime = vAll:      vAll = 0:                                   Exit Function
+    If tMode Then QueryPerformanceCounter vOld:     timeGetTime = (vOld / QPF) * 1000:      Exit Function
+    QueryPerformanceCounter vNew:       timeGetTime = ((vNew - vOld) / QPF) * 1000:     vAll = vAll + timeGetTime
 End Function
 
 Public Function WindowLong(ByVal hWnd As Long, Optional ByVal mStyle As Long, Optional ByVal value As Variant, Optional ByVal nIndex As Long = GWL_STYLE) As Long

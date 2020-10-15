@@ -7,8 +7,8 @@ Sub Load(cmdLine)
   Set h = Sys.NewHash.Fill(1, 101, "2", 102, 3, 103)
   Set o = Object.[].Fill(1, 101, "2", 102, 3, 103).Parent
   
-  a = array(1,2,3,4,5,6,7,8,9,10)
-  'a = "1 2 3 4 5 6 7 8 9 10"  :  Set a = a =~ ige/\d+//
+  'a = array(1,2,3,4,5,6,7,8,9,10)
+  a = "1 2 3 4 5 6 7 8 9 10"  :  Set a = a =~ ige/\d+//
 
   f0 = sys.var.map(a)
   f1 = sys.var.map(a, GetFunc("<$>(v) $ = iif(v mod 2 = 1, vbMissing, v)"))
