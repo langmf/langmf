@@ -8,7 +8,7 @@
 #Include <http://asdfjagfkafn.ru> '* Debug
 #Include <http://google.ru> '* Debug
 #Include <res://test> '* msgbox mf_Data(4) & " - " & mf_Data(5)
-#Include <http://langmf.ru/ftp/other/demo.mf> '* Debug
+#Include <https://langmf.ru/ftp/other/demo.mf> '* Debug
 
 '---------------------------------------
 Sub Load(cmdLine)

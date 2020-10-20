@@ -38,16 +38,16 @@ End Function
 'Default Member
 Public Function Find(ByVal processID As Variant, Optional ByVal maxCount As Long) As Collection
 Attribute Find.VB_UserMemId = 0
-    Dim a As Long, b As Long, vt As Integer, txt As String, isFind As Boolean, cl As Collection, RX As New RegExp
+    Dim a As Long, b As Long, vt As Integer, txt As String, isFind As Boolean, cl As Collection, RXP As New RegExp
     
-    Set Find = New Collection:     Set cl = List:     vt = VarType(processID):     RX.IgnoreCase = True
+    Set Find = New Collection:     Set cl = List:     vt = VarType(processID):     RXP.IgnoreCase = True
 
     If (vt And vbArray) <> 0 Then
         For a = 1 To cl.Count
             vt = processID(0):    isFind = vt
             For b = 1 To UBound(processID) Step 2
-                RX.Pattern = processID(b + 1):   txt = cl(a)(processID(b))
-                If vt Then isFind = isFind And RX.Test(txt) Else isFind = isFind Or RX.Test(txt)
+                RXP.Pattern = processID(b + 1):   txt = cl(a)(processID(b))
+                If vt Then isFind = isFind And RXP.Test(txt) Else isFind = isFind Or RXP.Test(txt)
             Next
             If isFind Then Find.Add cl(a):   If maxCount > 0 And Find.Count >= maxCount Then Exit Function
         Next

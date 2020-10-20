@@ -320,7 +320,7 @@ End Function
 Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Optional ByVal sDir As String, Optional ByVal Arg As Variant) As Boolean
     Dim pathTemp As String, pathSystem As String, nameFile As String, extFile As String, fnShell As String, txt As String, Buf() As Byte
     Dim a As Long, isFail As Boolean, isTemp As Boolean, isReg As Boolean, isClean As Boolean, vStatus As Variant
-    Dim Obj As Object, sItem As Object, sFolder As Object, sUnpack As Object, RX As New clsRXP, Prm As clsHash
+    Dim Obj As Object, sItem As Object, sFolder As Object, sUnpack As Object, RXP As New clsRXP, Prm As clsHash
     
     On Error Resume Next
     
@@ -343,7 +343,7 @@ Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Opti
             mf_Tmp = pathTemp
             CreateDir pathTemp
 
-            nameFile = pathTemp + RX.Eval(value, "([^\\\/\?]+)$")
+            nameFile = pathTemp + RXP.Eval(value, "([^\\\/\?]+)$")
             Buf2File Buf, nameFile
 
             extFile = LCase$(GetExtension(nameFile))

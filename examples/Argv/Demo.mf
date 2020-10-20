@@ -1,0 +1,20 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+
+	Set argv = Object(sys.host("argv"))
+	
+	with sys.file.api
+		.fopen "out_" & argv.file &".txt", 2
+		.fprint cmdLine & vbcrlf & vbcrlf
+		
+		for each v in argv.[].Hash.items(2)
+			.fprint "'" & v(1) & "' = " & iif(vartype(v(0))=vbstring,"""" & v(0) & """", v(0))
+		next
+		
+		.fclose
+	end with
+	
+	endmf
+End Sub
+<#Module>

@@ -19,7 +19,7 @@ Private isFail As Boolean
 
 
 Public Function Command(ByVal cmdLine As String) As String
-    Dim RX As New clsRXP
+    Dim RXP As New clsRXP
 
     If isFail Then Exit Function
     
@@ -30,9 +30,9 @@ Public Function Command(ByVal cmdLine As String) As String
             .Arg = cmdLine
             .File = GetAppPath(True)
         Else
-            If RX.Execute(cmdLine, "^""([^""]+)"" *(.*)").Count Then
-                .Arg = Trim$(RX.Mts(0).SubMatches(1))
-                .File = Trim$(RX.Mts(0).SubMatches(0))
+            If RXP.Execute(cmdLine, "^""([^""]+)"" *(.*)").Count Then
+                .Arg = Trim$(RXP.Mts(0).SubMatches(1))
+                .File = Trim$(RXP.Mts(0).SubMatches(0))
             Else
                 .Arg = vbNullString
                 .File = cmdLine

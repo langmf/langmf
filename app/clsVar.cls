@@ -80,25 +80,31 @@ Public Function Conv(Optional Var As Variant, Optional ByVal nType As Integer = 
 End Function
 
 Public Function Map(arr As Variant, Optional cbk As Variant) As Variant()
-    Dim a As Long, i As Long, j As Long, c As Long, uds As Long, t As Long, v As Variant, h As Variant, tmp() As Variant
+    Dim i As Long, j As Long, c As Long, uds As Long, t As Long, v As Variant, h As Variant, tmp() As Variant
     
     On Error Resume Next
     
-    t = VariantType(cbk):       If t = VT_ARRVAR Then c = UBound(cbk)
+    t = VariantType(cbk):           If t = vbObject Then c = GetFunc(cbk)(1)
 
     If TypeName(arr) = "clsHash" Then
         For Each h In arr.Items(2)
             VariantCopy v, h(0)
             If i >= uds Then uds = uds + 100:        ReDim Preserve tmp(uds - 1)
-            If t = VT_ARRVAR Then For a = 0 To c:    VariantCopy v, cbk(a)(v, h(1), arr):     Next
-            If t = VT_OBJECT Then VariantCopy v, cbk(v)
+            If t = vbObject Then
+                If c = 1 Then VariantCopy v, cbk(v)
+                If c = 2 Then VariantCopy v, cbk(v, h(1))
+                If c = 3 Then VariantCopy v, cbk(v, h(1), arr)
+            End If
             If Not IsMissing(v) Then VariantCopy tmp(i), v:     i = i + 1
         Next
     Else
         For Each v In arr
             If i >= uds Then uds = uds + 100:        ReDim Preserve tmp(uds - 1)
-            If t = VT_ARRVAR Then For a = 0 To c:    VariantCopy v, cbk(a)(v, j, arr):        Next
-            If t = VT_OBJECT Then VariantCopy v, cbk(v)
+            If t = vbObject Then
+                If c = 1 Then VariantCopy v, cbk(v)
+                If c = 2 Then VariantCopy v, cbk(v, j)
+                If c = 3 Then VariantCopy v, cbk(v, j, arr)
+            End If
             If Not IsMissing(v) Then VariantCopy tmp(i), v:     i = i + 1
             j = j + 1
         Next

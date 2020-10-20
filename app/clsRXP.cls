@@ -36,33 +36,29 @@ Public Function Execute(ByVal rTxt As String, Optional ByVal rPat As String = ""
     Set Execute = Mts
 End Function
 
-Public Function Replace(ByVal rTxt As String, Optional ByVal rPat As String = "", Optional rRep As Variant = "", Optional ByVal fi As Boolean = True, Optional ByVal fg As Boolean = True) As String
-    Dim txt As String, a As Long, i As Long, c As Long, t As Long
+Public Function Replace(ByVal rTxt As String, Optional ByVal rPat As String = "", Optional rRep As Variant = "", Optional ByVal fi As Boolean = True, Optional ByVal fg As Boolean = True) As Variant
+    Dim i As Long, c As Long, t As Long, p As Long, txt As String, v As Variant, m As Match, h As New clsHash
     
-    With Obj
-        .Global = fg:       .IgnoreCase = fi:       If LenB(rPat) Then .Pattern = rPat
-        
-        t = VariantType(rRep):      If t = VT_ARRVAR Then c = UBound(rRep)
-        Select Case t
-            Case VT_OBJECT, VT_ARRVAR
-                .Global = False
-                Do
-                    Set Mts = .Execute(rTxt):    If Mts.Count = 0 Then Exit Do
+    t = VariantType(rRep):      Obj.Global = fg:       Obj.IgnoreCase = fi:       If LenB(rPat) Then Obj.Pattern = rPat
 
-                    If t = 9 Then txt = rRep(Mts(0)) Else For a = 0 To c:      txt = rRep(a)(Mts(0), i):      Next
-                    i = i + 1
-                    
-                    With Mts(0):    rTxt = Left$(rTxt, .FirstIndex) + txt + Right$(rTxt, Len(rTxt) - .FirstIndex - .Length):    End With
-                Loop Until Not fg
-                
-            Case vbString
-                rTxt = .Replace(rTxt, rRep)
-        End Select
-        
-        .Global = fg
-    End With
+    If t = vbString Then
+        Replace = Obj.Replace(rTxt, rRep)
     
-    Replace = rTxt
+    ElseIf t = vbObject Then
+        Set Mts = Obj.Execute(rTxt):            c = GetFunc(rRep)(1):           p = 1
+        
+        For i = 0 To Mts.Count - 1
+            Set m = Mts(i):     v = Empty
+            
+            If c = 1 Then v = rRep(m)
+            If c = 2 Then v = rRep(m, i)
+            If c = 3 Then v = rRep(m, i, h)
+
+            If Not IsEmpty(v) And c <> 3 Then txt = txt & Mid$(rTxt, p, m.FirstIndex - p + 1) & v:      p = m.FirstIndex + m.Length + 1
+        Next
+        
+        If c = 3 Then Set Replace = h Else Replace = txt + Mid$(rTxt, p)
+    End If
 End Function
 
 Public Function Matches(Optional ByVal rNum As Long = 0, Optional ByVal numMts As Long = 0) As Variant

@@ -189,6 +189,7 @@ Public Function Host(ParamArray Args() As Variant) As Variant
     
     Select Case LCase$(Param)
         Case "host", "":        Set Host = LMF
+        Case "argv":            Set Host = GetArgv(Info.Arg)
         Case "arg":             Host = Info.Arg
         Case "time_lmf":        Host = mf_TimeLMF
         Case "time_parse":      Host = mf_TimeParse
@@ -291,14 +292,14 @@ Public Function CallBack(Optional ByVal vMethod As Variant = 0, Optional Obj As 
 End Function
 
 Public Function Content(ByVal value As String, Optional ByVal bString As Boolean = True, Optional vStatus As Variant) As Variant
-    Dim vProt As String, vName As String, Buf() As Byte, RX As New clsRXP
+    Dim vProt As String, vName As String, Buf() As Byte, RXP As New clsRXP
     
     vStatus = Array(False, 0, "", "", 0, ""):      If bString Then Content = "" Else Content = Buf
     
-    If Not RX.Test(value, "^([a-z]+:\/\/)?(.+)") Then Exit Function
+    If Not RXP.Test(value, "^([a-z]+:\/\/)?(.+)") Then Exit Function
     
-    vProt = LCase$(RX.Mts(0).SubMatches(0)):      vStatus(2) = vProt
-    vName = RX.Mts(0).SubMatches(1):              vStatus(3) = vName
+    vProt = LCase$(RXP.Mts(0).SubMatches(0)):      vStatus(2) = vProt
+    vName = RXP.Mts(0).SubMatches(1):              vStatus(3) = vName
     
     Select Case vProt
         Case "http://", "https://"

@@ -13,7 +13,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Public This As Long, Hash As New clsHash
+Public This As Long, Hash As clsHash
 
 
 Public Property Get Parent() As Object

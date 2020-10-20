@@ -204,8 +204,8 @@ Public Function CallByName2(Obj As Variant, ProcName As Variant, ByVal typeCall 
     CBN Obj, ProcName, typeCall, Args, CountArgs, VBA.VarPtr(CallByName2)
 End Function
 
-Public Function GetFunc(Optional ByVal txtCode As String) As Object
-    Set GetFunc = modCommon.GetFunc(txtCode)
+Public Function GetFunc(Optional ByVal value As Variant) As Variant
+    VariantCopy GetFunc, modCommon.GetFunc(value)
 End Function
 
 Public Property Get Struct(ByVal This As Long, Optional vsp As Variant) As Long
@@ -220,8 +220,10 @@ Public Property Let Struct(ByVal This As Long, Optional vsp As Variant, ByVal va
     If vsp(3) <> 0 Then CopyMemory ByVal Ptr, ByVal CLng(vsp(3)), vsp(2) Else CopyMemory ByVal Ptr, value, vsp(2)
 End Property
 
-Public Property Get Object() As Object
-    Set Object = Create_Interface(New IObject)
+Public Property Get Object(Optional ByVal vHash As Object) As Object
+    Dim Obj As IObject
+    Set Obj = New IObject:      If vHash Is Nothing Then Set Obj.Hash = New clsHash Else Set Obj.Hash = vHash
+    Set Object = Create_Interface(Obj)
 End Property
 
 Public Function ArraySize(Var As Variant) As Long

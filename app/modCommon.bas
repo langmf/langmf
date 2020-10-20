@@ -1028,6 +1028,36 @@ Function WindowLong(ByVal hWnd As Long, Optional ByVal value As Variant, Optiona
     End If
 End Function
 
+Function GetArgv(ByVal value As String) As Variant
+    Dim i As Long, n As Long, t As String, c As String, v As String, p As String, r As Variant, h As New clsHash, REG1 As RegExp, Mts As MatchCollection
+
+    Set REG1 = New RegExp:          REG1.Global = True:         REG1.IgnoreCase = True:         h.IgnoreCase = False
+    
+    REG1.Pattern = "(^|\s+)(((\-|\-\-|\/)(\w+)\s*(=)?\s*(""[^""]*""|[^\s\-]+|(?=\s|$)))|(""[^""]*""|[^\s\-]+))"
+    
+    Set Mts = REG1.Execute(value):          REG1.Pattern = "^[+\-]?(\d+|\d*\.\d+|&H\d+)$"
+    
+    For i = 0 To Mts.Count - 1
+        t = Replace$(Mts(i).SubMatches(1), """", ""):           p = Mts(i).SubMatches(3)
+        v = Replace$(Mts(i).SubMatches(6), """", ""):           c = Mts(i).SubMatches(4)
+        
+        If LenB(c) Then
+            If REG1.Test(v) Then r = Val(v) Else If LenB(v) Then r = v Else r = True
+            
+            Select Case p
+                Case "/":       h(c) = IIF(VarType(r) = vbString, Parse_MPath(r), r)
+                Case "-":       h(c) = r
+                Case Else:      h(c) = v
+            End Select
+            
+        ElseIf LenB(t) Then
+            h(n) = t:           n = n + 1
+        End If
+    Next
+    
+    Set GetArgv = h
+End Function
+
 Function GEV(Optional ByVal ID As Variant) As Variant
     Dim cnt As Integer, txt() As String, Col As New clsHash
 
@@ -1268,27 +1298,34 @@ Function ExistsMember(ByVal Disp As ATL.IDispatch, ProcName As String) As Boolea
     ExistsMember = (Disp.GetIDsOfNames(IID_Null, ProcName, 1, LOCALE_USER_DEFAULT, 0&) = S_OK)
 End Function
 
-Function GetFunc(Optional value As String) As Object
-    Dim fn As String, rt As String, txt As String, REG1 As RegExp, Mts As MatchCollection
+Function GetFunc(Optional value As Variant) As Variant
+    Dim t As Long, c As Long, fn As String, rt As String, txt As String, REG1 As RegExp, Mts As MatchCollection
     
-    If LenB(value) = 0 Then Set GetFunc = Funcs:    Exit Function
+    On Error Resume Next
     
-    On Error GoTo GetFunc_New
-    Set GetFunc = Funcs(value)(0)
-    Exit Function
-GetFunc_New:
-    On Error GoTo 0
-
-    Set REG1 = New RegExp:      REG1.IgnoreCase = True:      REG1.Pattern = "^(\s*<([^>]+)>\s*)?(function)?\s*(\w*)\s*(\([^\)]*\))(.+)"
-    Set Mts = REG1.Execute(value):          If Mts.Count = 0 Then Exit Function
+    Err.Clear:          t = VariantType(value):         If IsMissing(value) Then Set GetFunc = Funcs:   Exit Function
     
-    fn = Mts(0).SubMatches(3):      If LenB(fn) = 0 Then fn = "func_" & GenTempStr("uuid")
-    rt = Mts(0).SubMatches(1):      If LenB(rt) = 0 Then rt = "result"
-    txt = Replace$("Function " + fn + Mts(0).SubMatches(4) + vbCrLf + Mts(0).SubMatches(5) + vbCrLf + "End Function", rt, fn, , , vbTextCompare)
-    CAS.Execute txt:                Set GetFunc = CAS.Eval("GetRef(""" + fn + """)")
+    If t = vbObject Then fn = ObjPtr(value):    t = -1:     GetFunc = Funcs(fn)
+    If t = vbString Then Set GetFunc = Funcs(value)
+    If Err.Number = 0 Then Exit Function
     
-    REG1.Global = True:     REG1.Pattern = "\w+":     Set Mts = REG1.Execute(Mts(0).SubMatches(4))
-    Funcs.Add Array(GetFunc, value, fn, rt, Mts), value
+    txt = value
+    Set REG1 = New RegExp:          REG1.IgnoreCase = True:     REG1.Pattern = "^(\s*<([^>]+)>\s*)?(function)?\s*(\w*)\s*(\([^\)]*\))(.+)"
+    Set Mts = REG1.Execute(txt):    REG1.Global = True:         REG1.Pattern = "\w+":         c = REG1.Execute(Mts(0).SubMatches(4)).Count
+    
+    If t = vbString Then
+        If Mts.Count = 0 Then Set GetFunc = Nothing
+        fn = Mts(0).SubMatches(3):      If LenB(fn) = 0 Then fn = "func_" & GenTempStr("uuid")
+        rt = Mts(0).SubMatches(1):      If LenB(rt) = 0 Then rt = "result"
+        txt = Replace$("Function " + fn + Mts(0).SubMatches(4) + vbCrLf + Mts(0).SubMatches(5) + vbCrLf + "End Function", rt, fn, , , vbTextCompare)
+        CAS.Execute txt:                Set GetFunc = CAS.Eval("GetRef(""" + fn + """)")
+        Funcs.Add GetFunc, value:       Funcs.Add Array(fn, c, value), CStr(ObjPtr(GetFunc))
+    Else
+        If Mts.Count = 0 Then c = 1 Else rt = Mts(0).SubMatches(3):   If LenB(txt) Then fn = rt
+        GetFunc = Array(fn, c, txt)
+    End If
+    
+    Err.Clear
 End Function
 
 Function CBN(Obj As Variant, ProcName As Variant, ByVal CallType As VbCallType, Optional ByVal Args As Variant, Optional ByVal cntArgs As Long = -1, Optional ByVal pvarResult As Long, Optional hr As Long) As Variant

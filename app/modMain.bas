@@ -1374,25 +1374,25 @@ End Sub
 Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZLIB)
     Dim setupPath As String, txtINI As String, txtMode As String, txtRes As String, txtOpt As String, txtFls As String
     Dim nameIcon As String, nameExe As String, txt As String, a As Long, v As Variant, Buf() As Byte
-    Dim Mts As MatchCollection, Base64 As New clsBase64, RX As New clsRXP, f As New clsFileAPI
+    Dim Mts As MatchCollection, Base64 As New clsBase64, RXP As New clsRXP, f As New clsFileAPI
     
     nameMF = FileLongName(nameMF)
-    setupPath = RX.Eval(nameMF, "(.+\\)", GetAppPath)
+    setupPath = RXP.Eval(nameMF, "(.+\\)", GetAppPath)
 
     If File2Buf(Buf, setupPath + "make.ini") Then
         txtINI = Code_Parse(Buf, "Make")
         If ExistsMember(CAS.CodeObject, "LMF_Make_Begin") Then txtINI = CBN("", "LMF_Make_Begin", VbFunc, Array(txtINI))
         
-        txtFls = RX.Eval(txtINI, "\[files\]([^\[]+)", , , , , -1)
-        txtRes = RX.Eval(txtINI, "\[resource\]([^\[]+)", , , , , -1)
-        txtOpt = RX.Eval(txtINI, "\[options\]([^\[]+)", , , , , -1)
+        txtFls = RXP.Eval(txtINI, "\[files\]([^\[]+)", , , , , -1)
+        txtRes = RXP.Eval(txtINI, "\[resource\]([^\[]+)", , , , , -1)
+        txtOpt = RXP.Eval(txtINI, "\[options\]([^\[]+)", , , , , -1)
         
-        If RX.Test(txtOpt, "\npacker[ \t]*=[ \t]*([^\r]+)") Then
-            Packer = Val(Parse_MPath(RX.Mts(0).SubMatches(0)))
+        If RXP.Test(txtOpt, "\npacker[ \t]*=[ \t]*([^\r]+)") Then
+            Packer = Val(Parse_MPath(RXP.Mts(0).SubMatches(0)))
         End If
         
-        If RX.Test(txtOpt, "\nfile[ \t]*=[ \t]*([^\r]+)") Then
-            txt = Parse_MPath(RX.Mts(0).SubMatches(0))
+        If RXP.Test(txtOpt, "\nfile[ \t]*=[ \t]*([^\r]+)") Then
+            txt = Parse_MPath(RXP.Mts(0).SubMatches(0))
             FileCopy nameMF, txt
             nameMF = IIF(Mid$(txt, 2, 1) = ":", txt, setupPath + txt)
         Else
@@ -1412,7 +1412,7 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
         If f.FOpen(nameMF) = INVALID_HANDLE Then Exit Sub
             f.Pos = f.LOF + 1
             
-            Set Mts = RX.Execute(txtFls, "\n""([^""]+?)""(\.([a-z0-9_\-]+))?[ \t]*=[ \t]*([^\r]+)")
+            Set Mts = RXP.Execute(txtFls, "\n""([^""]+?)""(\.([a-z0-9_\-]+))?[ \t]*=[ \t]*([^\r]+)")
             
             For a = 0 To Mts.Count - 1
                 txtMode = "":      If Len(Mts(a).SubMatches(2)) Then txtMode = " mode=" & Parse_MPath(Mts(a).SubMatches(2))
@@ -1434,15 +1434,15 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
         f.FClose
 
 
-        nameIcon = Parse_MPath(RX.Eval(txtOpt, "\nicon[ \t]*=[ \t]*([^\r]+)"))
+        nameIcon = Parse_MPath(RXP.Eval(txtOpt, "\nicon[ \t]*=[ \t]*([^\r]+)"))
 
         mf_Tmp = nameMF
 
-        If RX.Test(txtOpt, "\ntype[ \t]*=[ \t]*([^\r]+)") Then
-            Select Case LCase$(Parse_MPath(RX.Mts(0).SubMatches(0)))
+        If RXP.Test(txtOpt, "\ntype[ \t]*=[ \t]*([^\r]+)") Then
+            Select Case LCase$(Parse_MPath(RXP.Mts(0).SubMatches(0)))
                 Case "exe"
                     CompressMF nameMF, , Packer
-                    nameExe = Parse_MPath(RX.Eval(txtOpt, "\nexe[ \t]*=[ \t]*([^\r]+)"))
+                    nameExe = Parse_MPath(RXP.Eval(txtOpt, "\nexe[ \t]*=[ \t]*([^\r]+)"))
                     mf_Tmp = MakeEXE(nameExe, nameMF, nameIcon, txtRes)
                     
                 Case "full"
@@ -1451,13 +1451,13 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
         End If
 
 
-        If RX.Test(txtOpt, "\nshell(\-hide)*[ \t]*=[ \t]*([^\r]+)") Then
-            ShellSync Parse_MPath(RX.Mts(0).SubMatches(1)), , Len(RX.Mts(0).SubMatches(0))
+        If RXP.Test(txtOpt, "\nshell(\-hide)*[ \t]*=[ \t]*([^\r]+)") Then
+            ShellSync Parse_MPath(RXP.Mts(0).SubMatches(1)), , Len(RXP.Mts(0).SubMatches(0))
         End If
         
         If ExistsMember(CAS.CodeObject, "LMF_Make_End") Then Call CBN("", "LMF_Make_End", VbFunc, Array(txtINI))
         
-        If RX.Test(txtOpt, "\nend[ \t]*=[ \t]*([^\r]+)") Then txt = RX.Mts(0).SubMatches(0):   If LenB(txt) Then CAS.Execute txt
+        If RXP.Test(txtOpt, "\nend[ \t]*=[ \t]*([^\r]+)") Then txt = RXP.Mts(0).SubMatches(0):   If LenB(txt) Then CAS.Execute txt
     Else
         BackupMF nameMF
         'v = Array(101, "my", 2000, , -5, "привет")                  'headers extension

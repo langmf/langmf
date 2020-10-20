@@ -1,0 +1,34 @@
+<#Module=mdlMain>
+Dim txt
+
+'---------------------------------------
+Sub Load(cmdLine)
+	set f = GetFunc("<$>(v)$=v+1")
+	
+	msg GetFunc(f)
+
+	msg GetFunc(JS.Test1)
+	msg GetFunc(JS2.Test1)
+	
+	msg GetFunc(sys.newcollection)
+	msg GetFunc(sys.newhash)
+	
+	msgbox txt
+	
+	endmf
+End Sub
+
+Sub msg(v)
+	if len(txt) then txt = txt & vbcrlf & vbcrlf
+	txt = txt & v(0) & "  = " & v(1) & " =  " & v(2)
+End Sub
+<#Module>
+
+
+<#Script=JS#>
+  function Test1(dfg, h3) { return {'key1':'hello'} }
+<#Script#>
+
+<#Script=JS2,chakra#>
+  function Test1(my, h3) { return ScriptEngineMajorVersion(); }
+<#Script#>
