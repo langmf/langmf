@@ -1,7 +1,7 @@
 <#Module=mdlMain>
 '---------------------------------------
 Sub Load(cmdLine)
-  set obj = sys.net.xmlhttp("http://langmf.ru/ftp/other/TABCTL32.cab")
+  set obj = sys.net.xmlhttp("https://langmf.ru/ftp/other/TABCTL32.cab")
   
   sys.conv.buf2file obj.responseBody, "TABCTL32.cab"
   

@@ -125,7 +125,7 @@ Public Function VarCopy(srcVar As Variant, Optional dstVar As Variant, Optional 
         dstVar = Empty:     VariantCopy dstVar, srcVar
     ElseIf sz = -1 Then
         dstVar = Empty:     VariantCopyInd2 dstVar, srcVar
-    Else
+    ElseIf sz > 0 Then
         If IsMissing(dstVar) Then dstVar = CLng(0)
         CopyMemory ByVal VBA.VarPtr(dstVar) + dstOffset, ByVal VBA.VarPtr(srcVar) + srcOffset, sz
     End If
@@ -275,6 +275,7 @@ End Property
 Public Function LenType(Obj As Variant) As Long
     On Error Resume Next
     LenType = Obj.Class___Size
+    Err.Clear
 End Function
 
 Public Function InitType(Obj As Variant, Optional ByVal vOffset As Long, Optional ByVal wrap As Object) As Object

@@ -230,9 +230,9 @@ Public Sub Reset()
     VBA.FileSystem.Reset
 End Sub
 
-Public Function FreeFile() As Long
+Public Property Get FreeFile() As Long
     FreeFile = VBA.FreeFile
-End Function
+End Property
 
 Public Function ShortName(ByVal fName As String) As String
     ShortName = FileShortName(fName)
@@ -266,10 +266,10 @@ Public Property Let Attr(ByVal fName As String, ByVal value As Long)
     SetFileAttributesW StrPtr(LongPath(fName)), value
 End Property
 
-Public Function GetDir(Optional ByVal MPath As String = "-1", Optional ByVal mAttr As Integer = 16) As String
+Public Property Get GetDir(Optional ByVal MPath As String = "-1", Optional ByVal mAttr As Integer = 16) As String
     On Error Resume Next
     If MPath = "-1" Then GetDir = Dir Else GetDir = Dir$(MPath, mAttr)
-End Function
+End Property
 
 Public Sub FileCopy(ByVal fScr As String, ByVal fDest As String)
     modCommon.FileCopy fScr, fDest
@@ -308,9 +308,9 @@ Public Sub ChDir(ByVal nameDir As String)
     modCommon.ChDir nameDir
 End Sub
 
-Public Function CurDir() As String
+Public Property Get CurDir() As String
     CurDir = modCommon.CurDir
-End Function
+End Property
 
 Public Sub RemoveDir(ByVal nameDir As String)
     modCommon.RemoveDir nameDir
@@ -380,7 +380,7 @@ Public Function LPath(ByVal fPath As String, Optional ByVal numLevel As Long = 0
     End If
 End Function
 
-Public Function GetDiskInfo(ByVal sDrive As String) As Collection
+Public Property Get GetDiskInfo(Optional ByVal sDrive As String = "C:\") As Collection
     Dim bytes_Avail As LONG64, bytes_Total As LONG64, bytes_Free As LONG64
     Dim dbl_Total As Double, dbl_Free As Double, cl As New Collection, vSerial As Long
     Dim vLabel As String, vName As String, oSerial As String, iDriveType() As Variant
@@ -416,9 +416,9 @@ Public Function GetDiskInfo(ByVal sDrive As String) As Collection
     
     Set GetDiskInfo = cl
     Set cl = Nothing
-End Function
+End Property
 
-Public Function GetLogicalDrives() As Collection
+Public Property Get GetLogicalDrives() As Collection
     Dim txt As String * 250, lenDrv As Integer, a As Integer
     Dim tmpTxt As String, tmpStr() As String, cl As New Collection
     
@@ -435,12 +435,12 @@ Public Function GetLogicalDrives() As Collection
     
     Set GetLogicalDrives = cl
     Set cl = Nothing
-End Function
+End Property
 
-Public Function GetDiskType(ByVal sDrive As String) As Long
+Public Property Get GetDiskType(Optional ByVal sDrive As String = "C:\") As Long
     On Error Resume Next
     GetDiskType = GetDriveTypeA(sDrive)
-End Function
+End Property
 
 
 Private Sub Class_Initialize()

@@ -5,7 +5,7 @@ Sub Load(cmdLine)
 	
 	sys.file.Open2 "test.txt", 1, "output"
 	for a = 1 to 100
-		t = sys.genstr()
+		t = sys.genstr
 		sys.file.Print2 1, timegettime & " - " & a & " - " & t
 		GetFunc("<$>(v)$=v+1 '" + t)
 	next

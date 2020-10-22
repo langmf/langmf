@@ -3,7 +3,7 @@
 Sub Load(cmdLine)
   'very advanced function - see documentation
   
-  sys.ext.Setup "http://langmf.ru/ftp/other/TABCTL32.cab"
+  sys.ext.Setup "https://langmf.ru/ftp/other/TABCTL32.cab"
 
   endmf
 End Sub

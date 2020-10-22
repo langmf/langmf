@@ -17,9 +17,9 @@ Private m_Picture As IPictureDisp, m_StretchX As Long, m_StretchY As Long, m_Bac
 Private m_Cols As Long, m_Rows As Long, m_ClipX As Long, m_ClipY As Long, m_ClipWidth As Long, m_ClipHeight As Long
 
 
-Public Function CreateNew() As Object
+Public Property Get CreateNew() As Object
     Set CreateNew = New clsClip
-End Function
+End Property
 
 Public Property Get Picture() As IPictureDisp
     Set Picture = m_Picture

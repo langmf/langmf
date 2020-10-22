@@ -86,75 +86,75 @@ Public Function AddFileMF(ByVal nameScript As String, Optional ByVal nameLib As 
     If File2Buf(Buf, nameScript) Then AddFileMF = Code_Parse(Buf, IIF(LenB(nameLib), nameLib, nameScript), forceRunMF)
 End Function
 
-Public Function Env(Optional ByVal ID As Variant) As Variant
+Public Property Get Env(Optional ByVal ID As Variant) As Variant
     If IsMissing(ID) Or IsEmpty(ID) Then Set Env = GEV Else Env = GEV(ID)
-End Function
+End Property
 
-Public Function GenStr(Optional ByVal value As Variant, Optional ByVal txtPat As String) As String
+Public Property Get GenStr(Optional ByVal value As Variant, Optional ByVal txtPat As String) As String
     GenStr = GenTempStr(value, txtPat)
-End Function
+End Property
 
 Public Function DoParams(ByVal Obj As Object, Arg As Variant) As Object
     Set DoParams = modCommon.DoParams(Obj, Arg)
 End Function
 
-Public Function NewForm(Optional ByVal Param As Variant) As Object
+Public Property Get NewForm(Optional ByVal Param As Variant) As Object
     Set NewForm = modCommon.DoParams(New frmForm, Param)
-End Function
+End Property
 
-Public Function NewScript(Optional ByVal Param As Variant) As Object                                'As clsActiveScript
+Public Property Get NewScript(Optional ByVal Param As Variant) As Object                            'As clsActiveScript
     Set NewScript = modCommon.DoParams(New clsActiveScript, Param)
-End Function
+End Property
 
-Public Function NewSubClass(Optional ByVal Param As Variant) As Object                              'As clsSubClass
+Public Property Get NewSubClass(Optional ByVal Param As Variant) As Object                          'As clsSubClass
     Set NewSubClass = modCommon.DoParams(New clsSubClass, Param)
-End Function
+End Property
 
-Public Function NewCollection(Optional ByVal Param As Variant) As Collection
+Public Property Get NewCollection(Optional ByVal Param As Variant) As Collection
     Set NewCollection = modCommon.DoParams(New Collection, Param)
-End Function
+End Property
 
-Public Function NewHash(Optional ByVal Param As Variant) As Object                                  'As clsHash
+Public Property Get NewHash(Optional ByVal Param As Variant) As Object                              'As clsHash
     Set NewHash = modCommon.DoParams(New clsHash, Param)
-End Function
+End Property
 
-Public Function NewDim(Optional ByVal Param As Variant) As Object                                   'As clsDim
+Public Property Get NewDim(Optional ByVal Param As Variant) As Object                               'As clsDim
     Set NewDim = modCommon.DoParams(New clsDim, Param)
-End Function
+End Property
 
-Public Function NewGlob(Optional ByVal Param As Variant) As Object                                  'As clsGLOB
+Public Property Get NewGlob(Optional ByVal Param As Variant) As Object                              'As clsGLOB
     Set NewGlob = modCommon.DoParams(New clsGLOB, Param)
-End Function
+End Property
 
-Public Function NewBuf(Optional Buf As Variant, Optional ByVal Param As Variant) As Object          'As clsBuffer
+Public Property Get NewBuf(Optional Buf As Variant, Optional ByVal Param As Variant) As Object      'As clsBuffer
     Set NewBuf = modCommon.DoParams(New clsBuffer, Param)
     If Not IsMissing(Buf) Then NewBuf.SetData Buf
-End Function
+End Property
 
-Public Function NewFCP(Optional value As Variant, Optional ByVal Param As Variant) As Object        'As clsFuncPointer
+Public Property Get NewFCP(Optional value As Variant, Optional ByVal Param As Variant) As Object    'As clsFuncPointer
     Set NewFCP = New clsFuncPointer
     
     If Not IsMissing(value) Then
         Select Case VarType(value)
             Case vbObject:              NewFCP.ptrIfc = ObjPtr(value)
             Case vbLong, vbInteger:     NewFCP.ptrIfc = CLng(value)
-            Case Else:                  NewFCP.SetBuffer value
+            Case Else:                  NewFCP.Buffer = value
         End Select
     End If
     
     modCommon.DoParams NewFCP, Param
-End Function
+End Property
 
-Public Function NewFAP(Optional ByVal Obj As Variant, Optional Buf As Variant, Optional ByVal Param As Variant) As Object              'As clsAsmPic
+Public Property Get NewFAP(Optional ByVal Obj As Variant, Optional Buf As Variant, Optional ByVal Param As Variant) As Object         'As clsAsmPic
     Set NewFAP = New clsAsmPic
     
     If IsObject(Obj) Then Set NewFAP.Obj = Obj Else NewFAP.Obj = Obj
-    If Not IsMissing(Buf) Then NewFAP.ASM.SetBuffer Buf
+    If Not IsMissing(Buf) Then NewFAP.ASM.Buffer = Buf
         
     modCommon.DoParams NewFAP, Param
-End Function
+End Property
 
-Public Function Path(Optional ByVal value As Variant = False, Optional ByVal backSlash As Boolean = True) As String
+Public Property Get Path(Optional ByVal value As Variant = False, Optional ByVal backSlash As Boolean = True) As String
     Dim vt As Long, Buf As String
     
     vt = VarType(value)
@@ -178,9 +178,9 @@ Public Function Path(Optional ByVal value As Variant = False, Optional ByVal bac
             Case "computer":        Call GetComputerNameW(StrPtr(Buf), vt):   Path = Left$(Buf, vt)
         End Select
     End If
-End Function
+End Property
 
-Public Function Host(ParamArray Args() As Variant) As Variant
+Public Property Get Host(ParamArray Args() As Variant) As Variant
     Dim uds As Long, Param As String
     
     On Error Resume Next
@@ -195,9 +195,9 @@ Public Function Host(ParamArray Args() As Variant) As Variant
         Case "time_parse":      Host = mf_TimeParse
         Case "mdl_name":        Host = MDL(Args(1)).Name
         Case "mdl_type":        Host = MDL(Args(1)).Type
-        Case "noerror":         If uds < 1 Then Host = mf_NoError Else mf_NoError = Args(1)
+        Case "noerror":         If uds < 1 Then Host = mf_NoError Else mf_NoError = Args(1):   Host = mf_NoError
     End Select
-End Function
+End Property
 
 Public Function Power(Optional ByVal value As String = "off", Optional ByVal Flags As Long) As Long
     On Error Resume Next
@@ -233,17 +233,17 @@ Public Function OnTimer(ByVal Interval As Long, ByVal Param As Variant, ParamArr
     OnTimer = idT
 End Function
 
-Public Sub OffTimer(ByVal Param As Variant)
+Public Function OffTimer(ByVal Param As Variant) As Long
     Dim v As Variant, nMod As Variant, nFunc As String
     
     If IsArray(Param) Then ArrayDef Param, "", 0:   nFunc = Param(0):   nMod = Param(1) Else nFunc = Param:   nMod = ""
 
     For Each v In Timers.Items
         If v(1) = nMod Or (IsNumeric(nMod) And nMod = 0) Then
-            If v(0) = nFunc Or LenB(nFunc) = 0 Then Call KillTimer(frmScript.hWnd, v(3)):    Timers.Remove "#" & v(3)
+            If v(0) = nFunc Or LenB(nFunc) = 0 Then OffTimer = KillTimer(frmScript.hWnd, v(3)):   Timers.Remove "#" & v(3)
         End If
     Next
-End Sub
+End Function
 
 Public Sub Prm(Param As Variant, ParamArray vsp() As Variant)
     Dim a As Long, uds As Long

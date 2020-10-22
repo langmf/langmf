@@ -1,7 +1,7 @@
 <#Module=mdlDemo>
 '---------------------------------------
 Sub Load(cmdLine)
-  Set Dat = sys.newhash()
+  Set Dat = sys.newhash
   Dat.Init 5000			'big size of hash table = fast work
   
   For a = 0 To 5000

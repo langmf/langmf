@@ -9,11 +9,11 @@ Sub Load(cmdLine)
     form.show
     form.windowstate = 2
 
-    Set Dat = sys.NewHash()
+    Set Dat = sys.NewHash
     'Dat.IgnoreCase = false
     Dat.Init 19334
     
-    sys.genstr
+    a = sys.genstr
     
     t1 = timegettime
     For a = 0 To 9000

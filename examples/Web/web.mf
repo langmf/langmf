@@ -45,6 +45,7 @@ End Sub
 
 '-----------------------------------------
 Sub Form_Unload()
- endmf
+	Sys.Ext.WaitIE web.object, -1
+	endmf
 End Sub
 <#Form>

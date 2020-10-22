@@ -40,7 +40,7 @@ Public Property Let Std(Optional ByVal mHandle As Long, ByVal value As String)
     Call WriteFile(mHandle, ByVal value, Len(value), sz, 0)
 End Property
 
-Public Function Inp(Optional ByVal ID As Variant) As Variant
+Public Property Get Inp(Optional ByVal ID As Variant) As Variant
     Dim tmp As Variant, Col As New clsHash, txt() As String
     
     If IsMissing(ID) Or IsEmpty(ID) Then
@@ -54,7 +54,7 @@ Public Function Inp(Optional ByVal ID As Variant) As Variant
         Set Col = Inp()
         Inp = Col(ID)
     End If
-End Function
+End Property
 
 Private Sub GetInputVars()
     Dim cl As Long, br As Long, sBuf As String, StdIn As Long, lb As Long, txt As String

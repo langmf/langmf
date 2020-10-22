@@ -57,10 +57,10 @@ Public Function Template(ByVal txtCode As String, Optional ByVal fnPrint As Stri
     Template = Parse_Template(txtCode, fnPrint, dmStart, dmStop)
 End Function
 
-Public Function Font(Optional ByVal fName As String = "Arial", Optional ByVal fSize As Currency = 8, Optional ByVal fBold As Boolean, Optional ByVal fItalic As Boolean, Optional ByVal fUnderline As Boolean, Optional ByVal fStrikethrough As Boolean, Optional ByVal fCharset As Integer = 204) As StdFont
+Public Property Get Font(Optional ByVal fName As String = "Arial", Optional ByVal fSize As Currency = 8, Optional ByVal fBold As Boolean, Optional ByVal fItalic As Boolean, Optional ByVal fUnderline As Boolean, Optional ByVal fStrikethrough As Boolean, Optional ByVal fCharset As Integer = 204) As StdFont
     Set Font = New StdFont
     With Font:    .Name = fName:   .Size = fSize:   .Bold = fBold:   .Italic = fItalic:   .Underline = fUnderline:   .Strikethrough = fStrikethrough:    .Charset = fCharset:    End With
-End Function
+End Property
 
 Public Sub VB_Load(ByVal tmpObj As Object)
     On Error Resume Next
@@ -90,10 +90,13 @@ Public Function SetAffinity(Optional ByVal value As Long = -1, Optional ByVal hP
 End Function
 
 Public Function OSVer(Optional ByVal typeFmt As Long = 0) As Variant
-    Static verInfo As OSVERSIONINFOEX
+    Static verInfo As OSVERSIONINFOEX, isVerCache As Boolean
     
-    verInfo.dwOSVersionInfoSize = Len(verInfo)
-    If (GetVersionExA(verInfo)) = 0 Then Exit Function
+    If Not isVerCache Then
+        verInfo.dwOSVersionInfoSize = Len(verInfo)
+        If (GetVersionExA(verInfo)) = 0 Then Exit Function
+        isVerCache = True
+    End If
     
     Select Case typeFmt
         Case 0:     OSVer = VarPtr(verInfo.dwOSVersionInfoSize)
@@ -129,7 +132,7 @@ Public Function VersionDLL(ByVal FileName As String, Optional ByVal verCmp As Va
     VersionDLL = modCommon.VersionDLL(FileName, verCmp)
 End Function
 
-Public Function CreateImage() As Object
+Public Property Get CreateImage() As Object
     Static cntImage As Long
     On Error Resume Next
     cntImage = cntImage + 1
@@ -144,9 +147,9 @@ Public Function CreateImage() As Object
         .Font.Charset = 204
         .Visible = False
     End With
-End Function
+End Property
 
-Public Function GetMemoryStatus() As Collection
+Public Property Get GetMemoryStatus() As Collection
     Dim dbl_T_Phys As Double, dbl_A_Phys As Double
     Dim dbl_T_Page As Double, dbl_A_Page As Double
     Dim dbl_T_Virt As Double, dbl_A_Virt As Double
@@ -178,9 +181,9 @@ Public Function GetMemoryStatus() As Collection
 
     Set GetMemoryStatus = cl
     Set cl = Nothing
-End Function
+End Property
 
-Public Function GetSysTimes() As Collection
+Public Property Get GetSysTimes() As Collection
     Static old_Idle As Double, old_User As Double, old_Kernel As Double, cl_Usage As Double
     Dim cl_Idle As Double, cl_User As Double, cl_Kernel As Double, cl_Sys As Double
     Dim dbl_Idle As Double, dbl_User As Double, dbl_Kernel As Double
@@ -208,7 +211,7 @@ Public Function GetSysTimes() As Collection
 
     Set GetSysTimes = cl
     Set cl = Nothing
-End Function
+End Property
 
 Public Sub AutoIcon(ByVal hWnd As Long, Data As Variant, Optional ByVal kNormal As Single = 1, Optional ByVal kSmall As Single = 1)
     Dim a As Long, b As Long, szIconB As Long, szIconS As Long, hIconB As Long, hIconS As Long
@@ -301,20 +304,24 @@ Public Function CreateIE(Optional ByVal txtCode As String, Optional ByVal prtHWn
     If prtHWnd Then Style.Child = prtHWnd
 End Function
 
-Public Function WaitIE(ByVal Obj As Variant, Optional ByVal Flags As Long) As Boolean
+Public Function WaitIE(ByVal Obj As Object, Optional ByVal Flags As Long = 4) As Boolean
     On Error GoTo err1
+    
     Do
-        WaitIE = True
         WaitMs
-        If Len(Obj.Document.readyState) = 0 Then
-err1:
-            WaitIE = False
-            Err.Clear
+        
+        If Flags >= 0 Then
+            WaitIE = (Obj.Busy = True Or Obj.readyState < (Flags And &HF))
+            If (Flags And &H10) Then Exit Function
         Else
-            If Flags = 2 Then Obj.Quit
+            WaitIE = True
+            If Len(Obj.Document.readyState) = 0 Then WaitIE = False Else If Flags = -1 Then Obj.Quit
+            If Flags = -16 Then Exit Function
         End If
-        If Flags = 0 Then Exit Do
     Loop Until WaitIE = False
+    
+err1:
+    WaitIE = False:         Err.Clear
 End Function
 
 Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Optional ByVal sDir As String, Optional ByVal Arg As Variant) As Boolean

@@ -75,21 +75,21 @@ Public Function SetDI() As Object
 End Function
 
 
-Public Function Ptr(Optional ByVal value As Long = 0) As Long
+Public Property Get Ptr(Optional ByVal value As Long = 0) As Long
     Select Case value
         Case -1:    Ptr = VarPtr(bi)
         Case 0:     Ptr = VarPtr(B3D(1, 1, 1))
         Case 1:     Ptr = VarPtrArray(B3D)
     End Select
-End Function
+End Property
 
-Public Function GetBuffer() As Byte()
-    GetBuffer = B3D
-End Function
+Public Property Get Buffer() As Variant
+    Buffer = B3D
+End Property
 
-Public Sub SetBuffer(Buf As Variant)
+Public Property Let Buffer(Buf As Variant)
     B3D = Buf
-End Sub
+End Property
 
 
 'Default Member
@@ -101,6 +101,7 @@ End Property
 Public Property Let Point(ByVal x As Long, ByVal y As Long, ByVal value As Long)
     CopyMem4 value, B3D(1, x, y)
 End Property
+
 
 Public Property Get Width() As Long
     Width = bi.bmiHeader.biWidth

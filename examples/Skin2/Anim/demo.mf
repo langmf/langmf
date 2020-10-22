@@ -99,7 +99,7 @@ Sub Skin3_UpdateEnd()
   
   With v(1)
 	  .GetDI
-	  .Copy v(0).GetBuffer,,,(this.skin(3).left / vbPX) + 1, (this.skin(3).top / vbPY) + 1,,,,,cnt3
+	  .Copy v(0).Buffer,,,(this.skin(3).left / vbPX) + 1, (this.skin(3).top / vbPY) + 1,,,,,cnt3
 	  .SetDI
   End With
 End Sub

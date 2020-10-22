@@ -13,12 +13,12 @@ Dim tLen, sSave
 End Function
 
 Sub Load(cmdLine)
-  form.width = 4416
-  form.height = 2940
+  form.width = 8000
+  form.height = 4000
   form.Center
 
   form.Add "List", 1
-  form.List(1).move 60, 60, 4200, 2400
+  form.List(1).move 60, 60, 7800, 3600
   
   form.NoMoveMouse = true
   form.Show

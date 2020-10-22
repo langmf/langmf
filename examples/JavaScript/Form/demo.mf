@@ -1,6 +1,6 @@
 <#Script=Parser1#>
 function Form() {
-	var form = Parser1.sys.newform()
+	var form = Parser1.sys.newform
 	form.codeobject = this
       
 	this.Form_MouseMove = function (Button, Shift, x, y) {

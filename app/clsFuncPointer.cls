@@ -109,18 +109,18 @@ Public Property Let VTable(Optional ByVal Entry As Long, Optional ByVal Obj As V
     GetMem4 Ptr, Ptr:    Ptr = Ptr + Entry * 4:    AllowExecuteCode Ptr, 4:    PutMem4 Ptr, value
 End Property
 
-Public Function GetBuffer() As Byte()
-    GetBuffer = btFnc
-End Function
+Public Property Get Buffer() As Variant
+    Buffer = btFnc
+End Property
 
-Public Sub SetBuffer(Buf As Variant)
+Public Property Let Buffer(Buf As Variant)
     Dim tmpBuf() As Byte
     ConvToBufferByte Buf, tmpBuf
     ReDim Preserve tmpBuf(UBound(btFnc))
     CopyMemory btFnc(0), tmpBuf(0), UBound(btFnc) + 1
     ptrCode = VarPtr(btFnc(0))
     AllowExecuteCode ptrCode, UBound(btFnc) + 1
-End Sub
+End Property
 
 Private Sub AddPush(ByVal lng As Long)
     AddByte &H68

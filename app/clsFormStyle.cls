@@ -23,9 +23,9 @@ Private m_TaskBar As Boolean, m_TitleBar As Boolean, m_ToolWin As Boolean, m_Clo
 Public hWnd As Long
 
 
-Public Function CreateNew() As Object
+Public Property Get CreateNew() As Object
     Set CreateNew = New clsFormStyle
-End Function
+End Property
 
 Public Property Get CloseButton() As Boolean
     CloseButton = m_CloseButt

@@ -17,7 +17,7 @@ Option Explicit
 
 Private Declare Function AlphaBlend Lib "msimg32" (ByVal hDestDC As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal XSrc As Long, ByVal YSrc As Long, ByVal widthSrc As Long, ByVal heightSrc As Long, blendFunct As BLENDFUNCTION) As Long
 Private Declare Function GradientFill Lib "msimg32" (ByVal hDC As Long, pVertex As TRIVERTEX, ByVal dwNumVertex As Long, pMesh As Gradient_Triangle, ByVal dwNumMesh As Long, ByVal dwMode As Long) As Long
-Private Declare Function func_Polygon Lib "gdi32" Alias "Polygon" (ByVal hDC As Long, lpPoint As POINTAPI, ByVal nCount As Long) As Long
+Private Declare Function Polygon_Gdi32 Lib "gdi32" Alias "Polygon" (ByVal hDC As Long, lpPoint As POINTAPI, ByVal nCount As Long) As Long
 Private Declare Function EnumDisplayDevicesA Lib "user32" (ByVal lpDevice As Any, ByVal iDevNum As Long, lpDisplayDevice As DEVDISPLAY, ByVal dwFlags As Long) As Long
 Private Declare Function EnumDisplaySettingsA Lib "user32" (ByVal lpszDeviceName As Any, ByVal iModeNum As Long, ByRef lpDevMode As DEVMODE) As Long
 Private Declare Function ChangeDisplaySettingsExA Lib "user32" (ByVal lpszDeviceName As String, lpDevMode As Any, ByVal hWnd As Long, ByVal dwFlags As Long, ByVal lParam As Any) As Long
@@ -38,10 +38,10 @@ Public Sub Scale2(ByVal Obj As Object, ByVal x1 As Single, ByVal y1 As Single, B
     Obj.Scale (x1, y1)-(x2, y2)
 End Sub
 
-Public Sub Polygon(ByVal m_hDC As Long, m_Vert As Variant)
+Public Function Polygon(ByVal hDC As Long, m_Vert As Variant) As Long
     Dim a As Long, Vert() As POINTAPI
 
-    If Not ArrayValid(m_Vert) Then Exit Sub
+    If Not ArrayValid(m_Vert) Then Exit Function
     
     ReDim Vert(UBound(m_Vert))
     
@@ -50,13 +50,13 @@ Public Sub Polygon(ByVal m_hDC As Long, m_Vert As Variant)
         Vert(a).y = CLng(m_Vert(a)(1))
     Next
     
-    func_Polygon m_hDC, Vert(0), UBound(m_Vert) + 1
-End Sub
+    Polygon = Polygon_Gdi32(hDC, Vert(0), UBound(m_Vert) + 1)
+End Function
 
-Public Sub Gradient(ByVal Frm As Object, m_Vert As Variant, Optional m_gTri As Variant, Optional ByVal m_Type As Long = 1)
+Public Function Gradient(ByVal Frm As Object, m_Vert As Variant, Optional m_gTri As Variant, Optional ByVal m_Type As Long = 1) As Long
     Dim a As Long, Vert() As TRIVERTEX, gTri() As Gradient_Triangle
     
-    If Not ArrayValid(m_Vert) Then Exit Sub
+    If Not ArrayValid(m_Vert) Then Exit Function
     
     ReDim Vert(UBound(m_Vert))
     
@@ -82,17 +82,17 @@ Public Sub Gradient(ByVal Frm As Object, m_Vert As Variant, Optional m_gTri As V
     Next
     
     Frm.AutoRedraw = True
-    GradientFill Frm.hDC, Vert(0), UBound(m_Vert) + 1, gTri(0), UBound(m_gTri) + 1, m_Type
+    Gradient = GradientFill(Frm.hDC, Vert(0), UBound(m_Vert) + 1, gTri(0), UBound(m_gTri) + 1, m_Type)
     Frm.Refresh
-End Sub
+End Function
 
-Public Sub AlphaPic(ByVal dstHdc As Long, ByVal dstLeft As Long, ByVal dstTop As Long, ByVal dstWidth As Long, ByVal dstHeight As Long, ByVal srcHdc As Long, ByVal srcLeft As Long, ByVal srcTop As Long, ByVal srcWidth As Long, ByVal srcHeight As Long, ByVal pR As Integer, Optional ByVal Flags As Long = 0)
+Public Function AlphaPic(ByVal dstHdc As Long, ByVal dstLeft As Long, ByVal dstTop As Long, ByVal dstWidth As Long, ByVal dstHeight As Long, ByVal srcHdc As Long, ByVal srcLeft As Long, ByVal srcTop As Long, ByVal srcWidth As Long, ByVal srcHeight As Long, ByVal pR As Integer, Optional ByVal Flags As Long = 0) As Long
     Dim bf As BLENDFUNCTION
 
     bf.SourceConstantAlpha = pR
     bf.AlphaFormat = Flags
-    Call AlphaBlend(dstHdc, dstLeft, dstTop, dstWidth, dstHeight, srcHdc, srcLeft, srcTop, srcWidth, srcHeight, bf)
-End Sub
+    AlphaPic = AlphaBlend(dstHdc, dstLeft, dstTop, dstWidth, dstHeight, srcHdc, srcLeft, srcTop, srcWidth, srcHeight, bf)
+End Function
 
 Public Function IsAlpha(ByVal hWnd As Long) As Boolean
     Dim Msg As Long
@@ -296,7 +296,7 @@ Public Function Pic2DIB(Buf As Variant) As Variant
     Set pd = LoadPictureFromByte(Buf)
     Set FAP.Obj = pd
     FAP.GetDI
-    Pic2DIB = FAP.GetBuffer
+    Pic2DIB = FAP.Buffer
 End Function
 
 Public Sub SaveBMP(src As Variant, ByVal saveFile As String)

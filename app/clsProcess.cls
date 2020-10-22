@@ -64,7 +64,7 @@ Attribute Find.VB_UserMemId = 0
     End If
 End Function
 
-Public Function List() As Collection
+Public Property Get List() As Collection
     Dim lstProcesses() As Long, cbNeeded As Long, a As Long, cl As New Collection
 
     AdjustToken
@@ -81,7 +81,7 @@ Public Function List() As Collection
     End If
     
     Set List = cl
-End Function
+End Property
 
 Private Function GetProcessInfo(ByVal lProcessID As Long) As Collection
     Dim hProcess As Long, tPMC As PROCESS_MEMORY_COUNTERS, Proc As def_Processes, cl As New Collection, v As Variant

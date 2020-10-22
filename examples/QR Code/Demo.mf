@@ -15,7 +15,7 @@ Const QualityHigh = 3
 Sub Load(cmdLine)
     form.show
     
-    sys.ext.Setup "http://langmf.ru/ftp/dll/quricol32.dll", "quricol32.dll", "."
+    sys.ext.Setup "https://langmf.ru/ftp/dll/quricol32.dll", "quricol32.dll", "."
 
     GenerateBMP "qrcode.bmp", "Hello Привет - !№;%:?*()_+", 2, 5, QualityStandard
     GeneratePNG "qrcode.png", "Hello Привет - !№;%:?*()_+", 2, 5, QualityStandard

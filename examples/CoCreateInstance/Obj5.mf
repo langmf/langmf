@@ -20,7 +20,7 @@ Sub Load(cmdLine)
   Dim Style As def_Style
 
   Style.dwSize = LenType(Style)
-  Style.dwStyle = WPSTYLE_STRETCH  
+  Style.dwStyle = WPSTYLE_TILE  
   
   Desktop.SetWallPaper sys.file.LPath(sys.Path, -1) + "src\test.jpg", 0
   Desktop.SetWallPaperOptions Style, 0

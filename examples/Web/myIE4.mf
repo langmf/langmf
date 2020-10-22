@@ -25,7 +25,7 @@ End Sub
 '---------------------------------
 Sub Form_Unload()
   IE.PutProperty "Style", Nothing
-  Sys.Ext.WaitIE IE, 2
+  Sys.Ext.WaitIE IE, -1
   Set IE = Nothing
   endmf
 End Sub

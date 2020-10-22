@@ -16,9 +16,9 @@ Option Explicit
 Public Obj As RegExp, Mts As MatchCollection
 
 
-Public Function CreateNew() As Object
+Public Property Get CreateNew() As Object
     Set CreateNew = New clsRXP
-End Function
+End Property
 
 Public Function Test(ByVal rTxt As String, Optional ByVal rPat As String = "", Optional ByVal fi As Boolean = True, Optional ByVal fg As Boolean = True) As Boolean
     With Obj

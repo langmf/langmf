@@ -15,7 +15,7 @@ Option Explicit
 
 Public GLOB As Object
 
-Public Function Pipe(ByVal nGlob As String) As Boolean
+Public Function Pipe(Optional ByVal nGlob As String = "lmf_glob") As Boolean
     On Error Resume Next
 
     For Each GLOB In CreateObject("Shell.Application").Windows
