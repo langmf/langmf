@@ -380,6 +380,23 @@ Public Function LPath(ByVal fPath As String, Optional ByVal numLevel As Long = 0
     End If
 End Function
 
+
+Public Function APath(ByVal fPath As String, Optional ByVal sPath As String, Optional ByVal vAlg As Long = SHA1) As String
+    Dim rc As Long
+    
+    If LenB(fPath) Then
+        If Len(sPath) Then If Right$(sPath, 1) <> "\" Then sPath = sPath + "\"
+        
+        APath = String$(MAX_PATH_UNI, 0)
+        rc = GetFullPathNameW(StrPtr(fPath), MAX_PATH_UNI, StrPtr(APath), ByVal 0&)
+        APath = Left$(APath, rc)
+        
+        If Len(sPath) = 0 Then Exit Function
+        If InStr(APath, sPath) Then APath = Mid$(APath, Len(sPath) + 1):   Exit Function
+        APath = SYS.Conv.HashString(modCommon.GetDirectory(APath), vAlg) + "\" + modCommon.GetFileName(APath)
+    End If
+End Function
+
 Public Property Get GetDiskInfo(Optional ByVal sDrive As String = "C:\") As Collection
     Dim bytes_Avail As LONG64, bytes_Total As LONG64, bytes_Free As LONG64
     Dim dbl_Total As Double, dbl_Free As Double, cl As New Collection, vSerial As Long
