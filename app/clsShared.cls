@@ -243,14 +243,6 @@ Public Function ArrayParam(ByVal dummy As Long, ParamArray Args() As Variant) As
     GetMem4 VBA.VarPtr(dummy) + 4, p:   GetMem4 p, dummy:   PutMem4 VarPtrArray(ArrayParam), dummy:   PutMem4 p, 0&
 End Function
 
-Public Function IIF(varIF As Variant, var1 As Variant, var2 As Variant) As Variant
-    If varIF Then
-        If IsObject(var1) Then Set IIF = var1 Else IIF = var1
-    Else
-        If IsObject(var2) Then Set IIF = var2 Else IIF = var2
-    End If
-End Function
-
 Public Property Get ResToPic(ByVal Key As String) As IPictureDisp
     If Not SYS.Resource.Exists(Key) Then Exit Property
     Set ResToPic = LoadPictureFromByte(SYS.Resource(Key).Data)
@@ -271,6 +263,50 @@ Public Property Get ResToBuf(ByVal Key As String) As Byte()
     If vt = vbString Then ResToBuf = Conv_W2A_Buf(cd.Data)
     If vt = vbArray + vbByte Then ResToBuf = cd.Data
 End Property
+
+Public Function IIF(varIF As Variant, var1 As Variant, var2 As Variant) As Variant
+    If varIF Then
+        If IsObject(var1) Then Set IIF = var1 Else IIF = var1
+    Else
+        If IsObject(var2) Then Set IIF = var2 Else IIF = var2
+    End If
+End Function
+
+Public Function VOF(ParamArray Vars() As Variant) As Variant
+    Dim i As Long, t As Integer
+    For i = 0 To UBound(Vars)
+        VariantCopy VOF, Vars(i)
+        t = VariantType(VOF)
+        If t = vbString Then
+            If Len(VOF) <> 0 Then Exit For
+        ElseIf t = vbObject Then
+            If Not VOF Is Nothing Then Exit For
+        ElseIf t And vbArray Then
+            Exit For
+        ElseIf t = vbError Or t = vbNull Then
+        ElseIf CBool(VOF) Then
+            Exit For
+        End If
+    Next
+End Function
+
+Public Function VAF(ParamArray Vars() As Variant) As Variant
+    Dim i As Long, t As Integer
+    For i = 0 To UBound(Vars)
+        VariantCopy VAF, Vars(i)
+        t = VariantType(VAF)
+        If t = vbString Then
+            If Len(VAF) = 0 Then Exit For
+        ElseIf t = vbObject Then
+            If VAF Is Nothing Then Exit For
+        ElseIf t And vbArray Then
+        ElseIf t = vbError Or t = vbNull Then
+            Exit For
+        ElseIf Not CBool(VAF) Then
+            Exit For
+        End If
+    Next
+End Function
 
 Public Function LenType(Obj As Variant) As Long
     On Error Resume Next

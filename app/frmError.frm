@@ -212,7 +212,7 @@ Public Sub Display(ByVal Obj As clsActiveScript)
 End Sub
 
 Private Sub Command1_Click()
-    Call ShellExecuteW(Me.hWnd, StrPtr("open"), StrPtr("mailto:" + EMailDevelop + "?subject=LangMF_Error_Report&body=" + SYS.Conv.EncodeUrl(txtError)), 0, 0, SW_SHOWNORMAL)
+    Call ShellExecuteW(Me.hWnd, StrPtr("open"), StrPtr("mailto:" + mf_EMail + "?subject=LangMF_Error_Report&body=" + SYS.Conv.EncodeUrl(txtError)), 0, 0, SW_SHOWNORMAL)
     Unload Me
 End Sub
 

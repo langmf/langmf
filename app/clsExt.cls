@@ -89,6 +89,10 @@ Public Function SetAffinity(Optional ByVal value As Long = -1, Optional ByVal hP
     SetAffinity = SetProcessAffinityMask(hProc, value)
 End Function
 
+Public Sub ExitCode(Optional ByVal value As Long)
+    ExitProcess value
+End Sub
+
 Public Function OSVer(Optional ByVal typeFmt As Long = 0) As Variant
     Static verInfo As OSVERSIONINFOEX, isVerCache As Boolean
     

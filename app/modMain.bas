@@ -47,9 +47,7 @@ End Type
 Global Const mf_typeModule = 0, mf_typeForm = 1
 Global Const mf_Sign = &H2043464D, mf_Setup = "/regsetup", mf_New = "/regnew", mf_Embed = "-Embedding"
 Global Const mf_Hdr = vbNullChar + "-=~lmfhdr~=-" + vbNullChar
-Global Const mf_EMailDevelop = "support@langmf.ru"
-
-Global EMailDevelop As String
+Global Const mf_defEMail = "support@langmf.ru"
 
 Global Info As def_Info
 Global MDL(255) As def_MDL
@@ -61,21 +59,14 @@ Global REG As New RegExp
 Global Types As clsHash
 Global Funcs As Collection
 
-Global mf_TimeLMF As Long, mf_TimeParse As Long, mf_AsyncLoad As Long, mf_NoError As Boolean
-Global mf_Counter As Integer, mf_IsEnd As Boolean, mf_Debug As Long, mf_Tmp As String
+Global mf_Counter As Integer, mf_Async As Long, mf_NoError As Boolean, mf_IsEnd As Boolean
+Global mf_Debug As Long, mf_Tmp As String, mf_EMail As String
 
 
 Sub Main()
     Dim stp As Boolean, cmd As String
     
-    mf_TimeLMF = timeGetTime
-
-    InitGlobal
-    stp = SetupLMF
-
-    mf_TimeLMF = timeGetTime - mf_TimeLMF
-    
-    cmd = Command
+    Call InitGlobal:            stp = SetupLMF:             cmd = Command
 
     If cmd <> mf_Embed And cmd <> mf_Setup Then
         If Not stp Then ShellSyncEx GetAppPath(True), mf_Setup, , , "runas"
@@ -134,8 +125,6 @@ End Function
 Function Code_Run(Optional ByVal nameScript As String) As String
     Dim f As New clsFileAPI, Buf() As Byte
     
-    mf_TimeParse = timeGetTime
-    
     Script_Init
 
     If Not Info.IsExe And Not Info.IsCmd Then
@@ -172,10 +161,8 @@ Function Code_Run(Optional ByVal nameScript As String) As String
     
     Code_Run = Code_Parse(Buf, nameScript)
     
-    mf_TimeParse = timeGetTime - mf_TimeParse
-    
-    If mf_AsyncLoad Then
-        Call SetTimer(frmScript.hWnd, 30001, mf_AsyncLoad, AddressOf Timer_Func)
+    If mf_Async Then
+        Call SetTimer(frmScript.hWnd, 30001, mf_Async, AddressOf Timer_Func)
     Else
         Timer_Func
     End If
@@ -952,8 +939,8 @@ Sub Parse_Directiv(txtCode As String)
         For a = 0 To Mts.Count - 1
             Select Case LCase$(Mts(a).SubMatches(0))
                 Case "addrus":          Call Parse_Modify(txtCode)
-                Case "develop":         EMailDevelop = Mts(0).SubMatches(2)
-                Case "asyncload":       mf_AsyncLoad = CLng(Mts(0).SubMatches(2))
+                Case "develop":         mf_EMail = Mts(0).SubMatches(2)
+                Case "asyncload":       mf_Async = CLng(Mts(0).SubMatches(2))
                 Case "debug":           mf_Debug = CLng(Mts(0).SubMatches(2))
             End Select
         Next
@@ -1213,7 +1200,7 @@ Sub Script_Init()
         CAS.AddObject "Shd", SYS.SHD, True
         Set Types = New clsHash
         Set Funcs = New Collection
-        EMailDevelop = mf_EMailDevelop
+        mf_EMail = mf_defEMail
     End If
     
     SetDllDirectoryW StrPtr(CurDir)
@@ -1229,7 +1216,7 @@ Sub Script_End()
         Set Frm = Nothing
     Next
                 
-    Erase MDL:    mf_Counter = 0:     mf_AsyncLoad = 0:     mf_NoError = False:     Set Funcs = Nothing
+    Erase MDL:    mf_Counter = 0:     mf_Async = 0:     mf_NoError = False:     Set Funcs = Nothing
 
     If Not CAS Is Nothing Then CAS.Reset
     Set CAS = Nothing

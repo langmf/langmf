@@ -101,6 +101,7 @@ Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 Declare Sub ZeroMemory Lib "kernel32" Alias "RtlZeroMemory" (Destination As Any, ByVal numBytes As Long)
 Declare Sub FillMemory Lib "kernel32" Alias "RtlFillMemory" (Destination As Any, ByVal Length As Long, ByVal Fill As Byte)
 Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (hpvDest As Any, hpvSource As Any, ByVal cbCopy As Long)
+Declare Sub ExitProcess Lib "kernel32" (ByVal uExitCode As Long)
 Declare Sub GetLocalTime Lib "kernel32" (lpSystemTime As SYSTEMTIME)
 Declare Sub GlobalMemoryStatusEx Lib "kernel32" (lpBuffer As MEMORYSTATUSEX)
 Declare Function GetACP Lib "kernel32" () As Long

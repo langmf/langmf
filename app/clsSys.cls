@@ -185,18 +185,22 @@ Public Property Get Host(ParamArray Args() As Variant) As Variant
     
     On Error Resume Next
     
-    uds = UBound(Args):    If uds >= 0 Then Param = Args(0)
+    uds = UBound(Args):    If uds >= 0 Then Param = LCase$(Args(0))
     
-    Select Case LCase$(Param)
+    If Left$(Param, 3) = "arg" Then
+        Select Case Mid$(Param, 4)
+        Case "v":               Set Host = GetArgv(Info.Arg)
+        Case "o":               Set Host = SYS.SHD.Object(GetArgv(Info.Arg))
+        Case "":                Host = Info.Arg
+        End Select
+    Else
+        Select Case Param
         Case "host", "":        Set Host = LMF
-        Case "argv":            Set Host = GetArgv(Info.Arg)
-        Case "arg":             Host = Info.Arg
-        Case "time_lmf":        Host = mf_TimeLMF
-        Case "time_parse":      Host = mf_TimeParse
         Case "mdl_name":        Host = MDL(Args(1)).Name
         Case "mdl_type":        Host = MDL(Args(1)).Type
         Case "noerror":         If uds < 1 Then Host = mf_NoError Else mf_NoError = Args(1):   Host = mf_NoError
-    End Select
+        End Select
+    End If
 End Property
 
 Public Function Power(Optional ByVal value As String = "off", Optional ByVal Flags As Long) As Long

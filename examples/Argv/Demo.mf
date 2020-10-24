@@ -3,10 +3,11 @@
 Sub Load(cmdLine)
 
 	Set argv = Object(sys.host("argv"))
+	'Set argv = sys.host("argo")
 	
 	with sys.file.api
 		.fopen "out_" & argv.file &".txt", 2
-		.fprint cmdLine & vbcrlf & vbcrlf
+		.fprint cmdLine & vbcrlf & sys.host("arg") & vbcrlf & vbcrlf
 		
 		for each v in argv.[].Hash.items(2)
 			.fprint "'" & v(1) & "' = " & iif(vartype(v(0))=vbstring,"""" & v(0) & """", v(0))
