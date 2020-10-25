@@ -216,7 +216,7 @@ End Function
 Public Function Fill(ParamArray vsp() As Variant) As Object             'As clsHash
     Dim a As Long, uds As Long
 
-    Set Fill = Me:    uds = UBound(vsp):     If m_Locked = True Or uds < 1 Then Exit Function
+    Set Fill = Me:          uds = UBound(vsp):          If m_Locked = True Or uds < 1 Then Exit Function
     
     For a = 0 To uds Step 2
         If Not IsObject(vsp(a)) Then If IsMissing(vsp(a)) Then vsp(a) = Empty
