@@ -43,6 +43,10 @@ Public Function GetSetting(ByVal regAppName As String, ByVal regSect As String, 
     GetSetting = VBA.GetSetting(regAppName, regSect, regKey, regDef)
 End Function
 
+Public Function GetAllSettings(ByVal regAppName As String, Optional ByVal regSect As String = vbNullChar) As Variant
+    GetAllSettings = VBA.GetAllSettings(regAppName, regSect)
+End Function
+
 Public Sub DeleteSetting(ByVal regAppName As String, ByVal regSect As String, ByVal regKey As String)
     VBA.DeleteSetting regAppName, regSect, regKey
 End Sub
@@ -67,7 +71,7 @@ End Sub
 
 '----------------- Работа с реестром (WinApi) --------------------
 Public Function RegEnum(ByVal Key As String, Optional ByVal Section As Long = HKCU, Optional ByVal samDesired As Long = KEY_ACCESS) As Collection
-    Dim i As Long, l As Long, hKey As Long, sz As Long, vLen As Long, VType As Long
+    Dim i As Long, r As Long, hKey As Long, sz As Long, vLen As Long, VType As Long
     Dim txt As String, vName As String, Buf(1 To 16384) As Byte, b() As Byte
 
     Set RegEnum = New Collection:      RegSection Key, Section
@@ -78,17 +82,17 @@ Public Function RegEnum(ByVal Key As String, Optional ByVal Section As Long = HK
     i = 0
     Do
         vName = Space$(255):    vLen = Len(vName):    sz = UBound(Buf)
-        l = RegEnumValueW(hKey, i, StrPtr(vName), vLen, 0, VType, Buf(1), sz)
+        r = RegEnumValueW(hKey, i, StrPtr(vName), vLen, 0, VType, Buf(1), sz)
         
-        If l = ERROR_NO_MORE_ITEMS Then Exit Do
+        If r = ERROR_NO_MORE_ITEMS Then Exit Do
         
-        If l = 0 Then
+        If r = 0 Then
             vName = Left$(vName, vLen)
             
             Select Case VType
                 Case REG_DWORD
-                    CopyMemory l, Buf(1), 4
-                    RegEnum.Add Array(VType, vName, l)
+                    CopyMemory r, Buf(1), 4
+                    RegEnum.Add Array(VType, vName, r)
                 Case REG_SZ, REG_MULTI_SZ, REG_EXPAND_SZ
                     txt = Left$(Buf, sz / 2)
                     If VType = REG_MULTI_SZ Then txt = Replace$(txt, Chr$(0), vbCrLf) Else txt = Replace$(txt, Chr$(0), "")

@@ -140,16 +140,31 @@ Public Function ObjFromPtr(ByVal vPtr As Long, Optional ByVal isIUnknown As Bool
     End If
 End Function
 
-Public Property Get ByRefVar(Var As Variant) As Variant
-    ByRefVar = Var
+Public Property Get ByRefVar(Var As Variant, ParamArray d() As Variant) As Variant
+    Select Case UBound(d)
+        Case -1:    ByRefVar = Var
+        Case 0:     ByRefVar = Var(d(0))
+        Case 1:     ByRefVar = Var(d(0), d(1))
+        Case 2:     ByRefVar = Var(d(0), d(1), d(2))
+    End Select
 End Property
 
-Public Property Let ByRefVar(Var As Variant, value As Variant)
-    Var = value
+Public Property Let ByRefVar(Var As Variant, ParamArray d() As Variant, value As Variant)
+    Select Case UBound(d)
+        Case -1:    Var = value
+        Case 0:     Var(d(0)) = value
+        Case 1:     Var(d(0), d(1)) = value
+        Case 2:     Var(d(0), d(1), d(2)) = value
+    End Select
 End Property
 
-Public Property Set ByRefVar(Var As Variant, value As Variant)
-    Set Var = value
+Public Property Set ByRefVar(Var As Variant, ParamArray d() As Variant, value As Variant)
+    Select Case UBound(d)
+        Case -1:    Set Var = value
+        Case 0:     Set Var(d(0)) = value
+        Case 1:     Set Var(d(0), d(1)) = value
+        Case 2:     Set Var(d(0), d(1), d(2)) = value
+    End Select
 End Property
 
 Public Property Get Is64() As Boolean

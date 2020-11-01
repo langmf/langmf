@@ -1,0 +1,19 @@
+<#Module=Main>
+'---------------------------------------
+Sub Load(cmdLine)
+
+	v = sys.registry.GetAllSettings("DSL232\Profile\Main")
+
+	txt = vartype(v) & " - " & typename(v) & vbcrlf & sys.str.rpt("-", 32) & vbcrlf
+	
+	if vartype(v) = 8200 then
+		for a = 0 to ubound(v)
+			txt = txt & byrefvar(v, a, 0) & " = " & byrefvar(v, a, 1) & vbcrlf
+		next
+	end if
+	
+	msgbox txt
+
+	endmf
+End Sub
+<#Module>
