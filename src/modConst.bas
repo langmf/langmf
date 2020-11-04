@@ -228,7 +228,7 @@ Declare Function CreateFontIndirectW Lib "gdi32" (lpLogFont As LOGFONT) As Long
 Declare Function CreateCompatibleBitmap Lib "gdi32" (ByVal hDC As Long, ByVal nWidth As Long, ByVal nHeight As Long) As Long
 
 
-Declare Function PlaySoundW Lib "winmm" (ByVal lpszName As Long, ByVal hModule As Long, ByVal dwFlags As Long) As Long
+Declare Function PlaySoundW Lib "winmm" (ByRef lpszName As Any, ByVal hModule As Long, ByVal dwFlags As Long) As Long
 Declare Function timeGetTime Lib "winmm" () As Long
 Declare Function timeEndPeriod Lib "winmm" (Optional ByVal uPeriod As Long = 1) As Long
 Declare Function timeBeginPeriod Lib "winmm" (Optional ByVal uPeriod As Long = 1) As Long
@@ -625,6 +625,11 @@ Type TOKEN_PRIVILEGES
     Attributes As Long
 End Type
 
+Type LONG64
+    LowPart As Long
+    HighPart As Long
+End Type
+
 Type FILETIME
     dwLowDateTime As Long
     dwHighDateTime As Long
@@ -728,9 +733,23 @@ Type LOGFONT
     lfFaceName(63) As Byte
 End Type
 
-Type LONG64
-    LowPart As Long
-    HighPart As Long
+Type RIFFHEADER
+    ' riff header
+    rId As Long
+    rSize As Long
+    rFormat As Long
+    ' wave header
+    wID As Long
+    wSize As Long
+    aFormat As Integer
+    numChannels As Integer
+    sampleRate As Long
+    byteRate As Long
+    bytesPerSample As Integer
+    bitsPerChannel As Integer
+    ' data header
+    dID As Long
+    dSize As Long
 End Type
 
 Type MEMORYSTATUSEX

@@ -741,77 +741,59 @@ Function ConvToBufferByte(bufVar As Variant, bufByte() As Byte) As Boolean
     
     vt = VariantType(bufVar, True)
     
-    If vt = vbArray + vbByte Then
-        bufByte = bufVar
-
-    ElseIf vt = vbString Then
-        bufByte = Conv_W2A_Buf(CStr(bufVar))
+    Select Case vt
+        Case vbArray + vbByte:          bufByte = bufVar
+        Case vbString:                  bufByte = Conv_W2A_Buf(CStr(bufVar))
         
-    ElseIf vt = vbArray + vbVariant Then
+        Case vbArray + vbVariant
     
-        SA = GetSafeArray(bufVar)
-        uds = SA.rgSABound(0).cElements - 1
-        If uds < 0 Then Exit Function
-        
-        ReDim bufByte(uds)
-        
-        SA.fFeatures = 128
-        PutMem4 VarPtrArray(v), VarPtr(SA)
-        
-        For a = 0 To uds
-            bufByte(a) = v(a)
-        Next
-        
-        PutMem4 VarPtrArray(v), 0
+            SA = GetSafeArray(bufVar):         uds = SA.rgSABound(0).cElements - 1:         If uds < 0 Then Exit Function
+            
+            ReDim bufByte(uds):         SA.fFeatures = 128:         PutMem4 VarPtrArray(v), VarPtr(SA)
+            
+            For a = 0 To uds:           bufByte(a) = v(a):          Next:           PutMem4 VarPtrArray(v), 0
 
-    Else
-        Exit Function
-    End If
+        Case Else
+            Exit Function
+    End Select
     
     ConvToBufferByte = True
 End Function
 
 Function ConvFromBufferByte(bufVar As Variant, bufByte() As Byte, Optional ByVal vt As Variant) As Boolean
-    Dim a As Long, uds As Long, SA As SafeArray, v() As Variant
+    Dim a As Long, b As Long, uds As Long, SA As SafeArray, v() As Variant
     
     If VarType(bufVar) = vbEmpty Then bufVar = Array()
     If IsMissing(vt) Then vt = VariantType(bufVar, True)
     
-    If vt = vbArray + vbByte Then
-        bufVar = bufByte
-
-    ElseIf vt = -vbString Then
-        bufVar = ToUnicode(bufByte)
-
-    ElseIf vt = vbString Then
-        bufVar = Conv_A2W_Buf(bufByte)
+    Select Case vt
+        Case vbArray + vbByte:      bufVar = bufByte
+        Case -vbString:             bufVar = ToUnicode(bufByte)
+        Case vbString:              bufVar = Conv_A2W_Buf(bufByte)
         
-    ElseIf vt = vbArray + vbVariant Then
-    
-        uds = ArraySize(bufByte) - 1
-        If uds < 0 Then Exit Function
-        
-        GetMem2 VarPtr(bufVar), vt
-        
-        If vt = VT_BYREF + VT_VARIANT Then
-            SA = GetSafeArray(bufVar)
-            SA.fFeatures = 128
-            PutMem4 VarPtrArray(v), VarPtr(SA)
-            ReDim v(uds)
-            For a = 0 To uds
-                v(a) = bufByte(a)
-            Next
-            PutMem4 VarPtrArray(v), 0&
-        Else
-            ReDim bufVar(uds)
-            For a = 0 To uds
-                bufVar(a) = bufByte(a)
-            Next
-        End If
+        Case vbArray + vbVariant
+            
+            uds = ArraySize(bufByte) - 1
+            If uds < 0 Then Exit Function
+            
+            GetMem2 VarPtr(bufVar), vt
+            
+            If vt = VT_BYREF + VT_VARIANT Then
+                SA = GetSafeArray(bufVar):          SA.fFeatures = 128:       PutMem4 VarPtrArray(v), VarPtr(SA):       ReDim v(uds)
+                For a = 0 To uds:       v(a) = bufByte(a):          Next:     PutMem4 VarPtrArray(v), 0&
+            Else
+                ReDim bufVar(uds)
+                For a = 0 To uds:       bufVar(a) = bufByte(a):     Next
+            End If
 
-    Else
-        Exit Function
-    End If
+        Case -4 To -1
+            
+            b = Abs(vt) - 1:      ReDim Preserve bufByte(b):      ReDim Preserve bufByte(3):       GetMem4 VarPtr(bufByte(0)), a
+            bufVar = a
+            
+        Case Else
+            Exit Function
+    End Select
     
     ConvFromBufferByte = True
 End Function

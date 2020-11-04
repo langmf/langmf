@@ -240,7 +240,7 @@ Private Sub Timer1_Timer()
                         .FillColor = RGB(GenRnd, GenRnd, GenRnd)
                         .Tag = Int(Rnd * 3 + 1) * Screen.TwipsPerPixelX
                         .Visible = True
-                        Call PlaySoundW(StrPtr(GetWindowsPath + "\Media\ir_begin.wav"), 0, 1)
+                        Call PlaySoundW(ByVal StrPtr(GetWindowsPath + "\Media\ir_begin.wav"), 0, 1)
                     End If
                 End If
             End If

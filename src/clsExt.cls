@@ -34,10 +34,6 @@ Public Sub SendKeys(ByVal numKey As String, Optional ByVal cWait As Boolean = Fa
     VBA.SendKeys numKey, cWait
 End Sub
 
-Public Function Play(ByVal fName As String, ByVal hMod As Long, ByVal wFlags As Long) As Long
-    Play = PlaySoundW(StrPtr(fName), hMod, wFlags)
-End Function
-
 Public Function Mci(ByVal sCommand As String, Optional ByVal isVal As Boolean) As Variant
     Dim txt As String, rc As Long
     txt = String$(512, 0)
@@ -93,25 +89,6 @@ Public Sub ExitCode(Optional ByVal value As Long)
     ExitProcess value
 End Sub
 
-Public Function OSVer(Optional ByVal typeFmt As Long = 0) As Variant
-    Static verInfo As OSVERSIONINFOEX, isVerCache As Boolean
-    
-    If Not isVerCache Then
-        verInfo.dwOSVersionInfoSize = Len(verInfo)
-        If (GetVersionExA(verInfo)) = 0 Then Exit Function
-        isVerCache = True
-    End If
-    
-    Select Case typeFmt
-        Case 0:     OSVer = VarPtr(verInfo.dwOSVersionInfoSize)
-        Case 1:     OSVer = verInfo.dwMajorVersion & "." & verInfo.dwMinorVersion
-        Case 2:     OSVer = verInfo.dwMajorVersion & "." & verInfo.dwMinorVersion & "." & verInfo.dwBuildNumber
-        Case 3:     OSVer = verInfo.wServicePackMajor & "." & verInfo.wServicePackMinor
-        Case 4:     OSVer = verInfo.wSuiteMask
-        Case 5:     OSVer = verInfo.wProductType
-    End Select
-End Function
-
 Public Function Shell(ByVal FileName As String, Optional ByVal Flags As Long = 1) As Long
     Shell = VBA.Shell(FileName, Flags)
 End Function
@@ -136,11 +113,51 @@ Public Function VersionDLL(ByVal FileName As String, Optional ByVal verCmp As Va
     VersionDLL = modCommon.VersionDLL(FileName, verCmp)
 End Function
 
+Public Function Play(value As Variant, Optional ByVal hMod As Long, Optional ByVal wFlags As Long = 3) As Long
+    Dim i As Long, c As Long, ofs As Long, ch As Long, sz As Long, f1 As Long, f2 As Long, p As Double, d As Double
+    Dim vt As Integer, hdr As RIFFHEADER, b() As Integer
+    
+    vt = VariantType(value)
+    
+    If vt = vbString Then Play = PlaySoundW(ByVal StrPtr(value), hMod, wFlags):                                 Exit Function
+    If vt = vbArray + vbByte Then Play = PlaySoundW(ByVal GetSafeArray(value).pvData, hMod, wFlags):            Exit Function
+    If vt = vbLong Or vt = vbInteger Or vt = vbByte Then Play = PlaySoundW(ByVal CLng(value), hMod, wFlags):    Exit Function
+
+    If vt = vbSingle Or vt = vbDouble Then
+        f1 = value Mod 65536:       f2 = value \ 65536:         If f2 Then ch = 2 Else ch = 1
+        
+        With hdr
+            .rId = &H46464952:      .rFormat = &H45564157:      .wID = &H20746D66:          .wSize = 16:        .aFormat = 1
+            
+            .numChannels = ch:      .sampleRate = 44100:        .bitsPerChannel = 16
+            
+            .bytesPerSample = (.bitsPerChannel \ 8) * .numChannels:             .byteRate = .sampleRate * .bytesPerSample
+
+            .dID = &H61746164:      .dSize = .byteRate * (hMod / 1000):         sz = .dSize + LenB(hdr):      .rSize = sz - 8
+        End With
+        
+        c = ch:         sz = sz / 2 - 1:        ReDim b(sz):        CopyMemory b(0), hdr, LenB(hdr)
+        
+        While c
+            ofs = 0:        p = 0:          d = f1:         If c = 2 Then ofs = 1:   d = f2
+            d = d / hdr.sampleRate * 6.28318530717959:         c = c - 1
+            For i = 22 To sz Step ch
+                b(i + ofs) = Sin(p) * 32767:    p = p + d:      If p > 6.28318530717959 Then p = p - 6.28318530717959
+            Next
+        Wend
+        
+        Play = PlaySoundW(b(0), 0, wFlags Or 4&)
+    End If
+End Function
+
 Public Property Get CreateImage() As Object
     Static cntImage As Long
+    
     On Error Resume Next
+    
     cntImage = cntImage + 1
     Set CreateImage = frmScript.Controls.Add("VB.PictureBox", "dynPic_" & cntImage)
+    
     With CreateImage
         .BorderStyle = 0
         .AutoRedraw = True
@@ -152,6 +169,25 @@ Public Property Get CreateImage() As Object
         .Visible = False
     End With
 End Property
+
+Public Function OSVer(Optional ByVal typeFmt As Long = 0) As Variant
+    Static verInfo As OSVERSIONINFOEX, isVerCache As Boolean
+    
+    If Not isVerCache Then
+        verInfo.dwOSVersionInfoSize = Len(verInfo)
+        If (GetVersionExA(verInfo)) = 0 Then Exit Function
+        isVerCache = True
+    End If
+    
+    Select Case typeFmt
+        Case 0:     OSVer = VarPtr(verInfo.dwOSVersionInfoSize)
+        Case 1:     OSVer = verInfo.dwMajorVersion & "." & verInfo.dwMinorVersion
+        Case 2:     OSVer = verInfo.dwMajorVersion & "." & verInfo.dwMinorVersion & "." & verInfo.dwBuildNumber
+        Case 3:     OSVer = verInfo.wServicePackMajor & "." & verInfo.wServicePackMinor
+        Case 4:     OSVer = verInfo.wSuiteMask
+        Case 5:     OSVer = verInfo.wProductType
+    End Select
+End Function
 
 Public Property Get GetMemoryStatus() As Collection
     Dim dbl_T_Phys As Double, dbl_A_Phys As Double
