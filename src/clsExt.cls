@@ -113,43 +113,6 @@ Public Function VersionDLL(ByVal FileName As String, Optional ByVal verCmp As Va
     VersionDLL = modCommon.VersionDLL(FileName, verCmp)
 End Function
 
-Public Function Play(value As Variant, Optional ByVal hMod As Long, Optional ByVal wFlags As Long = 3) As Long
-    Dim i As Long, c As Long, ofs As Long, ch As Long, sz As Long, f1 As Long, f2 As Long, p As Double, d As Double
-    Dim vt As Integer, hdr As RIFFHEADER, b() As Integer
-    
-    vt = VariantType(value)
-    
-    If vt = vbString Then Play = PlaySoundW(ByVal StrPtr(value), hMod, wFlags):                                 Exit Function
-    If vt = vbArray + vbByte Then Play = PlaySoundW(ByVal GetSafeArray(value).pvData, hMod, wFlags):            Exit Function
-    If vt = vbLong Or vt = vbInteger Or vt = vbByte Then Play = PlaySoundW(ByVal CLng(value), hMod, wFlags):    Exit Function
-
-    If vt = vbSingle Or vt = vbDouble Then
-        f1 = value Mod 65536:       f2 = value \ 65536:         If f2 Then ch = 2 Else ch = 1
-        
-        With hdr
-            .rId = &H46464952:      .rFormat = &H45564157:      .wID = &H20746D66:          .wSize = 16:        .aFormat = 1
-            
-            .numChannels = ch:      .sampleRate = 44100:        .bitsPerChannel = 16
-            
-            .bytesPerSample = (.bitsPerChannel \ 8) * .numChannels:             .byteRate = .sampleRate * .bytesPerSample
-
-            .dID = &H61746164:      .dSize = .byteRate * (hMod / 1000):         sz = .dSize + LenB(hdr):      .rSize = sz - 8
-        End With
-        
-        c = ch:         sz = sz / 2 - 1:        ReDim b(sz):        CopyMemory b(0), hdr, LenB(hdr)
-        
-        While c
-            ofs = 0:        p = 0:          d = f1:         If c = 2 Then ofs = 1:   d = f2
-            d = d / hdr.sampleRate * 6.28318530717959:         c = c - 1
-            For i = 22 To sz Step ch
-                b(i + ofs) = Sin(p) * 32767:    p = p + d:      If p > 6.28318530717959 Then p = p - 6.28318530717959
-            Next
-        Wend
-        
-        Play = PlaySoundW(b(0), 0, wFlags Or 4&)
-    End If
-End Function
-
 Public Property Get CreateImage() As Object
     Static cntImage As Long
     
@@ -469,4 +432,63 @@ Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Opti
     End If
 
     If Prm.Exists("Lic") Then DoEvents:   Licenses.Add Prm("ProgID")
+End Function
+
+Public Function Play(Optional value As Variant, Optional ByVal hMod As Long, Optional ByVal wFlags As Long = 3) As Variant
+    Dim i As Long, c As Long, ch As Long, sz As Long, f1 As Long, f2 As Long, p As Double, d As Double, lev As Long, v() As Variant
+    Dim b() As Integer, hdr As RIFFHEADER
+
+    i = VariantType(value)
+    
+    If i = vbString Then Play = PlaySoundW(StrPtr(value), hMod, wFlags):                                                    Exit Function
+    If i = vbLong Or i = vbInteger Or i = vbByte Then Play = PlaySoundW(value, hMod, wFlags):                               Exit Function
+    If i = vbArray + vbByte Or i = vbArray + vbInteger Then Play = PlaySoundW(GetSafeArray(value).pvData, hMod, wFlags):    Exit Function
+    If i = vbArray + vbVariant Then c = ArraySize(value):       If c >= 2 Then i = -vbVariant
+    If i = vbSingle Or i = vbDouble Then i = -vbDouble
+    If i >= 0 Then Play = PlaySoundW(0, 0, 0):      Exit Function
+
+    With hdr
+        .rId = &H46464952:      .rFormat = &H45564157:      .wID = &H20746D66:          .dID = &H61746164:          .wSize = 16
+        
+        .aFormat = 1:           .sampleRate = 44100:        .bitsPerChannel = 16:       lev = hMod \ 65536:         hMod = hMod Mod 65536
+        
+        If i = -vbDouble Then
+            f1 = value Mod 65536:           f2 = value \ 65536:         ch = IIF(f2, 2, 1):         If lev <= 0 Or lev > 32767 Then lev = 32767
+        ElseIf i = -vbVariant Then
+            ch = c - 1:             If value(0) Then .sampleRate = value(0)
+            For f1 = 1 To ch
+                If Not IsArray(value(f1)) Then value(f1) = Empty:   value(f1) = Array()
+                f2 = ArraySize(value(f1)):          .dSize = IIF(.dSize < f2, f2, .dSize)
+            Next
+        End If
+        
+        .numChannels = ch:          .bytesPerSample = (.bitsPerChannel \ 8) * ch:           .byteRate = .sampleRate * .bytesPerSample
+
+        If .dSize Then .dSize = .dSize * .bytesPerSample Else .dSize = CLng(.byteRate * (hMod / 1000)) And (Not (.bytesPerSample - 1))
+        
+        sz = .dSize + LenB(hdr):    .rSize = sz - 8
+    End With
+    
+    c = ch:         sz = sz / 2 - 1:        ReDim b(sz):        CopyMemory b(0), hdr, LenB(hdr)
+    
+    If i = -vbDouble Then
+        While c
+            p = 0:          d = IIF(c <= 1, f1, f2) / hdr.sampleRate * 6.28318530717959:            c = c - 1
+            For i = 22 To sz Step ch
+                b(i + c) = Sin(p) * lev:    p = p + d:      If p > 6.28318530717959 Then p = p - 6.28318530717959
+            Next
+        Wend
+    End If
+    
+    If i = -vbVariant Then
+        While c
+            f1 = 0:         v = value(c):       f2 = ArraySize(v):        c = c - 1
+            For i = 22 To sz Step ch
+                If f1 >= f2 Then b(i + c) = lev Else b(i + c) = v(f1)
+                f1 = f1 + 1
+            Next
+        Wend
+    End If
+    
+    If wFlags = -1 Then Play = b Else Play = PlaySoundW(VarPtr(b(0)), 0, wFlags Or 4&)
 End Function

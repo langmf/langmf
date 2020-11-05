@@ -228,7 +228,7 @@ Declare Function CreateFontIndirectW Lib "gdi32" (lpLogFont As LOGFONT) As Long
 Declare Function CreateCompatibleBitmap Lib "gdi32" (ByVal hDC As Long, ByVal nWidth As Long, ByVal nHeight As Long) As Long
 
 
-Declare Function PlaySoundW Lib "winmm" (ByRef lpszName As Any, ByVal hModule As Long, ByVal dwFlags As Long) As Long
+Declare Function PlaySoundW Lib "winmm" (ByVal lpszName As Long, ByVal hModule As Long, ByVal dwFlags As Long) As Long
 Declare Function timeGetTime Lib "winmm" () As Long
 Declare Function timeEndPeriod Lib "winmm" (Optional ByVal uPeriod As Long = 1) As Long
 Declare Function timeBeginPeriod Lib "winmm" (Optional ByVal uPeriod As Long = 1) As Long

@@ -3,6 +3,9 @@
 '---------------------------------------------------
                         
 <#Module=mdlMain>
+const SND_BUFFER		= -1		' only get buffer, no play
+const SND_EXTARG		= &H10000	' use second argument
+
 const SND_SYNC			= &H0		' play synchronously (default)
 const SND_ASYNC			= &H1		' play asynchronously
 const SND_NODEFAULT		= &H2		' silence (!default) if sound not found
@@ -33,17 +36,20 @@ Sub Load(cmdLine)
   form.move 0, 0, 10300, 3000
   form.caption = "Проигрывание звука"
   
-  form.add "command", 1, ".caption=""System 1""", ".move 500,  500,  1200, 400"
-  form.add "command", 2, ".caption=""System 2""", ".move 2100, 500,  1200, 400"
-  form.add "command", 3, ".caption=""System 3""", ".move 3700, 500,  1200, 400"
-  form.add "command", 4, ".caption=""System 4""", ".move 5300, 500,  1200, 400"
-  form.add "command", 5, ".caption=""System 5""", ".move 6900, 500,  1200, 400"
-  form.add "command", 6, ".caption=""System 6""", ".move 8500, 500,  1200, 400"
+  form.add "command", 1,  ".caption=""System 1""", ".move 500,  500,  1200, 400"
+  form.add "command", 2,  ".caption=""System 2""", ".move 2100, 500,  1200, 400"
+  form.add "command", 3,  ".caption=""System 3""", ".move 3700, 500,  1200, 400"
+  form.add "command", 4,  ".caption=""System 4""", ".move 5300, 500,  1200, 400"
+  form.add "command", 5,  ".caption=""System 5""", ".move 6900, 500,  1200, 400"
+  form.add "command", 6,  ".caption=""System 6""", ".move 8500, 500,  1200, 400"
 
-  form.add "command", 7, ".caption=""Generate""", ".move 500,  1200, 1200, 400"
-  form.add "command", 8, ".caption=""Memory 1""", ".move 2100, 1200, 1200, 400"
-  form.add "command", 9, ".caption=""Memory 2""", ".move 3700, 1200, 1200, 400"
-
+  form.add "command", 7,  ".caption=""Memory 1""", ".move 500,  1200, 1200, 400"
+  form.add "command", 8,  ".caption=""Memory 2""", ".move 2100, 1200, 1200, 400"
+  form.add "command", 9,  ".caption=""Buffer"""  , ".move 3700, 1200, 1200, 400"
+  form.add "command", 10, ".caption=""Sound LR""", ".move 5300, 1200, 1200, 400"
+  form.add "command", 11, ".caption=""Gen 1"""   , ".move 6900, 1200, 1200, 400"
+  form.add "command", 12, ".caption=""Gen 2"""   , ".move 8500, 1200, 1200, 400"
+  
   form.add "text",    1, ".move 9000, 2000, 1000, 400", ".fontsize = 14"  
   form.add "hscroll", 1, ".Min = 40", ".Max = 20000", ".Move 100, 2000, 8700, 400", ".largechange = 10"
   
@@ -53,6 +59,8 @@ End Sub
 <#Module>
 
 <#Form=form>
+dim b
+
 Sub Command1_Click()
    this.caption = sys.ext.play(sys.conv.buf(SND_ALIAS_ASTERISK, -2),, SND_ALIAS_ID or SND_ASYNC or SND_NODEFAULT)
 End Sub
@@ -78,16 +86,37 @@ Sub Command6_Click()
 End Sub
 
 Sub Command7_Click()
-   sys.ext.play &H10000 * 200.0 + 1000.0, 1000
-End Sub
-
-Sub Command8_Click()
    sys.ext.play ResToBuf("1"),, SND_MEMORY or SND_ASYNC
 End Sub
 
-Sub Command9_Click()
-   sys.ext.play sys.conv.w2a(ResToStr("2")),, SND_MEMORY or SND_ASYNC
+Sub Command8_Click()
+   sys.ext.play sys.conv.w2a(ResToStr("2")) ,, SND_MEMORY or SND_ASYNC
 End Sub
+
+Sub Command9_Click()
+   b = sys.ext.play(SND_EXTARG * 200.0 + 1000.0, SND_EXTARG * 1000 + 65535, SND_BUFFER)
+   sys.ext.play b ,, SND_MEMORY or SND_ASYNC
+End Sub
+
+Sub Command10_Click()
+   sys.ext.play SND_EXTARG * 200.0 + 1000.0, SND_EXTARG * 5000 + 1000
+End Sub
+
+Sub Command11_Click()
+	Redim v1(48000), v2(48000)
+
+	timegettime true	
+	for a = 0 to ubound(v1)
+		v1(a) = rnd * 3000
+		v2(a) = sin(a / 5) * 3000
+	next
+	this.caption = timegettime(false)
+	
+	b = sys.ext.play(array(48000, v1, v2) ,, SND_BUFFER)
+
+	sys.ext.play b ,, SND_MEMORY or SND_ASYNC
+End Sub
+
 
 Sub HScroll1_Scroll()
     Call HScroll1_Change
@@ -101,7 +130,8 @@ Sub HScroll1_Change()
 End Sub
 
 Sub Form_Unload()
-  endmf
+	sys.ext.play
+	endmf
 End Sub
 <#Form>
 
