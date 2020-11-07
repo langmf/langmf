@@ -1,19 +1,19 @@
 <#Module=mdlMain>
 '---------------------------------------
 Sub Load(cmdLine)
-  Dim obj, fso
+  Dim v, fso
   
-  Set obj = sys.NewGlob
+  Set v = sys.NewGlob
   
   Set fso = CreateObject("Scripting.FileSystemObject")
   
-  rc = obj.Pipe("storage")
-  obj("test") = InputBox("Введите значение для глобальной переменной ""test"".")
-  obj("fso") = fso
+  rc = v.Pipe("storage")
+  v("test") = InputBox("Введите значение для глобальной переменной ""test"".")
+  v("fso") = fso
   
   MsgBox "Значения установлены. Теперь, не закрывая это сообщение, запустите demo2.mf"
   
-  obj.GLOB.Quit
+  v.obj.Quit
 
   endmf
 End Sub

@@ -131,6 +131,11 @@ Public Property Get NewBuf(Optional Buf As Variant, Optional ByVal Param As Vari
     If Not IsMissing(Buf) Then NewBuf.SetData Buf
 End Property
 
+Public Property Get NewRtc(Optional value As Variant, Optional ByVal Param As Variant) As Object    'As clsRTC
+    Set NewRtc = modCommon.DoParams(New clsRTC, Param)
+    If Not IsMissing(value) Then NewRtc.Compile value
+End Property
+
 Public Property Get NewFCP(Optional value As Variant, Optional ByVal Param As Variant) As Object    'As clsFuncPointer
     Set NewFCP = New clsFuncPointer
     

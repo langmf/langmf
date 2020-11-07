@@ -436,9 +436,9 @@ End Function
 
 Public Function Play(Optional value As Variant, Optional ByVal hMod As Long, Optional ByVal wFlags As Long = 3) As Variant
     Dim i As Long, c As Long, ch As Long, sz As Long, f1 As Long, f2 As Long, p As Double, d As Double, lev As Long, v() As Variant
-    Dim b() As Integer, hdr As RIFFHEADER
+    Dim b() As Integer, hdr As RIFFHEADER, SA As SafeArray
 
-    i = VariantType(value)
+    i = VariantType(value):         If wFlags < -1 Then wFlags = -wFlags Or 3
     
     If i = vbString Then Play = PlaySoundW(StrPtr(value), hMod, wFlags):                                                    Exit Function
     If i = vbLong Or i = vbInteger Or i = vbByte Then Play = PlaySoundW(value, hMod, wFlags):                               Exit Function
@@ -452,14 +452,18 @@ Public Function Play(Optional value As Variant, Optional ByVal hMod As Long, Opt
         
         .aFormat = 1:           .sampleRate = 44100:        .bitsPerChannel = 16:       lev = hMod \ 65536:         hMod = hMod Mod 65536
         
-        If i = -vbDouble Then
-            f1 = value Mod 65536:           f2 = value \ 65536:         ch = IIF(f2, 2, 1):         If lev <= 0 Or lev > 32767 Then lev = 32767
-        ElseIf i = -vbVariant Then
-            ch = c - 1:             If value(0) Then .sampleRate = value(0)
-            For f1 = 1 To ch
+        If i = -vbVariant Then
+            ch = c - 1:         sz = ch:        f1 = VariantType(value(1)):           If value(0) Then .sampleRate = value(0)
+            If c = 2 And (f1 = vbSingle Or f1 = vbDouble) Then p = value(1):    i = -vbDouble:      sz = 0
+            For f1 = 1 To sz
                 If Not IsArray(value(f1)) Then value(f1) = Empty:   value(f1) = Array()
                 f2 = ArraySize(value(f1)):          .dSize = IIF(.dSize < f2, f2, .dSize)
             Next
+        End If
+        
+        If i = -vbDouble Then
+            If p = 0 Then p = value
+            f1 = p Mod 65536:       f2 = p \ 65536:         ch = IIF(f2, 2, 1):         If lev <= 0 Or lev > 32767 Then lev = 32767
         End If
         
         .numChannels = ch:          .bytesPerSample = (.bitsPerChannel \ 8) * ch:           .byteRate = .sampleRate * .bytesPerSample
@@ -482,11 +486,13 @@ Public Function Play(Optional value As Variant, Optional ByVal hMod As Long, Opt
     
     If i = -vbVariant Then
         While c
-            f1 = 0:         v = value(c):       f2 = ArraySize(v):        c = c - 1
+            SA = GetSafeArray(value(c)):            SA.fFeatures = 128:         PutMem4 VarPtrArray(v), VarPtr(SA)
+            f2 = SA.rgSABound(0).cElements:         f1 = 0:                     c = c - 1
             For i = 22 To sz Step ch
                 If f1 >= f2 Then b(i + c) = lev Else b(i + c) = v(f1)
                 f1 = f1 + 1
             Next
+            PutMem4 VarPtrArray(v), 0&
         Wend
     End If
     

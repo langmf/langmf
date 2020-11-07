@@ -773,8 +773,7 @@ Function ConvFromBufferByte(bufVar As Variant, bufByte() As Byte, Optional ByVal
         
         Case vbArray + vbVariant
             
-            uds = ArraySize(bufByte) - 1
-            If uds < 0 Then Exit Function
+            uds = ArraySize(bufByte) - 1:       If uds < 0 Then Exit Function
             
             GetMem2 VarPtr(bufVar), vt
             

@@ -33,7 +33,7 @@ const SND_ALIAS_EXCLAMATION		= "S!"
 const SND_ALIAS_DEFAULT			= "SD"
 
 Sub Load(cmdLine)
-  form.move 0, 0, 10300, 3000
+  form.move 0, 0, 10300, 4000
   form.caption = "Проигрывание звука"
   
   form.add "command", 1,  ".caption=""System 1""", ".move 500,  500,  1200, 400"
@@ -47,11 +47,16 @@ Sub Load(cmdLine)
   form.add "command", 8,  ".caption=""Memory 2""", ".move 2100, 1200, 1200, 400"
   form.add "command", 9,  ".caption=""Buffer"""  , ".move 3700, 1200, 1200, 400"
   form.add "command", 10, ".caption=""Sound LR""", ".move 5300, 1200, 1200, 400"
-  form.add "command", 11, ".caption=""Gen 1"""   , ".move 6900, 1200, 1200, 400"
-  form.add "command", 12, ".caption=""Gen 2"""   , ".move 8500, 1200, 1200, 400"
+  form.add "command", 11, ".caption=""User LR""" , ".move 6900, 1200, 1200, 400"
+  form.add "command", 12, ".caption=""Generate""", ".move 8500, 1200, 1200, 400"
   
-  form.add "text",    1, ".move 9000, 2000, 1000, 400", ".fontsize = 14"  
-  form.add "hscroll", 1, ".Min = 40", ".Max = 20000", ".Move 100, 2000, 8700, 400", ".largechange = 10"
+  form.add "text",    1, ".move 9000, 2000, 1000, 400", ".fontsize = 14", ".text = 200"
+  form.add "hscroll", 1, ".move 100, 2000, 8700, 400", ".Min = 10", ".Max = 20000", ".value = 200", ".largechange = 10" 
+
+  form.add "text",    2, ".move 9000, 2800, 1000, 400", ".fontsize = 14", ".text = 1000"
+  form.add "hscroll", 2, ".move 100, 2800, 8700, 400", ".Min = 10", ".Max = 20000", ".value = 1000", ".largechange = 10"
+
+  form.add "check",   1, ".move 9000, 3200, 1000, 400", ".caption = ""Two tone""", ".value = false"
   
   form.center
   form.show
@@ -62,58 +67,69 @@ End Sub
 dim b
 
 Sub Command1_Click()
-   this.caption = sys.ext.play(sys.conv.buf(SND_ALIAS_ASTERISK, -2),, SND_ALIAS_ID or SND_ASYNC or SND_NODEFAULT)
+   this.caption = sys.ext.play(sys.conv.buf(SND_ALIAS_ASTERISK, -2),, -SND_ALIAS_ID)
 End Sub
 
 Sub Command2_Click()
-   this.caption = sys.ext.play(sys.conv.buf(SND_ALIAS_HAND, -2),, SND_ALIAS_ID or SND_ASYNC or SND_NODEFAULT)
+   this.caption = sys.ext.play(sys.conv.buf(SND_ALIAS_HAND, -2),, -SND_ALIAS_ID)
 End Sub
 
 Sub Command3_Click()
-   this.caption = sys.ext.play(sys.conv.buf(SND_ALIAS_EXIT, -2),, SND_ALIAS_ID or SND_ASYNC or SND_NODEFAULT)
+   this.caption = sys.ext.play(sys.conv.buf(SND_ALIAS_EXIT, -2),, -SND_ALIAS_ID)
 End Sub
 
 Sub Command4_Click()
-   this.caption = sys.ext.play(sys.conv.buf(SND_ALIAS_QUESTION, -2),, SND_ALIAS_ID or SND_ASYNC or SND_NODEFAULT)
+   this.caption = sys.ext.play(sys.conv.buf(SND_ALIAS_QUESTION, -2),, -SND_ALIAS_ID)
 End Sub
 
 Sub Command5_Click()
-   this.caption = sys.ext.play(sys.conv.buf(SND_ALIAS_DEFAULT, -2),, SND_ALIAS_ID or SND_ASYNC or SND_NODEFAULT)
+   this.caption = sys.ext.play(sys.conv.buf(SND_ALIAS_EXCLAMATION, -2),, -SND_ALIAS_ID)
 End Sub
 
 Sub Command6_Click()
-   this.caption = sys.ext.play(sys.conv.buf(SND_ALIAS_EXCLAMATION, -2),, SND_ALIAS_ID or SND_ASYNC or SND_NODEFAULT)
+   this.caption = sys.ext.play(sys.conv.buf(SND_ALIAS_DEFAULT, -2),, SND_ALIAS_ID or SND_ASYNC or SND_NODEFAULT)
 End Sub
 
 Sub Command7_Click()
-   sys.ext.play ResToBuf("1"),, SND_MEMORY or SND_ASYNC
+   sys.ext.play ResToBuf("1"),, -SND_MEMORY
 End Sub
 
 Sub Command8_Click()
-   sys.ext.play sys.conv.w2a(ResToStr("2")) ,, SND_MEMORY or SND_ASYNC
+   sys.ext.play sys.conv.w2a(ResToStr("2")) ,, -SND_MEMORY
 End Sub
 
 Sub Command9_Click()
    b = sys.ext.play(SND_EXTARG * 200.0 + 1000.0, SND_EXTARG * 1000 + 65535, SND_BUFFER)
-   sys.ext.play b ,, SND_MEMORY or SND_ASYNC
+   sys.ext.play b ,, -SND_MEMORY
 End Sub
 
 Sub Command10_Click()
-   sys.ext.play SND_EXTARG * 200.0 + 1000.0, SND_EXTARG * 5000 + 1000
+   sys.ext.play array(8000, SND_EXTARG * 200.0 + 1000.0), SND_EXTARG * 9000 + 1000
 End Sub
 
 Sub Command11_Click()
-	Redim v1(48000), v2(48000)
+   sys.ext.play SND_EXTARG * this.text(1) + this.text(2), SND_EXTARG * 9000 + 1000
+End Sub
 
+Sub Command12_Click()
+	Dim v1(100000), v2(100000)
+	
+	Randomize Timer
+	
 	timegettime true	
 	for a = 0 to ubound(v1)
-		v1(a) = rnd * 3000
-		v2(a) = sin(a / 5) * 3000
+		if a < 25000 then
+			v1(a) = rnd * 4000
+			v2(a) = sin(a / 5) * 4000
+		else
+			v1(a) = sin(a / ((a \ 1500) + 1)) * 6000		
+			v2(a) = cos(a / ((a \ 1500) + 10)) * 6000
+		end if
 	next
 	this.caption = timegettime(false)
 	
 	b = sys.ext.play(array(48000, v1, v2) ,, SND_BUFFER)
-
+	
 	sys.ext.play b ,, SND_MEMORY or SND_ASYNC
 End Sub
 
@@ -126,8 +142,20 @@ Sub HScroll1_Change()
     if not this.visible then exit sub
 	hz = this.hscroll(1).value
 	this.text(1).text = hz
-	this.caption = sys.ext.play(cdbl(hz), 1000)
+	if this.check(1).value then call Command11_Click else this.caption = sys.ext.play(cdbl(hz), 1000)
 End Sub
+
+Sub HScroll2_Scroll()
+    Call HScroll2_Change
+End Sub
+
+Sub HScroll2_Change()
+    if not this.visible then exit sub
+	hz = this.hscroll(2).value
+	this.text(2).text = hz
+	if this.check(1).value then call Command11_Click else this.caption = sys.ext.play(cdbl(hz), 1000)
+End Sub
+
 
 Sub Form_Unload()
 	sys.ext.play

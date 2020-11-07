@@ -172,23 +172,3 @@ Public Function XMLHTTP(Optional ByVal Host As String = "https://api.ipify.org",
 
     If XMLHTTP.readyState <> 4 Then XMLHTTP.Abort
 End Function
-
-Public Function WINHTTP(Optional ByVal Host As String = "https://api.ipify.org", Optional ByVal Param As Variant) As Object
-    Dim tmp As Variant
-
-    On Error Resume Next
-
-    ArrayDef Param, 10, Empty, Empty, Empty, Empty
-
-    Set WINHTTP = CreateObject("WinHttp.WinHttpRequest.5.1"):   If WINHTTP Is Nothing Then Set WINHTTP = CreateObject("WinHttp.WinHttpRequest")
-    If LenB(Host) = 0 Then Exit Function
-    
-    WINHTTP.Open IIF(VarType(Param(1)) = vbString, "POST", "GET"), Host, CBool(Param(0)), Param(2), Param(3)
-    WINHTTP.SetRequestHeader "If-Modified-Since", "Wed, 01 Jan 1997 00:00:00 GMT"
-
-    If IsArray(Param(4)) Then For Each tmp In Param(4):     Call WINHTTP.SetRequestHeader(tmp(0), tmp(1)):     Next
-    
-    WINHTTP.Send Param(1)
-    
-    WINHTTP.WaitForResponse Param(0)
-End Function

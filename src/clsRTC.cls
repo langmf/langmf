@@ -1,0 +1,187 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+  Persistable = 0  'NotPersistable
+  DataBindingBehavior = 0  'vbNone
+  DataSourceBehavior  = 0  'vbNone
+  MTSTransactionMode  = 0  'NotAnMTSObject
+END
+Attribute VB_Name = "clsRTC"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = False
+Attribute VB_Exposed = False
+'============================================================================
+'
+' Update for use in class for VB6.   Copyright (c) 2020 by atomix
+' Runtime Tiny C Compiler for VB6.   Copyright (c) 2018 by wqweto@gmail.com
+' Obfuscated Tiny C Compiler.        Copyright (c) 2001-2003 Fabrice Bellard
+'
+'============================================================================
+
+Option Explicit
+
+' Size=7040
+Private Const STR_THUNK1 = _
+    "VYvsgeyAAAAAU4tdCFaDexQAD4WwAQAAV4t7DI11gIl7HLkfAAAAx0X4JmQqQMdFqC1AJTrHRaxfXkJLx0WwZDw8WsdFtC8wM2XHRbg+PmAvx0W8MDNlPMdFwD0wZj7HRcQ9L2Y8x0XIQC5mPsdFzEAxZj3HRdA9Jmchx0XUPSdnJsdF2CZrfHzHRdwjbCZAx0XgLkJDaMdF5F5ALkLHRehTaXxAx0XsLkIrasdF8H5ALyXHRfRZZCFAx0WAKysjbcdFhC0tJWHHRYhtKkBSx0WMPF4xY8dFkC9AJVvHRZRfW0gzx0WYYyVAJcdFnFtfW0jHRaAzYytAx0WkLkIjZGbHRfxiAPOluRQAAABmpYtDHI11qIt7BIPAfolDDMdFqCBpbnTHRawgaWYgx0WwZWxzZcdFtCB3aGnHRbhsZSBix0W8cmVha8dFwCByZXTHRcR1cm4gx0XIZm9yIMdFzHNob3LHRdB0IGFsx0XUbG9jYcdF2CBfYXPHRdxtICFf" & _
+    "x0XgZW1pdMdF5CAhbW/HReh2ICFlx0XsYXggZMdF8GVmaW7HRfRlIG1hZsdF+GluxkX6IPOlZqWki0MEg8BTiUMYiwOJQxRfi1UMi0M8i3MUiVNMiVNIhcB0Hg++CECJSzCJQzyD+QJ1MotDQMdDPAAAAACJQzDrIw++ColLMA++QgHB4AgDyIlLMHQIjUICiUNM6wfHQzD/////i8vorQEAADPSi8voZBUAAIvGXluL5V3DzMzMzMzMzMzMzMzMi9GLSjyFyXQgD74BiUIwjUEBg3owAolCPHU5i0JAx0I8AAAAAIlCMMNWi3JMD74OiUowD75GAcHgCAPBiUIwdAuNRgKJQkyLQjBew8dCMP////9ei0Iww8zMzMzMzMzMVovxg34wXA+FHAEAAItOPIXJdCEPvgGJRjCNQQGDfjACiUY8dTWLRkDHRjwAAAAAiUYw6yaLVkwPvgqJTjAPvkIBweAIA8GJRjB0CI1CAolGTOsHx0Yw/////4tGMIP4" & _
+    "bnUJx0YwCgAAAF7Dg/hydQnHRjANAAAAXsOD+HR1CcdGMAkAAABew4P4XHUFiUYwXsOD+HgPhY4AAABXi87o/f7//4v4g/85fgaDzyCD7yeLzujp/v//g/g5fgaDyCCD6CeDx83B5wQD+IN+LAB0VYtGTA++SAEPvgDB4QgDyIP5MHwFg/k5fguDySCD6WGD+QV3MYvO6KX+//+D+Dl+BoPIIIPoJ8HnBIvOA/jojv7//4P4OX4Gg8ggg+gng8fNwecEA/iJfjBfXsPMzMzMzFNWV4vxi04wg/kgdBOD+Ql0DoP5DXQJg/kKdAQz0usFugEAAAAzwIP5Iw+UwAvCD4RiAQAAg/kjD4XwAAAAi048hcl0IQ++AYlGMI1BAYN+MAKJRjx1NYtGQMdGPAAAAACJRjDrJotWTA++ColOMA++QgHB4AgDwYlGMHQIjUICiUZM6wfHRjD/////i87obf///4F+IDADAAB1IovO6F3///+LRhjGACCLRiD/RhjH" & _
+    "AAEAAACLTiCLRhiJQQSDfjAKdFaLThiKRjCIAf9GGItOPIXJdCEPvgGJRjCNQQGDfjACiUY8dSyLRkDHRjwAAAAAiUYw6x2LVkwPvgqJTjAPvkIBweAIA8GJRjB0T41CAolGTIN+MAp1qotOGIpGMIgB/0YYi0YYxgAC/0YYi048hcl0NA++AYlGMI1BAYN+MAKJRjwPhbr+//+LRkDHRjwAAAAAiUYw6aj+///HRjD/////6Vv///+LVkwPvgqJTjAPvkIBweAIA8GJRjB0C41CAolGTOl6/v//x0Yw/////+lu/v//g/lMdSCLRkwPvkgBD74AweEIA8GD+CJ0BYP4J3UHuAEAAADrAjPAiUYshcB0TotOPIXJdCEPvgGJRjCNQQGDfjACiUY8dTWLRkDHRjwAAAAAiUYw6yaLVkwPvgqJTjAPvkIBweAIA8GJRjB0CI1CAolGTOsHx0Yw/////4tGMIvIx0YoAAAAAIlGIIP5YXwFg/l6fhKD+UF8" & _
+    "BYP5Wn4IjUHQg/gJdwe6AQAAAOsCM9IzwIP5Xw+UwAvCD4QQAQAAi0YYxgAg/0YYi34YiX5Ei04wg/lhfAWD+Xp+EoP5QXwFg/lafgiNQdCD+Al3B7oBAAAA6wIz0jPAg/lfD5TAC8J0YYpGMIgH/0YYi048i34Yhcl0IQ++AYlGMI1BAYN+MAKJRjx1qItGQMdGPAAAAACJRjDrmYtWTA++ColOMA++QgHB4AgDwYlGMHQLjUICiUZM6Xf////HRjD/////6Wv///+LRiCDwNCD+AkPhrABAADGByCLVkSLTgRK6IcTAAArRgSJRiCLRhjGAACLRiCNDMUAAQAAiU4ggfkwAwAAD46OAQAAi0YQA8GJRiCDOAEPhX0BAACLQASLzolGPItGMIlGQOgO+///6Z78//+LTjyFyXQhD74BiUYwjUEBg34wAolGPHU1i0ZAx0Y8AAAAAIlGMOsmi1ZMD74KiU4wD75CAcHgCAPBiUYwdAiNQgKJRkzrB8dG" & _
+    "MP////+LRiCD+CcPhJUBAAAzyYP4Lw+UwTPAg34wKg+UwIXID4T2AAAAi87oj/r//4tOMIXJD4TCAAAAi348kIP5KnRIi9eF0nQgD74KQolOMIv6iVY8g/kCdSyLTkAz0jP/iVY8iU4w6x2LXkwPvguJTjAPvkMBweAIA8iJTjB0K41DAolGTIP5KnW6hf90JQ++D0eJTjCJfjyD+QJ1M4tOQDP/iX48iU4w6ybHRjD/////65GLVkwPvgqJTjAPvkIBweAIA8iJTjB0H41CAolGTIP5L3QfhckPhWD///+LzujZ+f//6Wn7//+Dyf+JTjDpSf///8dGMAAAAACLzui7+f//6Uv7//+LTkToXhIAAIlGJMdGIAIAAABfXlvDi1YcD746hf908o2bAAAAAA++WgGDwgLHRiQAAAAAD74Kg+liiU4oeRwzwOsDjUkAQELB4AYDwYlGJA++CoPpYolOKHjrM8lCO14wD5TBM8CD+0APlMALyDPAO34gD5TA" & _
+    "hch1Cw++OoX/daVfXlvDO14wdYiLzugl+f//X8dGIAEAAABeW8OLzsdGIAIAAADobPn//4tGMIvOiUYk6P/4//9fi85eW+n1+P//zMzMzMyF0nQUg/r/dA+LQRSIEP9BFMH6CIXSdezDzMzMzMzMzIXSdBRWi0EUizIrwoPoBIkCi9aF9nXuXsPMzMzMzMzMVovxuLgAAACD+P90D4tOFIgB/0YUwfgIhcB17ItGFIkQg0YUBF7DzMzMzMzMzMzMVovxuOkAAACD+P90D4tOFIgB/0YUwfgIhcB17ItGFIkQi0YUjUgEiU4UXsPMzMzMVYvsVovyuoXADwDrA41JAIP6/3QPi0EUiBD/QRTB+giF0nXsjZaEAAAAXoXSdBWQg/r/dA+LQRSIEP9BFMH6CIXSdeyLURSLRQiJAotBFI1QBIlRFF3DzMzMzMzMzMzMVovyujnBAACD+v90D4tBFIgQ/0EUwfoIhdJ17Lq4AAAAg/r/dA+LQRSIEP9BFMH6" & _
+    "CIXSdeyLQRS6DwAAAMcAAAAAAINBFASD+v90D4tBFIgQ/0EUwfoIhdJ17I2WkAAAAF6F0nQUg/r/dA+LQRSIEP9BFMH6CIXSdey6wAAAAJCD+v90D4tBFIgQ/0EUwfoIhdJ17MPMzMzMzMzMzMzMzFWL7FaL8YHCgwAAAHQWi/+D+v90D4tGFIgQ/0YUwfoIhdJ17ItVCDPAgfoAAgAAD53ASCWAAAAAg8AFdBeNSQCD+P90D4tOFIgB/0YUwfgIhcB17ItGFIkQg0YUBF5dw1WL7IPsDFNWi/GJVfRXvwEAAACJffyLXiCD+yIPhUYBAACLVgy5uAAAAI2bAAAAAIP5/3QPi0YUiAj/RhTB+QiFyXXsi0YUiRCDRhQEg34wInRxi87o9vb//4tODIpGMIgB/0YMg34sAItODHQLi0YwwfgIiAH/RgyLTjyFyXQhD74BiUYwjUEBg34wAolGPHUsi0ZAx0Y8AAAAAIlGMOsdi1ZMD74KiU4wD75CAcHg" & _
+    "CAPBiUYwdGKNQgKJRkyDfjAidY+DfiwAdAmLRgzGAAD/RgyLRgzGAACLRgyLTjyDwAOD4PyJRgyFyXQ6D74BiUYwjUEBg34wAolGPHVbi0ZAi87HRjwAAAAAiUYw6G73//+LXfTp3wMAAMdGMP/////pLf///4tWTA++ColOMA++QgHB4AgDwYlGMHQVjUICi86JRkzoNvf//4td9OmnAwAAx0Yw/////4vO6CD3//+LXfTpkQMAAItGKIt+JIlF+OgK9///g/sCdSy5uAAAAIP5/3QPi0YUiAj/RhTB+QiFyXXsi0YUiTi/AQAAAINGFATpUgMAAIH7SAIAAA+FjQAAAIvO6HYGAAC5g8ADAJCD+f90D4tGFIgI/0YUwfkIhcl17LmD4PwAjaQkAAAAAIP5/3QPi0YUiAj/RhTB+QiFyXXsuSnEAACNpCQAAAAAg/n/dA+LRhSICP9GFMH5CIXJdey5ieAAAI2kJAAAAACD+f8PhPABAACLRhSICP9G" & _
+    "FMH5CIXJdeiNeQHpuQIAAIN9+AJ1STPSi87osf3//7m5AAAAg/n/dA+LRhSICP9GFMH5CIXJdeyLRhSL14vOxwAAAAAAg0YUBIP7IQ+FBwEAAOh5/P//jXvg6WoCAACD+yh1FovO6JUFAACLzuje9f//jXvZ6U8CAACD+yoPhUgBAACLzujG9f//i14gi87ovPX//4vO6LX1//+DfiAqdR6Lzuio9f//i87oofX//4vO6Jr1//+LzuiT9f//M9uLzuiK9f//M9KLzugB/f//g34gPQ+FjwAAAIvO6HD1//+5UAAAAIP5/3QPi0YUiAj/RhTB+QiFyXXsi87oAAUAALlZAAAAg/n/dA+LRhSICP9GFMH5CIXJdeyB+xgCAAB1JblmiQEAg/n/D4S6AAAAi0YUiAj/RhTB+QiFyXXojXkB6YMBAAAz0ovOgfsAAQAAD5TCgcKIAQAA6HL6//+/AQAAAOlhAQAAhdsPhHkAAACB+wABAAB1J7mLAAAAjUkA"
+
+Private Const STR_THUNK2 = _
+    "g/n/dDmLRhSICP9GFMH5CIXJdez/RhSNeQHpKgEAADPSi86B+xgCAAAPlcJKgeIAAQAAgcIPvgAA6BL6////RhS/AQAAAOn+AAAAg/smdSOLRiCNU+SLzv8w6JH7//+DxASLzuhn9P//vwEAAADp1gAAAIH7EAMAAHQyixOJVfyF0nUui34IiweFwHQgjUkAi1ZEi8joJgoAAIvQiVX8hdJ1D4tHBIPHBIXAdeMz0olV/ItOIDPAg/k9D5TAhUX0dCeLzugH9P//i87osAMAAIt9/IX/dHJXugYAAACLzugM+///g8QE62CD+Sh0WIXSdBNSuggAAACLzujx+v//i1X8g8QEg34oC3U7hdJ0D1Iz0ovO6Nf6//+DxATrGbmDwAAAg/n/dA+LRhSICP9GFMH5CIXJdeyLViSLzugP+f//6Irz//+LffyDfiAoD4VtAQAAg/8BdRy5UAAAAI1JAIP5/3QPi0YUiAj/RhTB+QiFyXXsuYHsAACNpCQAAAAA" & _
+    "g/n/dA+LRhSICP9GFMH5CIXJdeyLRhSLzscAAAAAAItGFIlF9IPABIlGFOgg8///M/+DfiApdD+LzujBAgAAuYmEJACD+f90D4tGFIgI/0YUwfkIhcl17ItGFIk4g0YUBIN+ICx1B4vO6OLy//+DxwSDfiApdcGLRfSLzok46M3y//+LVfyF0nU0i1MEuegAAACD+f90D4tGFIgI/0YUwfkIhcl17ItGFF+JEItOFI1BBIlGFF6JSwRbi+Vdw4P6AXVVuf+UJACD+f90D4tGFIgI/0YUwfkIhcl17ItGFLmBxAAAiTiDRhQEjZsAAAAAg/n/dA+LRhSICP9GFMH5CIXJdeyLRhRfxwAEAAAAg0YUBF5bi+VdwytWFLnoAAAAg+oFg/n/dA+LRhSICP9GFMH5CIXJdeyLRhSJEINGFARfXluL5V3DzMzMzMzMzMzMVYvsg+wIVleL+ovxi8dPg/gBdQvoZ/n//19ei+Vdw4vX6Nr////HRfgAAAAAO34o" & _
+    "D4VpAQAAU4tGJIvOi14giUX86Lnx//+D/wh+XbmFwA8Ag/n/dA+LRhSICP9GFMH5CIXJdeyLTfyBwYQAAAB0FIP5/3QPi0YUiAj/RhTB+QiFyXXsi0YUi9eLTfiJCIvOi14UiV34jUMEiUYU6F////+LVfzpngAAALlQAAAAi/+D+f90D4tGFIgI/0YUwfkIhcl17IvXi87oM////7lZAAAAg/n/dA+LRhSICP9GFMH5CIXJdeyLVfwzyYP/BQ+UwTPAg/8ED5TAC8h0DIvO6Hz3//+LVfzrO4vKhdJ0FZCD+f90D4tGFIgI/0YUwfkIhcl17IP7JXUbuZIAAACL/4P5/3QPi0YUiAj/RhTB+QiFyXXsi134O34oD4Tn/v//hdt0SoP/CH5FU4vO6L/2//+LXfyDxASL04v4g/IB6E32//+6BQAAAIvO6HH2//+F/3QSi0YUiw8rx4PoBIkHi/mFyXXui9OLzugi9v//W19ei+Vdw8zMzMzMzMzMzMzM" & _
+    "ugsAAADpRv7//8zMzMzMzFa6CwAAAIvx6DP+//+5hcAPAIP5/3QPi0YUiAj/RhTB+QiFyXXsuYQAAADrA41JAIP5/3QPi0YUiAj/RhTB+QiFyXXsi0YUxwAAAAAAi0YUjUgEiU4UXsPMzMzMzMzMzFWL7FFTVovxi9pXi34ggf8gAQAAD4XPAAAA6MHv//+Lzui67///i87oc////4vOiUX86Knv//+L04vO6MD///+BfiA4AQAAdXWLzuiQ7///uekAAACD+f90D4tGFIgI/0YUwfkIhcl17ItGFMcAAAAAAIt+FItV/I1HBIlGFIXSdBKLRhSLCivCg+gEiQKL0YXJde6L04vO6GP///+F/w+E9AIAAItGFIsPK8eD6ASJB4v5hcl17l9eW4vlXcOLVfyF0g+E0AIAAI2kJAAAAACLRhSLCivCg+gEiQKL0YXJde5fXluL5V3DM8mB//gBAAAPlMEzwIH/YAEAAA+UwAvID4TyAAAAi87o0u7//4vO" & _
+    "6Mvu//+B/2ABAAB1D4teFIvO6Hn+//+JRfzrcIN+IDt0DLoLAAAAi87oovz//4vO6Jvu//+DfiA7i14Ux0X8AAAAAHQKi87oRP7//4lF/IvO6Hru//+DfiApdDAz0ovO6Fv0//+6CwAAAIvOi/joXfz//yteFIvOjVP76ED0//+L14vO6Ofz//+NXwSLzug97v//jVX8i87oU/7//yteFLnpAAAAg+sFg/n/dA+LRhSICP9GFMH5CIXJdeyLRhSJGINGFASLVfyF0g+EuQEAAItGFIsKK8KD6ASJAovRhcl17l9eW4vlXcOB/4ACAAAPhdYAAACLRgTGQDYgi0YExkA9IItGBMZAQiA5fiAPhZwAAACLzui27f//i0YgPbACAAB1VovO6KXt//+DfiAodQeLzuiY7f//g34gAnUti04khcl1C/9GFOsajZsAAAAAg/n/dA+LRhSICP9GFMH5CIXJdeyLzuhl7f//g34gKXUxi87oWO3//+soPegCAAB1" & _
+    "IYvO6Ejt//+LzuhB7f//i87oOu3//7oLAAAAi87oLvv//4F+IIACAAAPhGT///+LRgRfxkA2IYtGBMZAPSGLRgReW8ZAQiGL5V3Dg/97dT2Lzuj57P//jVeGi87orwAAAIN+IH0PhJcAAADrA41JAIvTi87o9/z//4N+IH118YvO6Mrs//9fXluL5V3Dgf/AAQAAdTSLzui07P//g34gO3QMugsAAACLzuii+v//i1Y0i87oiPL//4vOiUY06I7s//9fXluL5V3Dgf+QAQAAdSCLzuh47P//ixOLzuhf8v//i86JA+hm7P//X15bi+Vdw4P/O3QMugsAAACLzuhO+v//i87oR+z//19eW4vlXcNVi+yD7AgzwFOL2oXbiV38VovxD5TAM8mJRfhXg34g/w+VwSPIM8CBfiAAAQAAD5TAC8gPhOwBAACNpCQAAAAAi1YggfoAAQAAD4WMAAAAi87o6uv//4N+IDt0c41kJACF23QXg0Y4BItOOItGIPfZ" & _
+    "iQiLzujH6///60GLTiCLRgyJAYvO6Lbr//+DfiBbdSiLzuip6///i04ki0YMg8EDA8GLzoPg/IlGDOiR6///i87oiuv//+sEg0YMBIN+ICx1B4vO6Hfr//+DfiA7dZGLzuhq6///6SoBAACLUgSF0nQSi0YUiworwoPoBIkCi9GFyXXui04gi0YUiQGLzug96///i87oNuv//4N+ICm/CAAAAHQii0Ygi86JOIPHBOgc6///g34gLHUHi87oD+v//4N+ICl13ovO6ALr///HRjgAAAAAuVWJ5QDHRjQAAAAAg/n/dA+LRhSICP9GFMH5CIXJdey5gewAAI2bAAAAAIP5/3QPi0YUiAj/RhTB+QiFyXXsi0YUM9KLzscAAAAAAIteFI1DBIlGFOjB+v//i1Y0hdJ0EotGFIsKK8KD6ASJAovRhcl17rnJAAAAjUkAg/n/dA+LRhSICP9GFMH5CIXJdeyDx/i5wgAAAI1kJACD+f90D4tGFIgI/0YUwfkI" & _
+    "hcl17ItGFIk4g0YUAotGOIkDi138M9KDfiD/D5XCM8AjVfiBfiAAAQAAD5TAC9APhRv+//9fXluL5V3DzMzMzFWL7IPsEFZXi/mJVfyLRzyLRDh4A8eLcCCF9nUIXzPAXovlXcNTi1gcjQw+A9+JTfiJXfAz9otYJAPfiV30i1gYhdt+P4sEsYvKA8eNZCQAihE6EHUahNJ0EopRATpQAXUOg8ECg8AChNJ15DPA6wUbwIPIAYXAdBSLVfxGi034O/N8wVtfM8Bei+Vdw4tF9ItN8FsPtwRwiwSBA8dfXovlXcPMzMzMzMzMzMzMzMzMVYvsg+wMU4vaiU34VovRiV30V41LAYoDQ4TAdfmKAivZhMB0UotN9Iv6K/mKIYhl/zrEdTaL84vRhdt0F41JAA++BBeNUgEPvkr/TivBdQ6F9nXsi0X4X15bi+Vdw4XAdPKLVfiLTfSKZf+KQgFCR4lV+ITAdbpfXjPAW4vlXcNTVooZD77Dg/ggdA+D+Al0" & _
+    "CoP4DXQFg/gKdQNB6+Qz9oD7MHU+gHkBeHU1g8ECi/+KEY1JAYD6MHwFgPo5fhSK2oDLII1DnzwFdzWA+jl+A41T2YPG/Q++wsHmBAPw69CA+zB8G41JAYD7OX8TD77DjTS2ihmNduiNNHCA+zB95YvGXlvDzMzMzMzMzMzMzMw="
+
+Private Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (Destination As Any, Source As Any, ByVal Length As Long)
+Private Declare Function VirtualFree Lib "kernel32" (ByVal lpAddress As Long, ByVal dwSize As Long, ByVal dwFreeType As Long) As Long
+Private Declare Function VirtualAlloc Lib "kernel32" (ByVal lpAddress As Long, ByVal dwSize As Long, ByVal flAllocationType As Long, ByVal flProtect As Long) As Long
+Private Declare Function VirtualProtect Lib "kernel32" (ByVal lpAddress As Long, ByVal dwSize As Long, ByVal flNewProtect As Long, ByRef lpflOldProtect As Long) As Long
+Private Declare Function GetCurrentProcess Lib "kernel32" () As Long
+Private Declare Function CryptStringToBinaryW Lib "crypt32" (ByVal pszString As Long, ByVal cchString As Long, ByVal dwFlags As Long, ByVal pbBinary As Long, ByRef pcbBinary As Long, ByRef pdwSkip As Long, ByRef pdwFlags As Long) As Long
+Private Declare Function EnumProcessModules Lib "psapi" (ByVal hProcess As Long, lphModule As Any, ByVal cb As Long, lpcbNeeded As Any) As Long
+Private Declare Function CallWindowProcA Lib "user32" (ByVal lpPrevWndFunc As Long, ByVal hWnd As Long, Optional ByVal Msg As Long, Optional ByVal wParam As Long, Optional ByVal lParam As Long) As Long
+Private Declare Function StrStrA Lib "shlwapi" (ByVal pszFirst As Long, ByVal pszSrch As String) As Long
+Private Declare Function DispCallFunc Lib "oleaut32" (ByVal pvInstance As Long, ByVal offsetinVft As Long, ByVal CallConv As Long, ByVal retTYP As Integer, ByVal paCNT As Long, ByRef paTypes As Integer, ByRef paValues As Long, ByRef retVAR As Variant) As Long
+
+Private Const PAGE_EXECUTE_READWRITE As Long = &H40, MEM_COMMIT As Long = &H1000&, MEM_RELEASE As Long = &H8000&, ALLOC_SIZE As Long = &H8000&
+
+Private Type RTC_BUFFER
+    Data() As Byte
+End Type
+
+Private Type RTC_CONTEXT
+    Prog        As Long
+    Syms        As Long
+    Mods        As Long
+    Glob        As Long
+    Vars        As Long
+    State(31)   As Long
+    Buffer(3)   As RTC_BUFFER
+End Type
+
+Private ctx As RTC_CONTEXT
+
+Public ptrFunc As Long, ptrThunk As Long
+
+
+Public Function Run(ParamArray Args() As Variant) As Variant
+Attribute Run.VB_UserMemId = 0
+    Dim i As Long, s As Integer, c As Long, p(31) As Long, t(31) As Integer, a(31) As Variant
+    
+    c = UBound(Args) + 1
+    
+    For i = 0 To c - 1
+        s = VarType(Args(i))
+        Select Case s
+        Case vbString:      a(i) = StrPtr(Args(i))
+        Case vbObject:      a(i) = ObjPtr(Args(i))
+        Case Else:          If s And vbArray Then a(i) = VarPtr(Args(i)) Else a(i) = CLng(Args(i))
+        End Select
+        p(i) = VarPtr(a(i)):        t(i) = 3
+    Next
+
+    Call DispCallFunc(0, ptrFunc, 4, vbLong, c, t(0), p(0), Run)
+End Function
+
+Public Function Compile(ByVal value As String, Optional ByVal aSize As Long = ALLOC_SIZE) As Object
+    Set Compile = Me
+    
+    If ctx.Prog = 0 Then
+        ctx.Prog = VirtualAlloc(0, aSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE)
+        
+        ReDim ctx.Buffer(0).Data(aSize - 1):            ctx.Syms = VarPtr(ctx.Buffer(0).Data(0))
+        ReDim ctx.Buffer(1).Data(aSize - 1):            ctx.Glob = VarPtr(ctx.Buffer(1).Data(0))
+        ReDim ctx.Buffer(2).Data(aSize * 8 - 1):        ctx.Vars = VarPtr(ctx.Buffer(2).Data(0))
+        ReDim ctx.Buffer(3).Data(4000 - 1):             ctx.Mods = VarPtr(ctx.Buffer(3).Data(0))
+        
+        Call EnumProcessModules(GetCurrentProcess(), ByVal ctx.Mods, 1000, ByVal 0&)
+    End If
+    
+    ptrFunc = CallWindowProcA(ptrThunk, VarPtr(ctx), StrPtr(value))
+End Function
+
+Public Function Free() As Object
+    Dim tmp As RTC_CONTEXT
+    Set Free = Me
+    If ctx.Prog <> 0 Then Call VirtualFree(ctx.Prog, 0, MEM_RELEASE):       ctx = tmp:      ptrFunc = 0
+End Function
+
+Public Function Patch(ByVal pfn As Long) As Object
+    Dim bInIDE As Boolean
+    Set Patch = Me
+    Debug.Assert pvSetTrue(bInIDE)
+    If bInIDE Then Call CopyMemory(pfn, ByVal pvAdd(pfn, &H16), 4) Else Call VirtualProtect(pfn, 8, PAGE_EXECUTE_READWRITE, 0)
+    Call CopyMemory(ByVal pfn, -802975883527609.7192@, 8)
+End Function
+
+Public Function Ptr(Optional ByVal value As Variant) As Variant
+    Dim p As Long
+    
+    If IsMissing(value) Then
+    
+        Ptr = VarPtr(ctx)
+        
+    ElseIf VarType(value) = vbString Then
+    
+        p = StrStrA(ctx.Syms, " " & value & " ")
+        If p Then p = pvAdd(ctx.Vars, pvDiff(ctx.Syms, p) * 8 + &H100):    Call CopyMemory(p, ByVal p, 4)
+        Ptr = p
+        
+    ElseIf IsNumeric(value) Then
+    
+        Set Ptr = Me
+        ptrFunc = value
+
+    End If
+End Function
+
+Public Property Get State(ByVal i As Long) As Long
+    State = ctx.State(i)
+End Property
+
+Public Property Let State(ByVal i As Long, ByVal value As Long)
+    ctx.State(i) = value
+End Property
+
+
+Private Function pvSetTrue(value As Boolean) As Boolean
+    value = True:      pvSetTrue = True
+End Function
+
+Private Function pvAdd(ByVal Ptr1 As Long, ByVal ofs As Long) As Long
+    ' safely add *signed* offset to *unsigned* ptr for *unsigned* retval w/o overflow
+    pvAdd = ((Ptr1 Xor &H80000000) + ofs) Xor &H80000000
+End Function
+
+Private Function pvDiff(ByVal Ptr1 As Long, ByVal Ptr2 As Long) As Long
+    ' retval is *signed* offset b/n *unsigned* ptr1 and *unsigned* ptr2 w/o overflow
+    If (Ptr1 Xor Ptr2) < 0 Then pvDiff = (Ptr2 - (Ptr1 Xor &H80000000)) Xor &H80000000:   Exit Function
+    pvDiff = Ptr2 - Ptr1
+End Function
+
+
+Private Sub Class_Initialize()
+    Dim d As Long, s As Long, txt As String, b() As Byte
+    
+    txt = STR_THUNK1 & STR_THUNK2:          Call CryptStringToBinaryW(StrPtr(txt), Len(txt), 1, 0, s, 0, d)
+    ReDim b(s - 1):                         Call CryptStringToBinaryW(StrPtr(txt), Len(txt), 1, VarPtr(b(0)), s, 0, d)
+    
+    ptrThunk = VirtualAlloc(0, UBound(b) + 1, MEM_COMMIT, PAGE_EXECUTE_READWRITE):      Call CopyMemory(ByVal ptrThunk, b(0), UBound(b) + 1)
+End Sub
+
+Private Sub Class_Terminate()
+    Call VirtualFree(ptrThunk, 0, MEM_RELEASE)
+End Sub
