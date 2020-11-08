@@ -76,7 +76,7 @@ Declare Function CreatePopupMenu Lib "user32" () As Long
 Declare Function IsWindowVisible Lib "user32" (ByVal hWnd As Long) As Long
 Declare Function WindowFromPoint Lib "user32" (ByVal xPoint As Long, ByVal yPoint As Long) As Long
 Declare Function CreateWindowExW Lib "user32" (ByVal dwExStyle As Long, ByVal lpClassName As Long, ByVal lpWindowName As Long, ByVal dwStyle As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hWndParent As Long, ByVal hMenu As Long, ByVal hInstance As Long, ByVal lpParam As Long) As Long
-Declare Function CallWindowProcA Lib "user32" (ByVal lpPrevWndFunc As Long, ByVal hWnd As Long, ByVal Msg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+Declare Function CallWindowProcA Lib "user32" (ByVal lpPrevWndFunc As Long, Optional ByVal hWnd As Long, Optional ByVal Msg As Long, Optional ByVal wParam As Long, Optional ByVal lParam As Long) As Long
 Declare Function DispatchMessageA Lib "user32" (lpMsg As WNDMsg) As Long
 Declare Function EnumChildWindows Lib "user32" (ByVal hWndParent As Long, ByVal lpEnumFunc As Long, ByVal lParam As Long) As Long
 Declare Function TranslateMessage Lib "user32" (lpMsg As WNDMsg) As Long
@@ -128,6 +128,8 @@ Declare Function CloseHandle Lib "kernel32" (ByVal hObject As Long) As Long
 Declare Function OpenProcess Lib "kernel32" (ByVal dwDesiredAccess As Long, ByVal bInheritHandle As Long, ByVal dwProcessID As Long) As Long
 Declare Function GetFileSize Lib "kernel32" (ByVal hFile As Long, lpFileSizeHigh As Long) As Long
 Declare Function DeleteFileW Lib "kernel32" (ByVal lpFileName As Long) As Long
+Declare Function VirtualFree Lib "kernel32" (ByVal lpAddress As Long, ByVal dwSize As Long, ByVal dwFreeType As Long) As Long
+Declare Function VirtualAlloc Lib "kernel32" (ByVal lpAddress As Long, ByVal dwSize As Long, ByVal flAllocationType As Long, ByVal flProtect As Long) As Long
 Declare Function GetTempPathW Lib "kernel32" (ByVal nBufferLength As Long, ByVal lpBuffer As Long) As Long
 Declare Function GlobalUnlock Lib "kernel32" (ByVal hMem As Long) As Long
 Declare Function GetStdHandle Lib "kernel32" (ByVal nStdHandle As Long) As Long
@@ -254,6 +256,7 @@ Declare Function RtlDecompressBuffer Lib "ntdll" (ByVal CompressionFormat As Int
 Declare Function RtlCompressBuffer Lib "ntdll" (ByVal CompressionFormat As Integer, UncompressedBuffer As Any, ByVal UncompressedBufferSize As Long, CompressedBuffer As Any, ByVal CompressedBufferSize As Long, ByVal UncompressedChunkSize As Long, FinalCompressedSize As Long, ByVal WorkSpace As Long) As Long
 
 Declare Function EnumProcesses Lib "psapi" (lpidProcess As Long, ByVal cb As Long, cbNeeded As Long) As Long
+Declare Function EnumProcessModules Lib "psapi" (ByVal hProcess As Long, lphModule As Any, ByVal cb As Long, lpcbNeeded As Any) As Long
 Declare Function GetModuleFileNameExW Lib "psapi" (ByVal hProcess As Long, ByVal hModule As Long, ByVal ModuleName As Long, ByVal nSize As Long) As Long
 Declare Function GetProcessMemoryInfo Lib "psapi" (ByVal hProcess As Long, ppsmemCounters As PROCESS_MEMORY_COUNTERS, ByVal cb As Long) As Long
 Declare Function GetProcessImageFileNameW Lib "psapi" (ByVal hProcess As Long, ByVal lpImageFileName As Long, ByVal nSize As Long) As Long
@@ -274,12 +277,14 @@ Declare Function OleCreatePictureIndirect Lib "olepro32" (PicDesc As PictDesc, R
 
 Declare Function LoadTypeLib Lib "oleaut32" (ByVal szFile As Long, pptlib As ITypeLib) As Long
 Declare Function VariantCopy Lib "oleaut32" (varDest As Variant, varSrc As Variant) As Long
+Declare Function DispCallFunc Lib "oleaut32" (ByVal pvInstance As Long, ByVal offsetinVft As Long, ByVal CallConv As Long, ByVal retTYP As Integer, ByVal paCNT As Long, ByRef paTypes As Integer, ByRef paValues As Long, ByRef retVAR As Variant) As Long
 Declare Function VariantCopyInd Lib "oleaut32" (ByVal pvargDest As Long, ByVal pvargSrc As Long) As Long
 Declare Function VariantCopyInd2 Lib "oleaut32" Alias "VariantCopyInd" (vargDest As Variant, vargSrc As Variant) As Long
 Declare Function SysAllocStringLen Lib "oleaut32" (ByVal OleStr As Long, ByVal bLen As Long) As Long
 Declare Function RevokeActiveObject Lib "oleaut32" (ByVal dwRegister As Long, ByVal pvReserved As Long) As Long
 Declare Function RegisterActiveObject Lib "oleaut32" (ByVal pUnk As IUnknown, rclsid As UUID, ByVal dwFlags As Long, pdwRegister As Long) As Long
 
+Declare Function StrStrA Lib "shlwapi" (ByVal pszFirst As Long, ByVal pszSrch As String) As Long
 Declare Function wglGetProcAddress Lib "opengl32" (ByVal prcname As String) As Long
 Declare Function SetSuspendState Lib "powrprof" (ByVal hibernate As Long, ByVal ForceCritical As Long, ByVal DisableWakeEvent As Long) As Long
 Declare Function InitCommonControlsEx Lib "comctl32" (iccex As tagInitCommonControlsEx) As Boolean
