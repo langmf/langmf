@@ -23,6 +23,8 @@ Sub Load(cmdLine)
     sys.ontimer 100, "work"
     sys.ontimer 1000, "Usage"
     Usage
+	
+	c = 400000
 End Sub
 
 Function GetInterface(Obj, pIUnk)
@@ -33,7 +35,7 @@ End Function
 
 '----------------------------------------
 Sub Work
-    c = c + 1000  :  if c > 400000 then c = 0
+    c = c + 1000  :  if c > 500000 then c = -100000
     form.caption = c
     for a = 0 to c
         b = 12345 * 1.5
@@ -44,7 +46,7 @@ End Sub
 Sub Usage
     a1 = clng(0)  :  cpu = clng(0)  :  rc = Stats.GetStat(1, varptr(a1) + 8, varptr(cpu) + 8)  :  Stats.ResetStats()
     
-    cpu = clng(cpu / 60000)
+    cpu = clng(cpu / 80000)
 
     NewPoint cpu 
 

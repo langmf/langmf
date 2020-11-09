@@ -17,7 +17,8 @@ Private m_Ptr As Long, m_Offset As Long, m_Size As Long, m_Overflow As Boolean, 
 
 
 Public Function SetData(Buf As Variant) As Boolean
-    SetData = ConvToBufferByte(Buf, Buffer):    m_Ptr = Ptr
+    If IsNumeric(Buf) Then Ptr = Buf:   Exit Function
+    SetData = ConvToBufferByte(Buf, Buffer):   m_Ptr = Ptr
 End Function
 
 Public Function GetData(Optional ByVal typeVar As Integer = vbArray + vbByte) As Variant
@@ -212,17 +213,17 @@ Public Property Let PString(Optional ByVal vOffset As Long = -1, Optional ByVal 
     m_Offset = m_Offset + lenStr
 End Property
 
-Public Property Get PArray(Optional ByVal vOffset As Long = -1, Optional ByVal lenArr As Long) As Variant
+Public Property Get PBuffer(Optional ByVal vOffset As Long = -1, Optional ByVal lenArr As Long) As Variant
     Dim tmpBuf() As Byte
     If vOffset <> -1 Then m_Offset = vOffset
     If (m_Overflow = False And m_Offset > (m_Size - lenArr)) Or (lenArr <= 0) Then Exit Property
     ReDim tmpBuf(lenArr - 1) As Byte
     CopyMemory tmpBuf(0), Buffer(m_Offset), lenArr
-    PArray = tmpBuf
+    PBuffer = tmpBuf
     m_Offset = m_Offset + lenArr
 End Property
 
-Public Property Let PArray(Optional ByVal vOffset As Long = -1, Optional ByVal lenArr As Long, value As Variant)
+Public Property Let PBuffer(Optional ByVal vOffset As Long = -1, Optional ByVal lenArr As Long, value As Variant)
     Dim tmpBuf() As Byte
     If vOffset <> -1 Then m_Offset = vOffset
     If (m_Overflow = False And m_Offset > (m_Size - lenArr)) Or (lenArr <= 0) Then Exit Property
@@ -230,3 +231,36 @@ Public Property Let PArray(Optional ByVal vOffset As Long = -1, Optional ByVal l
     CopyMemory Buffer(m_Offset), tmpBuf(0), lenArr
     m_Offset = m_Offset + lenArr
 End Property
+
+Public Property Get Pointer(Optional ByVal vOffset As Long = -1, Optional ByVal sz As Long = 4) As Long
+    If vOffset <> -1 Then m_Offset = vOffset
+    If m_Overflow = False And m_Offset > (m_Size - sz) Then Exit Property
+    Pointer = m_Ptr + m_Offset
+    m_Offset = m_Offset + sz
+End Property
+
+Public Property Let Pointer(Optional ByVal vOffset As Long = -1, Optional ByVal sz As Long = 4, ByVal value As Long)
+    If vOffset <> -1 Then m_Offset = vOffset
+    If m_Overflow = False And m_Offset > (m_Size - sz) Then Exit Property
+    CopyMemory ByVal m_Ptr + m_Offset, ByVal value, sz
+    m_Offset = m_Offset + sz
+End Property
+
+Public Function PArray(Optional ByVal vOffset As Long = -1, Optional value As Variant) As Variant
+    Dim SA As SafeArray, p As Long
+    
+    If Not IsMissing(value) Then VariantType(value) = vOffset:     Exit Function
+    
+    If vOffset <> -1 Then m_Offset = vOffset
+    If m_Overflow = False And m_Offset > (m_Size - 4) Then Exit Function
+    
+    GetMem4 m_Ptr + m_Offset, p:          m_Offset = m_Offset + 4:            If p = 0 Then Exit Function
+    
+    CopyMemory SA, ByVal p, 16:         PArray = p
+        
+    If SA.cbElements = 1 Then VariantType(PArray) = vbArray + vbByte:       Exit Function
+    If SA.cbElements = 2 Then VariantType(PArray) = vbArray + vbInteger:    Exit Function
+    If SA.cbElements = 4 Then VariantType(PArray) = vbArray + vbLong:       Exit Function
+    If SA.cbElements = 8 Then VariantType(PArray) = vbArray + vbCurrency:   Exit Function
+    If SA.cbElements = 16 Then VariantType(PArray) = vbArray + vbVariant:   Exit Function
+End Function

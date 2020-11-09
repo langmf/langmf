@@ -1,3 +1,5 @@
+#Include "debug.inc"
+
 <#Module=Main>
 Dim rtc
 
@@ -42,6 +44,8 @@ Sub Load(cmdLine)
 	txt = txt & sys.str.rpt("-",48) & vbcrlf & "eval" & vbTab & t1 & " = " & d & vbcrlf
 
 	form.mtext(1).text = txt
+	
+	'Debug rtc
 End Sub
 
 '---------------------------------------
@@ -82,7 +86,7 @@ simple_eval(s, pdbl)
     int val_stack, val_idx;
     int num_size;
 
-    op_idx = op_stack = alloca(4000);
+    op_idx  = op_stack  = alloca(4000);
     val_idx = val_stack = alloca(8000);
     l = &lookup;
     if (*(char *)(l + 32) == 0) {

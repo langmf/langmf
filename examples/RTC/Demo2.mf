@@ -1,0 +1,48 @@
+#Include "debug.inc"
+
+<#Module=Main>
+Dim rtc
+
+'---------------------------------------
+Sub Load(cmdLine)
+	Dim pfn
+	
+    form.caption = "Runtime Tiny C Compiler"
+    form.width = 9600
+    form.height = 7200
+
+    form.add "mtext", 1, ".move 0, 0, form.scalewidth, form.scaleheight", ".backcolor=0", ".forecolor=QBColor(10)", ".fontsize=14"
+
+    form.center
+    form.show
+  
+	Set rtc = sys.newrtc
+
+
+    pfn = rtc.Compile("main(){  int v;   v = GlobalAlloc(0x40, 148);   *(int *)v = 148;   GetVersionExA(v);   return *(int *)(v + 4) * 100 + *(int *)(v + 8); }").ptrFunc
+	
+    txt = txt & sys.str.rpt("-",48) & vbcrlf & "main" & vbTab & rtc.Ptr("main") & " = " & pfn & vbcrlf
+    
+    txt = txt & rtc() & vbTab & "&H" & Hex(pfn) & vbcrlf & vbcrlf
+    
+	
+    pfn = rtc.Compile( "mul(a, b) { return a*b; }").ptrFunc
+	
+	txt = txt & sys.str.rpt("-",48) & vbcrlf & "mul" & vbTab & rtc.Ptr("mul") & " = " & pfn & vbcrlf
+    
+    txt = txt & rtc(13, 20) & vbTab & "&H" & Hex(pfn) & vbcrlf & vbcrlf
+	
+	
+	form.mtext(1).text = txt
+	
+	Debug rtc
+End Sub
+<#Module>
+
+
+<#Form=form>
+'-----------------------------------------
+Sub Form_unload()
+  endmf
+End Sub
+<#form>

@@ -1432,7 +1432,7 @@ Sub ArrayReverse(arr As Variant)
     arr = newArr
 End Sub
 
-Function GetSafeArray(arr As Variant, Optional vt As Integer) As SafeArray
+Function GetSafeArray(arr As Variant, Optional vt As Integer, Optional ptrSA As Long) As SafeArray
     Dim Ptr As Long, cDims As Integer
     
     Ptr = VarPtr(arr):    GetMem2 Ptr, vt
@@ -1442,7 +1442,7 @@ Function GetSafeArray(arr As Variant, Optional vt As Integer) As SafeArray
     If (vt And VT_ARRAY) Then
         GetMem4 Ptr + 8, Ptr
         If Ptr <> 0 Then If (vt And VT_BYREF) Then GetMem4 Ptr, Ptr
-        If Ptr <> 0 Then GetMem2 Ptr, cDims:   CopyMemory GetSafeArray, ByVal Ptr, 16 + cDims * 8
+        If Ptr <> 0 Then ptrSA = Ptr:   GetMem2 Ptr, cDims:   CopyMemory GetSafeArray, ByVal Ptr, 16 + cDims * 8
     End If
 End Function
 
