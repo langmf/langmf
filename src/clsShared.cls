@@ -325,7 +325,7 @@ End Function
 
 Public Function LenType(Obj As Variant) As Long
     On Error Resume Next
-    LenType = Obj.Class___Size
+    LenType = Obj.•SIZE
     Err.Clear
 End Function
 
@@ -334,11 +334,11 @@ Public Function InitType(Obj As Variant, Optional ByVal vOffset As Long, Optiona
     
     On Error GoTo err1
     
-    Obj.Class___Offset = vOffset
+    Obj.•OFS = vOffset
     
     With Obj
-        If wrap Is Nothing Then Set .Class___Wrapper = New clsBuffer: .Class___Wrapper.Size = .Class___Size Else Set .Class___Wrapper = wrap
-        For Each tmp In .Class___Enum:      InitType tmp(0), tmp(1), .Class___Wrapper:      Next
+        If wrap Is Nothing Then Set .•WRAP = New clsBuffer: .•WRAP.Size = .•SIZE Else Set .•WRAP = wrap
+        For Each tmp In .•ENUM:      InitType tmp(0), tmp(1), .•WRAP:      Next
     End With
     
 err1:

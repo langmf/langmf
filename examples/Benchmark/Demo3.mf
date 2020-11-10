@@ -20,7 +20,7 @@ Sub Load(cmdLine)
     Next
 
 
-    Set Res = sys.newcollection
+    Set Res = sys.newcol
 
 
     '-------------------------------------------------------
@@ -93,7 +93,7 @@ End Sub
 '------------------------------------------
 Function Sort(c)
 	Dim n, m, i, v
-	Set n = sys.newcollection
+	Set n = sys.newcol
 
 	while c.count
 		m = &H7FFFFFFF

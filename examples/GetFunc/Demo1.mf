@@ -10,7 +10,7 @@ Sub Load(cmdLine)
 	msg GetFunc(JS.Test1)
 	msg GetFunc(JS2.Test1)
 	
-	msg GetFunc(sys.newcollection)
+	msg GetFunc(sys.newcol)
 	msg GetFunc(sys.newhash)
 	
 	msgbox txt

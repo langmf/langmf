@@ -3,7 +3,7 @@
 <#Module=mdlMain>
 '---------------------------------------
 Sub Load(cmdLine)
-  Set c = Sys.NewCollection(".add 101,""1"" : .add 102,""2"" : .add 103,""3""")
+  Set c = Sys.NewCol(".add 101,""1"" : .add 102,""2"" : .add 103,""3""")
   Set h = Sys.NewHash.Fill(1, 101, "2", 102, 3, 103)
   Set o = Object.[].Fill(1, 101, "2", 102, 3, 103).Parent
   

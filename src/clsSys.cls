@@ -110,8 +110,8 @@ Public Property Get NewSubClass(Optional ByVal Param As Variant) As Object      
     Set NewSubClass = modCommon.DoParams(New clsSubClass, Param)
 End Property
 
-Public Property Get NewCollection(Optional ByVal Param As Variant) As Collection
-    Set NewCollection = modCommon.DoParams(New Collection, Param)
+Public Property Get NewCol(Optional ByVal Param As Variant) As Collection
+    Set NewCol = modCommon.DoParams(New Collection, Param)
 End Property
 
 Public Property Get NewHash(Optional ByVal Param As Variant) As Object                              'As clsHash

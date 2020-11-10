@@ -2,7 +2,7 @@
 Dim cnt, dat, zoom
 
 Sub SetData
-    set dat = sys.newcollection
+    set dat = sys.newcol
 
 	dat.add array("Core i5 - 2500",492,492,641,917)
 	dat.add array("Intel Celeron G1840",401,427,531,806)

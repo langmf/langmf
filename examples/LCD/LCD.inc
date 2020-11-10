@@ -111,7 +111,7 @@ Class LCD
     '---------------------------------------
     Private Sub Class_Initialize()
         m_Minus = "-"  :  Formats = "00.00"  :  Value = 0
-        Set Styles = Sys.NewCollection
+        Set Styles = Sys.NewCol
         With Styles
             .Add Array(0, RGB(0, 40, 0), RGB(0, 210, 0)), "Green"
             .Add Array(0, RGB(50, 0, 0), RGB(210, 0, 0)), "Red"

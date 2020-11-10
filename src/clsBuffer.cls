@@ -194,23 +194,39 @@ Public Property Let PCurrency(Optional ByVal vOffset As Long = -1, ByVal value A
 End Property
 
 Public Property Get PString(Optional ByVal vOffset As Long = -1, Optional ByVal lenStr As Long) As String
+    Dim bTrim As Boolean
     If vOffset <> -1 Then m_Offset = vOffset
     If lenStr = 0 Then lenStr = m_Size - m_Offset
-    If (m_Overflow = False And m_Offset > (m_Size - Abs(lenStr))) Or (lenStr = 0) Then Exit Property
-    PString = String$(Abs(lenStr), 0)
-    CopyMemory ByVal PString, ByVal m_Ptr + m_Offset, Abs(lenStr)
-    If lenStr < 0 Then PString = TrimNull(PString)
-    m_Offset = m_Offset + Abs(lenStr)
+    If lenStr < 0 Then lenStr = Abs(lenStr):        bTrim = True
+    If (m_Overflow = False And m_Offset > (m_Size - lenStr)) Or (lenStr = 0) Then Exit Property
+    PString = String$(lenStr, 0)
+    CopyMemory ByVal PString, ByVal m_Ptr + m_Offset, lenStr
+    If bTrim Then PString = TrimNull(PString)
+    m_Offset = m_Offset + lenStr
 End Property
 
 Public Property Let PString(Optional ByVal vOffset As Long = -1, Optional ByVal lenStr As Long, ByVal value As String)
     If vOffset <> -1 Then m_Offset = vOffset
     If lenStr = 0 Then lenStr = Len(value)
-    If (m_Overflow = False And m_Offset > (m_Size - Abs(lenStr))) Or (lenStr = 0) Then Exit Property
-    lenStr = Abs(lenStr)
+    If lenStr < 0 Then lenStr = Abs(lenStr)
+    If (m_Overflow = False And m_Offset > (m_Size - lenStr)) Or (lenStr = 0) Then Exit Property
     If Len(value) < lenStr Then value = value & String$(lenStr - Len(value), 0)
     CopyMemory ByVal m_Ptr + m_Offset, ByVal value, lenStr
     m_Offset = m_Offset + lenStr
+End Property
+
+Public Property Get PVariant(Optional ByVal vOffset As Long = -1, Optional ByVal sz As Long = 4) As Long
+    If vOffset <> -1 Then m_Offset = vOffset
+    If m_Overflow = False And m_Offset > (m_Size - sz) Then Exit Property
+    PVariant = m_Ptr + m_Offset
+    m_Offset = m_Offset + sz
+End Property
+
+Public Property Let PVariant(Optional ByVal vOffset As Long = -1, Optional ByVal sz As Long = 4, ByVal value As Long)
+    If vOffset <> -1 Then m_Offset = vOffset
+    If m_Overflow = False And m_Offset > (m_Size - sz) Then Exit Property
+    CopyMemory ByVal m_Ptr + m_Offset, ByVal value, sz
+    m_Offset = m_Offset + sz
 End Property
 
 Public Property Get PBuffer(Optional ByVal vOffset As Long = -1, Optional ByVal lenArr As Long) As Variant
@@ -232,35 +248,13 @@ Public Property Let PBuffer(Optional ByVal vOffset As Long = -1, Optional ByVal 
     m_Offset = m_Offset + lenArr
 End Property
 
-Public Property Get Pointer(Optional ByVal vOffset As Long = -1, Optional ByVal sz As Long = 4) As Long
-    If vOffset <> -1 Then m_Offset = vOffset
-    If m_Overflow = False And m_Offset > (m_Size - sz) Then Exit Property
-    Pointer = m_Ptr + m_Offset
-    m_Offset = m_Offset + sz
-End Property
-
-Public Property Let Pointer(Optional ByVal vOffset As Long = -1, Optional ByVal sz As Long = 4, ByVal value As Long)
-    If vOffset <> -1 Then m_Offset = vOffset
-    If m_Overflow = False And m_Offset > (m_Size - sz) Then Exit Property
-    CopyMemory ByVal m_Ptr + m_Offset, ByVal value, sz
-    m_Offset = m_Offset + sz
-End Property
-
 Public Function PArray(Optional ByVal vOffset As Long = -1, Optional value As Variant) As Variant
-    Dim SA As SafeArray, p As Long
+    Dim p As Long
     
-    If Not IsMissing(value) Then VariantType(value) = vOffset:     Exit Function
+    If IsArray(value) Then VariantType(value) = vOffset:     Exit Function
     
     If vOffset <> -1 Then m_Offset = vOffset
     If m_Overflow = False And m_Offset > (m_Size - 4) Then Exit Function
     
-    GetMem4 m_Ptr + m_Offset, p:          m_Offset = m_Offset + 4:            If p = 0 Then Exit Function
-    
-    CopyMemory SA, ByVal p, 16:         PArray = p
-        
-    If SA.cbElements = 1 Then VariantType(PArray) = vbArray + vbByte:       Exit Function
-    If SA.cbElements = 2 Then VariantType(PArray) = vbArray + vbInteger:    Exit Function
-    If SA.cbElements = 4 Then VariantType(PArray) = vbArray + vbLong:       Exit Function
-    If SA.cbElements = 8 Then VariantType(PArray) = vbArray + vbCurrency:   Exit Function
-    If SA.cbElements = 16 Then VariantType(PArray) = vbArray + vbVariant:   Exit Function
+    GetMem4 m_Ptr + m_Offset, p:        m_Offset = m_Offset + 4:        If p Then PArray = p:   VariantType(PArray) = vbArray + value
 End Function

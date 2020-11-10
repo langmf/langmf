@@ -119,10 +119,10 @@ Public Sub Get2(ByVal NumFile As Integer, Optional numPosFile As Variant, Option
             ConvFromBufferByte Buf, tmpBuf
             
         Case vbObject
-            fs = Buf.Class___Size
+            fs = Buf.•SIZE
             ReDim tmpBuf(fs - 1)
             If numPos <= 0 Then Get #NumFile, , tmpBuf Else Get #NumFile, numPos, tmpBuf
-            tmpLong = Buf.Class___Wrapper.Ptr + Buf.Class___Offset
+            tmpLong = Buf.•WRAP.Ptr + Buf.•OFS
             CopyMemory ByVal tmpLong, tmpBuf(0), fs
             
         Case vbByte
@@ -180,9 +180,9 @@ Public Sub Put2(ByVal NumFile As Integer, Optional numPosFile As Variant, Option
             If numPos <= 0 Then Put #NumFile, , tmpBuf Else Put #NumFile, numPos, tmpBuf
             
         Case vbObject
-            fs = Buf.Class___Size
+            fs = Buf.•SIZE
             ReDim tmpBuf(fs - 1)
-            tmpLong = Buf.Class___Wrapper.Ptr + Buf.Class___Offset
+            tmpLong = Buf.•WRAP.Ptr + Buf.•OFS
             CopyMemory tmpBuf(0), ByVal tmpLong, fs
             If numPos <= 0 Then Put #NumFile, , tmpBuf Else Put #NumFile, numPos, tmpBuf
             

@@ -7,7 +7,7 @@ End Class
 
 '---------------------------------------
 Sub Load(cmdLine)
-Set dat = sys.newcollection
+Set dat = sys.newcol
 
 for a=0 to 5000
   SetData "T" & a ,"This number value - " & a

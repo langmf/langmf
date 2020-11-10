@@ -61,7 +61,7 @@ End Sub
 Function Sort(mArr)
   Dim mDat, max, host, cnt
 
-  Set mDat = sys.newcollection
+  Set mDat = sys.newcol
 
   do
 
@@ -106,7 +106,7 @@ dim subdmn
 
   subdmn = cbool(form.check(1).value)
 
-  Set dat = sys.newcollection
+  Set dat = sys.newcol
 
   maxCnt = 0
 

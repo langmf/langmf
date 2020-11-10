@@ -48,7 +48,7 @@ Class SQLite
     Function Query(vSQL)
         Dim c, r, ptr, rows, cols, tmp, dat
 
-        Erase Fields   :   Set Query = sys.newcollection
+        Erase Fields   :   Set Query = sys.newcol
 
         If sqlite3_get_table(hDB, vSQL, ptr, rows, cols, 0) = 0 Then
                 rows = rows + 1     :    Redim Fields(cols - 1)     :    dat = sys.conv.ptr2str(ptr,,cols,rows)
@@ -56,7 +56,7 @@ Class SQLite
                 For c = 0 To cols - 1	:	Fields(c) = dat(c,0)    :   Next
                 
                 For r = 1 To rows - 1
-                    Set tmp = sys.newcollection
+                    Set tmp = sys.newcol
                     With tmp   :   For c = 0 To cols - 1    :   .add dat(c,r), Fields(c)    :   Next    :   End With
                     Query.Add tmp
                 Next
