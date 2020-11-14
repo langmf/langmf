@@ -18,7 +18,7 @@ Const ch_Blue As Long = 16, ch_Green As Long = 32, ch_Red As Long = 64, ch_Alpha
 
 Private bi As BITMAPINFO, BX As Long, BY As Long, BW As Long, BH As Long, B3D() As Byte
 
-Public Result As Variant, Obj As Variant, ASM As Object
+Public Result As Variant, Obj As Variant, Bag As Object
 
 
 Public Function GetDI(Optional ByVal invHeight As Boolean = True) As Object
@@ -632,8 +632,4 @@ Private Sub CorrRect(ByVal srcW As Long, ByVal srcH As Long, x As Long, y As Lon
     If y > srcH Then y = srcH
     If (x + w - 1) > srcW Then w = srcW - x + 1
     If (y + h - 1) > srcH Then h = srcH - y + 1
-End Sub
-
-Private Sub Class_Initialize()
-    Set ASM = New clsFuncPointer
 End Sub

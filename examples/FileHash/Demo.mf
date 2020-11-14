@@ -24,7 +24,7 @@ Sub Load(cmdLine)
     .FClose
   End With
   
-  Print vbcrlf & " " & nameFile & vbTab & "v" & sys.ext.VersionDLL(nameFile) & vbcrlf,  ""
+  Print vbcrlf & " " & nameFile & vbTab & vbTab & "v" & sys.ext.VersionDLL(nameFile) & vbcrlf,  ""
 
   Print " CRC   - ", Hash(0)
   Print " MD4   - ", Hash(&H8002&)

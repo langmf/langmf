@@ -3,6 +3,7 @@
 Sub Load(cmdLine)
    const maxIter = 8
    
+   timegettime -13
    for a = 1 to maxIter
        buf1 = sys.conv.file2buf(sys.path("engine") + "LangMF.exe")
        t = timegettime
@@ -39,6 +40,8 @@ Sub Load(cmdLine)
 
    t3 = t3 / maxIter
    t4 = t4 / maxIter
+   
+   timegettime -12
    
    msgbox "encode Base64 - " & t1 & " ms  -  " & sys.file.formatbytes(arraysize(out1) * (1000 / t1)) & "/s" & vbcrlf & _
           "decode Base64 - " & t2 & " ms  -  " & sys.file.formatbytes(arraysize(out2) * (1000 / t2)) & "/s" & vbcrlf & vbcrlf & _

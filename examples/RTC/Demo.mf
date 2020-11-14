@@ -21,16 +21,13 @@ Sub Load(cmdLine)
 
     pfn = rtc.Compile("main(){  int v;   v = GlobalAlloc(0x40, 148);   *(int *)v = 148;   GetVersionExA(v);   return *(int *)(v + 4) * 100 + *(int *)(v + 8); }").ptrFunc
 	
-    txt = txt & sys.str.rpt("-",48) & vbcrlf & "main" & vbTab & rtc.Ptr("main") & " = " & pfn & vbcrlf
-    
-    txt = txt & rtc() & vbTab & "&H" & Hex(pfn) & vbcrlf & vbcrlf
-    
-	
+    txt = txt & sys.str.rpt("-",64) & vbcrlf & "main = " & rtc() & vbTab & Hex(rtc.Ptr("main")) & " = " & Hex(pfn) & vbcrlf & vbcrlf
+
+
     pfn = rtc.Compile( "mul(a, b) { return a*b; }").ptrFunc
 	
-	txt = txt & sys.str.rpt("-",48) & vbcrlf & "mul" & vbTab & rtc.Ptr("mul") & " = " & pfn & vbcrlf
-    
-    txt = txt & rtc(13, 20) & vbTab & "&H" & Hex(pfn) & vbcrlf & vbcrlf
+	txt = txt & sys.str.rpt("-",64) & vbcrlf & "mul  = " & rtc(13, 20) & vbTab & Hex(rtc.Ptr("mul")) & " = " & Hex(pfn) & vbcrlf & vbcrlf
+	
 
     rtc.Free
 	
@@ -41,17 +38,17 @@ Sub Load(cmdLine)
         d = SimpleEval(sExpr)
     Next
 	t1 = timegettime(false)
-	txt = txt & sys.str.rpt("-",48) & vbcrlf & "eval" & vbTab & t1 & " = " & d & vbcrlf
+	txt = txt & sys.str.rpt("-",64) & vbcrlf & "eval = " & d & vbTab & vbTab & round(t1,0) & " ms." & vbcrlf
 
 	form.mtext(1).text = txt
-	
-	'Debug rtc
+
+	Debug rtc
 End Sub
 
 '---------------------------------------
 Function SimpleEval(sText)
     If rtc.State(31) = 0 Then rtc.State(31) = rtc.Compile(sys.resource("se").data).ptrFunc
-	SimpleEval = cdbl(0)  :   rtc.Ptr(rtc.State(31)).Run sText, VarPtr(SimpleEval) + 8
+	SimpleEval = cdbl(0)  :   rtc.Ptr(rtc.State(31), true).Run sText, VarPtr(SimpleEval) + 8
 End Function
 <#Module>
 

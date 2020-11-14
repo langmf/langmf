@@ -12,11 +12,9 @@ Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '============================================================================
-'
 ' Update for use in class for VB6.   Copyright (c) 2020 by atomix
 ' Runtime Tiny C Compiler for VB6.   Copyright (c) 2018 by wqweto@gmail.com
 ' Obfuscated Tiny C Compiler.        Copyright (c) 2001-2003 Fabrice Bellard
-'
 '============================================================================
 
 Option Explicit
@@ -56,10 +54,10 @@ Attribute Run.VB_UserMemId = 0
         p(i) = VarPtr(a(i)):        t(i) = 3
     Next
 
-    Call DispCallFunc(0, ptrFunc, 4, vbLong, c, t(0), p(0), Run)
+    If ptrFunc Then Call DispCallFunc(0, ptrFunc, 4, vbLong, c, t(0), p(0), Run)
 End Function
 
-Public Function Compile(ByVal value As String, Optional ByVal aSize As Long = 32768) As Object
+Public Function Compile(Optional ByVal value As String, Optional ByVal aSize As Long = 32768) As Object
     Set Compile = Me
 
     If ctx.Prog = 0 Then
@@ -72,43 +70,27 @@ Public Function Compile(ByVal value As String, Optional ByVal aSize As Long = 32
         
         Call EnumProcessModules(GetCurrentProcess(), ByVal ctx.Mods, 1000, ByVal 0&)
     End If
-    
-    ptrFunc = CallWindowProcA(ptrThunk, VarPtr(ctx), StrPtr(value))
+
+    If LenB(value) Then If ptrThunk Then ptrFunc = CallWindowProcA(ptrThunk, VarPtr(ctx), StrPtr(value))
 End Function
 
-Public Function Free() As Object
+Public Function Free(Optional ByVal bTerm As Boolean) As Object
     Dim tmp As RTC_CONTEXT
     Set Free = Me
-    If ctx.Prog <> 0 Then Call VirtualFree(ctx.Prog, 0, MEM_RELEASE):       ctx = tmp:      ptrFunc = 0
+    If ctx.Prog <> 0 Then Call VirtualFree(ctx.Prog, 0, MEM_RELEASE):       ptrFunc = 0:        ctx = tmp
+    If Not bTerm Then Exit Function
+    If ptrThunk <> 0 Then Call VirtualFree(ptrThunk, 0, MEM_RELEASE):       ptrThunk = 0
 End Function
 
-Public Function Patch(ByVal pfn As Long) As Object
-    Dim bInIDE As Boolean
-    Set Patch = Me
-    Debug.Assert pvSetTrue(bInIDE)
-    If bInIDE Then Call CopyMemory(pfn, ByVal pvAdd(pfn, &H16), 4) Else Call VirtualProtect(pfn, 8, PAGE_EXECUTE_READWRITE, 0)
-    Call CopyMemory(ByVal pfn, -802975883527609.7192@, 8)
-End Function
-
-Public Function Ptr(Optional ByVal value As Variant) As Variant
+Public Function Ptr(Optional ByVal value As Variant, Optional ByVal Flags As Long) As Variant
     Dim p As Long
     
-    If IsMissing(value) Then
+    If IsMissing(value) Then Ptr = VarPtr(ctx):     Exit Function
+    If VarType(value) = vbString Then p = pvSym(value):       If Flags = 0 Then Ptr = p:            Exit Function
+    If IsNumeric(value) Then p = CLng(value):                 If Flags = 0 Then Ptr = pvName(p):    Exit Function
     
-        Ptr = VarPtr(ctx)
-        
-    ElseIf VarType(value) = vbString Then
-    
-        p = StrStrA(ctx.Syms, " " & value & " ")
-        If p Then p = pvAdd(ctx.Vars, pvDiff(ctx.Syms, p) * 8 + &H100):    Call CopyMemory(p, ByVal p, 4)
-        Ptr = p
-        
-    ElseIf IsNumeric(value) Then
-    
-        Set Ptr = Me
-        ptrFunc = CLng(value)
-
-    End If
+    If Flags = 2 Then Set Ptr = New clsRTC:     Ptr.Free True:      Ptr.ptrFunc = p:     Exit Function
+    ptrFunc = p:    Set Ptr = Me
 End Function
 
 Public Property Get State(ByVal i As Long) As Long
@@ -119,10 +101,6 @@ Public Property Let State(ByVal i As Long, ByVal value As Long)
     ctx.State(i) = value
 End Property
 
-
-Private Function pvSetTrue(value As Boolean) As Boolean
-    value = True:      pvSetTrue = True
-End Function
 
 Private Function pvAdd(ByVal Ptr1 As Long, ByVal ofs As Long) As Long
     ' safely add *signed* offset to *unsigned* ptr for *unsigned* retval w/o overflow
@@ -135,14 +113,28 @@ Private Function pvDiff(ByVal Ptr1 As Long, ByVal Ptr2 As Long) As Long
     pvDiff = Ptr2 - Ptr1
 End Function
 
+Private Function pvSym(ByVal value As String) As Long
+    If ctx.Vars = 0 Or ctx.Syms = 0 Then Exit Function
+    pvSym = StrStrA(ctx.Syms, " " & value & " "):
+    If pvSym Then pvSym = pvAdd(ctx.Vars, pvDiff(ctx.Syms, pvSym) * 8 + &H100):       GetMem4 pvSym, pvSym
+End Function
+
+Private Function pvName(ByVal value As Long) As String
+    Dim a As Long, p As Long, s As Long
+    If ctx.Vars = 0 Or ctx.Syms = 0 Then Exit Function
+    For a = 0 To ((UBound(ctx.Buffer(2).Data) + 1) / 4 - 1) Step 4
+        GetMem4 ctx.Vars + a, s:        If s = value Then p = pvAdd(ctx.Syms, (a - &H100) / 8 + 1):   Exit For
+    Next
+    If p Then s = StrStrA(p, " "):      pvName = String$(s - p, 0):     CopyMemory ByVal pvName, ByVal p, s - p
+End Function
+
 
 Private Sub Class_Initialize()
     Dim b() As Byte
     b = LoadResData("rtc.bin", 50)
-    ptrThunk = VirtualAlloc(0, UBound(b) + 1, MEM_COMMIT, PAGE_EXECUTE_READWRITE)
-    Call CopyMemory(ByVal ptrThunk, b(0), UBound(b) + 1)
+    ptrThunk = VirtualAlloc(0, UBound(b) + 1, MEM_COMMIT, PAGE_EXECUTE_READWRITE):      CopyMemory ByVal ptrThunk, b(0), UBound(b) + 1
 End Sub
 
 Private Sub Class_Terminate()
-    Call VirtualFree(ptrThunk, 0, MEM_RELEASE)
+    Call Free(True)
 End Sub

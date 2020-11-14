@@ -1,3 +1,5 @@
+<#--debug="1">
+
 <#Module=mdlMain>
 
 Type BITMAPINFOHEADER
@@ -24,6 +26,15 @@ End Type
 Type BITMAPINFO
 	bmiHeader As BITMAPINFOHEADER
 	bmiColors As RGBQUAD
+	function test()
+		msgbox typename(me)
+	end function
+#1
+	function msg()
+		msgbox typename(me)
+		msgbox "rgbRed As Long"
+	end function
+#0
 End Type
 
 
@@ -35,6 +46,8 @@ Dim bi as bitmapinfo
 bi.bmiHeader.biSize=100
 
 msgbox bi.bmiHeader.biSize
+
+bi.msg
 
 endmf
 End Sub

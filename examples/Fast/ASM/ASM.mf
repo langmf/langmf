@@ -13,7 +13,7 @@ Sub Form_Load()
   this.Center
   this.add "pic",1, ".ScaleMode = 3", ".Move 120,120,8040,5280", ".Picture = sys.gdi.LoadPicture(""..\..\src\test2.jpg"")"
 
-  Set f = sys.NewFAP(this.pic(1), ResToBuf("asm"))
+  Set f = sys.NewFAP(this.pic(1), sys.NewFCP(ResToBuf("asm")))
 
   Call Draw_Gray
 
@@ -28,7 +28,7 @@ Sub Draw_Gray()
 
   With this.pic(1)
 	 .ScaleMode = 3
-     f.Asm.PCall f.Ptr, .ScaleWidth, .ScaleHeight, 60, 60, .ScaleWidth - 60, .ScaleHeight - 60, 0
+     f.Bag.PCall f.Ptr, .ScaleWidth, .ScaleHeight, 60, 60, .ScaleWidth - 60, .ScaleHeight - 60, 0
   End With
 
   f.SetDI
@@ -45,7 +45,7 @@ Sub Draw_Red()
 
   With this.pic(1)
 	.ScaleMode = 3
-	f.Asm.PCall f.Ptr, .ScaleWidth, .ScaleHeight, 60, 60, .ScaleWidth - 60, .ScaleHeight - 60, 1
+	f.Bag.PCall f.Ptr, .ScaleWidth, .ScaleHeight, 60, 60, .ScaleWidth - 60, .ScaleHeight - 60, 1
   End With
 
   f.SetDI

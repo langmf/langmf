@@ -1,7 +1,7 @@
 <#Module=mdlXML>
 Sub Load(cmdLine)
     Form.Caption = "Работа с XML"
-    Form.Width = 3360
+    Form.Width = 3600
     Form.Height = 2400
     
     Form.Add "label", 1, ".Move 120, 120", ".Caption = ""First Name"""
@@ -9,14 +9,14 @@ Sub Load(cmdLine)
     Form.Add "label", 3, ".Move 120, 840", ".Caption = ""Street"""
     Form.Add "label", 4, ".Move 120, 1200", ".Caption = ""City"""
     Form.Add "label", 5, ".Move 120, 1560", ".Caption = ""State"""
-    Form.Add "label", 6, ".Move 1680, 1560", ".Caption = ""Zip"""
+    Form.Add "label", 6, ".Move 1760, 1560", ".Caption = ""Zip"""
 
-    Form.Add "text", 1, ".Text = """"", ".Move 1080, 84, 1800, 240"
-    Form.Add "text", 2, ".Text = """"", ".Move 1080, 444, 1800, 240"
-    Form.Add "text", 3, ".Text = """"", ".Move 1080, 804, 1800, 240"
-    Form.Add "text", 4, ".Text = """"", ".Move 1080, 1164, 1800, 240"
-    Form.Add "text", 5, ".Text = """"", ".Move 1080, 1524, 360, 240"
-    Form.Add "text", 6, ".Text = """"", ".Move 1980, 1524, 840, 240"
+    Form.Add "text", 1, ".Text = """"", ".Move 1080, 84, 2200, 240"
+    Form.Add "text", 2, ".Text = """"", ".Move 1080, 444, 2200, 240"
+    Form.Add "text", 3, ".Text = """"", ".Move 1080, 804, 2200, 240"
+    Form.Add "text", 4, ".Text = """"", ".Move 1080, 1164, 2200, 240"
+    Form.Add "text", 5, ".Text = """"", ".Move 1080, 1524, 460, 240"
+    Form.Add "text", 6, ".Text = """"", ".Move 2060, 1524, 960, 240"
     
     Form.center
     Form.Show

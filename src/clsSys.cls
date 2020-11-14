@@ -131,9 +131,9 @@ Public Property Get NewBuf(Optional Buf As Variant, Optional ByVal Param As Vari
     If Not IsMissing(Buf) Then NewBuf.SetData Buf
 End Property
 
-Public Property Get NewRtc(Optional value As Variant, Optional ByVal Param As Variant) As Object    'As clsRTC
-    Set NewRtc = modCommon.DoParams(New clsRTC, Param)
-    If Not IsMissing(value) Then NewRtc.Compile value
+Public Property Get NewRTC(Optional value As Variant, Optional ByVal Param As Variant) As Object    'As clsRTC
+    Set NewRTC = modCommon.DoParams(New clsRTC, Param)
+    If Not IsMissing(value) Then NewRTC.Compile value
 End Property
 
 Public Property Get NewFCP(Optional value As Variant, Optional ByVal Param As Variant) As Object    'As clsFuncPointer
@@ -150,11 +150,10 @@ Public Property Get NewFCP(Optional value As Variant, Optional ByVal Param As Va
     modCommon.DoParams NewFCP, Param
 End Property
 
-Public Property Get NewFAP(Optional ByVal Obj As Variant, Optional Buf As Variant, Optional ByVal Param As Variant) As Object         'As clsAsmPic
+Public Property Get NewFAP(Optional ByVal Obj As Variant, Optional ByVal Bag As Object, Optional ByVal Param As Variant) As Object         'As clsAsmPic
     Set NewFAP = New clsAsmPic
     
-    If IsObject(Obj) Then Set NewFAP.Obj = Obj Else NewFAP.Obj = Obj
-    If Not IsMissing(Buf) Then NewFAP.ASM.Buffer = Buf
+    Set NewFAP.Bag = Bag:           If IsObject(Obj) Then Set NewFAP.Obj = Obj Else NewFAP.Obj = Obj
         
     modCommon.DoParams NewFAP, Param
 End Property

@@ -1,0 +1,67 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+  form.show
+End Sub
+<#Module>
+
+<#Form=form>
+Dim f, Gray_Image
+
+Sub Form_Load()
+	this.move 0, 0, 8400, 6000
+	this.Center
+	this.add "pic",1, ".ScaleMode = 3", ".Move 120,120,8040,5280", ".Picture = sys.gdi.LoadPicture(""..\..\src\test2.jpg"")"
+
+	Set f = sys.NewFAP(this.pic(1), sys.NewRTC(sys.conv.file2str("pic.c")))
+	
+	'r = f.Bag.Ptr("Gray_Image")  :  s = f.Bag.Ptr(r)  :  msgbox s
+	
+	Set Gray_Image = f.Bag.Ptr("Gray_Image", 2)
+
+	Call Draw_Gray
+
+	sys.ontimer 2000, array("Draw_Red", mf_IDM)
+End Sub
+
+'---------------------------------
+Sub Draw_Gray()
+  t1 = TimeGetTime
+
+  f.GetDI
+
+  With this.pic(1)
+	 .ScaleMode = 3
+     Gray_Image f.Ptr, .ScaleWidth, .ScaleHeight, 60, 60, .ScaleWidth - 60, .ScaleHeight - 60
+  End With
+
+  f.SetDI
+
+  t2 = TimeGetTime
+  this.caption = "Time - " & t2 - t1 & " ms."
+End Sub
+
+'---------------------------------
+Sub Draw_Red()
+  t1 = TimeGetTime
+
+  f.GetDI
+
+  With this.pic(1)
+	.ScaleMode = 3
+	f.Bag.ptr("Red_Image", true).Run f.Ptr, .ScaleWidth, .ScaleHeight, 60, 60, .ScaleWidth - 60, .ScaleHeight - 60
+  End With
+
+  f.SetDI
+
+  t2 = TimeGetTime
+  this.caption = "Time - " & t2 - t1 & " ms."
+
+  sys.offtimer array("Draw_Red", mf_IDM)
+End Sub
+
+'---------------------------------
+Sub Form_Unload()
+  endmf
+End Sub
+<#Form>
