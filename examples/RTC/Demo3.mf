@@ -1,0 +1,25 @@
+<#Module=mdlMain>
+'---------------------------------------
+Sub Load(cmdLine)
+
+	Set f = sys.NewRTC("int a1; get(){return a1;}")
+
+	r = f.Ptr("a1")
+	
+	s1 = f.Ptr(r)
+	
+	s2 = f.Var("a1")
+	
+	sys.var.memlong(r) = 1234567890
+	
+	s3 = f.Ptr("get", true)()
+	f.Var("a1") = f.Var("a1") + 1
+	
+	s4 = f.Var
+	
+	msgbox s1 & " = " & r & vbcrlf & vbcrlf & s2 & vbcrlf & s3 & vbcrlf & s4
+
+	endmf
+End Sub
+<#Module>
+

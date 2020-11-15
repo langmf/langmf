@@ -35,7 +35,7 @@ End Type
 
 Private ctx As RTC_CONTEXT
 
-Public ptrFunc As Long, ptrThunk As Long
+Public ptrFunc As Long, ptrThunk As Long, ptrVar As Long
 
 
 Public Function Run(ParamArray Args() As Variant) As Variant
@@ -77,7 +77,7 @@ End Function
 Public Function Free(Optional ByVal bTerm As Boolean) As Object
     Dim tmp As RTC_CONTEXT
     Set Free = Me
-    If ctx.Prog <> 0 Then Call VirtualFree(ctx.Prog, 0, MEM_RELEASE):       ptrFunc = 0:        ctx = tmp
+    If ctx.Prog <> 0 Then Call VirtualFree(ctx.Prog, 0, MEM_RELEASE):       ptrFunc = 0:        ptrVar = 0:     ctx = tmp
     If Not bTerm Then Exit Function
     If ptrThunk <> 0 Then Call VirtualFree(ptrThunk, 0, MEM_RELEASE):       ptrThunk = 0
 End Function
@@ -86,46 +86,56 @@ Public Function Ptr(Optional ByVal value As Variant, Optional ByVal Flags As Lon
     Dim p As Long
     
     If IsMissing(value) Then Ptr = VarPtr(ctx):     Exit Function
-    If VarType(value) = vbString Then p = pvSym(value):       If Flags = 0 Then Ptr = p:            Exit Function
-    If IsNumeric(value) Then p = CLng(value):                 If Flags = 0 Then Ptr = pvName(p):    Exit Function
+    If VarType(value) = vbString Then p = GetSym(value):        If Flags = 0 Then Ptr = p:              Exit Function
+    If IsNumeric(value) Then p = CLng(value):                   If Flags = 0 Then Ptr = GetName(p):     Exit Function
     
-    If Flags = 2 Then Set Ptr = New clsRTC:     Ptr.Free True:      Ptr.ptrFunc = p:     Exit Function
+    If Flags = 3 Then Set Ptr = New clsRTC:     Ptr.Free True:      Ptr.ptrFunc = p:     Exit Function
+    If Flags = 2 Then Ptr = p:      Exit Function
     ptrFunc = p:    Set Ptr = Me
 End Function
 
-Public Property Get State(ByVal i As Long) As Long
+Public Property Get State(Optional ByVal i As Long) As Long
     State = ctx.State(i)
 End Property
 
-Public Property Let State(ByVal i As Long, ByVal value As Long)
+Public Property Let State(Optional ByVal i As Long, ByVal value As Long)
     ctx.State(i) = value
 End Property
 
+Public Property Get Var(Optional v As Variant) As Long
+    If Not IsMissing(v) Then ptrVar = Ptr(v, 2)
+    If ptrVar Then GetMem4 ptrVar, Var
+End Property
 
-Private Function pvAdd(ByVal Ptr1 As Long, ByVal ofs As Long) As Long
-    ' safely add *signed* offset to *unsigned* ptr for *unsigned* retval w/o overflow
-    pvAdd = ((Ptr1 Xor &H80000000) + ofs) Xor &H80000000
-End Function
+Public Property Let Var(Optional v As Variant, ByVal value As Long)
+    If Not IsMissing(v) Then ptrVar = Ptr(v, 2)
+    If ptrVar Then PutMem4 ptrVar, value
+End Property
 
-Private Function pvDiff(ByVal Ptr1 As Long, ByVal Ptr2 As Long) As Long
-    ' retval is *signed* offset b/n *unsigned* ptr1 and *unsigned* ptr2 w/o overflow
-    If (Ptr1 Xor Ptr2) < 0 Then pvDiff = (Ptr2 - (Ptr1 Xor &H80000000)) Xor &H80000000:   Exit Function
-    pvDiff = Ptr2 - Ptr1
-End Function
-
-Private Function pvSym(ByVal value As String) As Long
+Public Function GetSym(ByVal value As String) As Long
     If ctx.Vars = 0 Or ctx.Syms = 0 Then Exit Function
-    pvSym = StrStrA(ctx.Syms, " " & value & " "):
-    If pvSym Then pvSym = pvAdd(ctx.Vars, pvDiff(ctx.Syms, pvSym) * 8 + &H100):       GetMem4 pvSym, pvSym
+    GetSym = StrStrA(ctx.Syms, " " & value & " "):
+    If GetSym Then GetSym = PtrAdd(ctx.Vars, PtrDif(ctx.Syms, GetSym) * 8 + &H100):       GetMem4 GetSym, GetSym
 End Function
 
-Private Function pvName(ByVal value As Long) As String
+Public Function GetName(ByVal value As Long) As String
     Dim a As Long, p As Long, s As Long
     If ctx.Vars = 0 Or ctx.Syms = 0 Then Exit Function
     For a = 0 To ((UBound(ctx.Buffer(2).Data) + 1) / 4 - 1) Step 4
-        GetMem4 ctx.Vars + a, s:        If s = value Then p = pvAdd(ctx.Syms, (a - &H100) / 8 + 1):   Exit For
+        GetMem4 ctx.Vars + a, s:        If s = value Then p = PtrAdd(ctx.Syms, (a - &H100) / 8 + 1):   Exit For
     Next
-    If p Then s = StrStrA(p, " "):      pvName = String$(s - p, 0):     CopyMemory ByVal pvName, ByVal p, s - p
+    If p Then s = StrStrA(p, " "):      GetName = String$(s - p, 0):     CopyMemory ByVal GetName, ByVal p, s - p
+End Function
+
+Public Function PtrAdd(ByVal Ptr1 As Long, ByVal ofs As Long) As Long
+    ' safely add *signed* offset to *unsigned* ptr for *unsigned* retval w/o overflow
+    PtrAdd = ((Ptr1 Xor &H80000000) + ofs) Xor &H80000000
+End Function
+
+Public Function PtrDif(ByVal Ptr1 As Long, ByVal Ptr2 As Long) As Long
+    ' retval is *signed* offset b/n *unsigned* ptr1 and *unsigned* ptr2 w/o overflow
+    If (Ptr1 Xor Ptr2) < 0 Then PtrDif = (Ptr2 - (Ptr1 Xor &H80000000)) Xor &H80000000:   Exit Function
+    PtrDif = Ptr2 - Ptr1
 End Function
 
 

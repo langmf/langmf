@@ -15,9 +15,7 @@ Sub Form_Load()
 
 	Set f = sys.NewFAP(this.pic(1), sys.NewRTC(sys.conv.file2str("pic.c")))
 	
-	'r = f.Bag.Ptr("Gray_Image")  :  s = f.Bag.Ptr(r)  :  msgbox s
-	
-	Set Gray_Image = f.Bag.Ptr("Gray_Image", 2)
+	Set Gray_Image = f.Bag.Ptr("Gray_Image", 3)
 
 	Call Draw_Gray
 
