@@ -154,7 +154,7 @@ Public Function XMLHTTP(Optional ByVal Host As String = "https://api.ipify.org",
 
     ArrayDef Param, 10000, Empty, Empty, Empty, Empty
 
-    Set XMLHTTP = CreateObject("MSXML2.XMLHTTP")
+    Set XMLHTTP = VBA.CreateObject("MSXML2.XMLHTTP")
     If LenB(Host) = 0 Then Exit Function
     
     XMLHTTP.Open IIF(VarType(Param(1)) = vbString, "POST", "GET"), Host, CBool(Param(0)), Param(2), Param(3)

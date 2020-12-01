@@ -412,7 +412,7 @@ Sub Parse_VBNET(txtCode As String)
     For a = 0 To UBound(PCD)
         Set Mts = REG1.Execute(PCD(a).Param)
         
-        Set Obj = CreateObject("Atomix.VBNET")
+        Set Obj = VBA.CreateObject("Atomix.VBNET")
         
         With Mts(0)
             If Len(.SubMatches(1)) > 0 Then CAS.AddObject .SubMatches(1), Obj

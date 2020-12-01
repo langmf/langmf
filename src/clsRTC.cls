@@ -141,7 +141,7 @@ End Function
 
 Private Sub Class_Initialize()
     Dim b() As Byte
-    b = LoadResData("rtc.bin", 50)
+    b = VB.LoadResData("rtc.bin", 50)
     ptrThunk = VirtualAlloc(0, UBound(b) + 1, MEM_COMMIT, PAGE_EXECUTE_READWRITE):      CopyMemory ByVal ptrThunk, b(0), UBound(b) + 1
 End Sub
 

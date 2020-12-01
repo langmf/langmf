@@ -286,7 +286,7 @@ End Sub
 Public Sub FolderCopy(ByVal fScr As String, ByVal fDest As String)
     Dim fso As Object
     On Error Resume Next
-    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set fso = VBA.CreateObject("Scripting.FileSystemObject")
     fso.CopyFolder fScr, fDest, True
     Set fso = Nothing
 End Sub
@@ -294,7 +294,7 @@ End Sub
 Public Sub FolderMove(ByVal fScr As String, ByVal fDest As String)
     Dim fso As Object
     On Error Resume Next
-    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set fso = VBA.CreateObject("Scripting.FileSystemObject")
     fso.MoveFolder fScr, fDest
     Set fso = Nothing
 End Sub

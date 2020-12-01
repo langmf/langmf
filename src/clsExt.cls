@@ -70,7 +70,7 @@ End Sub
 
 Public Function VB_CreateObject(ByVal nameObj As String, Optional ByVal nameServ As String) As Object
     On Error Resume Next
-    Set VB_CreateObject = CreateObject(nameObj, nameServ)
+    Set VB_CreateObject = VBA.CreateObject(nameObj, nameServ)
 End Function
 
 Public Function SetPriority(Optional ByVal value As Long = &H20, Optional ByVal pid As Long) As Long
@@ -271,7 +271,7 @@ Public Function CreateIE(Optional ByVal txtCode As String, Optional ByVal prtHWn
     
     On Error Resume Next
     
-    Set CreateIE = CreateObject("InternetExplorer.Application")
+    Set CreateIE = VBA.CreateObject("InternetExplorer.Application")
     
     With CreateIE
         .Navigate "about:blank"
@@ -339,7 +339,7 @@ Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Opti
     Set Prm = GetQV(vPrm, nameFile)
     isReg = CBool(Prm("Reg")):      isClean = True:     If Prm.Exists("Clean") Then isClean = CBool(Prm("Clean"))
     
-    If Prm.Exists("ProgID") Then Set Obj = CreateObject(Prm("ProgID")):    If Obj Is Nothing Then isFail = True
+    If Prm.Exists("ProgID") Then Set Obj = VBA.CreateObject(Prm("ProgID")):    If Obj Is Nothing Then isFail = True
     If Len(nameFile) And Prm.Exists("Ver") Then If VersionDLL(nameFile, Prm("Ver")) = False Then isFail = True
     If Len(nameFile) And Not IsFile(nameFile) Then isFail = True
     
@@ -359,7 +359,7 @@ Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Opti
             extFile = LCase$(GetExtension(nameFile))
             Select Case extFile
                 Case "cab", "zip", "e7z"
-                    Set Obj = CreateObject("Shell.Application")
+                    Set Obj = VBA.CreateObject("Shell.Application")
 
                     With Obj
                         Set sFolder = .NameSpace(FileLongName(pathTemp))

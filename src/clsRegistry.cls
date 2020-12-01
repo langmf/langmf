@@ -30,7 +30,7 @@ Private WSH As Object
 
 Private Sub Class_Initialize()
     On Error Resume Next
-    Set WSH = CreateObject("WScript.Shell")
+    Set WSH = VBA.CreateObject("WScript.Shell")
 End Sub
 
 

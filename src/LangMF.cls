@@ -61,10 +61,10 @@ Public Property Get Instance() As Object
     
     On Error Resume Next
     
-    Shell """" + GetAppPath(True) + """ " + mf_New
+    VBA.Shell """" + GetAppPath(True) + """ " + mf_New
     
     Do
-        Call WaitMs:     a = a + 1:     Set Instance = GetObject(, "Atomix.LangMF")
+        Call WaitMs:     a = a + 1:     Set Instance = VBA.GetObject(, "Atomix.LangMF")
     Loop Until a > 1000 Or (Not Instance Is Nothing)
     
     Instance.ROT False

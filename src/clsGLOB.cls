@@ -18,11 +18,11 @@ Public Obj As Object
 Public Function Pipe(Optional ByVal nGlob As String = "lmf_glob") As Boolean
     On Error Resume Next
 
-    For Each Obj In CreateObject("Shell.Application").Windows
+    For Each Obj In VBA.CreateObject("Shell.Application").Windows
         If LCase$(nGlob) = LCase$(TrimNull(Obj.StatusText)) Then Pipe = True:    Exit Function
     Next
     
-    Set Obj = GetObject("new:{C08AFD90-F2A1-11D1-8455-00A0C91F3880}")
+    Set Obj = VBA.GetObject("new:{C08AFD90-F2A1-11D1-8455-00A0C91F3880}")
     If Not Obj Is Nothing Then Pipe = True:   Obj.StatusText = nGlob
 End Function
 

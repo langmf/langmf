@@ -182,7 +182,6 @@ Declare Function GetVolumeInformationA Lib "kernel32" (ByVal lpRootPathName As S
 Declare Function GetSystemDefaultLangID Lib "kernel32" () As Integer
 Declare Function SetProcessAffinityMask Lib "kernel32" (ByVal hProcess As Long, ByVal lMask As Long) As Long
 Declare Function GetLogicalDriveStringsA Lib "kernel32" (ByVal nBufferLength As Long, ByVal lpBuffer As String) As Long
-Declare Function LocalFileTimeToFileTime Lib "kernel32" (lpLocalFileTime As FILETIME, lpFileTime As FILETIME) As Long
 Declare Function FileTimeToLocalFileTime Lib "kernel32" (lpFileTime As FILETIME, lpLocalFileTime As FILETIME) As Long
 Declare Function GetProcAddressByOrdinal Lib "kernel32" Alias "GetProcAddress" (ByVal hModule As Long, ByVal lpProcName As Long) As Long
 Declare Function SetEnvironmentVariableW Lib "kernel32" (ByVal lpName As Long, ByVal lpValue As Long) As Long
