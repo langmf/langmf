@@ -902,12 +902,13 @@ Function API_DoEvents() As Long
     Wend
 End Function
 
-Function API_Error(ByVal vLastDllError As Long, Optional ByVal nFile As String, Optional ByVal clrChar As Boolean = True) As String
-    Dim Flags As Long, hModule As Long
-    Flags = &H1000&:      If Len(nFile) Then Flags = &H800&:   hModule = GetModuleHandleW(StrPtr(nFile))
-    API_Error = Space$(65535)
-    API_Error = Left$(API_Error, FormatMessageW(Flags, hModule, vLastDllError, 0&, StrPtr(API_Error), Len(API_Error)))
-    If clrChar Then API_Error = Replace$(API_Error, vbCrLf, "")
+Function API_Error(ByVal vLastDllError As Long, Optional ByVal nFile As String) As String
+    Dim Flags As Long, hModule As Long, sz As Long
+    API_Error = Space$(4096):      Flags = &H1000&:      If Len(nFile) Then Flags = &H800&:   hModule = GetModuleHandleW(StrPtr(nFile))
+    sz = FormatMessageW(&H1200&, 0, vLastDllError, 0, StrPtr(API_Error), Len(API_Error))
+    If sz = 0 Then sz = FormatMessageW(&HA00&, hModule, vLastDllError, 0, StrPtr(API_Error), Len(API_Error))
+    If sz > 2 Then If Mid$(API_Error, sz - 1, 2) = vbCrLf Then sz = sz - 2
+    API_Error = Left$(API_Error, sz)
 End Function
 
 Sub RmDir(ByVal nameDir As String)
