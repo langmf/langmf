@@ -915,7 +915,7 @@ End Sub
 
 Sub Parse_Preprocess(txtCode As String)
     With REG
-        .Pattern = " _[ \x09]*\r\n"
+        .Pattern = " _[ \t]*\r\n"
         txtCode = .Replace(txtCode, " ")
     End With
 End Sub
@@ -1420,7 +1420,7 @@ End Sub
 
 
 Function MakeEXE(ByVal nameExe As String, ByVal nameDest As String, ByVal nameIcon As String, ByVal txtRes As String) As String
-    Dim txtOper As String, txtTable1 As String, txtTable2 As String, txtKey As String, txtValue As String
+    Dim txtOper As String, txtTable1 As String, txtTable2 As String, txtKey As String, txtValue As String, v As Variant
     Dim a As Long, f As New clsFileAPI, RXP As New clsRXP, ver As clsHash, clsNR As New clsNativeRes
     Dim isVerModify As Boolean, lngType As Long, lngLang As Long
     
@@ -1433,7 +1433,7 @@ Function MakeEXE(ByVal nameExe As String, ByVal nameDest As String, ByVal nameIc
 
     RXP.Obj.MultiLine = True
     
-    '-------------------<Type>-------<Oper>-----<Lang>----<Table1>---<Table2>----<Key>------<Value>---
+    '----------------------<Type>-------<Oper>------<Lang>---<Table1>---<Table2>----<Key>------------<Value>---
     RXP.Obj.Pattern = "\n([a-z0-9]+)\.([a-z0-9]*)\.([0-9]*)\.([a-z]*)\.([a-f0-9]*)\.(.+)[ \t]*=[ \t]*([^\r]+)"
 
     If RXP.Execute(txtRes).Count Then
@@ -1482,9 +1482,9 @@ Function MakeEXE(ByVal nameExe As String, ByVal nameDest As String, ByVal nameIc
                     clsNR.UpdateString nameExe, Val(txtKey), txtValue, lngLang
                 
                 Case Else
-                    lngType = Val(RXP.Matches(0, a))
-                    
-                    clsNR.PutResourceFromFile Parse_MPath(txtValue), nameExe, lngType, IIF(Val(txtKey) > 0, Val(txtKey), txtKey), lngLang
+                    lngType = Val(RXP.Matches(0, a)):       txtValue = Parse_MPath(txtValue)
+                    If Val(txtKey) > 0 Then v = Val(txtKey) Else v = Replace$(txtKey, "%ver%", VersionDLL(txtValue))
+                    clsNR.PutResourceFromFile txtValue, nameExe, lngType, v, lngLang
             End Select
         Next
         

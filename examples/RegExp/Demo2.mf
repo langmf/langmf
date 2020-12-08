@@ -1,0 +1,19 @@
+<#Module=mdlDemo>
+'---------------------------------------
+Sub Load(cmdLine)
+	my = "find :	the string that matched to the pattern" + vbCrLf + _
+		 "pos  :	the position the find string was found" + vbCrLf + _
+		 "txt  :	the full string ('my' in this case) without any replacements"
+
+	Set rxp = New RegExp   :   rxp.Global = True   :   rxp.Pattern = "\b\w+\b"
+	
+	MsgBox rxp.Replace(my, GetRef("Capitelize"))
+
+	endmf
+End Sub
+
+'---------------------------------------
+Function Capitelize(find, pos, txt)
+    Capitelize = UCase(Left(find, 1)) & LCase(Mid(find, 2))
+End Function
+<#Module>

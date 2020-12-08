@@ -211,7 +211,7 @@ Private Function IActiveScriptSite_GetLCID() As Long
 End Function
 
 Private Function IActiveScriptSite_GetDocVersionString() As String
-    IActiveScriptSite_GetDocVersionString = "LangMF Script Host"
+    IActiveScriptSite_GetDocVersionString = "LangMF Host"
 End Function
 
 Private Sub IActiveScriptSite_OnScriptTerminate(pvarResult As Variant, pexcepinfo As ATL.EXCEPINFO)

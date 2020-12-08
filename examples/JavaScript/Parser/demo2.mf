@@ -14,7 +14,7 @@ Sub Load(cmdLine)
   счетчик =+ "a = "
   счетчик =& a
   
-  msgbox счетчик,,$mdl_name
+  msgbox счетчик,,$mod_name
   
   endmf
 End Sub

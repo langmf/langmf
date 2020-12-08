@@ -184,28 +184,28 @@ Public Property Get Path(Optional ByVal value As Variant = False, Optional ByVal
     End If
 End Property
 
-Public Property Get Host(ParamArray Args() As Variant) As Variant
-    Dim uds As Long, Param As String
+Public Function Host(ParamArray Args() As Variant) As Variant
+    Dim uds As Long, cmd As String
     
     On Error Resume Next
     
-    uds = UBound(Args):    If uds >= 0 Then Param = LCase$(Args(0))
+    uds = UBound(Args):         If uds >= 0 Then cmd = LCase$(Args(0))
     
-    If Left$(Param, 3) = "arg" Then
-        Select Case Mid$(Param, 4)
+    If Left$(cmd, 3) = "arg" Then
+        Select Case Mid$(cmd, 4)
         Case "v":               Set Host = GetArgv(Info.Arg)
         Case "o":               Set Host = SYS.SHD.Object(GetArgv(Info.Arg))
         Case "":                Host = Info.Arg
         End Select
     Else
-        Select Case Param
+        Select Case cmd
         Case "host", "":        Set Host = LMF
-        Case "mdl_name":        Host = MDL(Args(1)).Name
-        Case "mdl_type":        Host = MDL(Args(1)).Type
+        Case "mod_name":        If uds < 1 Then Host = MDL(1).Name Else Host = MDL(Args(1)).Name
+        Case "mod_type":        If uds < 1 Then Host = MDL(1).Type Else Host = MDL(Args(1)).Type
         Case "noerror":         If uds < 1 Then Host = mf_NoError Else mf_NoError = Args(1):   Host = mf_NoError
         End Select
     End If
-End Property
+End Function
 
 Public Function Power(Optional ByVal value As String = "off", Optional ByVal Flags As Long) As Long
     On Error Resume Next

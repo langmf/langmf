@@ -1243,7 +1243,7 @@ Function RegisterDLL(ByVal FileName As String, Optional ByVal isReg As Boolean =
     If hLib Then Call FreeLibrary(hLib)
 End Function
 
-Function VersionDLL(ByVal FileName As String, Optional ByVal verCmp As Variant) As Variant
+Function VersionDLL(ByVal FileName As String, Optional ByVal verCmp As Variant, Optional ByVal verProd As Boolean) As Variant
     Dim sz As Long, p As Long, txt As String, v1() As String, v2() As String, b() As Byte, ver As VS_FIXEDFILEINFO
 
     sz = GetFileVersionInfoSizeW(StrPtr(LongPath(FileName)), ByVal 0&):     If sz = 0 Then Exit Function
@@ -1253,9 +1253,10 @@ Function VersionDLL(ByVal FileName As String, Optional ByVal verCmp As Variant) 
     Call VerQueryValueW(b(0), StrPtr("\"), p, sz)
     Call CopyMemory(ver, ByVal p, Len(ver))
 
-    txt = ver.dwProductVersionMSh & "." & ver.dwProductVersionMSl & "." & ver.dwProductVersionLSh & "." & ver.dwProductVersionLSl
+    If verProd = True Then txt = ver.dwProductVersionMSh & "." & ver.dwProductVersionMSl & "." & ver.dwProductVersionLSh & "." & ver.dwProductVersionLSl
+    If verProd = False Then txt = ver.dwFileVersionMSh & "." & ver.dwFileVersionMSl & "." & ver.dwFileVersionLSh & "." & ver.dwFileVersionLSl
     
-    If IsMissing(verCmp) Then VersionDLL = txt:    Exit Function
+    If IsMissing(verCmp) Or IsNull(verCmp) Then VersionDLL = txt:    Exit Function
     
     v1 = Split(txt, "."):    VersionDLL = True
     Select Case Left$(verCmp, 1)

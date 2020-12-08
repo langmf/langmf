@@ -109,8 +109,8 @@ Public Function RegisterDLL(ByVal FileName As String, Optional ByVal isReg As Bo
     RegisterDLL = modCommon.RegisterDLL(FileName, isReg)
 End Function
 
-Public Function VersionDLL(ByVal FileName As String, Optional ByVal verCmp As Variant) As Variant
-    VersionDLL = modCommon.VersionDLL(FileName, verCmp)
+Public Function VersionDLL(ByVal FileName As String, Optional ByVal verCmp As Variant, Optional ByVal verProd As Boolean) As Variant
+    VersionDLL = modCommon.VersionDLL(FileName, verCmp, verProd)
 End Function
 
 Public Property Get CreateImage() As Object

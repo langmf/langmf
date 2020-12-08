@@ -5,9 +5,9 @@ Dim a
 Sub Load(cmdLine)
     On Error Resume Next
 
-    msgbox sys.host("noerror", true)
+    sys.host "noerror", true
     sys.host.script.addcode " a == 5"
-    msgbox sys.host("noerror", false)
+    sys.host "noerror", false
     
     msgbox a,,"1"
     sys.host.script.addcode " a = 8"
