@@ -64,14 +64,14 @@ Global mf_Debug As Long, mf_Tmp As String, mf_EMail As String
 
 
 Sub Main()
-    Dim stp As Boolean, cmd As String
+    Dim stp As Boolean, txt As String
     
-    Call InitGlobal:            stp = SetupLMF:             cmd = Command
+    Call InitGlobal:            stp = SetupLMF:             txt = Command
 
-    If cmd <> mf_Embed And cmd <> mf_Setup Then
+    If txt <> mf_Embed And txt <> mf_Setup Then
         If Not stp Then ShellSyncEx GetAppPath(True), mf_Setup, , , "runas"
         Set LMF = New LangMF
-        If cmd = mf_New Then LMF.ROT Else Script_EXE:  LMF.Command cmd
+        If txt = mf_New Then LMF.ROT Else Script_EXE:  LMF.Command txt
     End If
 End Sub
 

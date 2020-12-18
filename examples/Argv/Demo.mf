@@ -4,6 +4,7 @@ Sub Load(cmdLine)
 
 	Set argv = Object(sys.host("argv"))
 	'Set argv = sys.host("argo")
+	'Set argv = sys.cmd
 	
 	with sys.file.api
 		.fopen "out_" & argv.file &".txt", 2

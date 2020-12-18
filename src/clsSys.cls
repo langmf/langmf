@@ -86,6 +86,10 @@ Public Function AddFileMF(ByVal nameScript As String, Optional ByVal nameLib As 
     If File2Buf(Buf, nameScript) Then AddFileMF = Code_Parse(Buf, IIF(LenB(nameLib), nameLib, nameScript), forceRunMF)
 End Function
 
+Public Property Get Cmd() As Object
+    Set Cmd = SYS.SHD.Object(GetArgv(Info.Arg))
+End Property
+
 Public Property Get Env(Optional ByVal ID As Variant) As Variant
     If IsMissing(ID) Or IsEmpty(ID) Then Set Env = GEV Else Env = GEV(ID)
 End Property
@@ -185,20 +189,20 @@ Public Property Get Path(Optional ByVal value As Variant = False, Optional ByVal
 End Property
 
 Public Function Host(ParamArray Args() As Variant) As Variant
-    Dim uds As Long, cmd As String
+    Dim uds As Long, txt As String
     
     On Error Resume Next
     
-    uds = UBound(Args):         If uds >= 0 Then cmd = LCase$(Args(0))
+    uds = UBound(Args):         If uds >= 0 Then txt = LCase$(Args(0))
     
-    If Left$(cmd, 3) = "arg" Then
-        Select Case Mid$(cmd, 4)
+    If Left$(txt, 3) = "arg" Then
+        Select Case Mid$(txt, 4)
         Case "v":               Set Host = GetArgv(Info.Arg)
         Case "o":               Set Host = SYS.SHD.Object(GetArgv(Info.Arg))
         Case "":                Host = Info.Arg
         End Select
     Else
-        Select Case cmd
+        Select Case txt
         Case "host", "":        Set Host = LMF
         Case "mod_name":        If uds < 1 Then Host = MDL(1).Name Else Host = MDL(Args(1)).Name
         Case "mod_type":        If uds < 1 Then Host = MDL(1).Type Else Host = MDL(Args(1)).Type
