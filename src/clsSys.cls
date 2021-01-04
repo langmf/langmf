@@ -87,7 +87,9 @@ Public Function AddFileMF(ByVal nameScript As String, Optional ByVal nameLib As 
 End Function
 
 Public Property Get Cmd() As Object
-    Set Cmd = SYS.SHD.Object(GetArgv(Info.Arg))
+    Static tmp As Object
+    If tmp Is Nothing Then Set tmp = SYS.SHD.Object(GetArgv(Info.Arg))
+    Set Cmd = tmp
 End Property
 
 Public Property Get Env(Optional ByVal ID As Variant) As Variant
