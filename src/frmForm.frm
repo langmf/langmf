@@ -390,7 +390,7 @@ Public Sub Center()
     If m_Child Then
         Me.Move (ScaleX(Parent.ScaleWidth, Parent.ScaleMode, vbTwips) - Me.Width) / 2, (ScaleY(Parent.ScaleHeight, Parent.ScaleMode, vbTwips) - Me.Height) / 2
     Else
-        Me.Move (Screen.Width - Me.Width) / 2, (Screen.Height - Me.Height) / 2
+        SYS.GDI.Monitor Me, -1
     End If
 End Sub
 

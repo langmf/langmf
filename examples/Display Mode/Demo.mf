@@ -3,10 +3,10 @@ Dim Disp
 
 '---------------------------------------
 Sub Load(cmdLine)
-  form.move 0,0,8000, 3000
-  form.add "command", 1, ".move 1000, 1500, 2500, 400", ".caption = ""Установить (VBScript)"""
-  form.add "command", 2, ".move 4500, 1500, 2500, 400", ".caption = ""Установить (JavaScript)"""
-  form.add "lcombo", 1,  ".move 400, 480, 7000", ".FontName = ""Arial""", ".FontSize = 10"
+  form.move 0,0,9000, 3000
+  form.add "command", 1, ".move 1500, 1500, 2500, 400", ".caption = ""Установить (VBScript)"""
+  form.add "command", 2, ".move 5000, 1500, 2500, 400", ".caption = ""Установить (JavaScript)"""
+  form.add "lcombo", 1,  ".move 400, 480, 8000", ".FontName = ""Arial""", ".FontSize = 10"
 
   Set Disp = sys.gdi.EnumDisplay(,24,0)
 
@@ -14,7 +14,7 @@ Sub Load(cmdLine)
     x = v("Display")  :  form.lcombo(1).additem "Device  = " & x(0) & "      " & x(1) & "      " & HEX(x(2))  :  d = x(0)
     x = v("Monitor")  :  form.lcombo(1).additem "Monitor = " & x(0) & "      " & x(1) & "      " & HEX(x(2))
 
-    form.lcombo(1).additem "Param = " & v("width") & " x " & v("height") & "   (" & v("bpp") & " bit   " & v("freq") & " Hz )    Angle = " & v("Angle")
+    form.lcombo(1).additem "Param = " & v("width") & " x " & v("height") & "   (" & v("bpp") & " bit   " & v("freq") & " Hz )    Angle = " & v("Angle") & "    Left = " & v("Left") & "    Top = " & v("Top")
 
     For Each s In v("Settings")
         form.lcombo(1).additem d & " = " & s("width") & " x " & s("height") & "   (" & s("bpp") & " bit   " & s("freq") & " Hz )    Fixed = " & s("Fixed")

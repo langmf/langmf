@@ -192,7 +192,10 @@ Public Function EnumDisplay(Optional ByVal patName As String, Optional ByVal mBi
             c.Add dev.dmPelsHeight, "Height"
             c.Add dev.dmBitsPerPel, "Bpp"
             c.Add dev.dmDisplayFrequency, "Freq"
-
+            
+            GetMem4 VarPtr(dev.dmOrientation), ib:      c.Add ib, "Left"
+            GetMem4 VarPtr(dev.dmPaperLength), ib:      c.Add ib, "Top"
+            
             c.Add Array(devName, TrimNull(ddi.DeviceString), ddi.StateFlags), "Display"
             If ddi.StateFlags And DD_PRIMARY_DEVICE Then d = a
 
@@ -211,6 +214,26 @@ Public Function EnumDisplay(Optional ByVal patName As String, Optional ByVal mBi
     EnumDisplay.Add d, "Primary"
 End Function
 
+Public Function Monitor(Optional ByVal value As Variant, Optional ByVal Flags As Long) As Variant
+    Dim rc As Long, hMon As Long, mi As tagMONITORINFO
+
+    On Error Resume Next
+    
+    Set Monitor = New Collection:       If IsObject(value) Then hMon = MonitorFromWindow(value.hWnd, 1&) Else hMon = value:   Flags = 0
+
+    mi.cbSize = Len(mi):        rc = GetMonitorInfoA(hMon, mi)
+    
+    If GetSystemMetrics(SM_CMONITORS) Then Monitor.Add Array(GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN), GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN)), "Desktop" Else Monitor.Add Array(0, 0, Screen.Width \ Screen.TwipsPerPixelX, Screen.Height \ Screen.TwipsPerPixelY), "Desktop"
+    Monitor.Add Array(mi.rcMonitor.Left, mi.rcMonitor.Top, (mi.rcMonitor.Right - mi.rcMonitor.Left), (mi.rcMonitor.Bottom - mi.rcMonitor.Top)), "Monitor"
+    Monitor.Add Array(mi.rcWork.Left, mi.rcWork.Top, (mi.rcWork.Right - mi.rcWork.Left), (mi.rcWork.Bottom - mi.rcWork.Top)), "Work"
+    Monitor.Add CBool(mi.dwFlags And 1&), "Primary"
+    
+    If Flags = -1 And rc <> 0 Then value.Move ((mi.rcWork.Right - mi.rcWork.Left) * Screen.TwipsPerPixelX - value.Width) / 2 + mi.rcMonitor.Left * Screen.TwipsPerPixelX, ((mi.rcWork.Bottom - mi.rcWork.Top) * Screen.TwipsPerPixelY - value.Height) / 2 + mi.rcMonitor.Top * Screen.TwipsPerPixelY
+    If Flags = -1 And rc = 0 Then value.Move (Screen.Width - value.Width) / 2, (Screen.Height - value.Height) / 2
+    If Flags = -2 And rc <> 0 Then value.Move mi.rcMonitor.Left * Screen.TwipsPerPixelX, mi.rcMonitor.Top * Screen.TwipsPerPixelY, (mi.rcMonitor.Right - mi.rcMonitor.Left) * Screen.TwipsPerPixelX, (mi.rcMonitor.Bottom - mi.rcMonitor.Top) * Screen.TwipsPerPixelY
+    If Flags = -2 And rc = 0 Then value.Move 0, 0, Screen.Width, Screen.Height
+End Function
+
 Public Function PicToIco(ByVal hSrcDC As Long, ByVal nWidth As Long, ByVal nHeight As Long, Optional ByVal lMaskColor As Long = -1) As Long
     Dim hDCMask As Long, hDCColor As Long, hScrDC As Long, hDstDC As Long, Ico As ICONINFO
     Dim hBmMask As Long, hBmColor As Long, hBmColorOld As Long, hBmMaskOld As Long
@@ -219,7 +242,7 @@ Public Function PicToIco(ByVal hSrcDC As Long, ByVal nWidth As Long, ByVal nHeig
     hDstDC = CreateCompatibleDC(hSrcDC)
 
     hBmColor = CreateCompatibleBitmap(hSrcDC, nWidth, nHeight)                      ' Создаем цветную картинку
-    hBmMask = CreateBitmap(nWidth, nHeight, 1&, 1&, ByVal 0&)                        ' Создаем черно-белую картинку
+    hBmMask = CreateBitmap(nWidth, nHeight, 1&, 1&, ByVal 0&)                       ' Создаем черно-белую картинку
 
     hDCColor = CreateCompatibleDC(hSrcDC)                                           ' Создаем DC
     hBmColorOld = SelectObject(hDCColor, hBmColor)                                  ' Объединяем...
@@ -281,7 +304,6 @@ End Function
 
 Public Function Trans(ByVal Obj As Object, ByVal ipdFon As IPictureDisp, ByVal ipdMask As IPictureDisp) As Long
     Dim rg As Long
-    
     With Obj
         .Picture = ipdFon
         .Move .Left, .Top, GetHPX(ipdFon.Width) * Screen.TwipsPerPixelX, GetHPY(ipdFon.Height) * Screen.TwipsPerPixelY

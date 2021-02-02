@@ -75,6 +75,7 @@ Declare Function ReleaseCapture Lib "user32" () As Long
 Declare Function CreatePopupMenu Lib "user32" () As Long
 Declare Function IsWindowVisible Lib "user32" (ByVal hWnd As Long) As Long
 Declare Function WindowFromPoint Lib "user32" (ByVal xPoint As Long, ByVal yPoint As Long) As Long
+Declare Function GetMonitorInfoA Lib "user32" (ByVal hMonitor As Long, MonInfo As tagMONITORINFO) As Long
 Declare Function CreateWindowExW Lib "user32" (ByVal dwExStyle As Long, ByVal lpClassName As Long, ByVal lpWindowName As Long, ByVal dwStyle As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hWndParent As Long, ByVal hMenu As Long, ByVal hInstance As Long, ByVal lpParam As Long) As Long
 Declare Function CallWindowProcA Lib "user32" (ByVal lpPrevWndFunc As Long, Optional ByVal hWnd As Long, Optional ByVal Msg As Long, Optional ByVal wParam As Long, Optional ByVal lParam As Long) As Long
 Declare Function DispatchMessageA Lib "user32" (lpMsg As WNDMsg) As Long
@@ -84,6 +85,7 @@ Declare Function GetMenuItemCount Lib "user32" (ByVal hMenu As Long) As Long
 Declare Function GetDesktopWindow Lib "user32" () As Long
 Declare Function GetSystemMetrics Lib "user32" (ByVal nIndex As Long) As Long
 Declare Function TrackPopupMenuEx Lib "user32" (ByVal hMenu As Long, ByVal wFlags As Long, ByVal x As Long, ByVal y As Long, ByVal hWnd As Long, ByVal lptpm As Any) As Long
+Declare Function MonitorFromWindow Lib "user32" (ByVal hWnd As Long, ByVal dwFlags As Long) As Long
 Declare Function LoadImageAsString Lib "user32" Alias "LoadImageW" (ByVal hInst As Long, ByVal lpsz As Long, ByVal uType As Long, ByVal cxDesired As Long, ByVal cyDesired As Long, ByVal fuLoad As Long) As Long
 Declare Function CreateIconIndirect Lib "user32" (piconinfo As ICONINFO) As Long
 Declare Function SetMenuDefaultItem Lib "user32" (ByVal hMenu As Long, ByVal uItem As Long, ByVal fByPos As Long) As Long
@@ -384,6 +386,11 @@ Global Const SM_CXICON              As Long = 11
 Global Const SM_CYICON              As Long = 12
 Global Const SM_CXSMICON            As Long = 49
 Global Const SM_CYSMICON            As Long = 50
+Global Const SM_XVIRTUALSCREEN      As Long = 76
+Global Const SM_YVIRTUALSCREEN      As Long = 77
+Global Const SM_CXVIRTUALSCREEN     As Long = 78
+Global Const SM_CYVIRTUALSCREEN     As Long = 79
+Global Const SM_CMONITORS           As Long = 80
 Global Const LR_SHARED              As Long = &H8000&
 Global Const LR_LOADFROMFILE        As Long = &H10
 Global Const WTS_CURRENT_SERVER     As Long = 0
@@ -928,12 +935,19 @@ Type ICONDIRENTRY
 End Type
 
 Type ICONDIR
-   idReserved As Integer
-   idType As Integer
-   idCount As Integer
+   idReserved   As Integer
+   idType       As Integer
+   idCount      As Integer
 End Type
 
 Type tagInitCommonControlsEx
-    lngSize As Long
-    lngICC As Long
+    lngSize     As Long
+    lngICC      As Long
+End Type
+
+Type tagMONITORINFO
+    cbSize      As Long
+    rcMonitor   As RECT
+    rcWork      As RECT
+    dwFlags     As Long
 End Type
