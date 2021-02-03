@@ -281,7 +281,7 @@ Function Code_Parse(Buf() As Byte, Optional ByVal nameScript As String, Optional
             If mainRunMF > 1 Then txtName = "mf_forms_" + CStr(mf_Counter)
             
             '------------------------------------
-            txtForm = "Private This" + vbCrLf + "Set This = " + txtName + vbCrLf + txtForm
+            txtForm = "Public This" + vbCrLf + "Set This = " + txtName + vbCrLf + txtForm
                 
             '------------------------------------
             With MDL(mf_Counter)

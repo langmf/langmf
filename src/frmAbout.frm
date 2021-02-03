@@ -22,7 +22,7 @@ Begin VB.Form frmAbout
    ScaleHeight     =   2256
    ScaleWidth      =   5628
    ShowInTaskbar   =   0   'False
-   StartUpPosition =   1  'CenterOwner
+   StartUpPosition =   2  'CenterScreen
    Begin VB.PictureBox icoInet 
       AutoRedraw      =   -1  'True
       AutoSize        =   -1  'True
