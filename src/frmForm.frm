@@ -20,36 +20,47 @@ Begin VB.Form frmForm
    MaxButton       =   0   'False
    ScaleHeight     =   2736
    ScaleWidth      =   5136
+   Begin VB.ListBox MList 
+      Height          =   264
+      Index           =   0
+      ItemData        =   "frmForm.frx":058A
+      Left            =   3720
+      List            =   "frmForm.frx":058C
+      Style           =   1  'Checkbox
+      TabIndex        =   15
+      Top             =   600
+      Visible         =   0   'False
+      Width           =   972
+   End
    Begin VB.TextBox MText 
       Height          =   285
       Index           =   0
-      Left            =   1920
+      Left            =   1320
       MultiLine       =   -1  'True
       TabIndex        =   14
-      Top             =   0
+      Top             =   120
       Visible         =   0   'False
-      Width           =   375
+      Width           =   972
    End
    Begin VB.ComboBox LCombo 
-      Height          =   330
+      Height          =   288
       Index           =   0
-      Left            =   2520
+      Left            =   1320
       Style           =   2  'Dropdown List
       TabIndex        =   13
-      Top             =   480
+      Top             =   600
       Visible         =   0   'False
-      Width           =   735
+      Width           =   972
    End
    Begin VB.Frame Frame 
-      Caption         =   "Frame"
       ClipControls    =   0   'False
-      Height          =   372
+      Height          =   492
       Index           =   0
-      Left            =   480
+      Left            =   2280
       TabIndex        =   12
-      Top             =   840
+      Top             =   1440
       Visible         =   0   'False
-      Width           =   852
+      Width           =   732
    End
    Begin VB.PictureBox icoInet 
       AutoRedraw      =   -1  'True
@@ -67,7 +78,7 @@ Begin VB.Form frmForm
       EndProperty
       Height          =   384
       Left            =   4680
-      Picture         =   "frmForm.frx":058A
+      Picture         =   "frmForm.frx":058E
       ScaleHeight     =   384
       ScaleWidth      =   384
       TabIndex        =   11
@@ -78,143 +89,145 @@ Begin VB.Form frmForm
    Begin VB.TextBox TextBox 
       Height          =   285
       Index           =   0
-      Left            =   2400
+      Left            =   2520
       MultiLine       =   -1  'True
       ScrollBars      =   3  'Both
       TabIndex        =   10
-      Top             =   0
+      Top             =   120
       Visible         =   0   'False
-      Width           =   735
+      Width           =   972
    End
    Begin VB.Timer Timer 
       Enabled         =   0   'False
       Index           =   0
-      Left            =   0
-      Top             =   840
+      Left            =   3240
+      Top             =   1080
    End
    Begin VB.VScrollBar VScroll 
-      Height          =   735
+      Height          =   732
       Index           =   0
-      Left            =   4200
+      Left            =   4800
       TabIndex        =   9
-      Top             =   0
+      Top             =   600
       Visible         =   0   'False
       Width           =   255
    End
    Begin VB.HScrollBar HScroll 
-      Height          =   255
+      Height          =   252
       Index           =   0
-      Left            =   3720
+      Left            =   3840
       TabIndex        =   8
-      Top             =   840
+      Top             =   1080
       Visible         =   0   'False
-      Width           =   735
+      Width           =   732
    End
    Begin VB.ListBox List 
       Height          =   240
       Index           =   0
-      Left            =   1920
+      ItemData        =   "frmForm.frx":06E0
+      Left            =   2520
+      List            =   "frmForm.frx":06E2
       TabIndex        =   7
-      Top             =   480
+      Top             =   600
       Visible         =   0   'False
-      Width           =   495
+      Width           =   972
    End
    Begin VB.OptionButton Opt 
       Caption         =   "Option"
       Height          =   255
       Index           =   0
-      Left            =   960
+      Left            =   1320
       TabIndex        =   6
-      Top             =   480
+      Top             =   1080
       Visible         =   0   'False
-      Width           =   855
+      Width           =   972
    End
    Begin VB.CheckBox Check 
       Caption         =   "Check"
       Height          =   255
       Index           =   0
-      Left            =   0
+      Left            =   120
       TabIndex        =   5
-      Top             =   480
+      Top             =   1080
       Visible         =   0   'False
-      Width           =   855
+      Width           =   972
    End
    Begin VB.ComboBox Combo 
-      Height          =   330
+      Height          =   288
       Index           =   0
-      Left            =   3360
+      Left            =   120
       TabIndex        =   4
       Text            =   "Combo"
-      Top             =   480
+      Top             =   600
       Visible         =   0   'False
-      Width           =   735
+      Width           =   972
    End
    Begin VB.TextBox Text 
       Height          =   285
       Index           =   0
-      Left            =   1440
+      Left            =   120
       TabIndex        =   3
-      Top             =   0
+      Top             =   120
       Visible         =   0   'False
-      Width           =   375
+      Width           =   972
    End
    Begin VB.PictureBox Pic 
       AutoRedraw      =   -1  'True
       ClipControls    =   0   'False
-      Height          =   255
+      Height          =   372
       Index           =   0
-      Left            =   960
-      ScaleHeight     =   204
+      Left            =   1680
+      ScaleHeight     =   324
       ScaleWidth      =   324
       TabIndex        =   2
-      Top             =   0
+      Top             =   1560
       Visible         =   0   'False
       Width           =   375
    End
    Begin VB.CommandButton Command 
-      Height          =   255
+      Height          =   252
       Index           =   0
-      Left            =   480
+      Left            =   3720
       TabIndex        =   1
-      Top             =   0
+      Top             =   120
       Visible         =   0   'False
-      Width           =   375
+      Width           =   972
    End
    Begin VB.Image Img 
       Height          =   372
       Index           =   0
-      Left            =   1440
-      Top             =   840
+      Left            =   1080
+      Top             =   1560
       Visible         =   0   'False
       Width           =   372
    End
    Begin VB.Line CLine 
       Index           =   0
       Visible         =   0   'False
-      X1              =   3168
-      X2              =   3168
-      Y1              =   192
-      Y2              =   0
+      X1              =   240
+      X2              =   240
+      Y1              =   1920
+      Y2              =   1560
    End
    Begin VB.Shape CShape 
-      Height          =   255
+      Height          =   372
       Index           =   0
-      Left            =   3600
-      Top             =   0
+      Left            =   480
+      Top             =   1560
       Visible         =   0   'False
-      Width           =   255
+      Width           =   372
    End
    Begin VB.Label Label 
       AutoSize        =   -1  'True
       BackStyle       =   0  'Transparent
       Caption         =   "label"
-      Height          =   210
+      Height          =   252
       Index           =   0
-      Left            =   0
+      Left            =   2520
       TabIndex        =   0
-      Top             =   0
+      Top             =   1080
       Visible         =   0   'False
-      Width           =   330
+      Width           =   600
    End
 End
 Attribute VB_Name = "frmForm"
@@ -264,25 +277,26 @@ Public Function Ctrl(ByVal typeObj As String, Optional ByVal value As Variant, O
     typeObj = LCase$(typeObj)
 
     Select Case typeObj
-        Case Is = "check":     LoadCtrl vAdd, Ctrl, Obj, Me.Check(ID)
-        Case Is = "cline":     LoadCtrl vAdd, Ctrl, Obj, Me.CLine(ID)
-        Case Is = "combo":     LoadCtrl vAdd, Ctrl, Obj, Me.Combo(ID)
-        Case Is = "command":   LoadCtrl vAdd, Ctrl, Obj, Me.Command(ID)
-        Case Is = "cshape":    LoadCtrl vAdd, Ctrl, Obj, Me.CShape(ID)
-        Case Is = "frame":     LoadCtrl vAdd, Ctrl, Obj, Me.Frame(ID)
-        Case Is = "hscroll":   LoadCtrl vAdd, Ctrl, Obj, Me.HScroll(ID)
-        Case Is = "img":       LoadCtrl vAdd, Ctrl, Obj, Me.Img(ID)
         Case Is = "label":     LoadCtrl vAdd, Ctrl, Obj, Me.Label(ID)
-        Case Is = "lcombo":    LoadCtrl vAdd, Ctrl, Obj, Me.LCombo(ID)
-        Case Is = "list":      LoadCtrl vAdd, Ctrl, Obj, Me.List(ID)
-        Case Is = "mtext":     LoadCtrl vAdd, Ctrl, Obj, Me.MText(ID)
-        Case Is = "opt":       LoadCtrl vAdd, Ctrl, Obj, Me.Opt(ID)
-        Case Is = "pic":       LoadCtrl vAdd, Ctrl, Obj, Me.Pic(ID)
         Case Is = "text":      LoadCtrl vAdd, Ctrl, Obj, Me.Text(ID)
+        Case Is = "mtext":     LoadCtrl vAdd, Ctrl, Obj, Me.MText(ID)
         Case Is = "textbox":   LoadCtrl vAdd, Ctrl, Obj, Me.TextBox(ID)
-        Case Is = "timer":     LoadCtrl vAdd, Ctrl, Obj, Me.Timer(ID)
+        Case Is = "command":   LoadCtrl vAdd, Ctrl, Obj, Me.Command(ID)
+        Case Is = "img":       LoadCtrl vAdd, Ctrl, Obj, Me.Img(ID)
+        Case Is = "pic":       LoadCtrl vAdd, Ctrl, Obj, Me.Pic(ID)
+        Case Is = "opt":       LoadCtrl vAdd, Ctrl, Obj, Me.Opt(ID)
+        Case Is = "check":     LoadCtrl vAdd, Ctrl, Obj, Me.Check(ID)
+        Case Is = "list":      LoadCtrl vAdd, Ctrl, Obj, Me.List(ID)
+        Case Is = "mlist":     LoadCtrl vAdd, Ctrl, Obj, Me.MList(ID)
+        Case Is = "combo":     LoadCtrl vAdd, Ctrl, Obj, Me.Combo(ID)
+        Case Is = "lcombo":    LoadCtrl vAdd, Ctrl, Obj, Me.LCombo(ID)
+        Case Is = "frame":     LoadCtrl vAdd, Ctrl, Obj, Me.Frame(ID)
+        Case Is = "cline":     LoadCtrl vAdd, Ctrl, Obj, Me.CLine(ID)
+        Case Is = "cshape":    LoadCtrl vAdd, Ctrl, Obj, Me.CShape(ID)
+        Case Is = "hscroll":   LoadCtrl vAdd, Ctrl, Obj, Me.HScroll(ID)
         Case Is = "vscroll":   LoadCtrl vAdd, Ctrl, Obj, Me.VScroll(ID)
-
+        Case Is = "timer":     LoadCtrl vAdd, Ctrl, Obj, Me.Timer(ID)
+        
         Case Is = "skin":      If vAdd Then Set Obj = SkinCtrl(ID, True) Else Ctrl = SkinCtrl(ID, False)
         Case Is = "pbar":      If vAdd Then Set Obj = CreateWC(typeObj & ID, "msctls_progress32") Else Ctrl = CreateWC(typeObj & ID)
 
@@ -627,6 +641,52 @@ End Sub
 
 Private Sub List_Validate(Index As Integer, Cancel As Boolean)
     Cancel = Events("List" & Index & "_Validate")
+End Sub
+
+
+'========================= MList ===========================
+Private Sub MList_Click(Index As Integer)
+    If Events("MList" & Index & "_Click") = False Then Events "MList_Click", Index
+End Sub
+
+Private Sub MList_DblClick(Index As Integer)
+    Events "MList" & Index & "_DblClick"
+End Sub
+
+Private Sub MList_DragDrop(Index As Integer, Source As Control, x As Single, y As Single)
+    Events "MList" & Index & "_DragDrop", Source, x, y
+End Sub
+
+Private Sub MList_DragOver(Index As Integer, Source As Control, x As Single, y As Single, State As Integer)
+    Events "MList" & Index & "_DragOver", Source, x, y, State
+End Sub
+
+Private Sub MList_ItemCheck(Index As Integer, Item As Integer)
+    Events "MList" & Index & "_ItemCheck", Item
+End Sub
+
+Private Sub MList_KeyDown(Index As Integer, KeyCode As Integer, Shift As Integer)
+    Events "MList" & Index & "_KeyDown", KeyCode, Shift
+End Sub
+
+Private Sub MList_KeyUp(Index As Integer, KeyCode As Integer, Shift As Integer)
+    Events "MList" & Index & "_KeyUp", KeyCode, Shift
+End Sub
+
+Private Sub MList_OLEDragDrop(Index As Integer, Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, y As Single)
+    Events "MList" & Index & "_OLEDragDrop", Data, Effect, Button, Shift, x, y
+End Sub
+
+Private Sub MList_OLEDragOver(Index As Integer, Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, y As Single, State As Integer)
+    Events "MList" & Index & "_OLEDragOver", Data, Effect, Button, Shift, x, y, State
+End Sub
+
+Private Sub MList_Scroll(Index As Integer)
+    Events "MList" & Index & "_Scroll"
+End Sub
+
+Private Sub MList_Validate(Index As Integer, Cancel As Boolean)
+    Cancel = Events("MList" & Index & "_Validate")
 End Sub
 
 
