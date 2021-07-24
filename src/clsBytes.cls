@@ -61,17 +61,21 @@ Public Function Bin2Long(ByVal value As String) As Long
     Next
 End Function
 
-Public Function Long2Bin(ByVal value As Long, Optional ByVal vShort As Long = -32) As String
-    Dim a As Long
+Public Function Long2Bin(ByVal value As Long, Optional ByVal vShort As Long = -32, Optional ByVal vStep As Long = 0, Optional ByVal vAdd As String = " ") As String
+    Dim a As Long, r As String
     
-    Long2Bin = String$(32, "0")
+    r = String$(32, "0")
     
     For a = 0 To 31
-        If GetBit(value, a) Then Mid$(Long2Bin, 32 - a, 1) = "1"
+        If GetBit(value, a) Then Mid$(r, 32 - a, 1) = "1"
     Next
     
-    Long2Bin = Right$(Long2Bin, Abs(vShort)):      If vShort >= 0 Then Exit Function
-    a = InStr(Long2Bin, "1"):    If a = 0 Then Long2Bin = "0" Else Long2Bin = Right$(Long2Bin, Len(Long2Bin) - a + 1)
+    r = Right$(r, Abs(vShort)):     If vShort < 0 Then a = InStr(r, "1"):  If a = 0 Then r = "0" Else r = Right$(r, Len(r) - a + 1)
+    If vStep = 0 Then Long2Bin = r:    Exit Function
+    
+    For a = 1 To Len(r) Step vStep
+        Long2Bin = Long2Bin & Mid$(r, a, vStep):        If (a + vStep) <= Len(r) Then Long2Bin = Long2Bin & vAdd
+    Next
 End Function
 
 Public Function Byte2Long(ByVal num1 As Byte, ByVal num2 As Byte, ByVal num3 As Byte, ByVal num4 As Byte) As Long
