@@ -63,6 +63,10 @@ Public Property Let Overflow(ByVal value As Boolean)
     m_Overflow = value
 End Property
 
+Public Sub Fill(ByVal value As Byte)
+    If Size Then FillMemory Buffer(0), Size, value
+End Sub
+
 
 'Default Member
 Public Property Get PByte(Optional ByVal vOffset As Long = -1) As Byte

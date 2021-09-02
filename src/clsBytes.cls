@@ -130,29 +130,29 @@ Public Function Crypt(Optional value As Variant, Optional ByVal Flag As Long = -
     Crypt = Buf
 End Function
 
-Public Sub ArrayRedim(Buf As Variant, vsp() As Variant, Optional ByVal isPreserve As Boolean = False, Optional ByVal value As Long = -1)
+Public Function NewArr(Buf As Variant, vsp() As Variant, Optional ByVal isPreserve As Boolean = False, Optional ByVal value As Long = -1) As Variant
     Dim tmpBuf() As Byte
-   
-    If VarType(Buf) <> (vbArray + vbByte) Then Buf = tmpBuf
+
+    If VarType(Buf) = (vbArray + vbByte) Then tmpBuf = Buf
     
     If ArrayValid(vsp, , , 1, 3) Then
         If isPreserve Then
             Select Case UBound(vsp)
-                Case 0:     ReDim Preserve Buf(vsp(0))
-                Case 1:     ReDim Preserve Buf(vsp(0), vsp(1))
-                Case 2:     ReDim Preserve Buf(vsp(0), vsp(1), vsp(2))
+                Case 0:     ReDim Preserve tmpBuf(vsp(0))
+                Case 1:     ReDim Preserve tmpBuf(vsp(0), vsp(1))
+                Case 2:     ReDim Preserve tmpBuf(vsp(0), vsp(1), vsp(2))
             End Select
         Else
             Select Case UBound(vsp)
-                Case 0:     ReDim Buf(vsp(0))
-                Case 1:     ReDim Buf(vsp(0), vsp(1))
-                Case 2:     ReDim Buf(vsp(0), vsp(1), vsp(2))
+                Case 0:     ReDim tmpBuf(vsp(0))
+                Case 1:     ReDim tmpBuf(vsp(0), vsp(1))
+                Case 2:     ReDim tmpBuf(vsp(0), vsp(1), vsp(2))
             End Select
         End If
     End If
     
     If value >= 0 And value <= 255 Then
-        With GetSafeArray(Buf)
+        With GetSafeArray(tmpBuf)
             If .pvData Then
                 Select Case .cDims
                     Case 1:     FillMemory ByVal .pvData, .rgSABound(0).cElements, value
@@ -162,7 +162,9 @@ Public Sub ArrayRedim(Buf As Variant, vsp() As Variant, Optional ByVal isPreserv
             End If
         End With
     End If
-End Sub
+    
+    NewArr = tmpBuf
+End Function
 
 Private Sub Class_Initialize()
     Dim a As Long, v As Long

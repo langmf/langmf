@@ -18,7 +18,7 @@ Class IDispatch
   Function COM_Invoke(This, idMember, IDName, wFlags, Params, Result)    
 	msgbox "Member - " & IDName
 
-	sys.bytes.arrayredim buf, Array(255)
+	buf = sys.bytes.newarr(buf, Array(255))
 	pvData = Struct(VarPtr(buf) + 8, 12)
 	rc = Struct(This, Array(,,256,pvData,0))
 	

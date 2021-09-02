@@ -2,7 +2,7 @@
 '---------------------------------------
 Sub Load(cmdLine)
 
-	sys.bytes.arrayredim a, Array(127),,65
+	a = sys.bytes.newarr(, Array(127),,65)
 	l = clng(67305985)
 	i = cint(1541)
 	b = cbyte(7)
