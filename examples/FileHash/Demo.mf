@@ -60,7 +60,7 @@ Function CRC32(nFile)
     
     Const OPEN_EXISTING  = 3
     Const GENERIC_READ   = &H80000000
-    Const BUFFER_SIZE    = 8000000
+    Const BUFFER_SIZE    = 6553600
     
     CRC32 = 0
     
