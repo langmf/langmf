@@ -25,7 +25,7 @@ Sub Load(cmdLine)
      msgbox "Not Find Digit",,"Example 2"
   end if
 
-  txt1 = txt1 =~ mg/"[0-9]+"/""/
+  txt1 = txt1 =~ gq/"[0-9]+"/""/
 
   msgbox txt1,,"Example 2"
 

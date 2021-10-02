@@ -779,13 +779,13 @@ Sub Parse_Interface(txtCode As String)
 End Sub
 
 Sub Parse_RegExp(txtCode As String)
-    Dim p0 As String, p1 As String, p2 As String, p3 As String, pm As String, Mts As MatchCollection
-    Dim fi As Boolean, fg As Boolean, fr As Boolean, fe As Boolean, fm As Boolean
+    Dim p0 As String, p1 As String, p2 As String, p3 As String, q As String, Mts As MatchCollection
+    Dim fi As Boolean, fg As Boolean, fr As Boolean, fe As Boolean, fm As Boolean, fq As Boolean
 
     REG.Global = False
     
     Do
-        REG.Pattern = "([a-z0-9_\.\(\)]+)[ \t]*=~[ \t]*([igem]*)\/(.*?(\\\\|[^\\]))?\/(.*)\/"
+        REG.Pattern = "([a-z0-9_\.\(\)]+)[ \t]*=~[ \t]*([igmeq]*)\/(.*?(\\\\|[^\\]))?\/(.*)\/"
         Set Mts = REG.Execute(txtCode)
     
         If Mts.Count Then
@@ -795,15 +795,16 @@ Sub Parse_RegExp(txtCode As String)
                 fr = CBool(Len(p3))
                 fi = CBool(InStr(p1, "i"))
                 fg = CBool(InStr(p1, "g"))
-                fe = CBool(InStr(p1, "e"))
                 fm = CBool(InStr(p1, "m"))
+                fe = CBool(InStr(p1, "e"))
+                fq = CBool(InStr(p1, "q"))
                 
-                If fm Then pm = "" Else pm = """":  If p3 = vbTab Then p3 = ""
+                If fq Then q = "" Else q = """": If p3 = vbTab Then p3 = ""
     
                 If fr Then
-                    txtCode = Replace$(txtCode, .value, "sys.rxp.replace(" + p0 + ", " + pm + p2 + pm + ", " + pm + p3 + pm + ", " + CStr(fi) + ", " + CStr(fg) + ")")
+                    txtCode = Replace$(txtCode, .value, "sys.rxp.replace(" + p0 + ", " + q + p2 + q + ", " + q + p3 + q + ", " + CStr(fi) + ", " + CStr(fg) + ", " + CStr(fm) + ")")
                 Else
-                    txtCode = Replace$(txtCode, .value, "sys.rxp." + IIF(fe, "execute", "test") + "(" + p0 + ", " + pm + p2 + pm + ", " + CStr(fi) + ", " + CStr(fg) + ")")
+                    txtCode = Replace$(txtCode, .value, "sys.rxp." + IIF(fe, "execute", "test") + "(" + p0 + ", " + q + p2 + q + ", " + CStr(fi) + ", " + CStr(fg) + ", " + CStr(fm) + ")")
                 End If
             End With
         End If
@@ -1334,9 +1335,9 @@ Sub MakeMF(ByVal nameMF As String, Optional ByVal Packer As Long = CMS_FORMAT_ZL
         txtINI = Code_Parse(Buf, "Make")
         If ExistsMember(CAS.CodeObject, "LMF_Make_Begin") Then txtINI = CBN("", "LMF_Make_Begin", VbFunc, Array(txtINI))
         
-        txtFls = RXP.Eval(txtINI, "\[files\]([^\[]+)", , , , , -1)
-        txtRes = RXP.Eval(txtINI, "\[resource\]([^\[]+)", , , , , -1)
-        txtOpt = RXP.Eval(txtINI, "\[options\]([^\[]+)", , , , , -1)
+        txtFls = RXP.Eval(txtINI, "\[files\]([^\[]+)", , , -1)
+        txtRes = RXP.Eval(txtINI, "\[resource\]([^\[]+)", , , -1)
+        txtOpt = RXP.Eval(txtINI, "\[options\]([^\[]+)", , , -1)
         
         If RXP.Test(txtOpt, "\npacker[ \t]*=[ \t]*([^\r]+)") Then
             Packer = Val(Parse_MPath(RXP.Mts(0).SubMatches(0)))

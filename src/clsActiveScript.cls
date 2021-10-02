@@ -62,8 +62,10 @@ Public Property Get Ptr() As Long
     Ptr = ObjPtr(IScript)
 End Property
 
-Public Sub Reset()
+Public Function Reset() As Object
     Dim v As Variant
+    
+    Set Reset = Me
     
     For Each v In Objects
         If IsObject(v) Then Set v = Nothing
@@ -77,28 +79,28 @@ Public Sub Reset()
     
     Set IParse = Nothing
     Set IScript = Nothing
-End Sub
+End Function
 
-Public Sub Parse(value As String, Optional ByVal nameMod As String, Optional ByVal Flags As Long, Optional Result As Variant)
+Public Function Parse(value As String, Optional ByVal nameMod As String, Optional ByVal Flags As Long, Optional Result As Variant) As Object
     Dim cnx As Long
-    Init
+    Set Parse = Me:           Call Init
     On Error Resume Next
     cnx = Objects(nameMod)
     On Error GoTo 0
     IParse.ParseScriptText value, nameMod, Nothing, vbNullString, cnx, 0, Flags, Result, Exep
-End Sub
+End Function
 
-Public Sub AddCode(ByVal value As String, Optional ByVal nameMod As String)
-    Parse value, nameMod, SCRIPTTEXT_ISVISIBLE
-End Sub
+Public Function AddCode(ByVal value As String, Optional ByVal nameMod As String) As Object
+    Set AddCode = Parse(value, nameMod, SCRIPTTEXT_ISVISIBLE)
+End Function
 
 Public Function Eval(ByVal value As String, Optional ByVal nameMod As String) As Variant
     Parse value, nameMod, SCRIPTTEXT_ISEXPRESSION, Eval
 End Function
 
-Public Sub Execute(ByVal value As String, Optional ByVal nameMod As String)
-    Parse value, nameMod
-End Sub
+Public Function Execute(ByVal value As String, Optional ByVal nameMod As String) As Object
+    Set Execute = Parse(value, nameMod)
+End Function
 
 Public Property Get CodeObject(Optional ByVal nameMod As String) As Object
     On Error Resume Next
@@ -106,20 +108,20 @@ Public Property Get CodeObject(Optional ByVal nameMod As String) As Object
     IScript.GetScriptDispatch nameMod, CodeObject
 End Property
 
-Public Sub AddObject(ByVal vName As String, ByVal Obj As Object, Optional ByVal AddMembers As Boolean)
+Public Function AddObject(ByVal vName As String, ByVal Obj As Object, Optional ByVal AddMembers As Boolean) As Object
     On Error GoTo err1
-    Init
+    Set AddObject = Me:       Call Init
     If Not Obj Is Nothing Then
         Objects.Add Obj, vName
         AddName vName, SCRIPTITEM_ISVISIBLE Or IIF(AddMembers, SCRIPTITEM_GLOBALMEMBERS, 0)
     End If
 err1:
-End Sub
+End Function
 
-Public Sub AddName(ByVal value As String, Optional ByVal Flags As Long = SCRIPTITEM_ISVISIBLE Or SCRIPTITEM_CODEONLY)
-    Init
+Public Function AddName(ByVal value As String, Optional ByVal Flags As Long = SCRIPTITEM_ISVISIBLE Or SCRIPTITEM_CODEONLY) As Object
+    Set AddName = Me:         Call Init
     IScript.AddNamedItem value, Flags
-End Sub
+End Function
 
 Public Function AddModule(ByVal nameMod As Variant, Optional ByVal txtCode As String) As Object
     On Error GoTo err1

@@ -24,8 +24,8 @@ Sub Load(cmdLine)
 
   
   txt = "<a href=""%mf_script%\test1.js"">"  & vbcrlf & "<a href=""%test2.js"">" & vbcrlf & "<a href=""%mf_temp%\test3.js"">"
-  s1 = txt =~ igm/"( (src\s*=|href\s*=|url\()\s*"")(%[^""]+?"")"/GetFunc("(m) result = m.submatches(0) + Replace(Sys.Conv.MPath(m.submatches(2)), ""%"", Sys.Path)")/
-  s2 = txt =~ igm/"( (src\s*=|href\s*=|url\()\s*"")(%[^""]+?"")"/GetFunc("(m,i) result = m.submatches(0) + "" "" & i & "" = "" + Replace(Sys.Conv.MPath(m.submatches(2)), ""%"", Sys.Path)")/
+  s1 = txt =~ igq/"( (src\s*=|href\s*=|url\()\s*"")(%[^""]+?"")"/GetFunc("(m) result = m.submatches(0) + Replace(Sys.Conv.MPath(m.submatches(2)), ""%"", Sys.Path)")/
+  s2 = txt =~ igq/"( (src\s*=|href\s*=|url\()\s*"")(%[^""]+?"")"/GetFunc("(m,i) result = m.submatches(0) + "" "" & i & "" = "" + Replace(Sys.Conv.MPath(m.submatches(2)), ""%"", Sys.Path)")/
   
   msgbox s1 & vbcrlf & vbcrlf & s2
   

@@ -20,70 +20,74 @@ Public Property Get CreateNew() As Object
     Set CreateNew = New clsRXP
 End Property
 
-Public Function Test(ByVal rTxt As String, Optional ByVal rPat As String = "", Optional ByVal fi As Boolean = True, Optional ByVal fg As Boolean = True) As Boolean
+Public Function Test(ByVal txt As String, Optional ByVal pat As String, Optional ByVal fi As Boolean = True, Optional ByVal fg As Boolean = True, Optional ByVal fm As Boolean = True) As Boolean
     With Obj
-        .Global = fg:       .IgnoreCase = fi:       If LenB(rPat) Then .Pattern = rPat
-        Set Mts = .Execute(rTxt)
+        .Global = fg:     .IgnoreCase = fi:     .MultiLine = fm:     If LenB(pat) Then .Pattern = pat
+        Set Mts = .Execute(txt)
     End With
     Test = (Mts.Count > 0)
 End Function
 
-Public Function Execute(ByVal rTxt As String, Optional ByVal rPat As String = "", Optional ByVal fi As Boolean = True, Optional ByVal fg As Boolean = True) As MatchCollection
+Public Function Execute(ByVal txt As String, Optional ByVal pat As String, Optional ByVal fi As Boolean = True, Optional ByVal fg As Boolean = True, Optional ByVal fm As Boolean = True) As MatchCollection
     With Obj
-        .Global = fg:       .IgnoreCase = fi:       If LenB(rPat) Then .Pattern = rPat
-        Set Mts = .Execute(rTxt)
+        .Global = fg:     .IgnoreCase = fi:     .MultiLine = fm:     If LenB(pat) Then .Pattern = pat
+        Set Mts = .Execute(txt)
     End With
     Set Execute = Mts
 End Function
 
-Public Function Replace(ByVal rTxt As String, Optional ByVal rPat As String = "", Optional rRep As Variant = "", Optional ByVal fi As Boolean = True, Optional ByVal fg As Boolean = True) As Variant
-    Dim i As Long, c As Long, t As Long, p As Long, txt As String, v As Variant, m As Match, h As New clsHash
+Public Function Replace(ByVal txt As String, Optional ByVal pat As String, Optional Rep As Variant = "", Optional ByVal fi As Boolean = True, Optional ByVal fg As Boolean = True, Optional ByVal fm As Boolean = True) As Variant
+    Dim i As Long, c As Long, t As Long, p As Long, res As String, v As Variant, m As Match, h As New clsHash
     
-    t = VariantType(rRep):      Obj.Global = fg:       Obj.IgnoreCase = fi:       If LenB(rPat) Then Obj.Pattern = rPat
+    With Obj
+        .Global = fg:     .IgnoreCase = fi:     .MultiLine = fm:     If LenB(pat) Then .Pattern = pat
+    End With
+    
+    t = VariantType(Rep)
 
     If t = vbString Then
-        Replace = Obj.Replace(rTxt, rRep)
+        Replace = Obj.Replace(txt, Rep)
     
     ElseIf t = vbObject Then
-        Set Mts = Obj.Execute(rTxt):            c = GetFunc(rRep)(1):           p = 1
+        Set Mts = Obj.Execute(txt):            c = GetFunc(Rep)(1):           p = 1
         
         For i = 0 To Mts.Count - 1
             Set m = Mts(i):     v = Empty
             
-            If c = 1 Then v = rRep(m)
-            If c = 2 Then v = rRep(m, i)
-            If c = 3 Then v = rRep(m, i, h)
+            If c = 1 Then v = Rep(m)
+            If c = 2 Then v = Rep(m, i)
+            If c = 3 Then v = Rep(m, i, h)
 
-            If Not IsEmpty(v) And c <> 3 Then txt = txt & Mid$(rTxt, p, m.FirstIndex - p + 1) & v:      p = m.FirstIndex + m.Length + 1
+            If Not IsEmpty(v) And c <> 3 Then res = res & Mid$(txt, p, m.FirstIndex - p + 1) & v:      p = m.FirstIndex + m.Length + 1
         Next
         
-        If c = 3 Then Set Replace = h Else Replace = txt + Mid$(rTxt, p)
+        If c = 3 Then Set Replace = h Else Replace = res & Mid$(txt, p)
     End If
 End Function
 
-Public Function Matches(Optional ByVal rNum As Long = 0, Optional ByVal numMts As Long = 0) As Variant
-    Dim cntMts As Long, cntSbm As Long, numSbm As Long
+Public Function Matches(Optional ByVal curSBM As Long, Optional ByVal curMTS As Long) As Variant
+    Dim cntMTS As Long, cntSBM As Long, numSBM As Long
     
     If Mts Is Nothing Then Exit Function
-    If Mts.Count = 0 Or numMts >= Mts.Count Then Exit Function
-    If numMts < 0 Then numMts = 0:   cntMts = Mts.Count Else cntMts = 1
+    If Mts.Count = 0 Or curMTS >= Mts.Count Then Exit Function
+    If curMTS < 0 Then curMTS = 0:   cntMTS = Mts.Count Else cntMTS = 1
     
-    For numMts = numMts To numMts + cntMts - 1
-        With Mts.Item(numMts)
-            numSbm = rNum:      If numSbm < 0 Then numSbm = 0:   cntSbm = .SubMatches.Count Else cntSbm = 1
-            For numSbm = numSbm To numSbm + cntSbm - 1
-                If numSbm < .SubMatches.Count Then Matches = Matches & .SubMatches(numSbm)
+    For curMTS = curMTS To curMTS + cntMTS - 1
+        With Mts.Item(curMTS)
+            numSBM = curSBM:      If numSBM < 0 Then numSBM = 0:   cntSBM = .SubMatches.Count Else cntSBM = 1
+            For numSBM = numSBM To numSBM + cntSBM - 1
+                If numSBM < .SubMatches.Count Then Matches = Matches & .SubMatches(numSBM)
             Next
         End With
     Next
 End Function
 
-Public Function Eval(ByVal rTxt As String, Optional ByVal rPat As String = "", Optional ByVal rDef As String = "", Optional ByVal fi As Boolean = True, Optional ByVal fg As Boolean = True, Optional ByVal rNum As Long = 0, Optional ByVal numMts As Long = 0) As String
+Public Function Eval(ByVal txt As String, Optional ByVal pat As String, Optional ByVal def As String, Optional ByVal curSBM As Long, Optional ByVal curMTS As Long, Optional ByVal fi As Boolean = True, Optional ByVal fg As Boolean = True, Optional ByVal fm As Boolean = True) As String
     Dim value As Variant
     
-    Call Execute(rTxt, rPat, fi, fg):       value = Matches(rNum, numMts)
+    Call Execute(txt, pat, fi, fg, fm):       value = Matches(curSBM, curMTS)
     
-    If IsEmpty(value) Then Eval = rDef Else Eval = value
+    If IsEmpty(value) Then Eval = def Else Eval = value
 End Function
 
 Private Sub Class_Initialize()
