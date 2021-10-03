@@ -30,7 +30,7 @@ Attribute Find.VB_UserMemId = 0
     
     Call m_Find(MPath)
 
-    Find = findTxt
+    If Count < 0 Then Find = Array() Else Find = findTxt
     Erase findTxt
 End Function
 

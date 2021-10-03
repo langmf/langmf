@@ -82,7 +82,6 @@ End Function
 Public Function AddFileMF(ByVal nameScript As String, Optional ByVal nameLib As String, Optional ByVal forceRunMF As Long) As String
     Dim Buf() As Byte
     nameScript = Parse_MPath(nameScript)
-    If Not IsFileExt(nameScript, , Array(".mf")) Then Exit Function
     If File2Buf(Buf, nameScript) Then AddFileMF = Code_Parse(Buf, IIF(LenB(nameLib), nameLib, nameScript), forceRunMF)
 End Function
 
@@ -167,12 +166,7 @@ End Property
 Public Property Get Path(Optional ByVal value As Variant = False, Optional ByVal backSlash As Boolean = True) As String
     Dim vt As Long, Buf As String
     
-    vt = VarType(value)
-    
-    If vt = 11 Then
-        If value Then Path = Info.File Else Path = CPath(GetDirectory(Info.File), backSlash)
-        
-    ElseIf vt = 8 Then
+    If VarType(value) = vbString Then
         Buf = String$(MAX_PATH_X2, 0):      vt = Len(Buf)
         
         Select Case LCase$(value)
@@ -187,6 +181,8 @@ Public Property Get Path(Optional ByVal value As Variant = False, Optional ByVal
             Case "user":            Call GetUserNameW(StrPtr(Buf), vt):       Path = Left$(Buf, vt - 1)
             Case "computer":        Call GetComputerNameW(StrPtr(Buf), vt):   Path = Left$(Buf, vt)
         End Select
+    Else
+        If value Then Path = Info.File Else Path = CPath(GetDirectory(Info.File), backSlash)
     End If
 End Property
 

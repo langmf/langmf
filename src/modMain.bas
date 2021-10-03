@@ -175,7 +175,7 @@ Function Code_Parse(Buf() As Byte, Optional ByVal nameScript As String, Optional
     Dim tmpForm As frmForm, PCD() As def_ParseCustom, cs As Collection, v As clsActiveScript
 
     On Error Resume Next
-    
+
     If ArraySize(Buf) = 0 Then Exit Function
     
     '--------------------------------------------------------------------
