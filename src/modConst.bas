@@ -325,6 +325,7 @@ Global Const WM_COMMAND             As Long = &H111&
 Global Const WM_SYSCOMMAND          As Long = &H112&
 Global Const WM_GETMINMAXINFO       As Long = &H24
 Global Const WM_QUERYENDSESSION     As Long = &H11
+Global Const WM_SETTINGSCHANGE      As Long = &H1A
 Global Const WM_ERASEBKGND          As Long = &H14
 Global Const WM_SETICON             As Long = &H80
 Global Const WM_MOUSEMOVE           As Long = &H200&

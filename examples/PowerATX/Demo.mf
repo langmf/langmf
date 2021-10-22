@@ -21,9 +21,17 @@ Sub Load(cmdLine)
 End Sub
 
 '-----------------------------------------
-Function QueryEndSession(lParam)
+Function Event_QueryEndSession(wParam, lParam)
 	sys.conv.str2file hex(lparam), "log.txt"
 	sys.ext.vb_unload form
+End Function
+
+'-----------------------------------------
+Function Event_SettingsChange(wParam, lParam)
+	If sys.conv.ptr2str(lParam, 1) = "ImmersiveColorSet" Then
+        isLight = val(sys.registry.RegRead("HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize\AppsUseLightTheme"))
+        msgbox "Change theme mode = " & IIF(isLight, "Light", "Dark")
+    End If
 End Function
 <#Module>
 

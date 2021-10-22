@@ -45,6 +45,7 @@ Private Sub Form_Load()
     Me.Move Screen.Width / 3, Screen.Height / 4, 1, 1
     Me.Visible = False
     SubClass.Msg(WM_QUERYENDSESSION) = 1
+    SubClass.Msg(WM_SETTINGSCHANGE) = 1
     SubClass.HookSet Me
 End Sub
 
@@ -54,7 +55,8 @@ End Sub
 
 Public Function WindowProc(ByRef bHandled As Boolean, ByVal u_hWnd As Long, ByVal uMsg As Long, ByRef wParam As Long, ByRef lParam As Long, ByVal dwRefData As Long) As Long
     On Error Resume Next
-    If uMsg = WM_QUERYENDSESSION Then WindowProc = CLng(CAS.CodeObject.QueryEndSession(lParam))
+    If uMsg = WM_QUERYENDSESSION Then WindowProc = CLng(CAS.CodeObject.Event_QueryEndSession(wParam, lParam))
+    If uMsg = WM_SETTINGSCHANGE Then WindowProc = CLng(CAS.CodeObject.Event_SettingsChange(wParam, lParam))
 End Function
 
 
