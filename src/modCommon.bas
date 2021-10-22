@@ -1293,7 +1293,7 @@ Function GetFunc(Optional value As Variant) As Variant
     If Err.Number = 0 Then Exit Function
     
     txt = value
-    Set REG1 = New RegExp:          REG1.IgnoreCase = True:     REG1.Pattern = "^(\s*<([^>]+)>\s*)?(function)?\s*(\w*)\s*(\([^\)]*\))(.+)"
+    Set REG1 = New RegExp:          REG1.IgnoreCase = True:     REG1.Pattern = "^(\s*<([^>]+)>\s*)?(function)?\s*(\w*)\s*(\([^\)]*\))([\s\S]+)"
     Set Mts = REG1.Execute(txt):    REG1.Global = True:         REG1.Pattern = "\w+":         c = REG1.Execute(Mts(0).SubMatches(4)).Count
     
     If t = vbString Then
@@ -1422,16 +1422,16 @@ Sub ArrayDef(Param As Variant, ParamArray vsp() As Variant)
 End Sub
 
 Sub ArrayReverse(arr As Variant)
-    Dim SA As SafeArray, a As Long, uds As Long, newArr() As Variant
+    Dim SA As SafeArray, a As Long, uds As Long, NewArr() As Variant
     
     SA = GetSafeArray(arr):    uds = SA.rgSABound(0).cElements - 1:    If uds <= 0 Or SA.cDims <> 1 Then Exit Sub
 
-    ReDim newArr(uds)
+    ReDim NewArr(uds)
     For a = 0 To uds
-        VariantCopy newArr(a), arr(uds - a)
+        VariantCopy NewArr(a), arr(uds - a)
     Next
         
-    arr = newArr
+    arr = NewArr
 End Sub
 
 Function GetSafeArray(arr As Variant, Optional vt As Integer, Optional ptrSA As Long) As SafeArray
