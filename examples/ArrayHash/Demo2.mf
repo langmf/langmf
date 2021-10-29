@@ -49,7 +49,7 @@ Sub Load(cmdLine)
         GLine form, x, y, x + w, y + w, c, 2
     Next
     
-  form.unicaption = "Max = " & m & "   Lev = " & round(h,1) & "   Col = " & Round(s, 1) & "   Free = " & CInt((g / (UBound(v) + 1)) * 100) & "%   " & "ms = " & t1 & "   Value = " & b
+  form.wtext = "Max = " & m & "   Lev = " & round(h,1) & "   Col = " & Round(s, 1) & "   Free = " & CInt((g / (UBound(v) + 1)) * 100) & "%   " & "ms = " & t1 & "   Value = " & b
 End Sub
 <#Module>
 

@@ -427,31 +427,17 @@ Public Function IsFont(ByVal nameFont As String) As Boolean
 err1:
 End Function
 
-Public Property Get UniCaption(Optional ByVal Obj As Object) As String
-    Dim lngLen As Long, lngPtr As Long
-
+Public Property Get WText(Optional ByVal Obj As Object) As String
+    Dim sz As Long, vPtr As Long
     If Obj Is Nothing Then Set Obj = Me
-    If (TypeOf Obj Is CheckBox) Or (TypeOf Obj Is CommandButton) Or (TypeOf Obj Is Form) Or (TypeOf Obj Is Frame) Or (TypeOf Obj Is OptionButton) Then
-        lngLen = DefWindowProcW(Obj.hWnd, WM_GETTEXTLENGTH, 0, 0)
-        If lngLen Then
-            lngPtr = SysAllocStringLen(0, lngLen)
-            PutMem4 VarPtr(UniCaption), lngPtr
-            DefWindowProcW Obj.hWnd, WM_GETTEXT, lngLen + 1, lngPtr
-        End If
-    Else
-        On Error Resume Next
-        UniCaption = Obj
-    End If
+    sz = DefWindowProcW(Obj.hWnd, WM_GETTEXTLENGTH, 0, 0):      If sz = 0 Then Exit Property
+    vPtr = SysAllocStringLen(0, sz):    PutMem4 VarPtr(WText), vPtr:    DefWindowProcW Obj.hWnd, WM_GETTEXT, sz + 1, vPtr
 End Property
 
-Public Property Let UniCaption(Optional ByVal Obj As Object, ByVal value As String)
+Public Property Let WText(Optional ByVal Obj As Object, ByVal value As String)
     If Obj Is Nothing Then Set Obj = Me
-    If (TypeOf Obj Is CheckBox) Or (TypeOf Obj Is CommandButton) Or (TypeOf Obj Is Form) Or (TypeOf Obj Is Frame) Or (TypeOf Obj Is OptionButton) Then
-        DefWindowProcW Obj.hWnd, WM_SETTEXT, 0, ByVal StrPtr(value)
-    Else
-        On Error Resume Next
-        Obj = value
-    End If
+    If (TypeOf Obj Is Form) Then DefWindowProcW Obj.hWnd, WM_SETTEXT, 0&, ByVal StrPtr(value):    Exit Property
+    SendMessageW Obj.hWnd, WM_SETTEXT, 0, StrPtr(value)
 End Property
 
 

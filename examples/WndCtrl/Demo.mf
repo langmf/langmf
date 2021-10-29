@@ -8,7 +8,7 @@ Sub Load(cmdLine)
   With Form
 	.Width = 5040
 	.Height = 2400
-    .UniCaption = txt
+    .wtext = txt
 	.Center
 	.Show
 	
