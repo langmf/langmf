@@ -13,7 +13,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 Option Explicit
 
-Private lOn(31) As Long, lPow(31) As Long, crcTable(255) As Byte
+Private lOn(31) As Long, lPow(31) As Long
 
 
 Public Function LShift(ByVal value As Long, ByVal bits As Long) As Long
@@ -92,42 +92,33 @@ Public Function Long2Integer(ByVal value As Long) As Integer
     GetMem2 VarPtr(value), Long2Integer
 End Function
 
-Public Function CRC(Buf As Variant, Optional ByVal addToEnd As Boolean) As Variant
-    Dim a As Long, sz As Long, vCrc As Byte
+Public Function CRC(Buf As Variant, Optional ByVal addCrc As Boolean, Optional ByVal Alg As Long) As Variant
+    Dim a As Long, b As Long, x As Long, v As Long, sz As Long, vCrc As Long
     
     sz = ArraySize(Buf):      If sz = 0 Then Exit Function
     
-    For a = 0 To sz - 1
-        vCrc = crcTable(vCrc Xor CByte(Buf(a)))
-    Next
-    
-    CRC = vCrc
-    If addToEnd Then ReDim Preserve Buf(sz):   Buf(sz) = vCrc:   CRC = Buf
-End Function
-
-Public Function Crypt(Optional value As Variant, Optional ByVal Flag As Long = -1) As Variant
-    Dim a As Long, tmp As Byte, Buf() As Byte
-
-    Static i As Long, s As Byte, p As Long, u As Long, Key() As Byte
-
-    If Flag = 0 Or Flag = 1 Then
-        If Flag = 0 Then ConvToBufferByte value, Key:    u = UBound(Key)
-        For a = 0 To u:     tmp = crcTable(tmp Xor Key(a)):     Next
-        i = u * 256 + tmp:    s = 0:    p = 0:    Exit Function
+    If Alg = 0 Then                 ' Dallas
+        vCrc = 0
+        For a = 0 To sz - 1
+            v = CByte(Buf(a))
+            For b = 7 To 0 Step -1
+                x = &H8C * ((vCrc Xor v) And 1):     vCrc = vCrc \ 2:     vCrc = vCrc Xor x:     v = v \ 2
+            Next
+        Next
+        If addCrc Then ReDim Preserve Buf(sz):       Buf(sz) = vCrc
+        
+    ElseIf Alg = 1 Then             ' Modbus
+        vCrc = &HFFFF&
+        For a = 0 To sz - 1
+            vCrc = vCrc Xor CByte(Buf(a))
+            For b = 7 To 0 Step -1
+                x = &HA001& * (vCrc And 1):          vCrc = vCrc \ 2:     vCrc = vCrc Xor x
+            Next
+        Next
+        If addCrc Then ReDim Preserve Buf(sz + 1):   Buf(sz) = vCrc And 255:   Buf(sz + 1) = vCrc \ 256
     End If
-
-    ConvToBufferByte value, Buf
- 
-    For a = 0 To ArraySize(Buf) - 1
-        tmp = Buf(a) Xor Key(p) Xor (i Mod 256) Xor (i \ 256) Xor s
-        If Flag = 2 Then s = Buf(a)
-        If Flag = 3 Then s = tmp
-        Buf(a) = tmp
-        p = p + 1
-        If p > u Then p = 0: If i >= 65535 Then i = 0 Else i = i + 1
-    Next
     
-    Crypt = Buf
+    If addCrc Then CRC = Buf Else CRC = vCrc
 End Function
 
 Public Function NewArr(Buf As Variant, vsp() As Variant, Optional ByVal isPreserve As Boolean = False, Optional ByVal value As Long = -1) As Variant
@@ -171,17 +162,4 @@ Private Sub Class_Initialize()
 
     lOn(30) = &H7FFFFFFF:   lPow(30) = &H40000000:   lOn(31) = &HFFFFFFFF:   lPow(31) = &H80000000
     v = 1:   For a = 0 To 29:   lPow(a) = v:   v = v * 2:   lOn(a) = v - 1:   Next
-
-    For a = 0 To 255
-        v = 0
-        If (a And &H1) Then v = v Xor &H5E
-        If (a And &H2) Then v = v Xor &HBC
-        If (a And &H4) Then v = v Xor &H61
-        If (a And &H8) Then v = v Xor &HC2
-        If (a And &H10) Then v = v Xor &H9D
-        If (a And &H20) Then v = v Xor &H23
-        If (a And &H40) Then v = v Xor &H46
-        If (a And &H80) Then v = v Xor &H8C
-        crcTable(a) = v
-    Next
 End Sub
