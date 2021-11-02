@@ -441,47 +441,35 @@ Public Function FileLongName(ByVal fName As String) As String
     If rc > 0 Then FileLongName = Left$(txt, rc)
 End Function
 
-Function Str2File(Buf As String, nameFile As String) As Boolean
+Function Str2File(Buf As String, nameFile As String) As Long
     Dim f As New clsFileAPI
-    
     If f.FOpen(nameFile, CREATE_ALWAYS) = INVALID_HANDLE Then Exit Function
     f.PutStr Buf
     f.FClose
-    
     Str2File = True
 End Function
 
-Function File2Str(Buf As String, nameFile As String) As Boolean
-    Dim f As New clsFileAPI, sz As Long
-    
-    Buf = ""
-    
-    If f.FOpen(nameFile, OPEN_EXISTING, GENERIC_READ) = INVALID_HANDLE Then Exit Function
-    sz = f.LOF:    If sz Then Buf = String$(sz, 0):   f.GetStr Buf
-    f.FClose
-    
-    File2Str = sz
-End Function
-
-Function File2Buf(Buf() As Byte, nameFile As String) As Boolean
-    Dim f As New clsFileAPI, sz As Long
-    
-    Erase Buf
-    
-    If f.FOpen(nameFile, OPEN_EXISTING, GENERIC_READ) = INVALID_HANDLE Then Exit Function
-    sz = f.LOF:    If sz Then ReDim Buf(sz - 1):   f.GetBuf Buf
-    f.FClose
-    
-    File2Buf = sz
-End Function
-
-Function Buf2File(Buf() As Byte, nameFile As String) As Boolean
+Function File2Str(Buf As String, nameFile As String) As Long
     Dim f As New clsFileAPI
-    
+    Buf = ""
+    If f.FOpen(nameFile, OPEN_EXISTING, GENERIC_READ) = INVALID_HANDLE Then Exit Function
+    File2Str = f.LOF:    If File2Str Then Buf = String$(File2Str, 0):   f.GetStr Buf
+    f.FClose
+End Function
+
+Function File2Buf(Buf() As Byte, nameFile As String) As Long
+    Dim f As New clsFileAPI
+    Erase Buf
+    If f.FOpen(nameFile, OPEN_EXISTING, GENERIC_READ) = INVALID_HANDLE Then Exit Function
+    File2Buf = f.LOF:    If File2Buf Then ReDim Buf(File2Buf - 1):   f.GetBuf Buf
+    f.FClose
+End Function
+
+Function Buf2File(Buf() As Byte, nameFile As String) As Long
+    Dim f As New clsFileAPI
     If f.FOpen(nameFile, CREATE_ALWAYS) = INVALID_HANDLE Then Exit Function
     f.PutBuf Buf
     f.FClose
-    
     Buf2File = True
 End Function
 
@@ -956,11 +944,11 @@ Sub RemoveDir(ByVal nameDir As String)
     RmDir nameDir
 End Sub
 
-Function CPath(fPath As String, Optional ByVal typePath As Boolean = True, Optional ByVal delim As String = "\") As String
+Function CPath(fPath As String, Optional ByVal typePath As Boolean = True, Optional ByVal dm As String = "\") As String
     If typePath Then
-        If Right$(fPath, 1) <> delim Then fPath = fPath + delim
+        If Right$(fPath, 1) <> dm Then fPath = fPath + dm
     Else
-        If Right$(fPath, 1) = delim Then fPath = Left$(fPath, Len(fPath) - 1)
+        If Right$(fPath, 1) = dm Then fPath = Left$(fPath, Len(fPath) - 1)
     End If
     CPath = fPath
 End Function

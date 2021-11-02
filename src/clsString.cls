@@ -71,12 +71,12 @@ Public Function Rpt(ByVal txt As String, ByVal cnt As Long) As String
     
     If Len(txt) = 0 Or cnt = 0 Then Exit Function
 
-    b = txt:   sz = Len(txt) * 2:   If cnt > 0 Then cnt = sz * cnt - 1 Else cnt = -2 * cnt - 1
+    b = txt:    sz = Len(txt) * 2:    If cnt > 0 Then cnt = sz * cnt - 1 Else cnt = -2 * cnt - 1
     
     ReDim o(cnt)
 
     For p = 0 To cnt
-        o(p) = b(i):   i = i + 1:   If i >= sz Then i = 0
+        o(p) = b(i):    i = i + 1:    If i >= sz Then i = 0
     Next
 
     Rpt = o
@@ -134,6 +134,13 @@ Public Function LSplit(ByVal txt As String, Optional ByVal sz As Long = 80, Opti
     Next
     
     LSplit = tmpStr
+End Function
+
+Public Function Join(value As Variant, Optional ByVal addStr As String) As String
+    Dim a As Long, n As Long, tmpStr() As String
+    n = ArraySize(value):     If n <= 0 Then Exit Function Else ReDim tmpStr(n - 1)
+    For a = 0 To n - 1:       tmpStr(a) = value(a):       Next
+    Join = VBA.Join(tmpStr, addStr)
 End Function
 
 

@@ -24,205 +24,201 @@ Public Function API(Optional ByVal Param As Variant) As Object                 '
     Set API = DoParams(New clsFileAPI, Param)
 End Function
 
-Public Function Open2(ByVal nameFile As String, Optional ByVal NumFile As Integer = 0, Optional ByVal typeOpen As String = "binary", Optional ByVal fLen As Integer = 1) As Long
+Public Function Open2(ByVal nameFile As String, Optional ByVal numFile As Integer = 0, Optional ByVal typeOpen As String = "binary", Optional ByVal fLen As Integer = 1) As Long
     On Error GoTo err1
     
-    If NumFile <= 0 Then NumFile = VBA.FreeFile
+    If numFile <= 0 Then numFile = VBA.FreeFile
     
-    numLenRandom(NumFile) = 1
+    numLenRandom(numFile) = 1
     
     Select Case LCase$(typeOpen)
-        Case "input":       Open nameFile For Input As #NumFile
-        Case "output":      Open nameFile For Output As #NumFile
-        Case "append":      Open nameFile For Append As #NumFile
-        Case "binary":      Open nameFile For Binary As #NumFile
-        Case "random":      Open nameFile For Binary As #NumFile:       numLenRandom(NumFile) = fLen
+        Case "input":       Open nameFile For Input As #numFile
+        Case "output":      Open nameFile For Output As #numFile
+        Case "append":      Open nameFile For Append As #numFile
+        Case "binary":      Open nameFile For Binary As #numFile
+        Case "random":      Open nameFile For Binary As #numFile:       numLenRandom(numFile) = fLen
     End Select
     
-    Open2 = NumFile
+    Open2 = numFile
     Exit Function
 err1:
     Open2 = -1
 End Function
 
-Public Function Seek2(ByVal NumFile As Integer, Optional ByVal numPos As Long = -1) As Long
+Public Function Seek2(ByVal numFile As Integer, Optional ByVal numPos As Long = -1) As Long
     On Error Resume Next
-    If numPos < 1 Then Seek2 = Seek(NumFile) Else Seek NumFile, numPos
+    If numPos < 1 Then Seek2 = Seek(numFile) Else Seek numFile, numPos
 End Function
 
-Public Sub Lock2(ByVal NumFile As Integer)
+Public Sub Lock2(ByVal numFile As Integer)
     On Error Resume Next
-    Lock NumFile
+    Lock numFile
 End Sub
 
-Public Sub UnLock2(ByVal NumFile As Integer)
+Public Sub UnLock2(ByVal numFile As Integer)
     On Error Resume Next
-    Unlock NumFile
+    Unlock numFile
 End Sub
 
-Public Function EOF(ByVal NumFile As Integer) As Boolean
-    EOF = VBA.EOF(NumFile)
+Public Function EOF(ByVal numFile As Integer) As Boolean
+    EOF = VBA.EOF(numFile)
 End Function
 
-Public Function LOF(ByVal NumFile As Integer) As Long
-    LOF = VBA.LOF(NumFile)
+Public Function LOF(ByVal numFile As Integer) As Long
+    LOF = VBA.LOF(numFile)
 End Function
 
-Public Function LOC(ByVal NumFile As Integer) As Long
-    LOC = VBA.LOC(NumFile)
+Public Function LOC(ByVal numFile As Integer) As Long
+    LOC = VBA.LOC(numFile)
 End Function
 
-Public Function LineInput2(ByVal NumFile As Integer, Optional txt As Variant) As String
+Public Function LineInput2(ByVal numFile As Integer, Optional value As Variant) As String
     Dim tmp As String
     On Error Resume Next
-    Line Input #NumFile, tmp
-    txt = tmp
-    LineInput2 = tmp
+    Line Input #numFile, tmp:       value = tmp:        LineInput2 = tmp
 End Function
 
-Public Function Input2(ByVal NumFile As Integer, Optional txt As Variant) As String
+Public Function Input2(ByVal numFile As Integer, Optional value As Variant) As String
     Dim tmp As String
     On Error Resume Next
-    Input #NumFile, tmp
-    txt = tmp
-    Input2 = tmp
+    Input #numFile, tmp:            value = tmp:        Input2 = tmp
 End Function
 
-Public Sub Print2(ByVal NumFile As Integer, Optional ByVal txt As String = "")
+Public Sub Print2(ByVal numFile As Integer, Optional ByVal value As String = "")
     On Error Resume Next
-    Print #NumFile, txt
+    Print #numFile, value
 End Sub
 
-Public Sub Get2(ByVal NumFile As Integer, Optional numPosFile As Variant, Optional Buf As Variant)
+Public Sub Get2(ByVal numFile As Integer, Optional vPos As Variant, Optional Buf As Variant)
     Dim tmpBuf() As Byte, tmpByte As Byte, tmpInteger As Integer, tmpLong As Long
     Dim tmpBoolean As Boolean, tmpCurrency As Currency, tmpDouble As Double
     Dim tmpSingle As Single, tmpString As String, fs As Long, numPos As Long
     
     On Error Resume Next
     
-    If Not IsMissing(numPosFile) Then numPos = numPosFile
-    If numLenRandom(NumFile) > 1 Then numPos = (numPos - 1) * numLenRandom(NumFile) + 1
+    If Not IsMissing(vPos) Then numPos = vPos
+    If numLenRandom(numFile) > 1 Then numPos = (numPos - 1) * numLenRandom(numFile) + 1
     
     Select Case VariantType(Buf, True)
         Case vbArray + vbByte
             fs = ArraySize(Buf) - 1
             If fs < 0 Then Exit Sub
             ReDim tmpBuf(fs)
-            If numPos <= 0 Then Get #NumFile, , tmpBuf Else Get #NumFile, numPos, tmpBuf
+            If numPos <= 0 Then Get #numFile, , tmpBuf Else Get #numFile, numPos, tmpBuf
             Buf = tmpBuf
             
         Case vbArray + vbVariant
             fs = ArraySize(Buf) - 1
             If fs < 0 Then Exit Sub
             ReDim tmpBuf(fs)
-            If numPos <= 0 Then Get #NumFile, , tmpBuf Else Get #NumFile, numPos, tmpBuf
+            If numPos <= 0 Then Get #numFile, , tmpBuf Else Get #numFile, numPos, tmpBuf
             ConvFromBufferByte Buf, tmpBuf
             
         Case vbObject
             fs = Buf.•SIZE
             ReDim tmpBuf(fs - 1)
-            If numPos <= 0 Then Get #NumFile, , tmpBuf Else Get #NumFile, numPos, tmpBuf
+            If numPos <= 0 Then Get #numFile, , tmpBuf Else Get #numFile, numPos, tmpBuf
             tmpLong = Buf.•WRAP.Ptr + Buf.•OFS
             CopyMemory ByVal tmpLong, tmpBuf(0), fs
             
         Case vbByte
-            If numPos <= 0 Then Get #NumFile, , tmpByte Else Get #NumFile, numPos, tmpByte
+            If numPos <= 0 Then Get #numFile, , tmpByte Else Get #numFile, numPos, tmpByte
             Buf = tmpByte
             
         Case vbLong
-            If numPos <= 0 Then Get #NumFile, , tmpLong Else Get #NumFile, numPos, tmpLong
+            If numPos <= 0 Then Get #numFile, , tmpLong Else Get #numFile, numPos, tmpLong
             Buf = tmpLong
             
         Case vbInteger
-            If numPos <= 0 Then Get #NumFile, , tmpInteger Else Get #NumFile, numPos, tmpInteger
+            If numPos <= 0 Then Get #numFile, , tmpInteger Else Get #numFile, numPos, tmpInteger
             Buf = tmpInteger
             
         Case vbString
             tmpString = Buf
-            If numPos <= 0 Then Get #NumFile, , tmpString Else Get #NumFile, numPos, tmpString
+            If numPos <= 0 Then Get #numFile, , tmpString Else Get #numFile, numPos, tmpString
             Buf = tmpString
             
         Case vbDouble
-            If numPos <= 0 Then Get #NumFile, , tmpDouble Else Get #NumFile, numPos, tmpDouble
+            If numPos <= 0 Then Get #numFile, , tmpDouble Else Get #numFile, numPos, tmpDouble
             Buf = tmpDouble
             
         Case vbSingle
-            If numPos <= 0 Then Get #NumFile, , tmpSingle Else Get #NumFile, numPos, tmpSingle
+            If numPos <= 0 Then Get #numFile, , tmpSingle Else Get #numFile, numPos, tmpSingle
             Buf = tmpSingle
             
         Case vbBoolean
-            If numPos <= 0 Then Get #NumFile, , tmpBoolean Else Get #NumFile, numPos, tmpBoolean
+            If numPos <= 0 Then Get #numFile, , tmpBoolean Else Get #numFile, numPos, tmpBoolean
             Buf = tmpBoolean
             
         Case vbCurrency
-            If numPos <= 0 Then Get #NumFile, , tmpCurrency Else Get #NumFile, numPos, tmpCurrency
+            If numPos <= 0 Then Get #numFile, , tmpCurrency Else Get #numFile, numPos, tmpCurrency
             Buf = tmpCurrency
     End Select
 End Sub
 
-Public Sub Put2(ByVal NumFile As Integer, Optional numPosFile As Variant, Optional Buf As Variant)
+Public Sub Put2(ByVal numFile As Integer, Optional vPos As Variant, Optional Buf As Variant)
     Dim tmpBuf() As Byte, tmpByte As Byte, tmpInteger As Integer, tmpLong As Long
     Dim tmpBoolean As Boolean, tmpCurrency As Currency, tmpDouble As Double
     Dim tmpSingle As Single, tmpString As String, fs As Long, numPos As Long
     
     On Error Resume Next
     
-    If Not IsMissing(numPosFile) Then numPos = numPosFile
-    If numLenRandom(NumFile) > 1 Then numPos = (numPos - 1) * numLenRandom(NumFile) + 1
+    If Not IsMissing(vPos) Then numPos = vPos
+    If numLenRandom(numFile) > 1 Then numPos = (numPos - 1) * numLenRandom(numFile) + 1
 
     Select Case VariantType(Buf, True)
         Case vbArray + vbByte
             tmpBuf = Buf
-            If numPos <= 0 Then Put #NumFile, , tmpBuf Else Put #NumFile, numPos, tmpBuf
+            If numPos <= 0 Then Put #numFile, , tmpBuf Else Put #numFile, numPos, tmpBuf
             
         Case vbArray + vbVariant
             ConvToBufferByte Buf, tmpBuf
-            If numPos <= 0 Then Put #NumFile, , tmpBuf Else Put #NumFile, numPos, tmpBuf
+            If numPos <= 0 Then Put #numFile, , tmpBuf Else Put #numFile, numPos, tmpBuf
             
         Case vbObject
             fs = Buf.•SIZE
             ReDim tmpBuf(fs - 1)
             tmpLong = Buf.•WRAP.Ptr + Buf.•OFS
             CopyMemory tmpBuf(0), ByVal tmpLong, fs
-            If numPos <= 0 Then Put #NumFile, , tmpBuf Else Put #NumFile, numPos, tmpBuf
+            If numPos <= 0 Then Put #numFile, , tmpBuf Else Put #numFile, numPos, tmpBuf
             
         Case vbByte
             tmpByte = Buf
-            If numPos <= 0 Then Put #NumFile, , tmpByte Else Put #NumFile, numPos, tmpByte
+            If numPos <= 0 Then Put #numFile, , tmpByte Else Put #numFile, numPos, tmpByte
             
         Case vbLong
             tmpLong = Buf
-            If numPos <= 0 Then Put #NumFile, , tmpLong Else Put #NumFile, numPos, tmpLong
+            If numPos <= 0 Then Put #numFile, , tmpLong Else Put #numFile, numPos, tmpLong
 
         Case vbInteger
             tmpInteger = Buf
-            If numPos <= 0 Then Put #NumFile, , tmpInteger Else Put #NumFile, numPos, tmpInteger
+            If numPos <= 0 Then Put #numFile, , tmpInteger Else Put #numFile, numPos, tmpInteger
             
         Case vbString
             tmpString = Buf
-            If numPos <= 0 Then Put #NumFile, , tmpString Else Put #NumFile, numPos, tmpString
+            If numPos <= 0 Then Put #numFile, , tmpString Else Put #numFile, numPos, tmpString
             
         Case vbDouble
             tmpDouble = Buf
-            If numPos <= 0 Then Put #NumFile, , tmpDouble Else Put #NumFile, numPos, tmpDouble
+            If numPos <= 0 Then Put #numFile, , tmpDouble Else Put #numFile, numPos, tmpDouble
             
         Case vbSingle
             tmpSingle = Buf
-            If numPos <= 0 Then Put #NumFile, , tmpSingle Else Put #NumFile, numPos, tmpSingle
+            If numPos <= 0 Then Put #numFile, , tmpSingle Else Put #numFile, numPos, tmpSingle
             
         Case vbBoolean
             tmpBoolean = Buf
-            If numPos <= 0 Then Put #NumFile, , tmpBoolean Else Put #NumFile, numPos, tmpBoolean
+            If numPos <= 0 Then Put #numFile, , tmpBoolean Else Put #numFile, numPos, tmpBoolean
             
         Case vbCurrency
             tmpCurrency = Buf
-            If numPos <= 0 Then Put #NumFile, , tmpCurrency Else Put #NumFile, numPos, tmpCurrency
+            If numPos <= 0 Then Put #numFile, , tmpCurrency Else Put #numFile, numPos, tmpCurrency
     End Select
 End Sub
 
-Public Sub Close2(ByVal NumFile As Integer)
+Public Sub Close2(ByVal numFile As Integer)
     On Error Resume Next
-    Close #NumFile
+    Close #numFile
 End Sub
 
 Public Sub Reset()
@@ -271,129 +267,112 @@ Public Property Get GetDir(Optional ByVal MPath As String = "-1", Optional ByVal
     If MPath = "-1" Then GetDir = Dir Else GetDir = Dir$(MPath, mAttr)
 End Property
 
-Public Sub FileCopy(ByVal fScr As String, ByVal fDest As String)
-    modCommon.FileCopy fScr, fDest
+Public Sub FileCopy(ByVal fName As String, ByVal fNew As String)
+    modCommon.FileCopy fName, fNew
 End Sub
 
-Public Sub FileMove(ByVal fScr As String, ByVal fDest As String)
-    modCommon.FileMove fScr, fDest
+Public Sub FileMove(ByVal fName As String, ByVal fNew As String)
+    modCommon.FileMove fName, fNew
 End Sub
 
-Public Sub FileKill(ByVal fScr As String)
-    modCommon.FileKill fScr
+Public Sub FileKill(ByVal fName As String)
+    modCommon.FileKill fName
 End Sub
 
-Public Sub FolderCopy(ByVal fScr As String, ByVal fDest As String)
+Public Sub FolderCopy(ByVal fName As String, ByVal fNew As String)
     Dim fso As Object
     On Error Resume Next
     Set fso = VBA.CreateObject("Scripting.FileSystemObject")
-    fso.CopyFolder fScr, fDest, True
+    fso.CopyFolder fName, fNew, True
     Set fso = Nothing
 End Sub
 
-Public Sub FolderMove(ByVal fScr As String, ByVal fDest As String)
+Public Sub FolderMove(ByVal fName As String, ByVal fNew As String)
     Dim fso As Object
     On Error Resume Next
     Set fso = VBA.CreateObject("Scripting.FileSystemObject")
-    fso.MoveFolder fScr, fDest
+    fso.MoveFolder fName, fNew
     Set fso = Nothing
 End Sub
 
-Public Sub ChDrive(ByVal nameDrive As String)
+Public Sub ChDrive(ByVal value As String)
     On Error Resume Next
-    VBA.ChDrive nameDrive
+    VBA.ChDrive value
 End Sub
 
-Public Sub ChDir(ByVal nameDir As String)
-    modCommon.ChDir nameDir
+Public Sub ChDir(ByVal value As String)
+    modCommon.ChDir value
 End Sub
 
 Public Property Get CurDir() As String
     CurDir = modCommon.CurDir
 End Property
 
-Public Sub RemoveDir(ByVal nameDir As String)
-    modCommon.RemoveDir nameDir
+Public Sub RemoveDir(ByVal value As String)
+    modCommon.RemoveDir value
 End Sub
 
-Public Sub RmDir(ByVal nameDir As String)
-    modCommon.RmDir nameDir
+Public Sub RmDir(ByVal value As String)
+    modCommon.RmDir value
 End Sub
 
-Public Sub CreateDir(ByVal nameDir As String)
-    modCommon.CreateDir nameDir
+Public Sub CreateDir(ByVal value As String)
+    modCommon.CreateDir value
 End Sub
 
-Public Sub MkDir(ByVal nameDir As String)
-    modCommon.MkDir nameDir
+Public Sub MkDir(ByVal value As String)
+    modCommon.MkDir value
 End Sub
 
-Public Function Exists(ByVal fScr As String, Optional ByVal mask_L As Long = -17, Optional ByVal mask_H As Long = 0) As Boolean
-    Exists = IsFile(fScr, mask_L, mask_H)
+Public Function Exists(ByVal fName As String, Optional ByVal mask_L As Long = -17, Optional ByVal mask_H As Long = 0) As Boolean
+    Exists = IsFile(fName, mask_L, mask_H)
 End Function
 
-Public Function FormatBytes(ByVal numBytes As Double, Optional ByVal arrUnit As Variant) As String
-    FormatBytes = modCommon.FormatBytes(numBytes, arrUnit)
+Public Function FormatBytes(ByVal value As Double, Optional ByVal arrUnit As Variant) As String
+    FormatBytes = modCommon.FormatBytes(value, arrUnit)
 End Function
 
-Public Function GetFileName(ByVal txtFile As String, Optional ByVal dm As String = "\") As String
-    GetFileName = modCommon.GetFileName(txtFile, dm)
+Public Function GetFileName(ByVal fName As String, Optional ByVal dm As String = "\") As String
+    GetFileName = modCommon.GetFileName(fName, dm)
 End Function
 
-Public Function GetDirectory(ByVal txtFile As String, Optional ByVal dm As String = "\") As String
-    GetDirectory = modCommon.GetDirectory(txtFile, dm)
+Public Function GetDirectory(ByVal fName As String, Optional ByVal dm As String = "\") As String
+    GetDirectory = modCommon.GetDirectory(fName, dm)
 End Function
 
-Public Function GetFileTitle(ByVal txtFile As String, Optional ByVal dm As String = "\") As String
-    GetFileTitle = modCommon.GetFileTitle(txtFile, dm)
+Public Function GetFileTitle(ByVal fName As String, Optional ByVal dm As String = "\") As String
+    GetFileTitle = modCommon.GetFileTitle(fName, dm)
 End Function
 
-Public Function GetExtension(ByVal txtFile As String, Optional ByVal dm As String = "\") As String
-    GetExtension = modCommon.GetExtension(txtFile, dm)
+Public Function GetExtension(ByVal fName As String, Optional ByVal dm As String = "\") As String
+    GetExtension = modCommon.GetExtension(fName, dm)
 End Function
 
-Public Function CPath(ByVal fPath As String, Optional ByVal typePath As Boolean = True, Optional ByVal delim As String = "\") As String
-    CPath = modCommon.CPath(fPath, typePath, delim)
+Public Function CPath(ByVal fPath As String, Optional ByVal typePath As Boolean = True, Optional ByVal dm As String = "\") As String
+    CPath = modCommon.CPath(fPath, typePath, dm)
 End Function
 
-Public Function LPath(ByVal fPath As String, Optional ByVal numLevel As Long = 0, Optional ByVal delim As String = "\") As String
+Public Function LPath(ByVal fPath As String, Optional ByVal numLevel As Long = 0, Optional ByVal dm As String = "\") As String
     Dim a As Long, cnt As Long, txt() As String
     
     If LenB(fPath) Then
-        If Right$(fPath, 1) = delim Then fPath = Left$(fPath, Len(fPath) - 1)
+        If Right$(fPath, 1) = dm Then fPath = Left$(fPath, Len(fPath) - 1)
         
-        txt = Split(fPath, delim)
+        txt = Split(fPath, dm)
         
         cnt = UBound(txt)
         
         If numLevel > 0 Then
             For a = numLevel To cnt
-                LPath = LPath + txt(a) + delim
+                LPath = LPath + txt(a) + dm
             Next
         Else
             If cnt + numLevel < 0 Then numLevel = -cnt
             
             For a = 0 To cnt + numLevel
-                LPath = LPath + txt(a) + delim
+                LPath = LPath + txt(a) + dm
             Next
         End If
-    End If
-End Function
-
-
-Public Function APath(ByVal fPath As String, Optional ByVal sPath As String, Optional ByVal vAlg As Long = SHA1) As String
-    Dim rc As Long
-    
-    If LenB(fPath) Then
-        If Len(sPath) Then If Right$(sPath, 1) <> "\" Then sPath = sPath + "\"
-        
-        APath = String$(MAX_PATH_UNI, 0)
-        rc = GetFullPathNameW(StrPtr(fPath), MAX_PATH_UNI, StrPtr(APath), ByVal 0&)
-        APath = Left$(APath, rc)
-        
-        If Len(sPath) = 0 Then Exit Function
-        If InStr(APath, sPath) Then APath = Mid$(APath, Len(sPath) + 1):   Exit Function
-        APath = SYS.Conv.HashString(modCommon.GetDirectory(APath), vAlg) + "\" + modCommon.GetFileName(APath)
     End If
 End Function
 

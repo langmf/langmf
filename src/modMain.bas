@@ -1230,7 +1230,7 @@ Function CompressMF(ByVal fName As String, Optional VExt As Variant, Optional By
     f.FClose
     
     If MFHC.Signature = mf_Sign Then Exit Function
-    If Not File2Buf(Buf, fName) Then Exit Function
+    If File2Buf(Buf, fName) = 0 Then Exit Function
     
     FileKill fName
     

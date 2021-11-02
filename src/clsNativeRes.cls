@@ -678,7 +678,7 @@ End Function
 
 Public Function PutResourceFromFile(ByVal srcFileName As String, ByVal nameExeFile As String, ByVal mTypes As Long, ByVal mNames As Variant, Optional ByVal wLang As Long = 0, Optional ByVal bDelete As Boolean = False) As Long
     Dim Buf() As Byte
-    If Not File2Buf(Buf, srcFileName) Then ReDim Buf(0)
+    If File2Buf(Buf, srcFileName) = 0 Then ReDim Buf(0)
     PutResourceFromFile = PutResource(Buf, nameExeFile, mTypes, mNames, wLang, bDelete)
 End Function
 

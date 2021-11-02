@@ -162,7 +162,6 @@ Declare Function SetPriorityClass Lib "kernel32" (ByVal hProcess As Long, ByVal 
 Declare Function TerminateProcess Lib "kernel32" (ByVal hProcess As Long, ByVal uExitCode As Long) As Long
 Declare Function GetLongPathNameW Lib "kernel32" (ByVal lpszShortPath As Long, ByVal lpszLongPath As Long, ByVal cchBuffer As Long) As Long
 Declare Function GetComputerNameW Lib "kernel32" (ByVal lpBuffer As Long, nSize As Long) As Long
-Declare Function GetFullPathNameW Lib "kernel32" (ByVal lpFileName As Long, ByVal nBufferLength As Long, ByVal lpBuffer As Long, lpFilePart As Long) As Long
 Declare Function GetShortPathNameW Lib "kernel32" (ByVal lpszLongPath As Long, ByVal lpszShortPath As Long, ByVal cchBuffer As Long) As Long
 Declare Function GetCurrentProcess Lib "kernel32" () As Long
 Declare Function GetExitCodeProcess Lib "kernel32" (ByVal hProcess As Long, lpExitCode As Long) As Long
