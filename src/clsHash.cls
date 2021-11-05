@@ -14,8 +14,8 @@ Attribute VB_Exposed = True
 Option Explicit
 
 Const DEFAULT_SizeHash     As Long = 991   'простое число
-Const DEFAULT_SizeList     As Long = 256
-Const DEFAULT_SizeChunk    As Long = 1024
+Const DEFAULT_SizeList     As Long = 64
+Const DEFAULT_SizeChunk    As Long = 256
 
 Const DEFAULT_HashMult     As Long = -37
 Const DEFAULT_HashMask     As Long = &H7FFFFF
@@ -36,16 +36,14 @@ End Type
 
 Private hashTable() As Long, slotTable() As SlotType, RXP As New RegExp
 Private hash_Mult As Long, hash_Mask As Long, hash_Offset As Long
-Private m_HashSize As Long, m_ListSize As Long, m_ChunkSize As Long, m_Count As Long, FreeNdx As Long
-Private m_IgnoreCase As Boolean, m_Locked As Boolean, m_LockedPasswd As String, m_NoKey As Long
+Private m_IgnoreCase As Boolean, m_NoKey As Long, FreeNdx As Long
+Private m_HashSize As Long, m_ListSize As Long, m_ChunkSize As Long, m_Count As Long
 
 Public Default As Variant
 
 
 Public Function Add(value As Variant, Optional ByVal Key As String) As Boolean
     Dim ndx As Long
-    
-    If m_Locked Then Exit Function
     
     If LenB(Key) = 0 Then
         Do
@@ -83,7 +81,7 @@ End Property
 Public Property Let Item(ByVal Key As String, value As Variant)
     Dim ndx As Long
 
-    If LenB(Key) = 0 Or m_Locked Then Exit Property
+    If LenB(Key) = 0 Then Exit Property
     
     ndx = GetSlotIndex(Key, True)
     
@@ -93,7 +91,7 @@ End Property
 Public Property Set Item(ByVal Key As String, ByVal value As Object)
     Dim ndx As Long
 
-    If LenB(Key) = 0 Or m_Locked Then Exit Property
+    If LenB(Key) = 0 Then Exit Property
     
     ndx = GetSlotIndex(Key, True)
     Set slotTable(ndx).value = value
@@ -102,7 +100,7 @@ End Property
 Public Function Remove(ByVal Key As String) As Boolean
     Dim ndx As Long, HCode As Long, LastNdx As Long
     
-    If LenB(Key) = 0 Or m_Locked Then Exit Function
+    If LenB(Key) = 0 Then Exit Function
     
     ndx = GetSlotIndex(Key, False, HCode, LastNdx)
 
@@ -129,30 +127,20 @@ Public Function Remove(ByVal Key As String) As Boolean
     Remove = True
 End Function
 
-Public Function Exists(ByVal Key As String) As Boolean
-    Exists = GetSlotIndex(Key) <> 0
-End Function
-
-Public Property Get Count() As Long
-    Count = m_Count
-End Property
-
 Public Property Get Items(Optional ByVal Flags As Long, Optional ByVal txtPattern As String) As Variant
     Dim a As Long, i As Long, n As Long, isRXP As Boolean, isFind As Boolean, v() As Variant
     
     If Flags = -1 Then
         ReDim v(UBound(hashTable))
         For a = 0 To UBound(hashTable)
-            n = 0:    i = hashTable(a)
-            Do While i:    n = n + 1:    i = slotTable(i).nextItem:    Loop
-            v(a) = n
+            n = 0:    i = hashTable(a):     Do While i:    n = n + 1:    i = slotTable(i).nextItem:    Loop:    v(a) = n
         Next
         Items = v:    Exit Property
     End If
     
     If m_Count = 0 Then Items = Array():   Exit Property
     
-    isRXP = Len(txtPattern):      RXP.Pattern = txtPattern:      ReDim v(0 To m_Count - 1)
+    ReDim v(0 To m_Count - 1):      If Len(txtPattern) Then isRXP = True:   RXP.Pattern = txtPattern
     
     For i = 0 To UBound(slotTable)
         With slotTable(i)
@@ -164,7 +152,7 @@ Public Property Get Items(Optional ByVal Flags As Long, Optional ByVal txtPatter
                         Case 0:     If IsObject(.value) Then Set v(n) = .value Else v(n) = .value
                         Case 1:     v(n) = .Key
                         Case 2:     v(n) = Array(.value, .Key)
-                        Case 3:     If Not m_Locked Then v(n) = VarPtr(.nextItem)
+                        Case 3:     v(n) = VarPtr(.nextItem)
                     End Select
                     
                     n = n + 1
@@ -173,9 +161,30 @@ Public Property Get Items(Optional ByVal Flags As Long, Optional ByVal txtPatter
         End With
     Next
     
-    If isRXP Then If n = 0 Then Items = Array(): Exit Property Else ReDim Preserve v(n - 1)
+    If isRXP Then If n = 0 Then Items = Array():  Exit Property Else ReDim Preserve v(n - 1)
 
     Items = v
+End Property
+
+Public Property Get NewEnum() As IUnknown
+Attribute NewEnum.VB_UserMemId = -4
+    Dim i As Long:      Static v As Collection:     Set v = New Collection
+    
+    If m_Count Then
+        For i = 0 To UBound(slotTable)
+            If LenB(slotTable(i).Key) Then v.Add slotTable(i).value
+        Next
+    End If
+
+    Set NewEnum = v.[_NewEnum]
+End Property
+
+Public Function Exists(ByVal Key As String) As Boolean
+    Exists = GetSlotIndex(Key) <> 0
+End Function
+
+Public Property Get Count() As Long
+    Count = m_Count
 End Property
 
 Public Property Get IgnoreCase() As Boolean
@@ -186,27 +195,7 @@ Public Property Let IgnoreCase(ByVal newValue As Boolean)
     If m_Count = 0 Then m_IgnoreCase = newValue
 End Property
 
-Public Property Get Locked(Optional ByVal txtPasswd As String) As Boolean
-    Locked = m_Locked
-End Property
-
-Public Property Let Locked(Optional ByVal txtPasswd As String, ByVal vNewValue As Boolean)
-    Dim Pos As Long, pwdOld As String
-    
-    Pos = InStr(txtPasswd, "@")
-    If Pos Then
-        pwdOld = Left$(txtPasswd, Pos - 1)
-        txtPasswd = Mid$(txtPasswd, Pos + 1)
-        If pwdOld = m_LockedPasswd Then m_LockedPasswd = txtPasswd
-    End If
-    
-    If txtPasswd <> m_LockedPasswd Then Exit Property
-    m_Locked = vNewValue
-End Property
-
 Public Function Child(Optional ByVal Key As String) As Object           'As clsHash
-    If m_Locked Then Exit Function
-    
     Set Child = New clsHash
     If IsObject(Default) Then Set Child.Default = Default Else Child.Default = Default
     Child.IgnoreCase = m_IgnoreCase
@@ -216,7 +205,7 @@ End Function
 Public Function Fill(ParamArray vsp() As Variant) As Object             'As clsHash
     Dim a As Long, uds As Long
 
-    Set Fill = Me:          uds = UBound(vsp):          If m_Locked = True Or uds < 1 Then Exit Function
+    Set Fill = Me:          uds = UBound(vsp):          If uds < 1 Then Exit Function
     
     For a = 0 To uds Step 2
         If Not IsObject(vsp(a)) Then If IsMissing(vsp(a)) Then vsp(a) = Empty
@@ -225,8 +214,6 @@ Public Function Fill(ParamArray vsp() As Variant) As Object             'As clsH
 End Function
 
 Public Function Init(Optional ByVal HashSize As Long, Optional ByVal ListSize As Long, Optional ByVal ChunkSize As Long) As Boolean
-    If m_Locked Then Exit Function
-    
     If HashSize < 0 Or ListSize < 0 Or ChunkSize < 0 Then
         If m_Count Then Exit Function
         hash_Mult = Abs(HashSize)
@@ -273,7 +260,7 @@ Private Sub ExpandSlotTable(ByVal numEls As Long)
         slotTable(i).nextItem = i + 1
     Next
     
-    slotTable(UBound(slotTable)).nextItem = FreeNdx     ' overwrite the last (wrong) value
+    slotTable(UBound(slotTable)).nextItem = FreeNdx     ' overwrite the last (wrong) Value
     FreeNdx = newFreeNdx                                ' we now know where to pick the first free item
 End Sub
 
