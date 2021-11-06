@@ -13,13 +13,13 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 Option Explicit
 
-Const DEFAULT_SizeHash     As Long = 991   'простое число
-Const DEFAULT_SizeList     As Long = 64
-Const DEFAULT_SizeChunk    As Long = 256
+Const DEF_SizeHash     As Long = 991        ' must be prime number
+Const DEF_SizeList     As Long = 64
+Const DEF_SizeChunk    As Long = 256
 
-Const DEFAULT_HashMult     As Long = -37
-Const DEFAULT_HashMask     As Long = &H7FFFFF
-Const DEFAULT_HashOffset   As Long = 0
+Const DEF_HashMult     As Long = -37
+Const DEF_HashMask     As Long = &H7FFFFF
+Const DEF_HashOffset   As Long = 0
 
 Private Enum HashItems
     Item_Value = 0&
@@ -29,7 +29,7 @@ Private Enum HashItems
 End Enum
 
 Private Type SlotType
-    nextItem As Long      ' 0 if last item
+    Next As Long
     Key As String
     value As Variant
 End Type
@@ -44,138 +44,79 @@ Public Default As Variant
 
 Public Function Add(value As Variant, Optional ByVal Key As String) As Boolean
     Dim ndx As Long
-    
-    If LenB(Key) = 0 Then
-        Do
-            Add = True
-            m_NoKey = m_NoKey + 1
-            Key = Chr$(7) & m_NoKey
-            ndx = GetSlotIndex(Key, Add)
-        Loop Until Add
-    Else
-        Add = True
-        ndx = GetSlotIndex(Key, Add)
-    End If
-    
-    If Add Then If IsObject(value) Then Set slotTable(ndx).value = value Else slotTable(ndx).value = value
+    If LenB(Key) Then Add = True:  ndx = GetSlotIndex(Key, Add) Else ndx = AutoKey(Key, Add)
+    If Add Then SetVar slotTable(ndx).value, value
 End Function
 
 'Default Member
 Public Property Get Item(Optional ByVal Key As String) As Variant
 Attribute Item.VB_UserMemId = 0
     Dim ndx As Long
-    
-    If LenB(Key) = 0 Then Exit Property
-
-    ndx = GetSlotIndex(Key)
-    
-    If ndx = 0 Then     ' not found
-        If IsObject(Default) Then Set Item = Default Else Item = Default
-    ElseIf IsObject(slotTable(ndx).value) Then
-        Set Item = slotTable(ndx).value
-    Else
-        Item = slotTable(ndx).value
-    End If
+    If LenB(Key) Then ndx = GetSlotIndex(Key):   If ndx Then SetVar Item, slotTable(ndx).value Else SetVar Item, Default
 End Property
 
 Public Property Let Item(ByVal Key As String, value As Variant)
     Dim ndx As Long
-
-    If LenB(Key) = 0 Then Exit Property
-    
-    ndx = GetSlotIndex(Key, True)
-    
-    If IsObject(value) Then Set slotTable(ndx).value = value Else slotTable(ndx).value = value
+    If LenB(Key) Then ndx = GetSlotIndex(Key, True):   SetVar slotTable(ndx).value, value
 End Property
 
 Public Property Set Item(ByVal Key As String, ByVal value As Object)
     Dim ndx As Long
-
-    If LenB(Key) = 0 Then Exit Property
-    
-    ndx = GetSlotIndex(Key, True)
-    Set slotTable(ndx).value = value
+    If LenB(Key) Then ndx = GetSlotIndex(Key, True):   Set slotTable(ndx).value = value
 End Property
 
 Public Function Remove(ByVal Key As String) As Boolean
     Dim ndx As Long, HCode As Long, LastNdx As Long
     
-    If LenB(Key) = 0 Then Exit Function
-    
-    ndx = GetSlotIndex(Key, False, HCode, LastNdx)
-
-    If ndx = 0 Then Exit Function
+    If LenB(Key) = 0 Then Exit Function Else ndx = GetSlotIndex(Key, False, HCode, LastNdx):  If ndx = 0 Then Exit Function
     
     If LastNdx Then
-        slotTable(LastNdx).nextItem = slotTable(ndx).nextItem
-    ElseIf slotTable(ndx).nextItem Then
-        hashTable(HCode) = slotTable(ndx).nextItem
+        slotTable(LastNdx).Next = slotTable(ndx).Next
+    ElseIf slotTable(ndx).Next Then
+        hashTable(HCode) = slotTable(ndx).Next
     Else
         hashTable(HCode) = 0
     End If
     
-    With slotTable(ndx)
-        .nextItem = FreeNdx
-        .Key = vbNullString
-        .value = Empty
-    End With
+    With slotTable(ndx):      .Next = FreeNdx:      .value = Empty:      .Key = vbNullString:      End With
     
-    FreeNdx = ndx
-    
-    m_Count = m_Count - 1
-    
-    Remove = True
+    FreeNdx = ndx:      m_Count = m_Count - 1:      Remove = True
 End Function
 
-Public Property Get Items(Optional ByVal Flags As Long, Optional ByVal txtPattern As String) As Variant
-    Dim a As Long, i As Long, n As Long, isRXP As Boolean, isFind As Boolean, v() As Variant
+Public Property Get Items(Optional ByVal Flags As Long, Optional ByVal pat As String, Optional ByVal fi As Boolean = True) As Variant
+    Dim i As Long, n As Long, x As Long, isRXP As Boolean, v() As Variant
     
     If Flags = -1 Then
-        ReDim v(UBound(hashTable))
-        For a = 0 To UBound(hashTable)
-            n = 0:    i = hashTable(a):     Do While i:    n = n + 1:    i = slotTable(i).nextItem:    Loop:    v(a) = n
+        ReDim v(UBound(hashTable)):    For x = 0 To UBound(v):    n = 0:    i = hashTable(x)
+        Do While i:    n = n + 1:    i = slotTable(i).Next:    Loop:    v(x) = n:    Next:    Items = v:    Exit Property
+    
+    ElseIf m_Count Then
+        ReDim v(0 To m_Count - 1):      If LenB(pat) Then isRXP = True:   RXP.Pattern = pat:   RXP.IgnoreCase = fi
+        
+        For i = 0 To UBound(slotTable)
+            Do
+                If LenB(slotTable(i).Key) = 0 Then Exit Do
+                If isRXP Then If RXP.Test(slotTable(i).Key) = False Then Exit Do
+                x = n:       n = n + 1
+                If Flags = 0 Then SetVar v(x), slotTable(i).value:                      Exit Do
+                If Flags = 1 Then v(x) = slotTable(i).Key:                              Exit Do
+                If Flags = 2 Then v(x) = Array(slotTable(i).value, slotTable(i).Key):   Exit Do
+                If Flags = 3 Then v(x) = VarPtr(slotTable(i).Next):                     Exit Do
+            Loop Until True
         Next
-        Items = v:    Exit Property
     End If
     
-    If m_Count = 0 Then Items = Array():   Exit Property
-    
-    ReDim v(0 To m_Count - 1):      If Len(txtPattern) Then isRXP = True:   RXP.Pattern = txtPattern
-    
-    For i = 0 To UBound(slotTable)
-        With slotTable(i)
-            If LenB(.Key) Then
-                If isRXP Then isFind = RXP.Test(.Key) Else isFind = True
-                
-                If isFind Then
-                    Select Case Flags
-                        Case 0:     If IsObject(.value) Then Set v(n) = .value Else v(n) = .value
-                        Case 1:     v(n) = .Key
-                        Case 2:     v(n) = Array(.value, .Key)
-                        Case 3:     v(n) = VarPtr(.nextItem)
-                    End Select
-                    
-                    n = n + 1
-                End If
-            End If
-        End With
-    Next
-    
-    If isRXP Then If n = 0 Then Items = Array():  Exit Property Else ReDim Preserve v(n - 1)
-
-    Items = v
+    If n Then ReDim Preserve v(n - 1): Items = v Else Items = Array()
 End Property
 
 Public Property Get NewEnum() As IUnknown
 Attribute NewEnum.VB_UserMemId = -4
-    Dim i As Long:      Static v As Collection:     Set v = New Collection
-    
+    Dim i As Long:     Static v As Collection:      Set v = New Collection
     If m_Count Then
         For i = 0 To UBound(slotTable)
-            If LenB(slotTable(i).Key) Then v.Add slotTable(i).value
+            If LenB(slotTable(i).Key) Then v.Add slotTable(i).Value
         Next
     End If
-
     Set NewEnum = v.[_NewEnum]
 End Property
 
@@ -195,17 +136,15 @@ Public Property Let IgnoreCase(ByVal newValue As Boolean)
     If m_Count = 0 Then m_IgnoreCase = newValue
 End Property
 
-Public Function Child(Optional ByVal Key As String) As Object           'As clsHash
-    Set Child = New clsHash
-    If IsObject(Default) Then Set Child.Default = Default Else Child.Default = Default
-    Child.IgnoreCase = m_IgnoreCase
-    Add Child, Key
+Public Function Child(Optional ByVal Key As String) As Object                           'As clsHash
+    Set Child = New clsHash:            Child.IgnoreCase = m_IgnoreCase
+    SetVar Child.Default, Default:      Add Child, Key
 End Function
 
-Public Function Fill(ParamArray vsp() As Variant) As Object             'As clsHash
+Public Function Fill(ParamArray vsp() As Variant) As Object                             'As clsHash
     Dim a As Long, uds As Long
 
-    Set Fill = Me:          uds = UBound(vsp):          If uds < 1 Then Exit Function
+    Set Fill = Me:      uds = UBound(vsp):      If uds < 1 Then Exit Function
     
     For a = 0 To uds Step 2
         If Not IsObject(vsp(a)) Then If IsMissing(vsp(a)) Then vsp(a) = Empty
@@ -216,117 +155,84 @@ End Function
 Public Function Init(Optional ByVal HashSize As Long, Optional ByVal ListSize As Long, Optional ByVal ChunkSize As Long) As Boolean
     If HashSize < 0 Or ListSize < 0 Or ChunkSize < 0 Then
         If m_Count Then Exit Function
-        hash_Mult = Abs(HashSize)
-        If ListSize Then hash_Mask = ListSize Else hash_Mask = DEFAULT_HashMask
-        hash_Offset = ChunkSize
+        hash_Mult = Abs(HashSize):      hash_Offset = ChunkSize:      hash_Mask = IIF(ListSize, ListSize, DEF_HashMask)
     Else
-        If HashSize Then m_HashSize = HashSize
+        If HashSize Then m_HashSize = HashSize:     If m_HashSize Mod 2 = 0 Then m_HashSize = m_HashSize + 1
         If ListSize Then m_ListSize = ListSize
         If ChunkSize Then m_ChunkSize = ChunkSize
-        
-        If m_HashSize Mod 2 = 0 Then m_HashSize = m_HashSize + 1
-        
-        m_NoKey = 0:     m_Count = 0:     FreeNdx = 0
-        
-        ReDim hashTable(0 To m_HashSize - 1)
-        ReDim slotTable(0)
+        ReDim hashTable(0 To m_HashSize - 1):     ReDim slotTable(0):     m_NoKey = 0:     m_Count = 0:     FreeNdx = 0
         ExpandSlotTable m_ListSize
     End If
-    
     Init = True
 End Function
 
 
 '--------------------------------------------------------------------------
 Private Sub Class_Initialize()
-    Call Init(DEFAULT_SizeHash, DEFAULT_SizeList, DEFAULT_SizeChunk)
-    Call Init(DEFAULT_HashMult, DEFAULT_HashMask, DEFAULT_HashOffset)
+    Call Init(DEF_SizeHash, DEF_SizeList, DEF_SizeChunk)
+    Call Init(DEF_HashMult, DEF_HashMask, DEF_HashOffset)
     m_IgnoreCase = True
-    RXP.IgnoreCase = True
 End Sub
 
 Private Sub Class_Terminate()
     Erase slotTable
 End Sub
 
-Private Sub ExpandSlotTable(ByVal numEls As Long)
-    Dim newFreeNdx As Long, i As Long
-    
-    newFreeNdx = UBound(slotTable) + 1
-    
-    ReDim Preserve slotTable(0 To UBound(slotTable) + numEls) As SlotType
-
-    For i = newFreeNdx To UBound(slotTable)             ' create the linked list of free items
-        slotTable(i).nextItem = i + 1
-    Next
-    
-    slotTable(UBound(slotTable)).nextItem = FreeNdx     ' overwrite the last (wrong) Value
-    FreeNdx = newFreeNdx                                ' we now know where to pick the first free item
-End Sub
-
-Private Function HashCode(Key As String) As Long
-    Dim i As Long, b() As Byte
-
-    If LenB(Key) = 0 Then Exit Function
-
-    b = Key
-
-    HashCode = hash_Offset
-
-    For i = 0 To UBound(b)
-        HashCode = (HashCode * hash_Mult + b(i)) And hash_Mask
-    Next
-
-    HashCode = HashCode Mod m_HashSize
-End Function
 
 Private Function GetSlotIndex(Key As String, Optional Create As Boolean, Optional HCode As Long, Optional LastNdx As Long) As Long
-    Dim ndx As Long, lowKey As String
+    Dim ndx As Long, LKey As String
     
     If m_IgnoreCase Then
-        lowKey = LCase$(Key)
-        HCode = HashCode(lowKey)
-        ndx = hashTable(HCode)
+        LKey = LCase$(Key):       HCode = HashCode(LKey):       ndx = hashTable(HCode)
     
         Do While ndx
-            If LCase$(slotTable(ndx).Key) = lowKey Then Exit Do
-            LastNdx = ndx
-            ndx = slotTable(ndx).nextItem
+            If LCase$(slotTable(ndx).Key) = LKey Then Exit Do Else LastNdx = ndx:   ndx = slotTable(ndx).Next
         Loop
     Else
-        HCode = HashCode(Key)
-        ndx = hashTable(HCode)
+        HCode = HashCode(Key):      ndx = hashTable(HCode)
     
         Do While ndx
-            If slotTable(ndx).Key = Key Then Exit Do
-            LastNdx = ndx
-            ndx = slotTable(ndx).nextItem
+            If slotTable(ndx).Key = Key Then Exit Do Else LastNdx = ndx:   ndx = slotTable(ndx).Next
         Loop
     End If
     
-    If (ndx = 0) And (Create = True) Then
-        ndx = GetFreeSlot()
-        PrepareSlot ndx, Key, HCode, LastNdx
-    Else
-        Create = False                                  ' signal that no item has been created
-    End If
-
+    If (ndx = 0) And Create Then ndx = GetFreeSlot():   PrepareSlot ndx, Key, HCode, LastNdx Else Create = False
     GetSlotIndex = ndx
 End Function
 
+Private Function HashCode(Key As String) As Long
+    Dim i As Long, b() As Byte
+    If LenB(Key) Then b = Key:  HashCode = hash_Offset Else Exit Function
+    For i = 0 To UBound(b):     HashCode = (HashCode * hash_Mult + b(i)) And hash_Mask:     Next
+    HashCode = HashCode Mod m_HashSize
+End Function
+
+Private Sub ExpandSlotTable(ByVal numAdd As Long)
+    Dim newFreeNdx As Long, i As Long
+    newFreeNdx = UBound(slotTable) + 1
+    ReDim Preserve slotTable(0 To UBound(slotTable) + numAdd) As SlotType
+    For i = newFreeNdx To UBound(slotTable):    slotTable(i).Next = i + 1:    Next      ' create the linked list of free items
+    slotTable(UBound(slotTable)).Next = FreeNdx                                         ' overwrite the last (wrong) Value
+    FreeNdx = newFreeNdx                                                                ' we now know where to pick the first free item
+End Sub
+
 Private Function GetFreeSlot() As Long
-    If FreeNdx = 0 Then ExpandSlotTable m_ChunkSize     ' allocate new memory if necessary
-    GetFreeSlot = FreeNdx                               ' use the first slot
-    FreeNdx = slotTable(GetFreeSlot).nextItem           ' update the pointer to the first slot
-    slotTable(GetFreeSlot).nextItem = 0                 ' signal this as the end of the linked list
-    m_Count = m_Count + 1                               ' we have one more item
+    If FreeNdx = 0 Then ExpandSlotTable m_ChunkSize                                     ' allocate new memory if necessary
+    GetFreeSlot = FreeNdx                                                               ' use the first slot
+    FreeNdx = slotTable(GetFreeSlot).Next                                               ' update the pointer to the first slot
+    slotTable(GetFreeSlot).Next = 0                                                     ' signal this as the end of the linked list
+    m_Count = m_Count + 1                                                               ' we have one more item
 End Function
 
 Private Sub PrepareSlot(ByVal mIndex As Long, Key As String, ByVal HCode As Long, ByVal LastNdx As Long)
-    slotTable(mIndex).Key = Key                         ' assign the key
-    If LastNdx Then
-        slotTable(LastNdx).nextItem = mIndex            ' this is the successor of another slot
-    Else
-        hashTable(HCode) = mIndex                       ' this is the first slot for a given hash code
-    End If
+    slotTable(mIndex).Key = Key
+    If LastNdx Then slotTable(LastNdx).Next = mIndex Else hashTable(HCode) = mIndex
+End Sub
+
+Private Function AutoKey(Key As String, b As Boolean) As Long
+    Do:   b = True:   m_NoKey = m_NoKey + 1:   Key = Chr$(7) & m_NoKey:   AutoKey = GetSlotIndex(Key, b):   Loop Until b
+End Function
+
+Private Sub SetVar(vDest As Variant, vSrc As Variant)
+    If IsObject(vSrc) Then Set vDest = vSrc Else vDest = vSrc
 End Sub
