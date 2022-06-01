@@ -85,9 +85,15 @@ End Function
 Public Function Ptr(Optional ByVal value As Variant, Optional ByVal Flags As Long) As Variant
     Dim p As Long
     
-    If IsMissing(value) Then Ptr = VarPtr(ctx):     Exit Function
-    If VarType(value) = vbString Then p = GetSym(value):        If Flags = 0 Then Ptr = p:              Exit Function
-    If IsNumeric(value) Then p = CLng(value):                   If Flags = 0 Then Ptr = GetName(p):     Exit Function
+    If IsMissing(value) Then
+        Ptr = VarPtr(ctx):     Exit Function
+        
+    ElseIf VarType(value) = vbString Then
+        p = GetSym(value):      If Flags = 0 Then Ptr = p:            Exit Function
+        
+    ElseIf IsNumeric(value) Then
+        p = CLng(value):        If Flags = 0 Then Ptr = GetName(p):   Exit Function
+    End If
     
     If Flags = 3 Then Set Ptr = New clsRTC:     Ptr.Free True:      Ptr.ptrFunc = p:     Exit Function
     If Flags = 2 Then Ptr = p:      Exit Function

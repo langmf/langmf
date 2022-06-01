@@ -126,7 +126,7 @@ End Function
 Public Function AddModule(ByVal nameMod As Variant, Optional ByVal txtCode As String) As Object
     On Error GoTo err1
     Init
-    If IsNumeric(nameMod) Then nameMod = CStr(nameMod):    Objects.Add Val(nameMod), nameMod
+    If IsNumber(nameMod) Then nameMod = CStr(nameMod):    Objects.Add Val(nameMod), nameMod
     AddName nameMod
     AddCode txtCode, nameMod
     Set AddModule = CodeObject(nameMod)

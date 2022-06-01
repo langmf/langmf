@@ -165,14 +165,14 @@ Private Sub COM_Custom(This As COM_Table, Optional Args As Variant)
                     If IsMissing(Args(2)) Then Erase mbr Else mbr = Args(2)
                     If ArrayValid(mbr, , , , 45) Then
                         For a = 0 To UBound(mbr)
-                            If IsNumeric(mbr(a)) Then .VTable(a + 3) = CLng(mbr(a))
+                            If IsNumber(mbr(a)) Then .VTable(a + 3) = CLng(mbr(a))
                         Next
                     End If
                 End If
                     
                 If uds > 1 Then If Not IsMissing(Args(1)) Then .IID_User = GetGuid(Args(1))
         
-                If uds > 0 Then If IsNumeric(Args(0)) Then .Mask = Args(0)
+                If uds > 0 Then If IsNumber(Args(0)) Then .Mask = Args(0)
                 
                 If (.Mask And COM_Mask_CreateInstance) Then
                     .VTable(3) = AddrOf(AddressOf COM_CreateInstance)

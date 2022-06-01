@@ -330,8 +330,11 @@ Function GenTempStr(Optional ByVal value As Variant, Optional pat As String) As 
 
     Static oldTm As Long
     
-    If IsMissing(value) Or IsEmpty(value) Then sz = 12
-    If IsNumeric(value) Then sz = value
+    If IsMissing(value) Or IsEmpty(value) Then
+        sz = 12
+    ElseIf IsNumber(value) Then
+        sz = value
+    End If
     
     If sz Then
         If sz > 0 Then a = timeGetTime - oldTm:    If a < 0 Or a > 50 Then oldTm = timeGetTime:    Randomize oldTm
@@ -1131,6 +1134,11 @@ Property Let VariantType(vrtValue As Variant, Optional ByVal isBYREF As Boolean,
     If isBYREF Then VrtType = VrtType Or VT_BYREF
     PutMem2 VarPtr(vrtValue), VrtType
 End Property
+
+Function IsNumber(value As Variant) As Boolean
+    Dim vt As Integer
+    vt = VarType(value):    If vt <> vbString Then IsNumber = IsNumeric(value)
+End Function
 
 Function AllowExecuteCode(ByVal addrCode As Long, ByVal sizeCode As Long, Optional ByVal Flag As Long = PAGE_EXECUTE_READWRITE) As Long
     VirtualProtect addrCode, sizeCode, Flag, AllowExecuteCode

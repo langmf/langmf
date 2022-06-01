@@ -249,7 +249,7 @@ Public Function OffTimer(ByVal Param As Variant) As Long
     If IsArray(Param) Then ArrayDef Param, "", 0:   nFunc = Param(0):   nMod = Param(1) Else nFunc = Param:   nMod = ""
 
     For Each v In Timers.Items
-        If v(1) = nMod Or (IsNumeric(nMod) And nMod = 0) Then
+        If v(1) = nMod Or (IsNumber(nMod) And nMod = 0) Then
             If v(0) = nFunc Or LenB(nFunc) = 0 Then OffTimer = KillTimer(frmScript.hWnd, v(3)):   Timers.Remove "#" & v(3)
         End If
     Next

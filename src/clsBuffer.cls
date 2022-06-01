@@ -17,7 +17,7 @@ Private m_Ptr As Long, m_Offset As Long, m_Size As Long, m_Overflow As Boolean, 
 
 
 Public Function SetData(Buf As Variant) As Boolean
-    If IsNumeric(Buf) Then Ptr = Buf:   Exit Function
+    If IsNumber(Buf) Then Ptr = Buf:   Exit Function
     SetData = ConvToBufferByte(Buf, Buffer):   m_Ptr = Ptr
 End Function
 

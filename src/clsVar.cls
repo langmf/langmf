@@ -76,7 +76,7 @@ End Function
 
 Public Function Conv(Optional Var As Variant, Optional ByVal nType As Integer = 10, Optional ByVal mskAnd As Long) As Variant
     VariantCopy Conv, Var:      If nType > -1 Then VariantType(Conv) = nType
-    If IsNumeric(Conv) = True And mskAnd <> 0 Then Conv = Conv And mskAnd
+    If IsNumber(Conv) = True And mskAnd <> 0 Then Conv = Conv And mskAnd
 End Function
 
 Public Function Map(arr As Variant, Optional cbk As Variant) As Variant()
