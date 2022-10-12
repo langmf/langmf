@@ -1522,7 +1522,9 @@ Sub Timer_Event(ByVal hWnd As Long, ByVal uMsg As Long, ByVal idEvent As Long, B
     Dim v As Variant
     v = SYS.Timers("#" & idEvent)
     If idEvent < 0 Then Call KillTimer(hWnd, idEvent):    SYS.Timers.Remove "#" & idEvent
-    If IsArray(v) Then CBN v(1), CStr(v(0)), VbMethod, v(2)
+    If Not IsArray(v) Then Exit Sub
+    If Not IsNull(v(0)) Then CBN v(1), v(0), VbMethod, v(2):    Exit Sub
+    If UBound(v(2)) = -1 Then CAS.Eval v(1) Else CAS.Eval v(1), v(2)(0)
 End Sub
 
 Sub Timer_Cron(ByVal hWnd As Long, ByVal uMsg As Long, ByVal idEvent As Long, ByVal dwTime As Long)

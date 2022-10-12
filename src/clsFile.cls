@@ -238,6 +238,10 @@ Public Function LongName(ByVal fName As String) As String
     LongName = FileLongName(fName)
 End Function
 
+Public Function FullName(ByVal fName As String) As String
+    FullName = FullPathName(fName)
+End Function
+
 Public Function FileDateTime(ByVal fName As String, Optional ByVal numDT As Long = 3) As String
     Dim hFile As Long, ft1 As FILETIME, ft2 As FILETIME, ft3 As FILETIME, st As SYSTEMTIME
     

@@ -349,7 +349,7 @@ Public Function Setup(ByVal value As String, Optional ByVal vPrm As String, Opti
         If vStatus(0) Then
             pathSystem = GetSystemPath + "\"
             If Len(sDir) = 0 Then pathTemp = GetTmpPath + "lmf_" + GenTempStr + "\":         isTemp = True
-            If Len(sDir) <> 0 Then pathTemp = CPath(Parse_MPath(sDir))
+            If Len(sDir) <> 0 Then pathTemp = CPath(FullPathName(Parse_MPath(sDir)))
             mf_Tmp = pathTemp
             CreateDir pathTemp
 

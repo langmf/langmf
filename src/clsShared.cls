@@ -279,6 +279,18 @@ Public Property Get ResToBuf(ByVal Key As String) As Byte()
     If vt = vbArray + vbByte Then ResToBuf = cd.Data
 End Property
 
+Public Function SetTimeout(ByVal Interval As Long, ByVal Code As Variant, ParamArray Args() As Variant) As Long
+    Dim r As RegExp
+    If IsObject(Code) Then SetTimeout = SYS.OnTimer(Interval, Array(0, Code, Args)):                        Exit Function
+    Set r = New RegExp:     r.Pattern = "^\s*<"
+    If r.Test(Code) Then SetTimeout = SYS.OnTimer(Interval, Array(0, modCommon.GetFunc(Code), Args)):       Exit Function
+    SetTimeout = SYS.OnTimer(Interval, Array(Null, Code, Args))
+End Function
+
+Public Function ClearTimeout(ByVal value As Variant) As Long
+    ClearTimeout = SYS.OffTimer(value)
+End Function
+
 Public Function IIF(varIF As Variant, var1 As Variant, var2 As Variant) As Variant
     If varIF Then
         If IsObject(var1) Then Set IIF = var1 Else IIF = var1

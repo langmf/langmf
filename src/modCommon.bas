@@ -444,6 +444,12 @@ Public Function FileLongName(ByVal fName As String) As String
     If rc > 0 Then FileLongName = Left$(txt, rc)
 End Function
 
+Public Function FullPathName(ByVal fName As String) As String
+    Dim rc As Long, txt As String
+    txt = String$(MAX_PATH_UNI, 0):    rc = GetFullPathNameW(StrPtr(fName), Len(txt), StrPtr(txt), 0)
+    If rc > 0 Then FullPathName = Left$(txt, rc)
+End Function
+
 Function Str2File(Buf As String, nameFile As String) As Long
     Dim f As New clsFileAPI
     If f.FOpen(nameFile, CREATE_ALWAYS) = INVALID_HANDLE Then Exit Function
