@@ -4,7 +4,8 @@ Dim cnt, dat, zoom
 Sub SetData
     set dat = sys.newcol
 
-	dat.add array("Intel Core i5 12500",1282,1282,1587,3225)
+	dat.add array("Intel Core i7 13700K",1694,1694,1886,3448)
+	dat.add array("Intel Core i5 12500",1282,1282,1587,2857)
 	dat.add array("AMD Ryzen 7 4800H",781,847,1041,1449)
 	dat.add array("Intel Core i5 4690",680,781,917,1315)
 	dat.add array("Intel Core i7 3770",671,662,751,1052)
